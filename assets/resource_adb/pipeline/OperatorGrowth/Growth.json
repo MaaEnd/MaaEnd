@@ -235,5 +235,124 @@
                 ]
             }
         }
+    },
+    "OperatorGrowthRewardAName": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    430,
+                    10,
+                    805,
+                    170
+                ]
+            }
+        }
+    },
+    "OperatorGrowthRewardBName": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    430,
+                    10,
+                    805,
+                    170
+                ]
+            }
+        }
+    },
+    "OperatorGrowthGetInsufficientMaterialItemPosition": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    620,
+                    250,
+                    375,
+                    420
+                ]
+            }
+        }
+    },
+    "OperatorGrowthSetInsufficientMaterialItemQuantity": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    0,
+                    56,
+                    0,
+                    -30
+                ]
+            }
+        }
+    },
+    "OperatorGrowthSwipePreciousMaterialsRight": {
+        "action": {
+            "param": {
+                "begin_offset": [
+                    180,
+                    0,
+                    0,
+                    0
+                ],
+                "end_offset": [
+                    350,
+                    0,
+                    0,
+                    0
+                ]
+            }
+        },
+        "post_wait_freezes": {
+            "target": [
+                620,
+                250,
+                375,
+                420
+            ]
+        }
+    },
+    "OperatorGrowthMoveToRedQuantity": {
+        "action": {
+            "type": "DoNothing"
+        }
+    },
+    "OperatorGrowthScrollDown": {
+        "action": {
+            "param": {
+                "end": [
+                    205,
+                    220
+                ]
+            }
+        }
+    },
+    "OperatorGrowthOperatorLevelScrollDown": {
+        "action": {
+            "param": {
+                "end": [
+                    1150,
+                    300
+                ]
+            }
+        }
+    },
+    "OperatorGrowthSkillsScrollDown": {
+        "action": {
+            "param": {
+                "end": [
+                    1150,
+                    300
+                ]
+            }
+        }
+    },
+    "OperatorGrowthWeaponLevelScrollDown": {
+        "action": {
+            "param": {
+                "end": [
+                    1150,
+                    300
+                ]
+            }
+        }
     }
 }
