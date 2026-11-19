@@ -2,7 +2,6 @@
     // 云终末地没有退出键：菜单列表里点不到退出按钮，也不会弹出「是否退出至登录界面」。
     // 因此画面检查只保留 UID 捕获，语言/颜色/MOD/OSD/激活水印等检查全部禁用。
     "__SceneImageCheck": {
-        "recognition": "DirectHit",
         "action": "DoNothing",
         "focus": {
             "Node.Recognition.Succeeded": ""
