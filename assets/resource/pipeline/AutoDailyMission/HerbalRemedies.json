@@ -401,6 +401,14 @@
                     ],
                     "strict": true
                 },
+                // 第四株到第五株之间有障碍，直线走会反复撞上，先寻路绕过去再采集
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        819.677,
+                        1492.537
+                    ]
+                },
                 {
                     "action": "COLLECT",
                     "target": [
