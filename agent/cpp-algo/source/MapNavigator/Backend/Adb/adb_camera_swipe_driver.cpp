@@ -296,8 +296,11 @@ bool ReleaseCameraTouch(AdbCameraSwipeDriver* driver)
     }
 
     wait_after_last_touch(*driver, driver->config.end_hold_ms);
+    if (!post_touch_up(driver)) {
+        return false;
+    }
     driver->touch_active = false;
-    return post_touch_up(driver);
+    return true;
 }
 
 } // namespace mapnavigator::backend::adb
