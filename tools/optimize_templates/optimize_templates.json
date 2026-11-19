@@ -2673,5 +2673,6 @@
     "resource/image/Common/WorldTool/SprayToolIcon": "37a8df183f765281a2f289d3b61c246b53a09ed46d1f67e1a87644319ad96461",
     "resource/image/Common/WorldTool/ContainerListBackpack": "2993c3a93c8ab08514da820425b49fae531fdf09df6247f9bfdc45a397121939",
     "resource/image/Common/WorldTool/SprayWaterSupply": "933153f4f3d56af93d70663533af27addad6173cc7db64209aa962f57e83d817",
-    "resource/image/Common/WorldTool/SprayHintMouse": "6d0a7142044c926be59aaaecbcf65a7e0fa5a06593fc1b4972c452e7e1982c52"
+    "resource/image/Common/WorldTool/SprayHintMouse": "6d0a7142044c926be59aaaecbcf65a7e0fa5a06593fc1b4972c452e7e1982c52",
+    "resource/image/AutoFight/SwitchOffOperator/ZhuangFangyi": "cbf0544336089a0da267829a187c3ea057ee1e2c002415420f90cdb3f784716c"
 }
