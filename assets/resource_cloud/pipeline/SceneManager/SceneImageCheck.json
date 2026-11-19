@@ -10,7 +10,6 @@
     },
     "__SceneImageCheckDialogIn": {
         "recognition": "DirectHit",
-        "box_index": 0,
         "action": "DoNothing"
     },
     "__SceneImageCheckFinishExit": {
