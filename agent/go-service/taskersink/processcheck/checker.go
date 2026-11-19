@@ -11,8 +11,6 @@ import (
 	"github.com/shirou/gopsutil/v4/process"
 )
 
-const maaendExeName = "MaaEnd.exe"
-
 type blacklistEntry struct {
 	keyword      string
 	displayName  string
@@ -29,10 +27,9 @@ var blacklist = []blacklistEntry{
 	{"RTSS.exe", "RTSS.exe", "recommend_rtss"},            // MSI Afterburner / RivaTuner OSD 可能遮挡识别
 }
 
-// ProcessChecker warns once per session about blacklisted processes and multiple MaaEnd.exe instances.
+// ProcessChecker warns once per session about blacklisted processes.
 type ProcessChecker struct {
 	blacklistWarned bool
-	instanceWarned  bool
 }
 
 // OnTaskerTask handles tasker task events
@@ -41,7 +38,7 @@ func (c *ProcessChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventStatus,
 		return
 	}
 
-	if c.blacklistWarned && c.instanceWarned {
+	if c.blacklistWarned {
 		return
 	}
 
@@ -60,9 +57,7 @@ func (c *ProcessChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventStatus,
 		Str("entry", detail.Entry).
 		Msg("Checking processes before task execution")
 
-	found, maaendCount := scanProcesses()
-	c.warnBlacklist(found)
-	c.warnMultipleInstances(maaendCount)
+	c.warnBlacklist(scanProcesses())
 }
 
 func (c *ProcessChecker) warnBlacklist(found []blacklistEntry) {
@@ -104,35 +99,11 @@ func (c *ProcessChecker) warnBlacklist(found []blacklistEntry) {
 	c.blacklistWarned = true
 }
 
-func (c *ProcessChecker) warnMultipleInstances(count int) {
-	if c.instanceWarned {
-		return
-	}
-	if count < 2 {
-		log.Debug().
-			Int("count", count).
-			Msg("MaaEnd instance check passed")
-		return
-	}
-
-	log.Warn().
-		Int("count", count).
-		Msg("Multiple MaaEnd.exe instances detected")
-
-	maafocus.PrintLargeContentTrimNewline(
-		i18n.RenderHTML("tasker.multi_instance_warning", map[string]any{
-			"Count": count,
-		}),
-	)
-
-	c.instanceWarned = true
-}
-
-func scanProcesses() (found []blacklistEntry, maaendCount int) {
+func scanProcesses() (found []blacklistEntry) {
 	procs, err := process.Processes()
 	if err != nil {
 		log.Warn().Err(err).Msg("Failed to enumerate processes")
-		return nil, 0
+		return nil
 	}
 
 	seen := make(map[string]bool)
@@ -140,9 +111,6 @@ func scanProcesses() (found []blacklistEntry, maaendCount int) {
 		name, err := p.Name()
 		if err != nil {
 			continue
-		}
-		if strings.EqualFold(name, maaendExeName) {
-			maaendCount++
 		}
 		for _, entry := range blacklist {
 			if name == entry.keyword && !seen[entry.displayName] {
@@ -152,5 +120,5 @@ func scanProcesses() (found []blacklistEntry, maaendCount int) {
 		}
 	}
 
-	return found, maaendCount
+	return found
 }
