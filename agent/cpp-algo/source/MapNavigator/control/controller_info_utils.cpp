@@ -16,9 +16,10 @@ namespace
 struct ControllerInfo
 {
     std::string type;
+    std::optional<int> hwnd;
     std::optional<int> mouse_method;
 
-    MEO_JSONIZATION(MEO_OPT type, MEO_OPT mouse_method)
+    MEO_JSONIZATION(MEO_OPT type, MEO_OPT hwnd, MEO_OPT mouse_method)
 };
 
 ControllerInfo parse_controller_info(MaaController* controller)
@@ -53,6 +54,21 @@ std::string DetectControllerType(MaaController* controller)
 {
     const auto info = parse_controller_info(controller);
     return info.type;
+}
+
+bool TryGetWin32Hwnd(MaaController* controller, uint64_t* out_hwnd)
+{
+    if (out_hwnd == nullptr) {
+        return false;
+    }
+
+    const auto info = parse_controller_info(controller);
+    if (!info.hwnd.has_value() || info.hwnd.value() <= 0) {
+        return false;
+    }
+
+    *out_hwnd = static_cast<uint64_t>(info.hwnd.value());
+    return true;
 }
 
 bool TryGetWin32MouseInputMethod(MaaController* controller, MaaWin32InputMethod* out_method)

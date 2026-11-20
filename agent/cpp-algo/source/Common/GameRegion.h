@@ -16,6 +16,8 @@ enum class Region
 // hgsdk.dll（官服）或 PCGameSDK.dll（Bilibili 服）→ 国服；仅有 gfsdk.dll → 国际服。
 // Windows 使用 PROCESS_QUERY_LIMITED_INFORMATION + QueryFullProcessImageNameW，避免过高进程权限。
 // 成功结果会缓存；无法判定时返回 Region::Unknown。
+// 带 controller 的重载会先认控制器：云终末地网页版（CloudWeb）的游戏在云端跑，本机没有
+// Endfield.exe，而外壳只提供国服，故直接按国服处理。
 Region DetectGameRegion();
 
 Region DetectGameRegion(MaaController* controller);
