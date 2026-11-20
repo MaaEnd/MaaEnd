@@ -312,7 +312,6 @@
         "tasks/CloseGame.json",
         "tasks/LaunchGameLinux.json",
         "tasks/CloseGamePlayCover.json",
-        "tasks/CloudWebOpenGame.json",
         "tasks/CloseGameCloudWeb.json",
         // disabled
         // "tasks/DevTest.json", // mxu测试用

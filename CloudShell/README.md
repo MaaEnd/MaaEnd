@@ -14,13 +14,13 @@
 
 ## 在 MaaEnd 里的启动流程
 
-`LaunchCloudWeb` 预任务只负责把外壳窗口准备好，进入游戏交给连接后的任务：
+`LaunchCloudWeb` 预任务只负责把外壳窗口准备好，进入游戏交给各任务开始时的场景处理：
 
 1. 预任务启动外壳（已经在运行就直接成功），等外壳窗口出现后返回；
 2. MXU 按窗口类名与标题连接 `CloudWeb` 控制器；
-3. 「启动游戏（网页）」任务（`CloudWebOpenGame`，入口 `OpenGame`）点官网页的「开始游戏」，等串流准备完成（启动中、排队、重试都能等），直到出现游戏画面，后续任务从游戏画面接管。
+3. 任务开跑后由场景处理进游戏：`__ScenePrivateCloudWebLogin`（`assets/resource_cloud_web/pipeline/SceneManager/SceneCloudWebLogin.json`）在官网页点「开始游戏」，遇到排队、启动中、重连就继续等，直到串流出现游戏画面再接着做任务。
 
-页面状态判断都在 Pipeline 的 `OpenGame`（`assets/resource/pipeline/OpenGame.json`），和 ADB 端「打开游戏」共用一套。登录状态由外壳保存在 `cache/cloud-shell`，第一次使用需先在外壳窗口里手动登录。
+登录状态由外壳保存在 `cache/cloud-shell`，第一次使用需先在外壳窗口里手动登录；网页未登录时场景处理会弹提示并停下任务，不会自己填账号。
 
 想收工时用「关闭游戏（网页）」任务：它结束外壳进程，云端串流随之断开（会话由云端回收），登录状态留在 `cache/cloud-shell` 里不受影响，下次启动游戏会重新打开外壳。
 
