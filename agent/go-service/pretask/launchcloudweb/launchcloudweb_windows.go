@@ -18,8 +18,8 @@ import (
 const (
 	// 与 interface.json 中 CloudWeb 控制器的 class_regex 保持一致
 	shellClassName     = "MaaEnd.CloudShell"
-	shellWindowTimeout = 30 * time.Second
-	pollInterval       = 200 * time.Millisecond
+	shellWindowTimeout = 300 * time.Second
+	pollInterval       = 1 * time.Second
 )
 
 var (
@@ -35,7 +35,7 @@ func run() bool {
 		return true
 	}
 
-	exePath := fsutil.InstallPath("cloud-shell", "cloud-shell.exe")
+	exePath := fsutil.InstallPath("cloud-shell", "maaend-cloud.exe")
 	if _, err := os.Stat(exePath); err != nil {
 		log.Error().
 			Err(err).

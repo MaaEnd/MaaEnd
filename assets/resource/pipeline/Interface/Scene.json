@@ -11,6 +11,7 @@
             "__ScenePrivateMenuListEnterWorld",
             "__ScenePrivateTrialOfSwordmancyEnterWorld",
             "__ScenePrivateAnyEnterWorldSuccess",
+            "[JumpBack]__ScenePrivateCloudWebLogin",
             "[JumpBack]__ScenePrivateLogin",
             "[JumpBack]SceneNoticeRewardsUpgrade",
             "[JumpBack]SceneNoticeRewardsConfirm",
