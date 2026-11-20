@@ -369,23 +369,9 @@ void ShellWindow::subscribeEvents()
 {
     EventRegistrationToken token {};
 
-    // 窗口标题跟随页面标题；控制器按类名找窗口，不受影响
-    webview_->add_DocumentTitleChanged(
-        Callback<ICoreWebView2DocumentTitleChangedEventHandler>([this](ICoreWebView2* sender, IUnknown*) -> HRESULT {
-            LPWSTR title = nullptr;
-            if (SUCCEEDED(sender->get_DocumentTitle(&title)) && title) {
-                std::wstring text = options_.title;
-                if (*title) {
-                    text += L" - ";
-                    text += title;
-                }
-                CoTaskMemFree(title);
-                SetWindowTextW(hwnd_, text.c_str());
-            }
-            return S_OK;
-        }).Get(),
-        &token);
-
+    // 窗口标题固定为 options_.title，不跟随页面标题：MXU 的「自动连接已保存的设备」按窗口标题做完全
+    // 一致匹配，若标题在页面加载完成后才变化，下次启动时窗口还是旧标题，就会连不上（未找到窗口）。
+    //
     // 新文档里的页面策略默认窗口在前台，导航完成后补发实际状态
     webview_->add_NavigationCompleted(
         Callback<ICoreWebView2NavigationCompletedEventHandler>([this](ICoreWebView2*, ICoreWebView2NavigationCompletedEventArgs*) -> HRESULT {
