@@ -146,22 +146,6 @@
             }
         }
     },
-    "__TakePhotoKeyUp": {
-        "action": {
-            "type": "KeyUp",
-            "param": {
-                "key": 15
-            }
-        }
-    },
-    "__TakePhotoHoldR": {
-        "action": {
-            "type": "KeyDown",
-            "param": {
-                "key": 15
-            }
-        }
-    },
     "GameLauncherWakePressEsc": {
         "action": {
             "type": "ClickKey",
@@ -831,6 +815,22 @@
             "type": "ClickKey",
             "param": {
                 "key": 122
+            }
+        }
+    },
+    "__TakePhotoHoldR": {
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 15
+            }
+        }
+    },
+    "__TakePhotoKeyUp": {
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 15
             }
         }
     },
