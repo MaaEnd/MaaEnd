@@ -99,7 +99,7 @@ The minimum unit price (task option `SellProductStockMinimumUnitPrice`, default 
 
 ### Out of Stock
 
-When the current item's stock is found insufficient after switching or adopting (`OutpostTradingZeroProduct`: red stock text, or a 1–3 digit white stock, i.e. 1–999 units), `[Anchor]MarkOutOfStock` records the outpost's current item (`item_id` of the last `commit` / `adopt`) into a task-scoped set so later outposts skip it during selection; not persisted, cleared on the next task init.
+When the current item's stock is found insufficient after switching or adopting (`OutpostTradingZeroProduct`: a recognized stock of 0–999 counts as insufficient), `[Anchor]MarkOutOfStock` records the outpost's current item (`item_id` of the last `commit` / `adopt`) into a task-scoped set so later outposts skip it during selection; not persisted, cleared on the next task init.
 
 ## Operator Rules (Go `operator/`)
 
