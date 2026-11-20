@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <cmath>
 #include <cstdlib>
 #include <optional>
 #include <string>
@@ -76,6 +77,24 @@ bool is_cloud_shell_window(uintptr_t handle)
 }
 #endif
 
+// 外壳用落点减客户区中心得到位移，而框架投递前会把 pipeline 坐标按 raw/target 放大，
+// 所以 raw 位移要先换回 pipeline 位移，否则实际转角会多出 raw/target 倍
+int32_t to_pipeline_delta(int raw_delta, int32_t raw_size, int32_t pipeline_size)
+{
+    if (raw_delta == 0 || raw_size <= 0 || pipeline_size <= 0) {
+        return raw_delta;
+    }
+
+    const double scaled = static_cast<double>(raw_delta) * pipeline_size / raw_size;
+    const auto rounded = static_cast<int32_t>(std::lround(scaled));
+    if (rounded != 0) {
+        return rounded;
+    }
+
+    // 换算后不能退化成 0，否则发送循环不收敛
+    return raw_delta > 0 ? 1 : -1;
+}
+
 bool is_cloud_web_by_window_class(MaaController* ctrl)
 {
 #ifdef _WIN32
@@ -127,9 +146,17 @@ bool SendCloudWebViewDeltaSync(const InputBackend& backend, int dx, int dy)
         return false;
     }
 
-    LogInfo << "SendRelativeMoveNative" << VAR(dx) << VAR(dy);
-    int remaining_x = dx;
-    int remaining_y = dy;
+    int32_t raw_width = 0;
+    int32_t raw_height = 0;
+    const bool has_resolution =
+        MaaControllerGetResolution(backend.ctrl, &raw_width, &raw_height) && raw_width > 0 && raw_height > 0;
+    const int target_x = has_resolution ? to_pipeline_delta(dx, raw_width, kWorkWidth) : dx;
+    const int target_y = has_resolution ? to_pipeline_delta(dy, raw_height, kWorkHeight) : dy;
+
+    LogInfo << "SendCloudWebViewDelta" << VAR(dx) << VAR(dy) << VAR(target_x) << VAR(target_y) << VAR(raw_width)
+            << VAR(raw_height);
+    int remaining_x = target_x;
+    int remaining_y = target_y;
     while (remaining_x != 0 || remaining_y != 0) {
         const int step_x = std::clamp(remaining_x, 1 - kViewDeltaCenterX, kViewDeltaCenterX - 1);
         const int step_y = std::clamp(remaining_y, 1 - kViewDeltaCenterY, kViewDeltaCenterY - 1);
