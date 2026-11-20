@@ -20,6 +20,7 @@
             "pipeline_override": {
                 "ProtocolSpaceRewardClaimSuccessNext": {
                     "next": [
+                        "OperatorGrowthContinueMaterialBattle",
                         "OperatorGrowthFinishBattle"
                     ]
                 },

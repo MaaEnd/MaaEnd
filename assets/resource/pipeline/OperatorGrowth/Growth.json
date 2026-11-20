@@ -128,7 +128,8 @@
                         "OperatorGrowthScrollDown",
                         "OperatorGrowthOperatorLevelScrollDown",
                         "OperatorGrowthSkillsScrollDown",
-                        "OperatorGrowthWeaponLevelScrollDown"
+                        "OperatorGrowthWeaponLevelScrollDown",
+                        "OperatorGrowthSwipePreciousMaterialsRight"
                     ]
                 }
             }
@@ -214,7 +215,7 @@
                     205,
                     420
                 ],
-                "duration": 500
+                "duration": 200
             }
         },
         "post_wait_freezes": {
@@ -343,6 +344,7 @@
                     205,
                     340
                 ],
+                "end_hold": 200,
                 "duration": 500
             }
         },
@@ -414,7 +416,7 @@
                     740,
                     210,
                     315,
-                    412
+                    455
                 ],
                 "template": [
                     "OperatorGrowth/Materials/item_char_break_stage_1_2.png",
@@ -469,9 +471,118 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "OperatorGrowthCheckInsufficientMaterialItem"
+        ]
+    },
+    "OperatorGrowthCheckInsufficientMaterialItem": {
+        "desc": "根据文本确认点击的材料",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OperatorGrowthOverrideProtodisk",
+            "OperatorGrowthOverrideProtoset",
+            "OperatorGrowthOverrideProtoprism",
+            "OperatorGrowthOverrideProtohedron",
+            "OperatorGrowthOverrideMetadiastimaPhotoemissionTube",
+            "OperatorGrowthOverrideD96SteelSample4",
+            "OperatorGrowthOverrideTachyonScreeningLattice",
+            "OperatorGrowthOverrideQuadrantFittingFluid",
+            "OperatorGrowthOverrideTriphasicNanoflake",
+            "OperatorGrowthOverrideWarpPlasmaCoatedSlide",
+            "OperatorGrowthOverrideCombatRecordEXP",
+            "OperatorGrowthOverrideCognitiveCarrierEXP",
+            "OperatorGrowthOverrideTCreds",
+            "OperatorGrowthOverrideHeavyCastDie",
+            "OperatorGrowthOverrideCastDie",
+            "OperatorGrowthOverrideWeaponEXP"
+        ]
+    },
+    "OperatorGrowthMoveToRedQuantity": {
+        "desc": "悬停红色数量框",
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": "OperatorGrowthRedQuantity",
+                "end": "OperatorGrowthRedQuantity",
+                "only_hover": true
+            }
+        },
+        "next": [
+            "OperatorGrowthGetInsufficientMaterialItemPosition"
+        ]
+    },
+    "OperatorGrowthGetInsufficientMaterialItemPosition": {
+        "desc": "获取材料准确定位",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    740,
+                    210,
+                    315,
+                    455
+                ],
+                "template": [
+                    "OperatorGrowth/Materials/item_char_break_stage_1_2.png"
+                ],
+                "order_by": "Score"
+            }
+        },
+        "next": [
+            "OperatorGrowthSetInsufficientMaterialItemQuantity"
+        ]
+    },
+    "OperatorGrowthSetInsufficientMaterialItemQuantity": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "OperatorGrowthGetInsufficientMaterialItemPosition",
+                "roi_offset": [
+                    0,
+                    45,
+                    0,
+                    -24
+                ],
+                "expected": [
+                    "^[0-9][0-9.,]*\\s*(?:[KkMmBb]|万|萬|亿|億|만|억)?$"
+                ],
+                "only_rec": true
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SetItemQuantity",
+                "custom_action_param": {
+                    "item": "scratch_demand_item"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
             "OperatorGrowthConfigureRewardA",
             "OperatorGrowthConfigureRewardB",
             "OperatorGrowthOpenDirectRewardSource"
+        ]
+    },
+    "OperatorGrowthContinueMaterialBattle": {
+        "desc": "领奖后比较当前库存与固定需求量，未达标时继续刷取",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{item_char_break_stage_1_2}<{scratch_demand_item}",
+                    "notify_ui": true
+                }
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ProtocolSpaceRewardClaimSuccessContinue"
         ]
     },
     "OperatorGrowthOptionalRewardSource": {
@@ -669,6 +780,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]OperatorGrowthSwipePreciousMaterialsRight",
             "OperatorGrowthClickInsufficientMaterial",
             "[JumpBack]OperatorGrowthOperatorLevelScrollDown",
             "OperatorGrowthClickSkills"
@@ -697,6 +809,7 @@
                     1150,
                     450
                 ],
+                "end_hold": 200,
                 "duration": 500
             }
         },
@@ -710,7 +823,10 @@
             ]
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "OperatorGrowthClearPreciousMaterialsSwipeCount"
+        ]
     },
     "OperatorGrowthSkillsTab": {
         "recognition": {
@@ -817,6 +933,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]OperatorGrowthSwipePreciousMaterialsRight",
             "OperatorGrowthClickInsufficientMaterial",
             "[JumpBack]OperatorGrowthSkillsScrollDown",
             "OperatorGrowthClickWeaponLevel"
@@ -845,6 +962,7 @@
                     1150,
                     450
                 ],
+                "end_hold": 200,
                 "duration": 500
             }
         },
@@ -858,7 +976,10 @@
             ]
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "OperatorGrowthClearPreciousMaterialsSwipeCount"
+        ]
     },
     "OperatorGrowthWeaponLevelTab": {
         "recognition": {
@@ -965,6 +1086,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]OperatorGrowthSwipePreciousMaterialsRight",
             "OperatorGrowthClickInsufficientMaterial",
             "[JumpBack]OperatorGrowthWeaponLevelScrollDown",
             "OperatorGrowthMaterialsSufficient"
@@ -993,6 +1115,7 @@
                     1150,
                     450
                 ],
+                "end_hold": 200,
                 "duration": 500
             }
         },
@@ -1006,10 +1129,13 @@
             ]
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "OperatorGrowthClearPreciousMaterialsSwipeCount"
+        ]
     },
     "OperatorGrowthFinishBattle": {
-        "desc": "培养模式单场奖励领取成功后退出，重新检查材料需求",
+        "desc": "当前材料达标后退出，返回培养总览复核需求",
         "recognition": {
             "type": "And",
             "param": {
@@ -1068,36 +1194,31 @@
             "type": "OCR",
             "param": {
                 "roi": [
-                    430,
+                    540,
                     10,
-                    805,
+                    695,
                     680
                 ],
-                // 完整原文：高级认知载体；初级认知载体；协议圆盘组；协议棱柱组；重型强固模具
+                // 完整原文：初级认知载体；协议圆盘组；协议棱柱组；重型强固模具
                 // 完整匹配以区分 A/B 材料（如协议圆盘和协议圆盘组），英文空白允许 OCR 省略。
                 "expected": [
                     // @i18n-skip
-                    "^高级认知载体$",
                     "^初级认知载体$",
                     "^协议圆盘组$",
                     "^协议棱柱组$",
                     "^重型强固模具$",
-                    "^高級認知載體$",
                     "^初級認知載體$",
                     "^協議圓盤組$",
                     "^協議稜柱組$",
                     "^重型強固模具$",
-                    "(?i)^Advanced\\s*Cognitive\\s*Carrier$",
                     "(?i)^Elementary\\s*Cognitive\\s*Carrier$",
                     "(?i)^Protoset$",
                     "(?i)^Protohedron$",
                     "(?i)^Heavy\\s*Cast\\s*Die$",
-                    "^上級認識媒体$",
                     "^初級認識媒体$",
                     "^協約ディスクセット$",
                     "^協約角柱セット$",
                     "^重硬質金型$",
-                    "^고급 인지 매개체$",
                     "^초급 인지 매개체$",
                     "^프로토콜 디스크 세트$",
                     "^프로토콜 프리즘 세트$",
@@ -1149,41 +1270,31 @@
             "type": "OCR",
             "param": {
                 "roi": [
-                    430,
+                    540,
                     10,
-                    805,
+                    695,
                     680
                 ],
-                // 完整原文：高级作战记录；中级作战记录；初级作战记录；协议圆盘；协议棱柱；强固模具
+                // 完整原文：初级作战记录；协议圆盘；协议棱柱；强固模具
                 // 完整匹配以区分 A/B 材料（如协议圆盘和协议圆盘组），英文空白允许 OCR 省略。
                 "expected": [
                     // @i18n-skip
-                    "^高级作战记录$",
-                    "^中级作战记录$",
                     "^初级作战记录$",
                     "^协议圆盘$",
                     "^协议棱柱$",
                     "^强固模具$",
-                    "^高級作戰紀錄$",
-                    "^中級作戰紀錄$",
                     "^初級作戰紀錄$",
                     "^協議圓盤$",
                     "^協議稜柱$",
                     "^強固模具$",
-                    "(?i)^Advanced\\s*Combat\\s*Record$",
-                    "(?i)^Intermediate\\s*Combat\\s*Record$",
                     "(?i)^Elementary\\s*Combat\\s*Record$",
                     "(?i)^Protodisk$",
                     "(?i)^Protoprism$",
                     "(?i)^Cast\\s*Die$",
-                    "^上級作戦記録$",
-                    "^中級作戦記録$",
                     "^初級作戦記録$",
                     "^協約ディスク$",
                     "^協約角柱$",
                     "^硬質金型$",
-                    "^고급 작전 기록$",
-                    "^중급 작전 기록$",
                     "^초급 작전 기록$",
                     "^프로토콜 디스크$",
                     "^프로토콜 프리즘$",
@@ -1288,6 +1399,77 @@
             }
         },
         "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "OperatorGrowthSwipePreciousMaterialsRight": {
+        "desc": "识别珍贵培养素材后，在该行材料区域向右滑动一次",
+        "max_hit": 1,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    430,
+                    250,
+                    200,
+                    420
+                ],
+                "expected": [
+                    "珍贵培养素材",
+                    "珍貴培養材料",
+                    "(?i)Rare\\s*Progression\\s*Materials",
+                    "貴重育成強化素材",
+                    "희귀 육성 재료"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": true,
+                "begin_offset": [
+                    300,
+                    0,
+                    0,
+                    0
+                ],
+                "end": true,
+                "end_offset": [
+                    450,
+                    0,
+                    0,
+                    0
+                ],
+                "duration": 500
+            }
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                740,
+                210,
+                315,
+                455
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "OperatorGrowthClearPreciousMaterialsSwipeCount": {
+        "desc": "下滑后清空珍贵培养素材右滑节点命中次数",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClearHitCount",
+                "custom_action_param": {
+                    "nodes": [
+                        "OperatorGrowthSwipePreciousMaterialsRight"
+                    ]
+                }
+            }
+        },
         "post_delay": 0,
         "rate_limit": 0
     }

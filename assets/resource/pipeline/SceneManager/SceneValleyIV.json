@@ -405,51 +405,26 @@
             "__ScenePrivateMapOverview_region01_EnterMap_map01_lv007"
         ]
     },
-    "__ScenePrivateMapValleyIVOriginiumScienceParkEnterWorldAnchor": {
-        "desc": "在四号谷地-源石研究园地图界面，进入[锚点]大世界",
-        "recognition": "And",
-        "all_of": [
-            "InMapValleyIVOriginiumSciencePark"
-        ],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "__ScenePrivateMapTeleportSuccess",
-            "[JumpBack]SceneMapLayerSwitchToMain",
-            "[JumpBack]__ScenePrivateMapFilterClear",
-            "[JumpBack]__ScenePrivateMapZoomOut",
-            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep0Anchor",
-            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep1Anchor",
-            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep2Anchor",
-            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep3Anchor",
-            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep4Anchor"
-        ]
-    },
-    "__ScenePrivateMapValleyIVOriginLodespringEnterWorldAnchor": {
-        "desc": "在四号谷地-矿脉源区地图界面，进入[锚点]大世界",
-        "recognition": "And",
-        "all_of": [
-            "InMapValleyIVOriginLodespring"
-        ],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "__ScenePrivateMapTeleportSuccess",
-            "[JumpBack]SceneMapLayerSwitchToMain",
-            "[JumpBack]__ScenePrivateMapFilterClear",
-            "[JumpBack]__ScenePrivateMapZoomOut",
-            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep0Anchor",
-            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep1Anchor",
-            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep2Anchor",
-            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep3Anchor",
-            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep4Anchor"
-        ]
-    },
     "__ScenePrivateMapValleyIVTheHubEnterWorldAnchorWithPick": {
         "desc": "在四号谷地-枢纽区地图界面，进入[锚点]大世界",
         "recognition": "And",
         "all_of": [
             "InMapValleyIVTheHub"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapTeleportSuccess",
+            "[JumpBack]SceneMapLayerSwitchToMain",
+            "[JumpBack]__ScenePrivateMapZoomOut",
+            "[JumpBack][Anchor]__ScenePrivateMapTeleportPickAnchor"
+        ]
+    },
+    "__ScenePrivateMapValleyIVOriginiumScienceParkEnterWorldAnchorWithPick": {
+        "desc": "在四号谷地-源石研究园地图界面，进入[锚点]大世界",
+        "recognition": "And",
+        "all_of": [
+            "InMapValleyIVOriginiumSciencePark"
         ],
         "pre_delay": 0,
         "post_delay": 0,
@@ -518,26 +493,6 @@
             "[JumpBack]SceneMapLayerSwitchToMain",
             "[JumpBack]__ScenePrivateMapZoomOut",
             "[JumpBack][Anchor]__ScenePrivateMapTeleportPickAnchor"
-        ]
-    },
-    "__ScenePrivateMapValleyIVPowerPlateauEnterWorldAnchor": {
-        "desc": "在四号谷地-供能高地地图界面，进入[锚点]大世界",
-        "recognition": "And",
-        "all_of": [
-            "InMapValleyIVPowerPlateau"
-        ],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "__ScenePrivateMapTeleportSuccess",
-            "[JumpBack]SceneMapLayerSwitchToMain",
-            "[JumpBack]__ScenePrivateMapFilterClear",
-            "[JumpBack]__ScenePrivateMapZoomOut",
-            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep0Anchor",
-            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep1Anchor",
-            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep2Anchor",
-            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep3Anchor",
-            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep4Anchor"
         ]
     },
     "__ScenePrivateMapValleyIVTheHubEnterTeleport": {

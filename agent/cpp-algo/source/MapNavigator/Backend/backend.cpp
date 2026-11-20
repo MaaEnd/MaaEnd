@@ -184,7 +184,7 @@ void TriggerZiplineDismountSync(InputBackend* backend, int hold_millis)
 bool SendViewDeltaSync(InputBackend* backend, int dx, int dy)
 {
     if (backend->kind == BackendKind::Adb) {
-        return backend::adb::SendAdbViewDeltaSync(*backend, dx, dy);
+        return backend::adb::SendAdbViewDeltaSync(backend, dx, dy);
     }
     return backend::desktop::SendDesktopViewDeltaSync(*backend, dx, dy);
 }

@@ -574,7 +574,7 @@
     "resource/image/BatchUseDetector/wuling_compass": "a1c92d6fe3ff0a81b7e35250e8359a70ea8bc62ba1ee391c901273b3badb1a87",
     "resource/image/BatchUseDetector/valleyiv_compass": "f851ab92fee82a17ee33835a7c14d6131065e74b0c14799da575a067a371e532",
     "resource/image/BatchUseDetector/valleyiv_detector": "26f4df80a66418ef8995cc49768fa3f46123a294240f39e1181fd117e81a6370",
-    "resource/image/EnvironmentMonitoring/TargetChecked": "dde5daa0065670ae9344b2a449e4d582ca5d24e92149184c9407dce8471c05e6",
+    "resource/image/Common/TakePhoto/TargetChecked": "dde5daa0065670ae9344b2a449e4d582ca5d24e92149184c9407dce8471c05e6",
     "resource/image/SceneManager/MenuPassNew": "2090d22529cc28d2f622c676f0f8215df8a04912a6ed9d2e07bc9f31fa16e9fe",
     "resource/image/MapLocator/Wuling/Lv004Tier330": "812f7b949bc9007d340f3457a2e501fc31207decce51909dcb8b6e47f124d2ce",
     "resource/image/MapLocator/Wuling/Lv004Tier328": "0ca220ee5874a404349d674a47580fddf3b08897fda18876f09a65e3b72c339b",
@@ -2673,5 +2673,6 @@
     "resource/image/Common/WorldTool/SprayToolIcon": "37a8df183f765281a2f289d3b61c246b53a09ed46d1f67e1a87644319ad96461",
     "resource/image/Common/WorldTool/ContainerListBackpack": "2993c3a93c8ab08514da820425b49fae531fdf09df6247f9bfdc45a397121939",
     "resource/image/Common/WorldTool/SprayWaterSupply": "933153f4f3d56af93d70663533af27addad6173cc7db64209aa962f57e83d817",
-    "resource/image/Common/WorldTool/SprayHintMouse": "6d0a7142044c926be59aaaecbcf65a7e0fa5a06593fc1b4972c452e7e1982c52"
+    "resource/image/Common/WorldTool/SprayHintMouse": "6d0a7142044c926be59aaaecbcf65a7e0fa5a06593fc1b4972c452e7e1982c52",
+    "resource/image/AutoFight/SwitchOffOperator/ZhuangFangyi": "cbf0544336089a0da267829a187c3ea057ee1e2c002415420f90cdb3f784716c"
 }

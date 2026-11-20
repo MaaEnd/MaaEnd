@@ -67,6 +67,6 @@ void ResetAdbForwardWalkSync(InputBackend* backend, int release_millis);
 void ClickAdbMouseLeftSync(const InputBackend& backend);
 void TriggerAdbZiplineLaunchSync(const InputBackend& backend);
 void TriggerAdbZiplineDismountSync(const InputBackend& backend, int hold_millis);
-bool SendAdbViewDeltaSync(const InputBackend& backend, int dx, int dy);
+bool SendAdbViewDeltaSync(InputBackend* backend, int dx, int dy);
 
 } // namespace mapnavigator::backend::adb

@@ -1,6 +1,0 @@
-{
-    "EnvironmentMonitoringButton": {
-        "template": "AdbOnly/Common/Button/EnvironmentMonitoringButton.png",
-        "threshold": 0.7
-    }
-}

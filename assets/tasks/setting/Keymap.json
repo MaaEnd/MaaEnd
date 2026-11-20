@@ -21,10 +21,10 @@
                 }
             ],
             "pipeline_override": {
-                "EnterCameraModeLongPress": {
+                "__TakePhotoHoldR": {
                     "key": "{KeymapUseCurrentQuickTool.primary}"
                 },
-                "EnterCameraModeKeyUp": {
+                "__TakePhotoKeyUp": {
                     "key": "{KeymapUseCurrentQuickTool.primary}"
                 },
                 "__WorldToolSprayHoldR": {
@@ -58,9 +58,6 @@
                     "key": "{KeymapInteract.primary}"
                 },
                 "ProtocolSpaceTouchExitTouch": {
-                    "key": "{KeymapInteract.primary}"
-                },
-                "ProtocolSpaceTouchExitTouchRetry": {
                     "key": "{KeymapInteract.primary}"
                 },
                 "AutoMissionNpcProxyTrackCurrentMission": {
@@ -156,6 +153,18 @@
                     "key": "{KeymapFightSwitchOperator3.primary}"
                 },
                 "__AutoFightActionSwitchCharacterOperators4": {
+                    "key": "{KeymapFightSwitchOperator4.primary}"
+                },
+                "SwitchTeamOperatorPos1Press": {
+                    "key": "{KeymapFightSwitchOperator1.primary}"
+                },
+                "SwitchTeamOperatorPos2Press": {
+                    "key": "{KeymapFightSwitchOperator2.primary}"
+                },
+                "SwitchTeamOperatorPos3Press": {
+                    "key": "{KeymapFightSwitchOperator3.primary}"
+                },
+                "SwitchTeamOperatorPos4Press": {
                     "key": "{KeymapFightSwitchOperator4.primary}"
                 }
             }

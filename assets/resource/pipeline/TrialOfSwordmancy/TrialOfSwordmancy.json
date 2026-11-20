@@ -2,45 +2,95 @@
     "TrialOfSwordmancyMain": {
         "desc": "选剑演武任务入口",
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "TrialOfSwordmancyEnterTrialMenu"
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyDaily",
-            "TrialOfSwordmancyCoating"
+            "TrialOfSwordmancyFreeCalc"
         ]
     },
     "TrialOfSwordmancyDaily": {
         "desc": "自动每日选剑演武",
         "enabled": false,
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "TrialOfSwordmancyEnterTrialMenu"
-            ]
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "TrialOfSwordmancyDailyMain"
+            "TrialOfSwordmancyDailyRewardMode",
+            "TrialOfSwordmancyRetryRewardMode",
+            "TrialOfSwordmancyDailyFinish"
         ]
     },
-    "TrialOfSwordmancyCoating": {
-        "desc": "自动刷镀层/刷25点",
-        "enabled": false,
+    "TrialOfSwordmancyDailyRewardMode": {
+        "desc": "处于奖励演算模式",
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyInRewardMode"
+        ],
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "TrialOfSwordmancyEnterTrialMenu"
-            ]
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "TrialOfSwordmancyCoatingMain"
+            "TrialOfSwordmancyRecognizeFullDeck"
         ]
+    },
+    "TrialOfSwordmancyRetryRewardMode": {
+        "desc": "仅一次，放弃当前自由演算（跨日残局）",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyEnemyCard1"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "TrialOfSwordmancyAbandon"
+        ]
+    },
+    // 奖励耗尽 → 结束（CheckRewardMode 见非奖励模式 / Fight.json 战后 RewardExhausted 汇入）
+    "TrialOfSwordmancyDailyFinish": {
+        "desc": "奖励演算结束",
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyInTrialMenu"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "TrialOfSwordmancyFreeCalc": {
+        "desc": "自由演算",
+        "enabled": false,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "TrialOfSwordmancyCoatingRewardMode",
+            "TrialOfSwordmancyRecognizeFullDeck"
+        ]
+    },
+    "TrialOfSwordmancyCoatingRewardMode": {
+        "desc": "处于奖励演算模式",
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyInRewardMode"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "FailedNode"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.TrialOfSwordmancy.focus.coating_reward_mode"
+        }
     }
 }

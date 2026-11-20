@@ -1,0 +1,194 @@
+{
+    "OperatorGrowthOverrideProtodisk": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    430,
+                    10,
+                    805,
+                    170
+                ]
+            }
+        }
+    },
+    "OperatorGrowthOverrideTriphasicNanoflake": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    430,
+                    10,
+                    805,
+                    170
+                ]
+            }
+        }
+    },
+    "OperatorGrowthOverrideProtoset": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    430,
+                    10,
+                    805,
+                    170
+                ]
+            }
+        }
+    },
+    "OperatorGrowthOverrideProtoprism": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    430,
+                    10,
+                    805,
+                    170
+                ]
+            }
+        }
+    },
+    "OperatorGrowthOverrideProtohedron": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    430,
+                    10,
+                    805,
+                    170
+                ]
+            }
+        }
+    },
+    "OperatorGrowthOverrideMetadiastimaPhotoemissionTube": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    430,
+                    10,
+                    805,
+                    170
+                ]
+            }
+        }
+    },
+    "OperatorGrowthOverrideD96SteelSample4": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    430,
+                    10,
+                    805,
+                    170
+                ]
+            }
+        }
+    },
+    "OperatorGrowthOverrideTachyonScreeningLattice": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    430,
+                    10,
+                    805,
+                    170
+                ]
+            }
+        }
+    },
+    "OperatorGrowthOverrideQuadrantFittingFluid": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    430,
+                    10,
+                    805,
+                    170
+                ]
+            }
+        }
+    },
+    "OperatorGrowthOverrideWarpPlasmaCoatedSlide": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    430,
+                    10,
+                    805,
+                    170
+                ]
+            }
+        }
+    },
+    "OperatorGrowthOverrideCombatRecordEXP": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    430,
+                    10,
+                    805,
+                    170
+                ]
+            }
+        }
+    },
+    "OperatorGrowthOverrideCognitiveCarrierEXP": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    430,
+                    10,
+                    805,
+                    170
+                ]
+            }
+        }
+    },
+    "OperatorGrowthOverrideTCreds": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    430,
+                    10,
+                    805,
+                    170
+                ]
+            }
+        }
+    },
+    "OperatorGrowthOverrideHeavyCastDie": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    430,
+                    10,
+                    805,
+                    170
+                ]
+            }
+        }
+    },
+    "OperatorGrowthOverrideCastDie": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    430,
+                    10,
+                    805,
+                    170
+                ]
+            }
+        }
+    },
+    "OperatorGrowthOverrideWeaponEXP": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    430,
+                    10,
+                    805,
+                    170
+                ]
+            }
+        }
+    }
+}

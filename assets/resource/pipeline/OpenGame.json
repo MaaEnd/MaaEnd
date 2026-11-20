@@ -2,16 +2,34 @@
     "OpenGame": {
         "desc": "打开游戏",
         "next": [
+            // 已经在游戏里就别再走一遍启动流程（游戏还在后台、被别的任务留在世界时常见）
+            "OpenGameInGame",
             "EnterGame",
+            // 启动/登录界面上常驻的公告、活动等多余按钮，先关掉再继续识别
+            "[JumpBack]CloseButtonType1",
             "[JumpBack]EnterGameResourceInitializeComplete",
             "[JumpBack]EnterGameRecognition",
             "[JumpBack]CloudEndfieldStartGame",
             "[JumpBack]CloudEndfieldTrafficTip",
             "[JumpBack]CloudEndfieldWaitStartGame",
+            "[JumpBack]CloudEndfieldQueue",
             "[JumpBack]CloudEndfieldRetry",
             "EnterGameStuck",
             "StartUpGame"
         ]
+    },
+    "OpenGameInGame": {
+        // 谷地/武陵大世界与帝江号都算已经进入游戏；命中后任务直接结束，不去碰后台还在跑的游戏
+        "desc": "已经进入游戏",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "InWorld",
+                    "InDijiangWorld"
+                ]
+            }
+        }
     },
     "StuckRepairAction": {
         "desc": "尝试修复卡死",
@@ -207,6 +225,7 @@
             "[JumpBack]CloudEndfieldStartGame",
             "[JumpBack]CloudEndfieldTrafficTip",
             "[JumpBack]CloudEndfieldWaitStartGame",
+            "[JumpBack]CloudEndfieldQueue",
             "[JumpBack]CloudEndfieldRetry",
             "EnterGameStuck"
         ],
@@ -269,6 +288,24 @@
                 "expected": [
                     "检查网络环境",
                     "游戏启动中"
+                ]
+            }
+        }
+    },
+    "CloudEndfieldQueue": {
+        // 排队面板没有开始按钮，队列走完游戏自己进；认出排队就继续等，别让外层 90 秒超时判成卡死
+        "desc": "云终末地排队中，继续等待",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    600,
+                    240,
+                    680,
+                    160
+                ],
+                "expected": [
+                    "预计等待时间"
                 ]
             }
         }
