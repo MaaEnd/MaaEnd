@@ -1,10 +1,8 @@
 #include <algorithm>
-#include <chrono>
 #include <cstdlib>
 #include <optional>
 #include <string>
 #include <string_view>
-#include <thread>
 #include <utility>
 
 #include <meojson/json.hpp>
@@ -30,9 +28,6 @@ constexpr std::string_view kCloudWebControllerName = "CloudWeb";
 constexpr int32_t kViewDeltaContactId = 4;
 constexpr int32_t kViewDeltaCenterX = kWorkWidth / 2;
 constexpr int32_t kViewDeltaCenterY = kWorkHeight / 2;
-// 云客户端对单次位移有上限（实测约 200 像素），超过的部分到不了游戏，切成小块发
-constexpr int kViewDeltaChunkPixels = 128;
-constexpr auto kViewDeltaChunkInterval = std::chrono::milliseconds(10);
 
 struct PiController
 {
@@ -93,14 +88,12 @@ bool SendCloudWebViewDeltaSync(const InputBackend& backend, int dx, int dy)
         return false;
     }
 
-    const int span = std::max(std::abs(dx), std::abs(dy));
-    const int chunks = std::max(1, (span + kViewDeltaChunkPixels - 1) / kViewDeltaChunkPixels);
-    LogInfo << "SendCloudWebViewDelta" << VAR(dx) << VAR(dy) << VAR(chunks);
+    LogInfo << "SendRelativeMoveNative" << VAR(dx) << VAR(dy);
     int remaining_x = dx;
     int remaining_y = dy;
     while (remaining_x != 0 || remaining_y != 0) {
-        const int step_x = std::clamp(remaining_x, -kViewDeltaChunkPixels, kViewDeltaChunkPixels);
-        const int step_y = std::clamp(remaining_y, -kViewDeltaChunkPixels, kViewDeltaChunkPixels);
+        const int step_x = std::clamp(remaining_x, 1 - kViewDeltaCenterX, kViewDeltaCenterX - 1);
+        const int step_y = std::clamp(remaining_y, 1 - kViewDeltaCenterY, kViewDeltaCenterY - 1);
         const MaaCtrlId ctrl_id =
             MaaControllerPostTouchMove(backend.ctrl, kViewDeltaContactId, kViewDeltaCenterX + step_x, kViewDeltaCenterY + step_y, 0);
         if (MaaControllerWait(backend.ctrl, ctrl_id) != MaaStatus_Succeeded) {
@@ -108,9 +101,6 @@ bool SendCloudWebViewDeltaSync(const InputBackend& backend, int dx, int dy)
         }
         remaining_x -= step_x;
         remaining_y -= step_y;
-        if (remaining_x != 0 || remaining_y != 0) {
-            std::this_thread::sleep_for(kViewDeltaChunkInterval);
-        }
     }
     return true;
 }
