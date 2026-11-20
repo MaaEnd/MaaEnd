@@ -160,7 +160,7 @@
                 {
                     "name": "AutoSellMaxSellQuantityValue",
                     "label": "$option.AutoSellMaxSellQuantity.inputs.AutoSellMaxSellQuantityValue.label",
-                    "default": "100",
+                    "default": "320",
                     "pipeline_type": "int",
                     "verify": "^[1-9]\\d{0,17}$"
                 }
