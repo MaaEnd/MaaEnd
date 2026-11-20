@@ -1,9 +1,11 @@
 #include <algorithm>
+#include <chrono>
 #include <cmath>
 #include <cstdlib>
 #include <optional>
 #include <string>
 #include <string_view>
+#include <thread>
 #include <utility>
 
 #include <meojson/json.hpp>
@@ -31,6 +33,9 @@ constexpr std::string_view kCloudWebControllerName = "CloudWeb";
 constexpr int32_t kViewDeltaContactId = 4;
 constexpr int32_t kViewDeltaCenterX = kWorkWidth / 2;
 constexpr int32_t kViewDeltaCenterY = kWorkHeight / 2;
+// 云客户端对单次位移有上限（实测约 200 像素），超过的部分到不了游戏，切成小块发
+constexpr int kViewDeltaChunkPixels = 128;
+constexpr auto kViewDeltaChunkInterval = std::chrono::milliseconds(10);
 
 struct PiController
 {
@@ -153,20 +158,28 @@ bool SendCloudWebViewDeltaSync(const InputBackend& backend, int dx, int dy)
     const int target_x = has_resolution ? to_pipeline_delta(dx, raw_width, kWorkWidth) : dx;
     const int target_y = has_resolution ? to_pipeline_delta(dy, raw_height, kWorkHeight) : dy;
 
-    LogInfo << "SendCloudWebViewDelta" << VAR(dx) << VAR(dy) << VAR(target_x) << VAR(target_y) << VAR(raw_width)
-            << VAR(raw_height);
+    const int span = std::max(std::abs(target_x), std::abs(target_y));
+    const int chunks = std::max(1, (span + kViewDeltaChunkPixels - 1) / kViewDeltaChunkPixels);
+    LogInfo << "SendCloudWebViewDelta" << VAR(dx) << VAR(dy) << VAR(target_x) << VAR(target_y) << VAR(chunks)
+            << VAR(raw_width) << VAR(raw_height);
     int remaining_x = target_x;
     int remaining_y = target_y;
     while (remaining_x != 0 || remaining_y != 0) {
-        const int step_x = std::clamp(remaining_x, 1 - kViewDeltaCenterX, kViewDeltaCenterX - 1);
-        const int step_y = std::clamp(remaining_y, 1 - kViewDeltaCenterY, kViewDeltaCenterY - 1);
-        const MaaCtrlId ctrl_id =
-            MaaControllerPostTouchMove(backend.ctrl, kViewDeltaContactId, kViewDeltaCenterX + step_x, kViewDeltaCenterY + step_y, 0);
+        // 云客户端对单次鼠标位移有上限（实测约 200 像素），超出部分会被远端丢掉，
+        // 所以大位移切成小块发，落点始终留在窗口内
+        const int step_x = std::clamp(remaining_x, -kViewDeltaChunkPixels, kViewDeltaChunkPixels);
+        const int step_y = std::clamp(remaining_y, -kViewDeltaChunkPixels, kViewDeltaChunkPixels);
+        const int landing_x = std::clamp(kViewDeltaCenterX + step_x, 1, kWorkWidth - 1);
+        const int landing_y = std::clamp(kViewDeltaCenterY + step_y, 1, kWorkHeight - 1);
+        const MaaCtrlId ctrl_id = MaaControllerPostTouchMove(backend.ctrl, kViewDeltaContactId, landing_x, landing_y, 0);
         if (MaaControllerWait(backend.ctrl, ctrl_id) != MaaStatus_Succeeded) {
             return false;
         }
         remaining_x -= step_x;
         remaining_y -= step_y;
+        if (remaining_x != 0 || remaining_y != 0) {
+            std::this_thread::sleep_for(kViewDeltaChunkInterval);
+        }
     }
     return true;
 }
