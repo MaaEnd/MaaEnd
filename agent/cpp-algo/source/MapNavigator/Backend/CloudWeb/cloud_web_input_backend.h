@@ -14,7 +14,7 @@ struct InputBackend;
 namespace mapnavigator::backend::cloudweb
 {
 
-bool IsCloudWebController(MaaController* ctrl);
+bool IsCloudWebController();
 InputBackend OpenCloudWebInputBackend(MaaController* ctrl, std::string controller_type);
 bool SendCloudWebViewDeltaSync(const InputBackend& backend, int dx, int dy);
 

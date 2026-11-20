@@ -1,6 +1,5 @@
 #include <algorithm>
 #include <chrono>
-#include <cmath>
 #include <cstdlib>
 #include <optional>
 #include <string>
@@ -12,11 +11,9 @@
 
 #ifdef _WIN32
 #include <MaaUtils/Encoding.h>
-#include <MaaUtils/SafeWindows.hpp>
 #endif
 #include <MaaUtils/Logger.h>
 
-#include "../../control/controller_info_utils.h"
 #include "../../navi_config.h"
 #include "../Desktop/desktop_input_backend.h"
 #include "../backend.h"
@@ -64,56 +61,9 @@ std::string read_pi_controller()
 #endif
 }
 
-// PI_CONTROLLER 只描述启动时选中的控制器，切换控制器后可能过期；
-// 缺失或对不上时按外壳窗口类名兜底，类名见 CloudShell/README.md 的约定表
-#ifdef _WIN32
-constexpr std::wstring_view kCloudShellWindowClass = L"MaaEnd.CloudShell";
-constexpr int kWindowClassNameLength = 256;
+} // namespace
 
-bool is_cloud_shell_window(uintptr_t handle)
-{
-    wchar_t class_name[kWindowClassNameLength] = {};
-    const int length = GetClassNameW(reinterpret_cast<HWND>(handle), class_name, kWindowClassNameLength);
-    if (length <= 0) {
-        LogWarn << "GetClassNameW failed for CloudWeb detection" << VAR(handle) << VAR(GetLastError());
-        return false;
-    }
-    return std::wstring_view(class_name, static_cast<size_t>(length)) == kCloudShellWindowClass;
-}
-#endif
-
-// 外壳用落点减客户区中心得到位移，而框架投递前会把 pipeline 坐标按 raw/target 放大，
-// 所以 raw 位移要先换回 pipeline 位移，否则实际转角会多出 raw/target 倍
-int32_t to_pipeline_delta(int raw_delta, int32_t raw_size, int32_t pipeline_size)
-{
-    if (raw_delta == 0 || raw_size <= 0 || pipeline_size <= 0) {
-        return raw_delta;
-    }
-
-    const double scaled = static_cast<double>(raw_delta) * pipeline_size / raw_size;
-    const auto rounded = static_cast<int32_t>(std::lround(scaled));
-    if (rounded != 0) {
-        return rounded;
-    }
-
-    // 换算后不能退化成 0，否则发送循环不收敛
-    return raw_delta > 0 ? 1 : -1;
-}
-
-bool is_cloud_web_by_window_class(MaaController* ctrl)
-{
-#ifdef _WIN32
-    const std::optional<uintptr_t> handle = TryGetWin32WindowHandle(ctrl);
-    const bool matched = handle.has_value() && is_cloud_shell_window(*handle);
-    LogInfo << "PI_CONTROLLER missing or mismatched, fallback to window class." << VAR(matched);
-    return matched;
-#else
-    (void)ctrl;
-    return false;
-#endif
-}
-
-bool is_cloud_web_by_pi_controller()
+bool IsCloudWebController()
 {
     const std::optional<json::value> parsed = json::parse(read_pi_controller());
     if (!parsed.has_value()) {
@@ -125,14 +75,6 @@ bool is_cloud_web_by_pi_controller()
         return false;
     }
     return controller.name == kCloudWebControllerName;
-}
-
-} // namespace
-
-bool IsCloudWebController(MaaController* ctrl)
-{
-    // 两个信号取或：PI 过期时窗口类名能纠正，窗口类名判不了时 PI 还能兜住
-    return is_cloud_web_by_pi_controller() || is_cloud_web_by_window_class(ctrl);
 }
 
 InputBackend OpenCloudWebInputBackend(MaaController* ctrl, std::string controller_type)
@@ -151,19 +93,11 @@ bool SendCloudWebViewDeltaSync(const InputBackend& backend, int dx, int dy)
         return false;
     }
 
-    int32_t raw_width = 0;
-    int32_t raw_height = 0;
-    const bool has_resolution =
-        MaaControllerGetResolution(backend.ctrl, &raw_width, &raw_height) && raw_width > 0 && raw_height > 0;
-    const int target_x = has_resolution ? to_pipeline_delta(dx, raw_width, kWorkWidth) : dx;
-    const int target_y = has_resolution ? to_pipeline_delta(dy, raw_height, kWorkHeight) : dy;
-
-    const int span = std::max(std::abs(target_x), std::abs(target_y));
+    const int span = std::max(std::abs(dx), std::abs(dy));
     const int chunks = std::max(1, (span + kViewDeltaChunkPixels - 1) / kViewDeltaChunkPixels);
-    LogInfo << "SendCloudWebViewDelta" << VAR(dx) << VAR(dy) << VAR(target_x) << VAR(target_y) << VAR(chunks)
-            << VAR(raw_width) << VAR(raw_height);
-    int remaining_x = target_x;
-    int remaining_y = target_y;
+    LogInfo << "SendCloudWebViewDelta" << VAR(dx) << VAR(dy) << VAR(chunks);
+    int remaining_x = dx;
+    int remaining_y = dy;
     while (remaining_x != 0 || remaining_y != 0) {
         // 云客户端对单次鼠标位移有上限（实测约 200 像素），超出部分会被远端丢掉，
         // 所以大位移切成小块发，落点始终留在窗口内

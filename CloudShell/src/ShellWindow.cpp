@@ -116,10 +116,8 @@ int ShellWindow::Run()
     MSG msg {};
     while (GetMessageW(&msg, nullptr, 0, 0) > 0) {
         // PostMessage 输入每次操作前都会投递 WM_ACTIVATE，真实的激活是同步发送的、不经过这里。
-        // 交给 DefWindowProc 会把焦点从网页抢到顶层窗口，网页失焦时 SDK 会释放所有按住的键。
-        // 激活状态本身仍要同步给页面：前台钩子漏一次，页面就会一直当自己在后台
+        // 交给 DefWindowProc 会把焦点从网页抢到顶层窗口，网页失焦时 SDK 会释放所有按住的键
         if (msg.message == WM_ACTIVATE) {
-            updateForeground(GetForegroundWindow());
             continue;
         }
         TranslateMessage(&msg);
