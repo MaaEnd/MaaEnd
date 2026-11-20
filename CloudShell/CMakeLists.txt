@@ -28,6 +28,7 @@ add_executable(cloud-shell WIN32
     "${CMAKE_CURRENT_BINARY_DIR}/resources.rc"
 )
 
+set_target_properties(cloud-shell PROPERTIES OUTPUT_NAME maaend-cloud)
 target_include_directories(cloud-shell PRIVATE src)
 target_link_libraries(cloud-shell PRIVATE WebView2::LoaderStatic)
 target_compile_definitions(cloud-shell PRIVATE UNICODE _UNICODE WIN32_LEAN_AND_MEAN NOMINMAX)
