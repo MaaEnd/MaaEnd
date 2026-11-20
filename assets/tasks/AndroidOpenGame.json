@@ -16,6 +16,7 @@
                 "ClientVersion",
                 "ClientVersionCloudLocked",
                 "CloudEndfieldAllowMobileData",
+                "CloudEndfieldQueueChoice",
                 "EnterGameRecognitionMaxHit"
             ]
         }
@@ -188,6 +189,47 @@
                 }
             ],
             "default_case": "No"
+        },
+        "CloudEndfieldQueueChoice": {
+            // 云终末地排队高峰会弹「请选择排队队列」；默认免费队列，避免误耗协议点
+            "type": "select",
+            "controller": [
+                "CloudADB"
+            ],
+            "label": "$option.CloudEndfieldQueueChoice.label",
+            "cases": [
+                {
+                    "name": "Free",
+                    "label": "$option.CloudEndfieldQueueChoice.cases.Free.label",
+                    "pipeline_override": {
+                        "CloudEndfieldChooseQueue": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "免费时长队列"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Fast",
+                    "label": "$option.CloudEndfieldQueueChoice.cases.Fast.label",
+                    "pipeline_override": {
+                        "CloudEndfieldChooseQueue": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "协议点时长快速通道队列"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            ],
+            "default_case": "Free"
         },
         "EnterGameRecognitionMaxHit": {
             "type": "input",
