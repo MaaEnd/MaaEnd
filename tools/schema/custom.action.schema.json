@@ -45,6 +45,7 @@
                 "CharacterMoveToTargetNotFoundAction",
                 "CharacterSearchAction",
                 "ClearHitCount",
+                "CloseCloudShellAction",
                 "CloseGameAction",
                 "CountDownAction",
                 "DeliveryJobsResolveOngoingDepotAction",

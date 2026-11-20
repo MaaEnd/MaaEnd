@@ -21,6 +21,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/camerascan"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/charactercontroller"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/clearhitcount"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/closecloudshell"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/closegame"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/countdown"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/everynthhit"
@@ -80,6 +81,7 @@ func registerAll() {
 	clearhitcount.Register()
 	everynthhit.Register()
 	closegame.Register()
+	closecloudshell.Register()
 	exitlauncher.Register()
 	pipelineoverride.Register()
 	expressionrecognition.Register()
