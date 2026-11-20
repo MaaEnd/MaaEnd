@@ -9,9 +9,11 @@
 
 #ifdef _WIN32
 #include <MaaUtils/Encoding.h>
+#include <MaaUtils/SafeWindows.hpp>
 #endif
 #include <MaaUtils/Logger.h>
 
+#include "../../control/controller_info_utils.h"
 #include "../../navi_config.h"
 #include "../Desktop/desktop_input_backend.h"
 #include "../backend.h"
@@ -56,9 +58,38 @@ std::string read_pi_controller()
 #endif
 }
 
-} // namespace
+// PI_CONTROLLER 只描述启动时选中的控制器，切换控制器后可能过期；
+// 缺失或对不上时按外壳窗口类名兜底，类名见 CloudShell/README.md 的约定表
+#ifdef _WIN32
+constexpr std::wstring_view kCloudShellWindowClass = L"MaaEnd.CloudShell";
+constexpr int kWindowClassNameLength = 256;
 
-bool IsCloudWebController()
+bool is_cloud_shell_window(uintptr_t handle)
+{
+    wchar_t class_name[kWindowClassNameLength] = {};
+    const int length = GetClassNameW(reinterpret_cast<HWND>(handle), class_name, kWindowClassNameLength);
+    if (length <= 0) {
+        LogWarn << "GetClassNameW failed for CloudWeb detection" << VAR(handle) << VAR(GetLastError());
+        return false;
+    }
+    return std::wstring_view(class_name, static_cast<size_t>(length)) == kCloudShellWindowClass;
+}
+#endif
+
+bool is_cloud_web_by_window_class(MaaController* ctrl)
+{
+#ifdef _WIN32
+    const std::optional<uintptr_t> handle = TryGetWin32WindowHandle(ctrl);
+    const bool matched = handle.has_value() && is_cloud_shell_window(*handle);
+    LogInfo << "PI_CONTROLLER missing or mismatched, fallback to window class." << VAR(matched);
+    return matched;
+#else
+    (void)ctrl;
+    return false;
+#endif
+}
+
+bool is_cloud_web_by_pi_controller()
 {
     const std::optional<json::value> parsed = json::parse(read_pi_controller());
     if (!parsed.has_value()) {
@@ -70,6 +101,14 @@ bool IsCloudWebController()
         return false;
     }
     return controller.name == kCloudWebControllerName;
+}
+
+} // namespace
+
+bool IsCloudWebController(MaaController* ctrl)
+{
+    // 两个信号取或：PI 过期时窗口类名能纠正，窗口类名判不了时 PI 还能兜住
+    return is_cloud_web_by_pi_controller() || is_cloud_web_by_window_class(ctrl);
 }
 
 InputBackend OpenCloudWebInputBackend(MaaController* ctrl, std::string controller_type)

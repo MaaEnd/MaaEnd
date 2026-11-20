@@ -1,3 +1,4 @@
+#include <cstdint>
 #include <optional>
 
 #include <MaaFramework/Utility/MaaBuffer.h>
@@ -22,26 +23,41 @@ struct ControllerInfo
     MEO_JSONIZATION(MEO_OPT type, MEO_OPT hwnd, MEO_OPT mouse_method)
 };
 
-ControllerInfo parse_controller_info(MaaController* controller)
+std::optional<json::value> parse_controller_json(MaaController* controller)
 {
     if (controller == nullptr) {
-        return {};
+        return std::nullopt;
     }
 
     ScopedStringBuffer buffer;
     if (buffer.Get() == nullptr || !MaaControllerGetInfo(controller, buffer.Get())) {
-        return {};
+        return std::nullopt;
     }
 
     const char* raw = MaaStringBufferGet(buffer.Get());
     if (raw == nullptr) {
-        return {};
+        return std::nullopt;
     }
 
     const auto parsed = json::parse(raw);
-    ControllerInfo info;
-    if (!parsed || !info.from_json(*parsed)) {
+    if (!parsed) {
         LogWarn << "Failed to parse controller info" << VAR(raw);
+        return std::nullopt;
+    }
+
+    return *parsed;
+}
+
+ControllerInfo parse_controller_info(MaaController* controller)
+{
+    const std::optional<json::value> parsed = parse_controller_json(controller);
+    if (!parsed.has_value()) {
+        return {};
+    }
+
+    ControllerInfo info;
+    if (!info.from_json(*parsed)) {
+        LogWarn << "Controller info lacks expected fields" << VAR(parsed->to_string());
         return {};
     }
 
@@ -49,6 +65,21 @@ ControllerInfo parse_controller_info(MaaController* controller)
 }
 
 } // namespace
+
+std::optional<uintptr_t> TryGetWin32WindowHandle(MaaController* controller)
+{
+    const std::optional<json::value> parsed = parse_controller_json(controller);
+    if (!parsed.has_value()) {
+        return std::nullopt;
+    }
+
+    const json::value* handle = parsed->find_value("hwnd");
+    if (handle == nullptr || !handle->is_number()) {
+        return std::nullopt;
+    }
+
+    return static_cast<uintptr_t>(handle->as_unsigned_long_long());
+}
 
 std::string DetectControllerType(MaaController* controller)
 {

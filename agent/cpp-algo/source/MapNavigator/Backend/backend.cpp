@@ -30,7 +30,7 @@ InputBackend OpenInputBackend(MaaController* ctrl)
         return backend::Linux::OpenLinuxInputBackend(ctrl, std::move(controller_type));
     }
 
-    if (backend::cloudweb::IsCloudWebController()) {
+    if (backend::cloudweb::IsCloudWebController(ctrl)) {
         return backend::cloudweb::OpenCloudWebInputBackend(ctrl, std::move(controller_type));
     }
 
