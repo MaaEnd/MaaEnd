@@ -99,13 +99,10 @@ bool SendCloudWebViewDeltaSync(const InputBackend& backend, int dx, int dy)
     int remaining_x = dx;
     int remaining_y = dy;
     while (remaining_x != 0 || remaining_y != 0) {
-        // 云客户端对单次鼠标位移有上限（实测约 200 像素），超出部分会被远端丢掉，
-        // 所以大位移切成小块发，落点始终留在窗口内
         const int step_x = std::clamp(remaining_x, -kViewDeltaChunkPixels, kViewDeltaChunkPixels);
         const int step_y = std::clamp(remaining_y, -kViewDeltaChunkPixels, kViewDeltaChunkPixels);
-        const int landing_x = std::clamp(kViewDeltaCenterX + step_x, 1, kWorkWidth - 1);
-        const int landing_y = std::clamp(kViewDeltaCenterY + step_y, 1, kWorkHeight - 1);
-        const MaaCtrlId ctrl_id = MaaControllerPostTouchMove(backend.ctrl, kViewDeltaContactId, landing_x, landing_y, 0);
+        const MaaCtrlId ctrl_id =
+            MaaControllerPostTouchMove(backend.ctrl, kViewDeltaContactId, kViewDeltaCenterX + step_x, kViewDeltaCenterY + step_y, 0);
         if (MaaControllerWait(backend.ctrl, ctrl_id) != MaaStatus_Succeeded) {
             return false;
         }
