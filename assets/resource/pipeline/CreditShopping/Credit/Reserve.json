@@ -61,8 +61,8 @@
         "recognition": "OCR",
         "roi": "CreditShoppingReserveCreditOCRInternalColor",
         "roi_offset": [
-            -1,
-            -1,
+            0,
+            0,
             2,
             2
         ],
