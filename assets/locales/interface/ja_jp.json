@@ -1826,7 +1826,7 @@
     "option.ResourceRecycleStationValleyIV.label": "四号谷地",
     "option.ResourceRecycleStationWuling.label": "武陵",
     "option.RewardsSetOption.label": "選択可能報酬セット",
-    "option.ScreenFlawlessAndReport.description": "現在のアカウントでロック済みの、星5・星6武器に適合する無瑕基質を読み取り、レポートと目標モードの在庫を更新します。マークは変更しません。装備中でも未ロックの基質は集計対象外です。未ロックかつ未装備の基質で走査を終了します。",
+    "option.ScreenFlawlessAndReport.description": "現在のアカウントのロック済み無瑕・高純基質をすべて読み取り、適合武器がない基質も含めてレポートと在庫を更新します。マークは変更しません。目標モードでは星5・星6武器に適合するロック済み無瑕基質のみを集計します。装備中でも未ロックの基質は記録しません。未ロックかつ未装備の基質で走査を終了します。",
     "option.ScreenFlawlessAndReport.label": "基質レポートを生成",
     "option.SelectEssence.label": "エッセンスタイプ",
     "option.SelectExtraRules.label": "拡張ルール",

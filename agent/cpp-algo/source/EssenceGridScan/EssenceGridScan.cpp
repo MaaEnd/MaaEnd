@@ -736,10 +736,6 @@ void rebuild_current_page_queue(
             }
             last_protected = cell.frame_index;
             saw_protected = true;
-            if (essence_cell.quality_ == "high_purity_purple") {
-                state.resolved_.emplace(cell.row, cell.col);
-                continue;
-            }
         }
         if (!config.collect_inventory_ && !should_dispatch_thumb_state(essence_cell, config)) {
             state.resolved_.emplace(cell.row, cell.col);

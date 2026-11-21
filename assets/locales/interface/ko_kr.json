@@ -1826,7 +1826,7 @@
     "option.ResourceRecycleStationValleyIV.label": "4호 계곡",
     "option.ResourceRecycleStationWuling.label": "무릉",
     "option.RewardsSetOption.label": "선택 보상 세트",
-    "option.ScreenFlawlessAndReport.description": "현재 계정에서 잠긴 무결 기질 중 5성 또는 6성 무기에 맞는 기질을 확인하여 보고서와 목표 모드 재고를 갱신합니다. 표시는 변경하지 않습니다. 장착 중이어도 잠기지 않은 기질은 집계하지 않습니다. 잠기지 않고 장착되지도 않은 첫 기질에서 종료합니다.",
+    "option.ScreenFlawlessAndReport.description": "현재 계정의 잠긴 무결 및 고순도 기질을 모두 확인하며, 맞는 무기가 없는 기질도 포함하여 보고서와 재고를 갱신합니다. 표시는 변경하지 않습니다. 목표 모드는 5성 또는 6성 무기에 맞는 잠긴 무결 기질만 집계합니다. 장착 중이어도 잠기지 않은 기질은 기록하지 않습니다. 잠기지 않고 장착되지도 않은 첫 기질에서 종료합니다.",
     "option.ScreenFlawlessAndReport.label": "기질 보고서 생성",
     "option.SelectEssence.label": "에센스 유형",
     "option.SelectExtraRules.label": "확장 규칙",

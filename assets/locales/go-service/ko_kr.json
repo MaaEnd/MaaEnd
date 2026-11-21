@@ -112,7 +112,7 @@
     "essencefilter.inventory.failed": "기질 재고 업데이트를 완료하지 못했습니다. 로그를 확인하세요.",
     "essencefilter.inventory.reward_pending": "이번 보상의 처리를 확인하지 못했습니다. 재고를 갱신하지 않고 파밍을 계속합니다.",
     "essencefilter.inventory.saved": "기질 보고서를 %s에 저장했습니다. 조건에 맞는 잠긴 기질은 %d개이며 총 %d그룹입니다.",
-    "essencefilter.inventory.started": "5성 또는 6성 무기에 맞는 잠긴 무결 기질을 확인하고 있습니다.",
+    "essencefilter.inventory.started": "맞는 무기가 없는 기질도 포함하여 잠긴 무결 및 고순도 기질을 모두 확인하고 있습니다.",
     "essencefilter.inventory.unread_purple": "순수 기질 %d개의 옵션을 읽지 못했습니다. 무결 기질 재고는 확인되었으며, 순수 기질의 일부 명세는 미확인 상태입니다.",
     "essencefilter.lock_limit.already_locked": "이미 잠겨 있고 잠금 할당량 안에 있습니다. 건너뜁니다.",
     "essencefilter.lock_limit.in_quota": "잠금 할당량 안에 있습니다(적용 무기 %d개). 잠급니다.",

@@ -113,7 +113,7 @@
     "essencefilter.inventory.failed": "The essence inventory update did not finish. See the log for details.",
     "essencefilter.inventory.reward_pending": "This batch could not be confirmed. Inventory was not updated. Continuing farming.",
     "essencefilter.inventory.saved": "Essence report saved to %s. Found %d locked matching essences in %d groups.",
-    "essencefilter.inventory.started": "Scanning locked Flawless Essences that match a 5★ or 6★ weapon.",
+    "essencefilter.inventory.started": "Scanning all locked Flawless and High-Purity Essences, including those with no matching weapon.",
     "essencefilter.inventory.unread_purple": "Could not read the skills of %d confirmed Pure Essences. Flawless stock is verified. Pure Essence details are incomplete.",
     "essencefilter.lock_limit.already_locked": "Already locked and within the lock quota, skipping.",
     "essencefilter.lock_limit.in_quota": "Within the lock quota (compatible weapons: %d), locking.",

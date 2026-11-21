@@ -112,7 +112,7 @@
     "essencefilter.inventory.failed": "基質庫存本次更新未完成，請查看日誌。",
     "essencefilter.inventory.reward_pending": "本批處理未確認，庫存未更新，繼續刷取。",
     "essencefilter.inventory.saved": "基質報告已儲存至 %s。已鎖定且適配的無瑕基質共 %d 枚，分為 %d 組。",
-    "essencefilter.inventory.started": "正在盤點已鎖定且適配五星或六星武器的無瑕基質。",
+    "essencefilter.inventory.started": "正在盤點全部已鎖定的無瑕與高純基質，包括暫無適配武器的基質。",
     "essencefilter.inventory.unread_purple": "有 %d 件已確認的高純基質未讀出詞條。無瑕庫存已核實，高純明細待補。",
     "essencefilter.lock_limit.already_locked": "該基質已鎖定，且在鎖定名額內，跳過。",
     "essencefilter.lock_limit.in_quota": "該基質在鎖定名額內（適配武器 %d 件），鎖定。",

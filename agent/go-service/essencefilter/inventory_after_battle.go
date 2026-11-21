@@ -2,6 +2,7 @@ package essencefilter
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter/matchapi"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
@@ -66,10 +67,7 @@ func (r *rewardInventory) appendTo(s *inventorySnapshot) *inventorySnapshot {
 	} else if coverage := s.Coverage[gold]; coverage.CompleteAt != nil {
 		out.Coverage[lockedGold] = coverage
 	}
-	out.Items = []inventoryItem{}
-	for _, item := range s.Items {
-		out.appendLockedMatch(item)
-	}
+	out.Items = slices.Clone(s.Items)
 	for i := 1; i <= len(r.items); i++ {
 		out.appendLockedMatch(r.items[i])
 	}

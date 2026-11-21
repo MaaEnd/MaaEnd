@@ -1826,7 +1826,7 @@
     "option.ResourceRecycleStationValleyIV.label": "Valley IV",
     "option.ResourceRecycleStationWuling.label": "Wuling",
     "option.RewardsSetOption.label": "Optional Reward Set",
-    "option.ScreenFlawlessAndReport.description": "Scan locked Flawless Essences that match a 5★ or 6★ weapon and update this account’s report and Target Mode inventory. The scan preserves all marks. Equipped essences count only if locked. The scan ends at the first unequipped, unlocked essence.",
+    "option.ScreenFlawlessAndReport.description": "Scan all locked Flawless and High-Purity Essences, including those with no matching weapon, to update this account’s report and inventory. The scan preserves all marks. Target Mode counts only locked Flawless Essences matching 5★ or 6★ weapons. Equipped but unlocked essences are not recorded. The scan ends at the first unequipped, unlocked essence.",
     "option.ScreenFlawlessAndReport.label": "Generate essence report",
     "option.SelectEssence.label": "Essence Type",
     "option.SelectExtraRules.label": "Extra Rules",

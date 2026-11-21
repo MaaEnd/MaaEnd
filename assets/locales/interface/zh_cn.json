@@ -1826,7 +1826,7 @@
     "option.ResourceRecycleStationValleyIV.label": "四号谷地",
     "option.ResourceRecycleStationWuling.label": "武陵",
     "option.RewardsSetOption.label": "可选奖励组",
-    "option.ScreenFlawlessAndReport.description": "只读盘点当前账号已锁定、且适配五星或六星武器的无瑕基质，生成报告并更新目标模式使用的库存。已装备但未锁定的基质不计数。遇到第一枚既未锁定也未装备的基质即结束。",
+    "option.ScreenFlawlessAndReport.description": "只读盘点当前账号全部已锁定的无瑕与高纯基质，包括暂无适配武器的基质，生成报告并更新库存。目标模式只计入适配五星或六星武器的已锁无瑕基质。已装备但未锁定的基质不记录。遇到第一枚既未锁定也未装备的基质即结束。",
     "option.ScreenFlawlessAndReport.label": "生成基质报告",
     "option.SelectEssence.label": "基质类型",
     "option.SelectExtraRules.label": "扩展规则",

@@ -1826,7 +1826,7 @@
     "option.ResourceRecycleStationValleyIV.label": "四號谷地",
     "option.ResourceRecycleStationWuling.label": "武陵",
     "option.RewardsSetOption.label": "可選獎勵組",
-    "option.ScreenFlawlessAndReport.description": "唯讀盤點目前帳號已鎖定且適配五星或六星武器的無瑕基質，產生報告並更新目標模式的庫存。已裝備但未鎖定的基質不列入計數。遇到第一枚未鎖定且未裝備的基質即結束。",
+    "option.ScreenFlawlessAndReport.description": "唯讀盤點目前帳號全部已鎖定的無瑕與高純基質，包括暫無適配武器的基質，產生報告並更新庫存。目標模式只計入適配五星或六星武器的已鎖無瑕基質。已裝備但未鎖定的基質不記錄。遇到第一枚未鎖定且未裝備的基質即結束。",
     "option.ScreenFlawlessAndReport.label": "產生基質報告",
     "option.SelectEssence.label": "基質類型",
     "option.SelectExtraRules.label": "擴展規則",

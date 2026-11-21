@@ -112,7 +112,7 @@
     "essencefilter.inventory.failed": "基質在庫の更新が完了しませんでした。ログをご確認ください。",
     "essencefilter.inventory.reward_pending": "今回の処理を確認できませんでした。在庫を更新せず、周回を続けます。",
     "essencefilter.inventory.saved": "基質レポートを %s に保存しました。適合するロック済み基質は %d 個、%d グループです。",
-    "essencefilter.inventory.started": "星5・星6武器に適合するロック済みの無瑕基質を確認しています。",
+    "essencefilter.inventory.started": "適合武器がない基質も含め、ロック済みの無瑕・高純基質をすべて確認しています。",
     "essencefilter.inventory.unread_purple": "清浄基質 %d 個のスキルを読み取れませんでした。純粋基質の在庫は確認済みです。清浄基質の明細は一部未確認です。",
     "essencefilter.lock_limit.already_locked": "すでにロック済みで、ロック枠内です。スキップします。",
     "essencefilter.lock_limit.in_quota": "ロック枠内です（適合武器 %d 件）。ロックします。",

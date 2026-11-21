@@ -236,7 +236,7 @@ func (*EssenceFilterReadDetailAction) Run(ctx *maa.Context, arg *maa.CustomActio
 	r.CoreChanged, r.Quality = read.CoreChanged, read.Quality
 	if s := st.Scan; s != nil {
 		next := []maa.NextItem{{Name: "EssenceFilterCheckItemSlot1"}}
-		if s.current.Mark != lockedMark || s.current.Quality == purple {
+		if s.current.Mark != lockedMark {
 			s.skippedReads++
 			r.previous = nil
 			next = []maa.NextItem{{Name: "EssenceGridAdvance"}}
@@ -257,7 +257,9 @@ func finishWarehouse(ctx *maa.Context, st *RunState) bool {
 	s := newSnapshot(st.Account.id)
 	s.Coverage[lockedGold] = tierCoverage{CompleteAt: &now}
 	for _, item := range st.Scan.items {
-		s.appendLockedMatch(item)
+		if item.Mark == lockedMark {
+			s.Items = append(s.Items, item)
+		}
 	}
 	weapons := st.MatchEngine.Weapons()
 	explicit := st.PipelineOpts.Mode == InitModeScreenAndReport
