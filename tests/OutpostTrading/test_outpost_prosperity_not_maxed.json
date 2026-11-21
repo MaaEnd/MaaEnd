@@ -3,8 +3,8 @@
         "name": "一键据点交易，测试据点发展值未上限",
         "resource": "官服",
         "controller": [
-            "ADB",
-            "Win32"
+            "Win32",
+            "ADB"
         ],
         "imageRoot": "OutpostTrading"
     },
