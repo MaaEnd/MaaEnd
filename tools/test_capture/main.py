@@ -4,6 +4,7 @@
 
     uv run test-capture --flow tests/OutpostTrading/capture_flow.py --controller ADB
     uv run test-capture --flow tests/OutpostTrading/capture_flow.py --controller Win32-Front --controller ADB
+    uv run test-capture --flow tests/OutpostTrading/capture_flow.py --controller CloudWeb
     uv run test-capture --flow tests/OutpostTrading/capture_flow.py --controller ADB --dry-run
 
 流程文件的写法、输出目录和已知限制见 tools/test_capture/README.md。
@@ -118,7 +119,7 @@ def _run(
     "controllers",
     multiple=True,
     required=True,
-    help="assets/interface.json 里的控制器名，可重复以依次跑多个平台",
+    help="assets/interface.json 里的控制器名（Adb / Win32，含 CloudWeb 云网页版），可重复以依次跑多个平台",
 )
 @click.option(
     "--out",
@@ -136,7 +137,7 @@ def _run(
     "--open-game/--no-open-game",
     default=True,
     show_default=True,
-    help="开跑前先回大世界；游戏没开就按客户端包启动（跑现成的 OpenGame 任务）",
+    help="开跑前先跑控制器自己的预任务再回大世界：云网页版拉起外壳、桌面版拉起游戏，安卓端没开就跑 OpenGame 任务",
 )
 @click.option(
     "--keep",
@@ -205,7 +206,9 @@ def _command(
 
 
 def main() -> None:
+    # 报错也走 stderr，不一起改成 UTF-8 的话中文在 GBK 控制台上是乱码。
     cast("io.TextIOWrapper", sys.stdout).reconfigure(encoding="utf-8")
+    cast("io.TextIOWrapper", sys.stderr).reconfigure(encoding="utf-8")
     _command()
 
 

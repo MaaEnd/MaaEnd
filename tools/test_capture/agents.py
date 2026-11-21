@@ -25,6 +25,15 @@ AGENT_NAMES = ("go-service", "cpp-algo")
 READY_TIMEOUT = 60.0
 
 
+def agent_env(agent_dir: Path, maafw_dir: Path, extra: dict[str, str]) -> dict[str, str]:
+    """Agent 和预任务共用的环境变量：先找到同目录的可执行文件与 maafw 的动态库。"""
+    env = os.environ.copy()
+    env["PATH"] = os.pathsep.join([str(agent_dir), str(maafw_dir), env.get("PATH", "")])
+    env["LD_LIBRARY_PATH"] = os.pathsep.join([str(maafw_dir), env.get("LD_LIBRARY_PATH", "")])
+    env.update(extra)
+    return env
+
+
 class Agents:
     """托管 install/agent 里的可执行文件及其 AgentClient。"""
 
@@ -47,11 +56,7 @@ class Agents:
         return self.agent_dir / f"{name}{suffix}"
 
     def _env(self) -> dict[str, str]:
-        env = os.environ.copy()
-        env["PATH"] = os.pathsep.join([str(self.agent_dir), str(self.maafw_dir), env.get("PATH", "")])
-        env["LD_LIBRARY_PATH"] = os.pathsep.join([str(self.maafw_dir), env.get("LD_LIBRARY_PATH", "")])
-        env.update(self.env_extra)
-        return env
+        return agent_env(self.agent_dir, self.maafw_dir, self.env_extra)
 
     def start(self, resource: Resource) -> None:
         from maa.agent_client import AgentClient

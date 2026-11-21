@@ -15,10 +15,11 @@ import click
 import numpy as np
 from PIL import Image as PILImage
 
+from . import pretasks
 from .agents import Agents, pi_environment
 from .controllers import create_controller
 from .flow import BASE_HEIGHT, BASE_WIDTH, Flow, FlowError, Step, as_dict, as_list
-from .runtime import AGENT_DIR, LOG_DIR, load_task, maafw_dir, resource_bundles
+from .runtime import AGENT_DIR, LOG_DIR, controller_entry, load_task, maafw_dir, resource_bundles
 from .testset import TestSetWriter
 from .types import Box, Controller, Image, Point, Recognition, RecognitionDetail, Resource, Tasker
 
@@ -394,6 +395,11 @@ def run_controller(
         "steps": [],
         "error": None,
     }
+    kind = str(controller_entry(interface, controller_name).get("type") or "")
+    env_extra = pi_environment(interface, controller_name, LOG_DIR)
+    if settings.open_game:
+        # 云网页版的外壳、桌面版客户端都由控制器自己的预任务拉起；已经在跑就直接过。
+        pretasks.run(controller_name, env_extra)
     controller, description = create_controller(interface, controller_name, settings.adb_path, settings.adb_serial)
     click.echo(f"[{controller_name}] 连接 {description}")
     if not controller.post_connection().wait().succeeded:
@@ -409,7 +415,7 @@ def run_controller(
 
     # Agent 常驻：流程里引用的节点可能是自定义识别（MapFind 之类），也可能是内置识别，
     # 都走同一套探测逻辑，所以整场都让它们挂着。
-    agents = Agents(AGENT_DIR, maafw_dir(), LOG_DIR, pi_environment(interface, controller_name, LOG_DIR))
+    agents = Agents(AGENT_DIR, maafw_dir(), LOG_DIR, env_extra)
     agents.start(resource)
     agents.wait_ready()
     click.echo(f"[{controller_name}] Agent 已就绪，可以用任意节点做匹配和点击")
@@ -417,8 +423,11 @@ def run_controller(
         if settings.open_game:
             try:
                 enter_world(tasker, resource, controller_name)
-            except FlowError:
-                # 不在大世界就是游戏没开或停在登录/公告上，交给项目里的 OpenGame 流程
+            except FlowError as error:
+                # 桌面端和云网页版的窗口已经由预任务拉起来了，进不去只能是停在登录、排队或公告上。
+                if kind != "Adb":
+                    raise FlowError(f"[{controller_name}] 没进到游戏：{error}") from error
+                # 安卓端不在大世界就是游戏没开，交给项目里的 OpenGame 流程
                 open_game(tasker, resource, interface, controller_name)
                 enter_world(tasker, resource, controller_name)
     except Exception:

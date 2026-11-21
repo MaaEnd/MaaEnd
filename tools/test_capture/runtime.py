@@ -16,6 +16,7 @@ ASSETS = ROOT / "assets"
 INTERFACE_PATH = ASSETS / "interface.json"
 LOG_DIR = ROOT / ".cache/test-capture/logs"
 AGENT_DIR = ROOT / "install/agent"
+PRETASK_DIR = ASSETS / "tasks" / "pretasks"
 
 _maafw_dir: Path | None = None
 
@@ -69,6 +70,20 @@ def load_task(name: str) -> dict[str, Any]:
 
 def load_interface() -> dict[str, Any]:
     return load_jsonc(INTERFACE_PATH)
+
+
+def pretask_for(controller_name: str) -> dict[str, Any] | None:
+    """这个控制器登记的启动前任务（PI 的 pretask），没有就返回 None。
+
+    CloudWeb 的云网页外壳、Win32-Front 的游戏都由它在连接控制器之前拉起来。
+    """
+    if not PRETASK_DIR.is_dir():
+        return None
+    for path in sorted(PRETASK_DIR.glob("*.json")):
+        pretask = as_dict(load_jsonc(path).get("pretask"))
+        if controller_name in [str(item) for item in as_list(pretask.get("controller"))]:
+            return pretask
+    return None
 
 
 def controller_entry(interface: dict[str, Any], name: str) -> dict[str, Any]:

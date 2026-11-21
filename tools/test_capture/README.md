@@ -6,8 +6,10 @@
 这样换平台也能用同一份流程，不用给每个平台单独写坐标；
 它不读 Pipeline 本身的流转，改节点顺序、改路线都不会影响写好的步骤。
 
-开跑前会先执行一次现成的 `SceneAnyEnterWorld` 节点，把游戏带回大世界再开始截图，
-免得截图里混进菜单、弹窗；游戏压根没开的话，会跑项目自己的 `OpenGame` 任务
+开跑前先跑这个控制器自己的预任务（`assets/tasks/pretasks` 里登记的那个）：
+云网页版会把外壳窗口拉起来，桌面版会把游戏拉起来，已经在跑就直接过。
+接着执行一次现成的 `SceneAnyEnterWorld` 节点，把游戏带回大世界再开始截图，
+免得截图里混进菜单、弹窗；安卓端游戏压根没开的话，会跑项目自己的 `OpenGame` 任务
 （启动包取 `assets/tasks/AndroidOpenGame.json` 里默认客户端），等它进到大世界再继续。
 
 整场运行期间 go-service 与 cpp-algo 都挂着，所以可以引用任意节点，
@@ -75,7 +77,13 @@ uv run test-capture --flow tests/OutpostTrading/capture_flow.py --controller ADB
 `--controller` 写 `assets/interface.json` 里的控制器名，脚本照着里面的定义连设备：
 
 - `Adb` 类（`ADB`、`CloudADB`）：自动查找设备，找不到或者有多个时用 `--adb-serial` 指定地址。
-- `Win32` 类（`Win32-Front`）：按 `class_regex` / `window_regex` 找窗口，截图和输入方式取条目里写的 `screencap` / `mouse` / `keyboard`。
+- `Win32` 类（`Win32-Front`、`CloudWeb`）：按 `class_regex` / `window_regex` 找窗口，截图和输入方式取条目里写的 `screencap` / `mouse` / `keyboard`。
+
+`CloudWeb` 是云·终末地网页版的外壳窗口（类名 `MaaEnd.CloudShell`，1280x720），
+所以同一份流程换 `--controller CloudWeb` 就能跑，不用改坐标。
+开跑前会跑 `LaunchCloudWeb` 预任务把外壳拉起来，外壳没装会提示先 `uv run setup-workspace`，
+第一次用还要先在外壳窗口里登录一次。`--testset` 不支持它：云网页版的画面和 Win32 是同一套界面，
+截图先落本地，要进测试集就用 Win32 的图。
 
 `PlayCover`、`Linux-*`、`MacOS-*` 暂时没接，脚本会直接说明不支持。
 

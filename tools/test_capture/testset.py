@@ -22,6 +22,8 @@ CONTROLLER_DIRS = {
 }
 # 和 loader.mts 的 resourceMap 保持一致：配置里写中文，目录用英文。
 RESOURCE_DIRS = {"官服": "Official_CN"}
+# 云网页版的画面和桌面版是同一套界面，测试集里没有单独的平台目录。
+SHARED_WITH = {"CloudWeb": "Win32"}
 REDACT_SCRIPT = Path(".agents/skills/maaend-test-image/scripts/redact_test_image.py")
 # 脱敏脚本发现 UID 文字没被固定 ROI 盖全时，会建议一个额外 ROI；照着补上再跑一遍。
 ROI_SUGGESTION = re.compile(r"--extra-roi (\d+,\d+,\d+,\d+)")
@@ -33,9 +35,12 @@ class TestSetError(RuntimeError):
 
 def controller_dir(name: str) -> str:
     folder = CONTROLLER_DIRS.get(name)
-    if folder is None:
-        raise TestSetError(f"测试集只支持 ADB / CloudADB / Win32；控制器 {name} 的截图得手动处理")
-    return folder
+    if folder is not None:
+        return folder
+    shared = SHARED_WITH.get(name)
+    if shared is not None:
+        raise TestSetError(f"{name} 没有单独的测试集目录：它的画面和 {shared} 是同一套界面，要进测试集就用 {shared} 的截图")
+    raise TestSetError(f"测试集只支持 ADB / CloudADB / Win32；控制器 {name} 的截图得手动处理")
 
 
 def resource_dir(name: str) -> str:

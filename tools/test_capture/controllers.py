@@ -63,6 +63,12 @@ def pick_adb_device(adb_path: str | None, serial: str | None) -> tuple[str, str]
     return devices[0].adb_path, devices[0].address
 
 
+# 找不到窗口时按控制器说一句下一步怎么办。
+WINDOW_HINTS = {
+    "CloudWeb": "云网页版要先有外壳窗口：跑 uv run setup-workspace 装好 install/cloud-shell，或者开着 --open-game 重跑让预任务拉起它",
+}
+
+
 def find_window(win32_config: dict[str, Any]) -> int:
     from maa.toolkit import Toolkit
 
@@ -76,7 +82,7 @@ def find_window(win32_config: dict[str, Any]) -> int:
         and (not window_regex or re.search(window_regex, window.window_name))
     ]
     if not matched:
-        raise FlowError(f"没有找到窗口（class_regex={class_regex!r} window_regex={window_regex!r}），请先打开游戏")
+        raise FlowError(f"没有找到窗口（class_regex={class_regex!r} window_regex={window_regex!r}）")
     if len(matched) > 1:
         titles = [f"{window.class_name} / {window.window_name}" for window in matched]
         raise FlowError(f"匹配到多个窗口，无法确定用哪一个：{titles}")
@@ -105,7 +111,10 @@ def create_controller(
         screencap = MaaWin32ScreencapMethodEnum[str(config.get("screencap") or "ScreenDC")]
         mouse = MaaWin32InputMethodEnum[str(config.get("mouse") or "Seize")]
         keyboard = MaaWin32InputMethodEnum[str(config.get("keyboard") or "Seize")]
-        hwnd = find_window(config)
+        try:
+            hwnd = find_window(config)
+        except FlowError as error:
+            raise FlowError(f"{error}；{WINDOW_HINTS.get(name, '请先打开游戏')}") from error
         controller = cast(Controller, Win32Controller(hwnd, screencap, mouse, keyboard))
         return controller, f"Win32 窗口句柄 {hwnd}"
     raise FlowError(f"控制器 {name} 的类型是 {kind}，这个脚本目前只支持 Adb 和 Win32")
