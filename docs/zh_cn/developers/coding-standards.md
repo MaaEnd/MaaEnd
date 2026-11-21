@@ -77,11 +77,11 @@ _Custom 代码通常只能由作者本人维护。若连作者都看不懂，就
 常见做法是在 `next` 里挂：
 
 ```jsonc
-"next": {
+"next": [
    "SceneEnterXXXSuccess", // 成功进入目标场景
    "SceneEnterXXXConfirmPopUp", // 处理弹窗。此节点不使用 JumpBack，next 连接 SceneEnterXXXSuccess，确保线性流程
    "[JumpBack]SceneWaitLoadingExit"
-}
+]
 ```
 
 ### 禁止硬延迟

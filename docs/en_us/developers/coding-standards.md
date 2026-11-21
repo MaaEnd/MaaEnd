@@ -77,11 +77,11 @@ A good process is not just "the main flow works," but: the normal main flow work
 Common practice is to add to `next`:
 
 ```jsonc
-"next": {
+"next": [
    "SceneEnterXXXSuccess", // Successfully entered the target scene
    "SceneEnterXXXConfirmPopUp", // Handle pop-up. This node does not use JumpBack; its next connects to SceneEnterXXXSuccess to ensure a linear flow
    "[JumpBack]SceneWaitLoadingExit"
-}
+]
 ```
 
 ### Prohibit Hard Delays
