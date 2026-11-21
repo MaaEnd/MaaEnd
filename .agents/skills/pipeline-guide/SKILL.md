@@ -304,6 +304,7 @@ MaaEnd 使用 v2 格式，recognition 和 action 放入二级字典：
 ## 参考
 
 - Pipeline 协议完整规范：[PipelineProtocol](https://github.com/MaaXYZ/MaaFramework/blob/main/docs/en_us/3.1-PipelineProtocol.md)
+- 编码规范：`docs/zh_cn/developers/coding-standards.md`
 - 通用按钮文档：`docs/zh_cn/developers/common-buttons.md`
 - SceneManager 文档：`docs/zh_cn/developers/scene-manager.md`
 - Custom 节点文档：`docs/zh_cn/developers/custom.md`
