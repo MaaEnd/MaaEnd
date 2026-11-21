@@ -2904,6 +2904,7 @@
     "task.StashBackpack.option.StashBackpackTaskSubTask.label": "バックパックを収納",
     "task.StashBackpack.option.UseConsumableSubTask.label": "使用可能アイテムを取得",
     "task.SwitchTeam.label": "🔄 編成切替",
+    "task.SwitchTeam.focus.dijiang_escape": "帝江号ではオペレーターの位置を切り替えられないため、先に第4谷地のハブ地区へテレポートします",
     "task.TrialOfSwordmancy.description": "デイリー剣術演武 / 自由演算を自動完了",
     "task.TrialOfSwordmancy.focus.coating_reward_mode": "本日分の報酬回数が残っています。先に報酬演算を完了してください",
     "task.TrialOfSwordmancy.focus.operation_failed": "<span style=\"color: red; font-weight: bold;\">作戦失敗</span>",
