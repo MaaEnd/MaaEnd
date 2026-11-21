@@ -204,7 +204,6 @@
             "param": {
                 "all_of": [
                     "GiftOperatorCheckSelectedLabelColor",
-                    "GiftOperatorCheckSelectedTextColor",
                     "GiftOperatorCheckSelectedText1"
                 ]
             }
@@ -309,37 +308,18 @@
             }
         }
     },
-    "GiftOperatorCheckSelectedTextColor": {
-        "desc": "选中角色文字颜色",
-        "recognition": {
-            "type": "ColorMatch",
-            "param": {
-                "roi": "GiftOperatorCheckSelectedLabelColor",
-                "lower": [
-                    0,
-                    0,
-                    45
-                ],
-                "upper": [
-                    80,
-                    78,
-                    55
-                ],
-                "count": 15
-            }
-        }
-    },
     "GiftOperatorCheckSelectedText1": {
         "desc": "选中角色文字",
         "recognition": {
             "type": "OCR",
             "param": {
-                "roi": "GiftOperatorCheckSelectedTextColor",
+                "roi": "GiftOperatorCheckSelectedLabelColor",
+                // 黄框高度在云画面上不稳定（实测 110~151），只取框内右上角序号区域
                 "roi_offset": [
-                    -2,
-                    -2,
-                    4,
-                    4
+                    75,
+                    3,
+                    -75,
+                    -83
                 ],
                 "expected": [
                     "1"
@@ -353,12 +333,12 @@
         "recognition": {
             "type": "OCR",
             "param": {
-                "roi": "GiftOperatorCheckSelectedTextColor",
+                "roi": "GiftOperatorCheckSelectedLabelColor",
                 "roi_offset": [
-                    -2,
-                    -2,
-                    4,
-                    4
+                    75,
+                    3,
+                    -75,
+                    -83
                 ],
                 "expected": [
                     "2"
@@ -372,12 +352,12 @@
         "recognition": {
             "type": "OCR",
             "param": {
-                "roi": "GiftOperatorCheckSelectedTextColor",
+                "roi": "GiftOperatorCheckSelectedLabelColor",
                 "roi_offset": [
-                    -2,
-                    -2,
-                    4,
-                    4
+                    75,
+                    3,
+                    -75,
+                    -83
                 ],
                 "expected": [
                     "3"
@@ -393,7 +373,6 @@
             "param": {
                 "all_of": [
                     "GiftOperatorCheckSelectedLabelColor",
-                    "GiftOperatorCheckSelectedTextColor",
                     "GiftOperatorCheckSelectedText1"
                 ]
             }
@@ -409,7 +388,6 @@
             "param": {
                 "all_of": [
                     "GiftOperatorCheckSelectedLabelColor",
-                    "GiftOperatorCheckSelectedTextColor",
                     "GiftOperatorCheckSelectedText2"
                 ]
             }
@@ -425,7 +403,6 @@
             "param": {
                 "all_of": [
                     "GiftOperatorCheckSelectedLabelColor",
-                    "GiftOperatorCheckSelectedTextColor",
                     "GiftOperatorCheckSelectedText3"
                 ]
             }
