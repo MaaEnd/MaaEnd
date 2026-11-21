@@ -112,11 +112,11 @@ When the target matching region `target` is not specified, it falls back to the 
 
 > [!NOTE]
 >
-> When the node property is `"inverse": true`, or the recognition type is `DirectHit` (in certain cases), the recognition result `reco.box` is empty, and a `wait_freezes` without an explicit `target` will be silently skipped.
+> When the node property is `"inverse": true`, or the recognition type is `DirectHit` (in certain cases), the recognition result `reco.box` is empty, and you must specify the `target` parameter of `wait_freezes`, otherwise it will be silently skipped.
 
 `pre_wait_freezes` is commonly used for recognitions that hit prematurely during transition states—for example, fade-in/fade-out effects when entering a screen can cause template matching to hit early. In principle, you must explicitly specify the `target` region for `pre_wait_freezes`: the default fallback target region has already passed recognition once, so performing template matching on this local region again is meaningless and degenerates into `pre_delay`. Adding `pre_wait_freezes` to a `DirectHit` node is not recommended.
 
-Pure recognition nodes without an `action` should prefer `pre_wait_freezes`.
+Pure recognition nodes without an `action` should prefer `pre_wait_freezes` rather than `post_wait_freezes`.
 
 `post_wait_freezes` is commonly used when a `next` node uses Custom Recognition after a click, as such recognitions usually assume the screen is already in a stable state. For cases that do not use Custom Recognition but have a `DirectHit` fallback in the `next` list and require `wait_freezes` to ensure screen stability, prefer adding an intermediate recognition node that uses `pre_wait_freezes`; if an intermediate node cannot be added, it indicates a fragile recognition chain—consider switching to `on_error` to jump to the fallback node and handling transition states in the main flow via `next`.
 

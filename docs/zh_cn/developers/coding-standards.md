@@ -112,11 +112,11 @@ MaaFramework 会在未命中任何 `next` 节点时持续循环，直到任一�
 
 > [!NOTE]
 >
-> 节点属性 `"inverse": true`，或识别类型为 `DirectHit`（在某些情况下）时，识别结果 `reco.box` 为空，此时未指明 `target` 的 `wait_freezes` 会被静默跳过。
+> 节点属性 `"inverse": true`，或识别类型为 `DirectHit`（在某些情况下）时，识别结果 `reco.box` 为空，需要写明 `wait_freezes` 的 `target` 参数 ，否则会被静默跳过。
 
 `pre_wait_freezes` 常用于会在过渡态提前命中的识别，例如进入界面时的淡入淡出特效会使模板匹配提前命中。原则上，必须为 `pre_wait_freezes` 显式指明 `target` 区域：默认 fallback 的目标区域本身已经通过一次识别，再对这一局部进行模板匹配是无意义的，会退化为 `pre_delay`。不推荐对 `DirectHit` 节点添加 `pre_wait_freezes`。
 
-没有 `action` 的纯识别节点应优先使用 `pre_wait_freezes`。
+没有 `action` 的纯识别节点应优先使用 `pre_wait_freezes`，而非 `post_wait_freezes`。
 
 `post_wait_freezes` 常用于执行点击后，`next` 节点使用 Custom Recognition 的情况，这些识别通常假设已处于画面稳定的状态。非 Custom Recognition，但 `next` 列表中存在 `DirectHit` 备选，需要 `wait_freezes` 确保画面稳定的情况，应优先添加中间识别节点使用 `pre_wait_freezes`；若无法添加中间节点，说明识别链条脆弱，考虑改用 `on_error` 跳转兜底节点，主流程通过 `next` 处理过渡态。
 
