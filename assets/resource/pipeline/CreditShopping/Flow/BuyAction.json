@@ -90,21 +90,10 @@
             "type": "And",
             "param": {
                 "all_of": [
-                    {
-                        "recognition": {
-                            "type": "Custom",
-                            "param": {
-                                "custom_recognition": "ExpressionRecognition",
-                                "custom_recognition_param": {
-                                    "expression": "{CreditShoppingReserveCreditOCRInternal}-{RefreshCost}<400"
-                                }
-                            }
-                        }
-                    },
                     "CreditShoppingShelfAnyItem",
                     "CreditShoppingShelfAnyCanAfford"
                 ],
-                "box_index": 2
+                "box_index": 0
             }
         },
         "pre_wait_freezes": 100,
