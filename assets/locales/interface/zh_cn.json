@@ -2904,6 +2904,7 @@
     "task.StashBackpack.option.StashBackpackTaskSubTask.label": "存放背包",
     "task.StashBackpack.option.UseConsumableSubTask.label": "取用可用道具",
     "task.SwitchTeam.label": "🔄切换编队",
+    "task.SwitchTeam.focus.dijiang_escape": "当前在帝江号，无法切换干员位置，先传送到四号谷地枢纽区",
     "task.TrialOfSwordmancy.description": "自动完成每日选剑演武 / 自由演算",
     "task.TrialOfSwordmancy.focus.coating_reward_mode": "今日还有奖励次数未用尽，请先完成奖励演算",
     "task.TrialOfSwordmancy.focus.operation_failed": "<span style=\"color: red; font-weight: bold;\">行动失败</span>",

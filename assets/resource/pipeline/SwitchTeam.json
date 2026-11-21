@@ -244,6 +244,7 @@
         "rate_limit": 0,
         "next": [
             "SwitchTeamOperatorPosSkip",
+            "SwitchTeamOperatorPosDijiangEscape",
             "SwitchTeamOperatorPos1",
             "SwitchTeamOperatorPos2",
             "SwitchTeamOperatorPos3",
@@ -254,6 +255,32 @@
         "desc": "不切换干员位置",
         "pre_delay": 0,
         "post_delay": 0
+    },
+    "SwitchTeamOperatorPosDijiangEscape": {
+        "desc": "在帝江号中，传送到四号谷地枢纽区",
+        "recognition": "And",
+        "all_of": [
+            "InDijiangWorld"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldValleyIVTheHubHubBasePowerPlant"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SwitchTeamOperatorPos1",
+            "SwitchTeamOperatorPos2",
+            "SwitchTeamOperatorPos3",
+            "SwitchTeamOperatorPos4"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.SwitchTeam.focus.dijiang_escape"
+        }
     },
     "SwitchTeamOperatorPos1": {
         "desc": "切换到 1 号位干员",
