@@ -35,7 +35,8 @@ void RecordTick(
     std::optional<double> camera_heading_deg,
     double issued_delta_deg,
     bool degraded_fix,
-    int64_t tick_gap_ms = 0);
+    TimePoint observed_at = {},
+    TimePoint sent_at = {});
 
 void EndRun(SensitivityRun* run, MaaContext* context);
 

@@ -70,13 +70,14 @@ void RecordTick(
     std::optional<double> camera_heading_deg,
     double issued_delta_deg,
     bool degraded_fix,
-    int64_t tick_gap_ms)
+    TimePoint observed_at,
+    TimePoint sent_at)
 {
     std::optional<Verdict> verdict;
     std::optional<Estimate> estimate;
     {
         const std::lock_guard<std::mutex> guard(run->mutex);
-        verdict = RecordDetectorTick(&run->detector, tick_seq, camera_heading_deg, issued_delta_deg, degraded_fix, tick_gap_ms);
+        verdict = RecordDetectorTick(&run->detector, tick_seq, camera_heading_deg, issued_delta_deg, degraded_fix, observed_at, sent_at);
         estimate = TakeLastEstimate(&run->detector);
     }
 
