@@ -2,6 +2,7 @@ package essencefilter
 
 import (
 	"fmt"
+	"slices"
 	"sort"
 	"strings"
 
@@ -220,83 +221,100 @@ type decisionNextNodes struct {
 	Lock    string
 	Discard string
 	Skip    string
-	// AfterBattle marks the after-battle flow, whose decisions are recorded as inventory increments.
-	AfterBattle bool
-	// ReadOnly marks the after-battle readonly pass: it records this round's held essences, locks nothing
-	// and discards nothing.
-	ReadOnly bool
 }
 
-func runUnifiedSkillDecision(
-	ctx *maa.Context,
-	arg *maa.CustomActionArg,
-	st *RunState,
-	engine *matchapi.Engine,
-	ocr matchapi.OCRInput,
-	next decisionNextNodes,
-) bool {
-	skills := []string{ocr.Skills[0], ocr.Skills[1], ocr.Skills[2]}
+func (next decisionNextNodes) route(ctx *maa.Context, task, mark string) bool {
+	node := next.Skip
+	switch mark {
+	case lockedMark:
+		node = next.Lock
+	case discarded:
+		node = next.Discard
+	}
+	if err := ctx.OverrideNext(task, []maa.NextItem{{Name: node}}); err != nil {
+		return inventoryFailed(err)
+	}
+	return true
+}
 
-	matchResult, err := engine.MatchOCR(ocr, buildMatchOptions(st))
+func decideSkillMark(ctx *maa.Context, st *RunState, ocr matchapi.OCRInput) (string, bool) {
+	matchResult, err := st.MatchEngine.MatchOCR(ocr, buildMatchOptions(st))
 	if err != nil || matchResult == nil {
 		if err != nil {
 			reportFocusByKey(ctx, "focus.error.match_failed", err.Error())
 		} else {
 			reportFocusByKey(ctx, "focus.error.match_failed", "nil match result")
 		}
-		return false
+		return "", false
 	}
+	return applySkillMark(ctx, st, ocr, matchResult)
+}
 
+// Mark from the same resolved weapon IDs that go into the report and target stock.
+func decideInventoryMark(ctx *maa.Context, st *RunState, ocr matchapi.OCRInput, item inventoryItem) (string, bool) {
+	result := &matchapi.MatchResult{
+		Kind:          matchapi.MatchNone,
+		ShouldDiscard: st.PipelineOpts.DiscardUnmatched && len(item.weaponIDs) == 0,
+	}
+	for _, weapon := range st.MatchEngine.Weapons() {
+		if (weapon.Rarity == 5 || weapon.Rarity == 6) && slices.Contains(item.weaponIDs, weapon.InternalID) {
+			result.Weapons = append(result.Weapons, weapon)
+		}
+	}
+	if len(result.Weapons) > 0 {
+		weapon := result.Weapons[0]
+		result.Kind, result.ShouldLock = matchapi.MatchExact, true
+		result.SkillIDs, result.SkillsChinese = weapon.SkillIDs, weapon.SkillsChinese
+		result.Levels = item.groupRow().Levels
+	}
+	return applySkillMark(ctx, st, ocr, result)
+}
+
+func applySkillMark(ctx *maa.Context, st *RunState, ocr matchapi.OCRInput, matchResult *matchapi.MatchResult) (string, bool) {
+	skills := ocr.Skills[:]
 	reportOCRSkills(ctx, skills, ocr.Levels, matchResult.Kind != matchapi.MatchNone)
 
-	locked := false
 	switch matchResult.Kind {
 	case matchapi.MatchExact:
-		if st.LockLimit != nil && !applyLockLimit(ctx, arg.CurrentTaskName, st.LockLimit, matchResult, st.CurrentLocked, next) {
-			st.CurrentSkills = [3]string{}
-			st.CurrentSkillLevels = [3]int{}
-			return true
+		if verdict := st.LockLimit.applyToExact(matchResult, st.CurrentLocked); verdict.Quota > 0 {
+			reportLockLimit(ctx, verdict, st.CurrentLocked)
+			if !matchResult.ShouldLock {
+				break
+			}
+			matchResult.Weapons = slices.DeleteFunc(slices.Clone(matchResult.Weapons), func(weapon matchapi.WeaponData) bool {
+				return !isLockLimitTarget(weapon, st.PipelineOpts.LockLimitWeaponIDs)
+			})
 		}
-		locked = matchResult.ShouldLock && !next.ReadOnly
 		reportMatchedWeapons(ctx, matchResult.Weapons)
-		if !next.ReadOnly {
-			st.MatchedCount++
+		st.MatchedCount++
 
-			key := skillCombinationKey(matchResult.SkillIDs)
-			if key != "" {
-				if s, ok := st.MatchedCombinationSummary[key]; ok {
-					s.Count++
-				} else {
-					st.MatchedCombinationSummary[key] = &matchapi.SkillCombinationSummary{
-						SkillIDs:      append([]int(nil), matchResult.SkillIDs...),
-						SkillsChinese: append([]string(nil), matchResult.SkillsChinese...),
-						OCRSkills:     append([]string(nil), skills...),
-						Weapons:       append([]matchapi.WeaponData(nil), matchResult.Weapons...),
-						Count:         1,
-					}
+		key := skillCombinationKey(matchResult.SkillIDs)
+		if key != "" {
+			if s, ok := st.MatchedCombinationSummary[key]; ok {
+				s.Count++
+			} else {
+				st.MatchedCombinationSummary[key] = &matchapi.SkillCombinationSummary{
+					SkillIDs:      append([]int(nil), matchResult.SkillIDs...),
+					SkillsChinese: append([]string(nil), matchResult.SkillsChinese...),
+					OCRSkills:     append([]string(nil), skills...),
+					Weapons:       append([]matchapi.WeaponData(nil), matchResult.Weapons...),
+					Count:         1,
 				}
 			}
 		}
-		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: next.Lock}})
-
 	case matchapi.MatchFuturePromising, matchapi.MatchSlot3Level3Practical:
 		var reason string
 		if matchResult.Kind == matchapi.MatchFuturePromising {
-			if !next.ReadOnly {
-				st.ExtFuturePromisingCount++
-			}
+			st.ExtFuturePromisingCount++
 			reason = i18n.T("essencefilter.reason.future_promising",
 				matchResult.ExtLevelSum, matchResult.ExtMinTotal)
 		} else {
-			if !next.ReadOnly {
-				st.ExtSlot3PracticalCount++
-			}
+			st.ExtSlot3PracticalCount++
 			reason = i18n.T("essencefilter.reason.slot3_practical",
 				matchResult.SkillsChinese[2], matchResult.ExtSlot3Lv, matchResult.ExtMinLevel)
 		}
 
-		if matchResult.ShouldLock && !next.ReadOnly {
-			locked = true
+		if matchResult.ShouldLock {
 			st.MatchedCount++
 			// 与精准匹配相同，均用 skillCombinationKey（未来可期时 SkillIDs 为各槽池解析出的 ID，未识别槽为 0）。
 			key := skillCombinationKey(matchResult.SkillIDs)
@@ -319,40 +337,28 @@ func runUnifiedSkillDecision(
 				}
 			}
 			reportExtRule(ctx, reason, true)
-			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: next.Lock}})
 		} else {
 			reportExtRule(ctx, reason, false)
-			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: next.Skip}})
 		}
 
 	case matchapi.MatchNone:
-		if matchResult.ShouldDiscard && !next.ReadOnly {
-			reportNoMatch(ctx, true)
-			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: next.Discard}})
-		} else {
-			reportNoMatch(ctx, false)
-			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: next.Skip}})
-		}
-	}
-
-	if next.AfterBattle {
-		// 分遍模式由只读遍记录本轮持有份数，执行遍只记它实际落成的锁定；单遍模式两种增量一起记。
-		increment := inventoryIncrement{
-			Held:   next.ReadOnly || !st.PipelineOpts.LimitLockedPerCombination,
-			Locked: locked,
-		}
-		if delta, ok := afterBattleInventoryDelta(matchResult, increment); ok {
-			st.PendingInventory = append(st.PendingInventory, delta)
-		}
+		reportNoMatch(ctx, matchResult.ShouldDiscard)
 	}
 
 	st.CurrentSkills = [3]string{}
 	st.CurrentSkillLevels = [3]int{}
-	return true
+	switch {
+	case matchResult.ShouldLock:
+		return lockedMark, true
+	case matchResult.ShouldDiscard:
+		return discarded, true
+	default:
+		return unmarked, true
+	}
 }
 
-func loadMatchEngine(ctx *maa.Context, opts *EssenceFilterOptions) (*matchapi.Engine, error) {
-	locale := resolveInputLanguage(ctx, opts.InputLanguage)
+func loadMatchEngine(ctx *maa.Context, ctrl *maa.Controller, opts *EssenceFilterOptions) (*matchapi.Engine, error) {
+	locale := resolveInputLanguage(ctx, ctrl, opts.InputLanguage)
 	opts.InputLanguage = locale
 	engine, err := matchapi.NewEngineFromDirWithLocale(essenceFilterDataDir, locale)
 	if err != nil {
@@ -361,68 +367,13 @@ func loadMatchEngine(ctx *maa.Context, opts *EssenceFilterOptions) (*matchapi.En
 	return engine, nil
 }
 
-// applyLockLimit reports the quota verdict for one exact match and returns whether to lock it.
-func applyLockLimit(
-	ctx *maa.Context,
-	taskName string,
-	planner *lockLimitPlanner,
-	match *matchapi.MatchResult,
-	locked bool,
-	next decisionNextNodes,
-) bool {
-	skip := func() bool {
-		ctx.OverrideNext(taskName, []maa.NextItem{{Name: next.Skip}})
-		return false
-	}
-	verdict := planner.decide(match.SkillIDs, match.Levels, locked)
-	levels := match.Levels
+func reportLockLimit(ctx *maa.Context, verdict lockLimitDecision, locked bool) {
 	switch {
-	case verdict.MissingGroup:
-		reportColoredByKey(ctx, "#ff9f43", "lock_limit.warn_missing_group", verdict.Quota)
-		return skip()
-	case verdict.MissingRow:
-		reportColoredByKey(ctx, "#ff9f43", "lock_limit.warn_missing_row", levels[0], levels[1], levels[2])
-		return skip()
-	}
-	if locked {
-		if verdict.NeedsUnlock {
-			reportColoredByKey(ctx, "#ff4d4f", "lock_limit.unlock_needed",
-				strings.Join(match.SkillsChinese, i18n.Separator()), levels[0], levels[1], levels[2])
-		} else {
-			reportSimpleByKey(ctx, "lock_limit.already_locked")
-		}
-		return skip()
-	}
-	if !verdict.Lock {
+	case locked:
+		reportSimpleByKey(ctx, "lock_limit.already_locked")
+	case !verdict.Lock:
 		reportSimpleByKey(ctx, "lock_limit.not_in_quota", verdict.Quota)
-		return skip()
-	}
-	reportSimpleByKey(ctx, "lock_limit.in_quota", verdict.Quota)
-	return true
-}
-
-// reportFinishLockLimit lists the combinations holding locked suboptimal essences.
-func reportFinishLockLimit(ctx *maa.Context, st *RunState) {
-	if st.LockLimit == nil {
-		return
-	}
-	summaries := st.LockLimit.overLimitSummaries()
-	if len(summaries) == 0 {
-		reportSimpleByKey(ctx, "lock_limit.summary_none")
-		return
-	}
-	reportColoredByKey(ctx, "#ff9f43", "lock_limit.summary_title")
-	for _, summary := range summaries {
-		reportSimpleByKey(ctx, "lock_limit.summary_row",
-			strings.Join(summary.Skills[:], i18n.Separator()),
-			strings.Join(summary.Weapons, i18n.Separator()),
-			summary.Quota,
-			summary.Locked,
-			summary.Excess,
-		)
-		for _, row := range summary.Rows {
-			reportSimpleByKey(ctx, "lock_limit.summary_level",
-				row.Levels[0], row.Levels[1], row.Levels[2], row.Count)
-		}
+	default:
+		reportSimpleByKey(ctx, "lock_limit.in_quota", verdict.Quota)
 	}
 }

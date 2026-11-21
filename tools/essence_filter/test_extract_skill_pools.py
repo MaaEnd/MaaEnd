@@ -5,12 +5,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
-# 把 tools/ 插到 sys.path 最前，以便裸名 import extract_skill_pools。
-_TOOLS = Path(__file__).resolve().parent.parent
-if str(_TOOLS) not in sys.path:
-    sys.path.insert(0, str(_TOOLS))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from extract_skill_pools import load_suffix_stopwords  # noqa: E402
+from extract_skill_pools import load_suffix_stopwords
 
 
 class LoadSuffixStopwordsTest(unittest.TestCase):

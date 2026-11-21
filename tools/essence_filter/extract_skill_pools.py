@@ -164,19 +164,22 @@ def extract_skills_by_slot(
     return slot1, slot2, slot3, translations
 
 
-def load_existing_ids(path: Path) -> tuple[dict[tuple[str, str], int], dict[str, int]]:
-    """从已有 skill_pools.json 加载 (slot_key, cn) -> id，以及每 slot 的 max_id。若文件不存在或格式不对则返回空。"""
+def load_existing_ids(
+    path: Path,
+) -> tuple[dict[tuple[str, str], int], dict[str, int], dict[tuple[str, str], str]]:
+    """从已有 skill_pools.json 加载 (slot_key, cn) -> id，每 slot 的 max_id 和已有的 term_id。若文件不存在或格式不对则返回空。"""
     existing_cn_to_id: dict[tuple[str, str], int] = {}
+    term_ids: dict[tuple[str, str], str] = {}
     max_id_by_slot: dict[str, int] = {}
     if not path.exists():
-        return existing_cn_to_id, max_id_by_slot
+        return existing_cn_to_id, max_id_by_slot, term_ids
     try:
         with path.open("r", encoding="utf-8") as f:
             data = json.load(f)
     except (OSError, json.JSONDecodeError):
-        return existing_cn_to_id, max_id_by_slot
+        return existing_cn_to_id, max_id_by_slot, term_ids
     if not isinstance(data, dict):
-        return existing_cn_to_id, max_id_by_slot
+        return existing_cn_to_id, max_id_by_slot, term_ids
     for slot_key in ("slot1", "slot2", "slot3"):
         lst = data.get(slot_key)
         if not isinstance(lst, list):
@@ -189,9 +192,12 @@ def load_existing_ids(path: Path) -> tuple[dict[tuple[str, str], int], dict[str,
             id_val = item.get("id")
             if isinstance(cn, str) and isinstance(id_val, int):
                 existing_cn_to_id[(slot_key, cn)] = id_val
+                term_id = item.get("term_id")
+                if isinstance(term_id, str) and term_id:
+                    term_ids[(slot_key, cn)] = term_id
                 slot_max = max(slot_max, id_val)
         max_id_by_slot[slot_key] = slot_max
-    return existing_cn_to_id, max_id_by_slot
+    return existing_cn_to_id, max_id_by_slot, term_ids
 
 
 def build_skill_pools(
@@ -201,10 +207,13 @@ def build_skill_pools(
     translations: dict[tuple[str, str], dict[str, str]],
     existing_cn_to_id: dict[tuple[str, str], int] | None = None,
     max_id_by_slot: dict[str, int] | None = None,
+    term_ids: dict[tuple[str, str], str] | None = None,
 ) -> dict[str, list[dict]]:
     """赋稳定 id：已有 (slot, cn) 沿用旧 id，新增技能用该 slot 的 max_id+1；最终按 id 排序输出。"""
     existing = existing_cn_to_id or {}
     max_ids = max_id_by_slot or {}
+    terms = term_ids or {}
+    missing = []
     out: dict[str, list[dict]] = {}
 
     for key, s in (("slot1", slot1_set), ("slot2", slot2_set), ("slot3", slot3_set)):
@@ -218,19 +227,24 @@ def build_skill_pools(
             if eid is None:
                 eid = next_id
                 next_id += 1
-            entries.append(
-                {
-                    "cn": t["cn"],
-                    "tc": t.get("tc", ""),
-                    "en": t.get("en", ""),
-                    "jp": t.get("jp", ""),
-                    "kr": t.get("kr", ""),
-                    "id": eid,
-                }
-            )
+            entry = {
+                "cn": t["cn"],
+                "tc": t.get("tc", ""),
+                "en": t.get("en", ""),
+                "jp": t.get("jp", ""),
+                "kr": t.get("kr", ""),
+                "id": eid,
+            }
+            if term_id := terms.get((key, base_cn)):
+                entry["term_id"] = term_id
+            else:
+                missing.append(f"{key}/{eid} ({base_cn})")
+            entries.append(entry)
         entries.sort(key=lambda x: x["id"])
         out[key] = entries
 
+    if missing:
+        print("[WARNING] 请在 skill_pools.json 补全 term_id：" + "、".join(missing), file=sys.stderr)
     return out
 
 
@@ -288,7 +302,7 @@ def main() -> int:
     slot1_set, slot2_set, slot3_set, translations = extract_skills_by_slot(
         weapons_data, lang_stopwords
     )
-    existing_cn_to_id, max_id_by_slot = load_existing_ids(output_path)
+    existing_cn_to_id, max_id_by_slot, term_ids = load_existing_ids(output_path)
     pools = build_skill_pools(
         slot1_set,
         slot2_set,
@@ -296,6 +310,7 @@ def main() -> int:
         translations,
         existing_cn_to_id=existing_cn_to_id,
         max_id_by_slot=max_id_by_slot,
+        term_ids=term_ids,
     )
 
     output_path.parent.mkdir(parents=True, exist_ok=True)

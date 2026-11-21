@@ -3,11 +3,15 @@ package essencefilter
 import maa "github.com/MaaXYZ/maa-framework-go/v4"
 
 func Register() {
+	maa.AgentServerRegisterCustomAction("EssenceRewardFailedAction", &EssenceRewardFailedAction{})
+	maa.AgentServerRegisterCustomAction("EssenceFilterReadDetailAction", &EssenceFilterReadDetailAction{})
 	maa.AgentServerAddTaskerSink(&runStateResetSink{})
 	maa.AgentServerRegisterCustomAction("EssenceFilterInitAction", &EssenceFilterInitAction{})
 	maa.AgentServerRegisterCustomAction("EssenceFilterCheckItemAction", &EssenceFilterCheckItemAction{})
 	maa.AgentServerRegisterCustomAction("EssenceFilterCheckItemLevelAction", &EssenceFilterCheckItemLevelAction{})
+	maa.AgentServerRegisterCustomAction("EssenceFilterConfirmMarkAction", &EssenceFilterConfirmMarkAction{})
 	maa.AgentServerRegisterCustomAction("EssenceFilterReadLockStateAction", &EssenceFilterReadLockStateAction{})
+	maa.AgentServerRegisterCustomAction("EssenceFilterUnreadPurpleAction", &EssenceFilterUnreadPurpleAction{})
 	maa.AgentServerRegisterCustomAction("EssenceFilterSkillDecisionAction", &EssenceFilterSkillDecisionAction{})
 	maa.AgentServerRegisterCustomAction("EssenceFilterFinishAction", &EssenceFilterFinishAction{})
 

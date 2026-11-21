@@ -11,7 +11,6 @@ import (
 )
 
 var (
-	errNoTasker        = errors.New("essencefilter: tasker is nil")
 	errNoController    = errors.New("essencefilter: controller is nil")
 	errScreencapFailed = errors.New("essencefilter: screencap failed")
 )
@@ -47,12 +46,7 @@ func explicitInputLanguage(s string) (string, bool) {
 	}
 }
 
-func resolveInitImage(ctx *maa.Context) (image.Image, error) {
-	tasker := ctx.GetTasker()
-	if tasker == nil {
-		return nil, errNoTasker
-	}
-	ctrl := tasker.GetController()
+func resolveInitImage(ctrl *maa.Controller) (image.Image, error) {
 	if ctrl == nil {
 		return nil, errNoController
 	}
@@ -65,8 +59,8 @@ func resolveInitImage(ctx *maa.Context) (image.Image, error) {
 
 // detectInputLanguageFromScreen runs the five language OCR nodes on one frame.
 // Returns the first hit locale, or CN with ok=false when none hit / image unavailable.
-func detectInputLanguageFromScreen(ctx *maa.Context) (locale string, ok bool) {
-	img, err := resolveInitImage(ctx)
+func detectInputLanguageFromScreen(ctx *maa.Context, ctrl *maa.Controller) (locale string, ok bool) {
+	img, err := resolveInitImage(ctrl)
 	if err != nil || img == nil {
 		log.Warn().Err(err).Str("component", "EssenceFilter").Msg("language detect: no screenshot")
 		return matchapi.LocaleCN, false
@@ -93,12 +87,12 @@ func detectInputLanguageFromScreen(ctx *maa.Context) (locale string, ok bool) {
 }
 
 // resolveInputLanguage prefers explicit attach.input_language; otherwise OCR-detects from screen.
-func resolveInputLanguage(ctx *maa.Context, attachLang string) string {
+func resolveInputLanguage(ctx *maa.Context, ctrl *maa.Controller, attachLang string) string {
 	if loc, forced := explicitInputLanguage(attachLang); forced {
 		log.Info().Str("component", "EssenceFilter").Str("input_language", loc).Msg("language from attach override")
 		return loc
 	}
-	loc, hit := detectInputLanguageFromScreen(ctx)
+	loc, hit := detectInputLanguageFromScreen(ctx, ctrl)
 	if !hit {
 		reportFocusByKey(ctx, "focus.warn.language_detect_failed")
 	}

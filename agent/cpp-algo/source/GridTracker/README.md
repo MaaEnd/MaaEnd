@@ -13,7 +13,7 @@ Pipeline flow.
 ```cpp
 gridtracker::Result observe(
     const recogrid::GridFrame& frame,
-    const gridtracker::Options& options = {});
+    const gridtracker::Options& options);
 
 void reset();
 ```
@@ -25,42 +25,17 @@ call `reset()` when a new task starts.
 
 | Status | Meaning |
 | --- | --- |
-| `Initial` | First valid frame; all occupied cells are published as new. |
-| `Advanced` | The viewport moved forward, or the visible shape was refreshed without proving the end. |
-| `ConfirmingEnd` | First complete zero-offset repeat; the caller must scroll once more. |
-| `Repeated` | Second consecutive complete repeat; the caller may treat the list as finished. |
-| `Rejected` | Empty, incompatible, or low-confidence frame; committed grid state is not advanced. |
-
-`Result::accepted()` is false only for `Rejected`.
+| `Initial` | First frame anchored at the verified top. |
+| `Advanced` | Additional global positions found. |
+| `Stalled` | Accepted overlap yielded no new positions. |
+| `Complete` | Bottom confirmed and the number of distinct positions matches the displayed count. |
+| `Rejected` | Grid, position, occupancy or alignment could not be verified. The previous accepted frame remains available for recovery. |
 
 ## Alignment and placement
 
-The tracker compares the current frame against non-negative row offsets in the
-previous frame. Candidate ordering is:
+The scrollbar bounds the possible absolute row positions. The tracker registers each overlapping row and compares every occupied icon core with the same column in the other frame. A forward step with a unique geometric offset can use one full matching row. Otherwise it needs at least two matching rows and a unique visual offset. Competing offsets and a one-column shift provide comparison scores when the scrollbar admits multiple positions. An interval that permits a disjoint viewport leaves the last confirmed position intact.
 
-1. higher matched-cell ratio;
-2. lower average feature distance;
-3. more compared cells.
-
-A candidate is reliable only when it has enough overlapping rows and reaches
-`Options::min_match_ratio`. Accepted positive offsets advance the viewport.
-Occupied cells are then placed at `(viewport_start_row + local_row, col)`.
-
-Business code should consume `Result::new_cells`; it must not add another
-coordinate-deduplication map.
-
-## End confirmation
-
-A zero offset is not enough to finish. One repeat counts only when:
-
-- both frames have the same row and column shape;
-- both contain the complete `rows * cols` cell vector;
-- every cell participates in the comparison;
-- the match ratio reaches `Options::repeat_match_ratio`.
-
-The first complete repeat returns `ConfirmingEnd`. Only a second consecutive
-complete repeat returns `Repeated`. Forward motion, incompatible shape, or an
-invalid comparison clears the pending confirmation.
+The tracker validates each visible slot against its expected global index before publishing `new_cells`. A single screen can reach `Complete` immediately. The caller tracks per-item acknowledgements and verifies the final screen before reporting task success.
 
 ## Result fields
 
