@@ -574,6 +574,8 @@ Pipeline 布局与 `ListCompleteRecognition` 相同：将本识别放在滚动�
 
 `CountDownAction` 实现位于 `agent/go-service/common/countdown`。等待一段时间，并在运行日志输出倒计时。
 
+剩余时间按总时长分档输出：总时长不超过 10 秒时只输出开始和结束；不超过 5 分钟时每 30 秒输出一次；超过 5 分钟时每 60 秒输出一次。
+
 参数：
 
 - `useOCRResult: bool`：可选，默认 `false`。是否使用当前节点的 OCR 识别结果作为等待时长。启用后忽略 `duration`，仍按 `duration_type` 解析 OCR 文本。

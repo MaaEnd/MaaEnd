@@ -574,6 +574,8 @@ When a weekday flag is omitted, it defaults to `false` (do not execute that day)
 
 `CountDownAction` is implemented in `agent/go-service/common/countdown`. It pauses execution for a specified duration and displays a countdown timer in the execution log.
 
+The remaining time is logged at an interval based on the total duration: only the start and end are logged for durations up to 10 seconds; every 30 seconds for durations up to 5 minutes; every 60 seconds for longer durations.
+
 Parameters:
 
 - `useOCRResult: bool`: Optional, default `false`. Specifies whether to use the OCR recognition result of the current node as the wait duration. When enabled, `duration` is ignored, but the OCR text is still parsed according to `duration_type`.
