@@ -34,10 +34,12 @@ private:
         std::string method;
         std::string params;
         bool move = false;
+        std::optional<POINT> relative {};
     };
 
     void onMouseButton(int raw_button, bool down, LPARAM lparam);
     void onMouseMove(LPARAM lparam);
+    void onRelativeMove(LPARAM lparam);
     void onMouseWheel(bool horizontal, WPARAM wparam, LPARAM lparam);
     void onKey(bool down, WPARAM wparam, LPARAM lparam);
     void onChar(WPARAM wparam, LPARAM lparam);

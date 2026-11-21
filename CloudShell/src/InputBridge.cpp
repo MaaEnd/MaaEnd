@@ -140,6 +140,11 @@ std::optional<LRESULT> InputBridge::HandleMessage(UINT msg, WPARAM wparam, LPARA
 {
     switch (msg) {
     case WM_MOUSEMOVE:
+        // 侧键 2 未按下却带着它的标志，是 MapNavigator 的视角相对移动，位移为落点减客户区中心
+        if ((wparam & MK_XBUTTON2) && !(buttons_ & kButtonForward)) {
+            onRelativeMove(lparam);
+            return 0;
+        }
         // 控制器投递的移动总带着按键标志；不带的是偶尔落到顶层窗口上的真实鼠标移动
         if (wparam & (MK_LBUTTON | MK_RBUTTON | MK_MBUTTON | MK_XBUTTON1 | MK_XBUTTON2)) {
             onMouseMove(lparam);
@@ -227,6 +232,36 @@ void InputBridge::onMouseMove(LPARAM lparam)
     pointer_ = { GET_X_LPARAM(lparam), GET_Y_LPARAM(lparam) };
     // button 取按住的第一个键，即最低位
     dispatchMouse("mouseMoved", buttonName(buttons_ & -buttons_), 0);
+}
+
+void InputBridge::onRelativeMove(LPARAM lparam)
+{
+    RECT client {};
+    GetClientRect(hwnd_, &client);
+    pointer_ = { client.right / 2, client.bottom / 2 };
+    POINT delta { GET_X_LPARAM(lparam) - pointer_.x, GET_Y_LPARAM(lparam) - pointer_.y };
+
+    // 位移不能丢：只与队尾还没发出的相对移动累加合并，不参与 dispatchMouse 的移动合并
+    if (queue_.size() >= 2 && queue_.back().relative && queue_[queue_.size() - 2].relative) {
+        delta.x += queue_.back().relative->x;
+        delta.y += queue_.back().relative->y;
+        queue_.pop_back();
+        queue_.pop_back();
+    }
+
+    const std::string expect =
+        std::format("window.__maaShellExpect&&window.__maaShellExpect({},{},{},{})", pointer_.x, pointer_.y, delta.x, delta.y);
+    std::string params = std::format(
+        R"({{"type":"mouseMoved","x":{},"y":{},"button":"{}","buttons":{},"modifiers":{}}})",
+        pointer_.x,
+        pointer_.y,
+        buttonName(buttons_ & -buttons_),
+        buttons_,
+        modifiers_);
+    queue_.push_back(
+        Command { .method = "Runtime.evaluate", .params = std::format(R"({{"expression":"{}"}})", jsonEscape(expect)), .relative = delta });
+    queue_.push_back(Command { .method = "Input.dispatchMouseEvent", .params = std::move(params), .relative = delta });
+    pump();
 }
 
 void InputBridge::onMouseWheel(bool horizontal, WPARAM wparam, LPARAM lparam)
