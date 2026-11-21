@@ -117,8 +117,8 @@ def 交易(c: Capture) -> None:
     if c.hit(ZERO_MONEY):
         raise FlowError("据点调度券储量不足，一份都卖不了；等据点攒出一些券再跑")
     c.run(SELL)  # 现成的「交易」节点，自己会点交易按钮
-    c.wait("OutpostTradingCheckHeader", settle=1.0)
-    c.shot("交易完成_获得物品")
+    c.wait("OutpostTradingCheckHeader")
+    c.shot("交易完成_获得物品", settle=1.0)
     c.run("OutpostTradingSellCheck")  # 现成的「交易后确认」节点，自己点 ✓
 
 
@@ -133,6 +133,6 @@ def 清空调度券(c: Capture) -> None:
         print("  BetterSliding 任务以失败结束，按界面判断是否已经卖完")
     if not c.hit(ZERO_MONEY):
         raise FlowError("跑完 BetterSliding 也没把券卖到见底，可能仓库货物不够")
-    c.wait(ZERO_MONEY, settle=1.0)
-    c.shot("据点_调度券不足")
+    c.wait(ZERO_MONEY)
+    c.shot("据点_调度券不足", settle=1.0)
     c.click("CloseButtonType1")

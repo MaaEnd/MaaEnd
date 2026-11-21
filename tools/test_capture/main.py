@@ -111,7 +111,7 @@ def _run(
     "flow_path",
     required=True,
     type=click.Path(exists=True, dir_okay=False, path_type=Path),
-    help="流程文件，一般放 tests/<任务>/capture_flow.json",
+    help="流程文件，一般放 tests/<任务>/capture_flow.py",
 )
 @click.option(
     "--controller",
@@ -150,7 +150,7 @@ def _run(
     type=click.FloatRange(min=0),
     default=DEFAULT_WAIT,
     show_default=True,
-    help="截图前等待画面稳定的秒数，步骤里写了 wait 以步骤为准",
+    help="每次截图前等待画面稳定的秒数，步骤里可以用 shot(settle=) 单独改",
 )
 @click.option(
     "--testset/--no-testset",

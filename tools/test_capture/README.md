@@ -42,7 +42,8 @@ def 四号谷地据点(c: Capture) -> None:
 
 已有的 `tests/OutpostTrading/capture_flow.py` 一趟跑完两个地区、截 11 张图：
 四号谷地三个据点、武陵三个据点、联络干员列表的撤下与派驻两种按钮状态、选择交易货品、交易完成，
-最后把据点调度券卖到见底，截一张「当前据点调度券储量不足」。
+最后把据点调度券卖到见底，截一张「当前据点调度券储量不足」；
+联络干员列表里有人派驻在别的据点时，还会多截一张「确认更改派驻」。
 两个地区之间用 `SubTask` 转跳入口节点切换，不用手写地区选择那几步。
 **它会真的把当轮能卖的都卖掉**，跑之前留意当前据点的券和仓库货物。
 
@@ -61,7 +62,7 @@ uv run test-capture --flow tests/OutpostTrading/capture_flow.py --controller ADB
 # 游戏已经停在要截的界面上，别动它
 uv run test-capture --flow tests/OutpostTrading/capture_flow.py --controller ADB --no-open-game
 
-# 嫌等 2 秒太久，改成不额外等待
+# 截图前不等画面稳定，截到什么就存什么
 uv run test-capture --flow tests/OutpostTrading/capture_flow.py --controller ADB --wait 0
 
 # 顺手把截图脱敏后导进测试集
@@ -84,8 +85,8 @@ uv run test-capture --flow tests/OutpostTrading/capture_flow.py --controller ADB
 
 | 方法 | 做什么 |
 | --- | --- |
-| `wait(node, settle=2)` | 等节点命中，再等这么多秒让画面稳定，返回它的识别框 |
-| `shot(name)` | 截当前画面，文件名用 `name` |
+| `wait(node)` | 等节点命中，返回它的识别框；不额外等待 |
+| `shot(name, settle=2)` | 先等画面稳定（默认 `--wait` 秒）再截当前画面，文件名用 `name` |
 | `click(node)` | 等节点命中，点它的识别框中心 |
 | `click_at((x, y), offset=(0, 0))` | 点固定坐标（1280x720 基准），`offset` 微调 |
 | `swipe((x1, y1), (x2, y2), duration=500)` | 划过一段距离，用来拖滑条、翻列表 |
@@ -97,10 +98,13 @@ uv run test-capture --flow tests/OutpostTrading/capture_flow.py --controller ADB
 | `sleep(秒)` | 硬等，能不用就不用 |
 
 ```python
-c.wait("OutpostTradingInSkyKingFlatsConstructionSite")   # 界面到了
-c.shot("据点_天王坪援建点")                                # 截一张
+c.wait("OutpostTradingInSkyKingFlatsConstructionSite")   # 界面到了，不等就开始下一步
+c.shot("据点_天王坪援建点")                                # 等 2 秒画面稳定，再截一张
 c.click("OutpostTradingOpenOperatorLiaisonButton")        # 点进去
 ```
+
+只有截图前才等画面稳定：`wait` / `click` 这类操作命中就往下走，不截图的时候不会白等。
+某个界面动画动得慢，就单独给这张图写 `c.shot("名字", settle=3)`。
 
 `click` / `wait` 里的节点名可以填任意有识别的节点，模板匹配、OCR、颜色匹配、自定义识别都行；
 `click_at` 的坐标按 1280x720 写，脚本不换算分辨率，换了平台自己核对。
@@ -119,8 +123,8 @@ for round_index in range(1, 13):
     if tradeable < 1:
         break
     c.click("OutpostTradingSell")
-    c.wait("OutpostTradingCheckHeader", settle=1.0)
-    c.click_at((640, 609))
+    c.wait("OutpostTradingCheckHeader")    # 交易完成的提示出来了
+    c.run("OutpostTradingSellCheck")       # 现成的「交易后确认」节点，自己点 ✓
 ```
 
 ## 顺手写进测试集

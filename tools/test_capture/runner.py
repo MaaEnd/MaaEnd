@@ -26,7 +26,7 @@ PROBE_NODE = "TestCaptureProbe"
 ENTER_WORLD_NODE = "SceneAnyEnterWorld"
 OPEN_GAME_NODE = "OpenGame"
 OPEN_GAME_TASK = "AndroidOpenGame"
-# 界面刚出来时可能有动画，默认等 2 秒再截图。
+# 界面刚出来时可能有动画，截图前默认等 2 秒让画面稳定；只是等界面命中时不额外等待。
 DEFAULT_WAIT = 2.0
 
 
@@ -233,22 +233,18 @@ class Session:
         digits = "".join(char for char in self.ocr(roi) if char.isdigit())
         return int(digits) if digits else 0
 
-    def wait(
-        self,
-        node: str,
-        *,
-        timeout: float = 20.0,
-        interval: float = 0.5,
-        settle: float | None = None,
-    ) -> Box:
-        """等节点命中，再等画面稳定，返回它的识别框。"""
+    def wait(self, node: str, *, timeout: float = 20.0, interval: float = 0.5) -> Box:
+        """等节点命中，返回它的识别框；不额外等待，要等画面稳定用 shot 的 settle。"""
         detail, _ = self.wait_for(node, timeout, interval)
         self._fallback_image = detail.raw_image
-        self.sleep(self.default_wait if settle is None else settle)
         return detail.box if detail.box is not None else (0, 0, 0, 0)
 
-    def shot(self, name: str) -> None:
-        """截当前画面存进输出目录；开了 --testset 就再脱敏一份进测试集。"""
+    def shot(self, name: str, *, settle: float | None = None) -> None:
+        """截当前画面存进输出目录；截之前先等画面稳定（默认 --wait 秒，可传 settle 改）。
+
+        开了 --testset 就再脱敏一份进测试集。
+        """
+        self.sleep(self.default_wait if settle is None else settle)
         image = self.capture()
         if image.size == 0 and self._fallback_image is not None:
             image = self._fallback_image
