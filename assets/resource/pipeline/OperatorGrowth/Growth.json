@@ -159,7 +159,7 @@
         }
     },
     "OperatorGrowthAllOCR": {
-        "desc": "左侧干员列表的全部或近期标题，作为回顶完成标志",
+        "desc": "左侧干员列表的近期标题，作为回顶完成标志",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -170,10 +170,6 @@
                     35
                 ],
                 "expected": [
-                    "全部",
-                    "(?i)All",
-                    "すべて",
-                    "전체",
                     "近期",
                     "(?i)Recent",
                     "直近",
@@ -183,7 +179,7 @@
         }
     },
     "OperatorGrowthTopReached": {
-        "desc": "在培养总览左侧识别到全部或近期后开始查找目标干员",
+        "desc": "在培养总览左侧识别到近期后开始查找目标干员",
         "recognition": {
             "type": "And",
             "param": {
@@ -198,7 +194,7 @@
         ]
     },
     "OperatorGrowthScrollUp": {
-        "desc": "未看到全部或近期时向列表顶部滑动 240 像素，静止后重新检查；每次进入总览时重置计数",
+        "desc": "未看到近期时向列表顶部滑动 240 像素，静止后重新检查；每次进入总览时重置计数",
         "max_hit": 10,
         "recognition": {
             "type": "And",
