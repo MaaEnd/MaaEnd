@@ -55,7 +55,7 @@ pnpm install
 > - 回退到 `v2` 产物时会打印告警——那意味着你拿到的是 `v2` 的 agent，而不是本分支的构建；需要本分支产物时用 `--cpp-algo-run <ID>` 明确指定。
 
 > [!NOTE]
-> 云游戏外壳 CloudShell 是「云·终末地」网页版的 Windows 套壳程序，只有 Windows 构建。Windows 上 `setup-workspace` 会自动从 CI 的 `cloud-shell-win-<arch>` artifact 下载预编译的 `cloud-shell.exe` 到 `install/cloud-shell/`：已安装则跳过，`--update` 时按 artifact 的 sha256 摘要判断要不要重下，非 Windows 平台打印一行提示后跳过。
+> 云游戏外壳 CloudShell 是「云·终末地」网页版的 Windows 套壳程序，只有 Windows 构建。Windows 上 `setup-workspace` 会自动从 CI 的 `cloud-shell-win-<arch>` artifact 下载预编译的 `maaend-cloud.exe` 到 `install/cloud-shell/`：已安装则跳过，`--update` 时按 artifact 的 sha256 摘要判断要不要重下，非 Windows 平台打印一行提示后跳过。
 >
 > 找不到 CI 产物时（例如没有配置 `GITHUB_TOKEN`，或这次提交没有触发 CI）只打印告警并继续，不中断 `setup-workspace`；CloudShell 是可选项，缺了它不影响其他步骤。要本地编译（例如改了 CloudShell 代码）时用 `uv run build-and-install --cloud-shell`。
 

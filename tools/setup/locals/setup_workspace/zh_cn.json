@@ -120,7 +120,7 @@
     "inf_cloud_shell_install_complete": "[INF] CloudShell 安装完成",
     "wrn_cloud_shell_no_artifact": "[WRN] 未找到 CloudShell 的 CI 产物，本次跳过；需要时可用 build-and-install --cloud-shell 本地编译",
     "wrn_cloud_shell_download_failed": "[WRN] 下载 CloudShell 的 CI artifact 失败，本次跳过；需要时可用 build-and-install --cloud-shell 本地编译",
-    "wrn_cloud_shell_no_binary": "[WRN] CI artifact 中未找到 cloud-shell.exe",
+    "wrn_cloud_shell_no_binary": "[WRN] CI artifact 中未找到 maaend-cloud.exe",
     "description": "MaaEnd 构建工具：初始化并安装依赖项",
     "arg_update": "当依赖项已存在时，是否进行更新操作",
     "arg_clean_cache": "清理下载缓存目录",

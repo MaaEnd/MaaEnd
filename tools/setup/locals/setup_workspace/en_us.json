@@ -120,7 +120,7 @@
     "inf_cloud_shell_install_complete": "[INF] CloudShell installation complete",
     "wrn_cloud_shell_no_artifact": "[WRN] No CloudShell CI artifact found, skipping this run; build it locally with build-and-install --cloud-shell if you need it",
     "wrn_cloud_shell_download_failed": "[WRN] Failed to download the CloudShell CI artifact, skipping this run; build it locally with build-and-install --cloud-shell if you need it",
-    "wrn_cloud_shell_no_binary": "[WRN] cloud-shell.exe not found inside CI artifact",
+    "wrn_cloud_shell_no_binary": "[WRN] maaend-cloud.exe not found inside CI artifact",
     "description": "MaaEnd build tool: Initialize and install dependencies",
     "arg_update": "Update dependencies if they already exist",
     "arg_clean_cache": "Clean the download cache directory",

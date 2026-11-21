@@ -55,7 +55,7 @@ pnpm install
 > - Falling back to `v2` prints a warning: it means you are running `v2`'s agent rather than this branch's build. Pass `--cpp-algo-run <ID>` to pin this branch's artifact.
 
 > [!NOTE]
-> CloudShell is the Windows host program for the cloud web version of Arknights: Endfield (`云·终末地`), and it is built for Windows only. On Windows, `setup-workspace` downloads the prebuilt `cloud-shell.exe` from the CI artifact `cloud-shell-win-<arch>` into `install/cloud-shell/`: an existing installation is skipped, `--update` compares the artifact's sha256 digest to decide whether to download it again, and non-Windows platforms print a one-line notice and skip this step.
+> CloudShell is the Windows host program for the cloud web version of Arknights: Endfield (`云·终末地`), and it is built for Windows only. On Windows, `setup-workspace` downloads the prebuilt `maaend-cloud.exe` from the CI artifact `cloud-shell-win-<arch>` into `install/cloud-shell/`: an existing installation is skipped, `--update` compares the artifact's sha256 digest to decide whether to download it again, and non-Windows platforms print a one-line notice and skip this step.
 >
 > When no CI artifact can be found (for example, `GITHUB_TOKEN` is not configured, or CI did not run for this commit), it only prints a warning and continues without aborting `setup-workspace`; CloudShell is optional and its absence does not affect the other steps. To build it locally (for example, after changing CloudShell code), run `uv run build-and-install --cloud-shell`.
 

@@ -1,4 +1,9 @@
 {
+    // 只在 CloudWeb 控制器下启用，实现见 resource_cloud_web/pipeline/SceneManager/SceneCloudWebLogin.json
+    "__ScenePrivateCloudWebLogin": {
+        "desc": "处理云终末地网页版官网页",
+        "enabled": false
+    },
     "__ScenePrivateLogin": {
         "desc": "处理登录界面",
         "max_hit": 500,

@@ -157,7 +157,7 @@ CPP_ALGO_COMPANION_FILES: tuple[str, ...] = (
 )
 # 云游戏外壳只支持 Windows，产物是 install/cloud-shell/ 下的单个 exe
 CLOUD_SHELL_DIR_NAME: str = "cloud-shell"
-CLOUD_SHELL_DIST_NAME: str = "cloud-shell.exe"
+CLOUD_SHELL_DIST_NAME: str = "maaend-cloud.exe"
 ARCH_VARIANT_HINTS: dict[str, tuple[str, ...]] = {
     "x86_64": ("x86_64", "amd64", "x64"),
     "aarch64": ("aarch64", "arm64"),
@@ -1856,7 +1856,7 @@ def install_cpp_algo(
 
 
 def find_cloud_shell_binary(search_root: Path) -> Path | None:
-    """在解压后的 artifact 里找 cloud-shell.exe，优先本机架构目录下的那个。"""
+    """在解压后的 artifact 里找 maaend-cloud.exe，优先本机架构目录下的那个。"""
     candidates = [path for path in search_root.rglob(CLOUD_SHELL_DIST_NAME) if path.is_file()]
     if not candidates:
         return None
@@ -1876,7 +1876,7 @@ def find_cloud_shell_binary(search_root: Path) -> Path | None:
 
 
 def copy_cloud_shell(src_binary: Path, install_root: Path) -> None:
-    """把 cloud-shell.exe 及其同目录下的文件装进 install/cloud-shell/。
+    """把 maaend-cloud.exe 及其同目录下的文件装进 install/cloud-shell/。
 
     整个目录一起复制而不是只拷 exe：以后外壳若带出依赖 DLL 或数据文件，
     这里不用跟着改。

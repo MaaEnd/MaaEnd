@@ -1,7 +1,7 @@
 {
     "pretask": {
         "controller": [
-            // "CloudWeb",
+            "CloudWeb"
         ],
         "exec": "agent/go-service",
         "args": [
