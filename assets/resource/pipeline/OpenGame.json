@@ -14,6 +14,7 @@
             "[JumpBack]CloudEndfieldStartGame",
             "[JumpBack]CloudEndfieldTrafficTip",
             "[JumpBack]CloudEndfieldWaitStartGame",
+            "[JumpBack]CloudEndfieldChooseQueue",
             "[JumpBack]CloudEndfieldQueue",
             "[JumpBack]CloudEndfieldRetry",
             "EnterGameStuck",
@@ -230,6 +231,7 @@
             "[JumpBack]CloudEndfieldStartGame",
             "[JumpBack]CloudEndfieldTrafficTip",
             "[JumpBack]CloudEndfieldWaitStartGame",
+            "[JumpBack]CloudEndfieldChooseQueue",
             "[JumpBack]CloudEndfieldQueue",
             "[JumpBack]CloudEndfieldRetry",
             "EnterGameStuck"
@@ -296,6 +298,22 @@
                 ]
             }
         }
+    },
+    "CloudEndfieldChooseQueue": {
+        // 云终末地排队高峰会先弹「请选择排队队列」，点 OCR 命中的整行确认；默认免费队列
+        "desc": "云终末地选择排队队列",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "免费时长队列"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 1000
     },
     "CloudEndfieldQueue": {
         // 排队面板没有开始按钮，队列走完游戏自己进；认出排队就继续等，别让外层 90 秒超时判成卡死
