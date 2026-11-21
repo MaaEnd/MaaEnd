@@ -58,18 +58,4 @@ cv::Mat BuildIgnoreMask(cv::Size cellSize, const CellMaskRatios& ratios)
     return mask;
 }
 
-cv::Mat ApplyIgnoreMask(const cv::Mat& image, const CellMaskRatios& ratios)
-{
-    if (image.empty()) {
-        return image;
-    }
-
-    const cv::Mat keepMask = BuildIgnoreMask(image.size(), ratios);
-    cv::Mat output = image.clone();
-    if (!keepMask.empty()) {
-        output.setTo(cv::Scalar::all(255), keepMask == 0);
-    }
-    return output;
-}
-
 } // namespace recogrid

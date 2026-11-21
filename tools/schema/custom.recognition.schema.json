@@ -20,6 +20,7 @@
                 "EssenceFilterAfterBattleNthRecognition",
                 "EssenceGridAdvanceRecognition",
                 "EssenceGridPendingRecognition",
+                "EssenceGridDetailRecognition",
                 "EveryNthHit",
                 "ExpendableRecognition",
                 "ExpressionRecognition",

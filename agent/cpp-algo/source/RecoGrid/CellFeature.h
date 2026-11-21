@@ -8,8 +8,6 @@
 namespace recogrid
 {
 
-using Hash = std::uint64_t;
-
 struct CellFeature
 {
     std::vector<std::uint8_t> data;
@@ -18,8 +16,6 @@ struct CellFeature
     int channels = 0;
 };
 
-Hash ComputeHash(const cv::Mat& image);
-int HammingDistance(Hash lhs, Hash rhs);
 CellFeature ComputeCellFeature(const cv::Mat& image);
 int FeatureDistance(const CellFeature& lhs, const CellFeature& rhs);
 

@@ -5,7 +5,8 @@ Essence inventory scanning is composed of three C++ modules that can each be und
 ```mermaid
 flowchart LR
     P["Pipeline screenshot"] --> E["EssenceGrid business instance"]
-    E --> R["RecoGrid single-frame recognition"]
+    E --> L["InventoryLayout cell location"]
+    L --> R["RecoGrid occupancy and color tiles"]
     R --> T["GridTracker cross-frame tracking"]
     T --> E
     E --> C["Pipeline cell click"]
@@ -17,10 +18,10 @@ flowchart LR
 
 | Module | Owns | Does not own |
 | --- | --- | --- |
-| `RecoGrid` | Rows, columns, cell rectangles, occupancy, pHash, and comparison features for one image | Frame history, scroll order, business quality, clicks |
+| `RecoGrid` | Project supplied cell rectangles, evaluate occupancy, and generate alignment tiles | Cell location, frame history, scroll order, business quality, clicks |
 | `GridTracker` | Adjacent-frame alignment, global row/column indices, deduplication, order, and end confirmation | Image segmentation, template loading, Pipeline routing |
 | `EssenceGrid` | Essence quality, lock/discard thumbnails, pending queue, and Maa callbacks | Skill OCR, match rules, actual UI actions |
-| Go `essencefilter` | OCR normalization, target combination matching, Lock/Discard/Skip decisions | Grid recognition and button clicks |
+| Go `essencefilter` | Scan-result routing, detail-read counts, OCR normalization, target combination matching, Lock/Discard/Skip decisions | Grid recognition and button clicks |
 | Pipeline | Screenshot timing, clicks, swipes, waits, and post-action verification | Image algorithms and match data structures |
 
 More precise module documentation lives next to the source code:
@@ -37,35 +38,34 @@ Public entry point:
 ```cpp
 recogrid::GridFrame RecognizeGrid(
     const cv::Mat& image,
-    const recogrid::GridRecognitionOptions& options = {});
+    const recogrid::GridRecognitionOptions& options,
+    const recogrid::GridLayout& detected);
 ```
 
 Recognition performs these steps:
 
-1. map the screenshot to `normalizedSize`;
-2. crop `roi` and detect row/column projection segments;
-3. construct regular cells and project them back to screenshot coordinates;
-4. mask fixed cell decorations;
-5. compute occupancy, pHash, and compact color features.
+1. `InventoryLayout` locates cards in the normalized screenshot and supplies the ROI image, rows, columns, and cell rectangles in `GridLayout`;
+2. RecoGrid projects the supplied cell rectangles back to screenshot coordinates;
+3. evaluate occupancy, applying fixed decoration masks only to this calculation;
+4. generate color tiles including cell gaps for GridTracker alignment.
+
+The old projection detector and per-cell pHash have been removed. Color sampling and comparison for the right-hand detail icon remain in `CellFeature.*`, called separately by EssenceGrid.
 
 ### Main inputs
 
 | Field | Meaning |
 | --- | --- |
-| `detect.normalizedSize` | Coordinate base; MaaEnd normally uses `1280x720` |
-| `detect.roi` | Grid region |
-| `rowThresholdRatio` / `colThresholdRatio` | Row/column projection thresholds |
-| `minRawSegmentLength` | Minimum raw segment length |
-| `minKeptSegmentRatio` | Segment size retained relative to the modal cell size |
-| `lockedRowHeight` / `lockedColWidth` | Cell size locked after the first frame to stabilize later detection |
+| `region_.normalized_size_` | Coordinate base; MaaEnd normally uses `1280x720` |
+| `region_.roi_` | Grid region |
+| `GridLayout` | ROI image, rows, columns, and cell rectangles relative to that ROI |
 | `mask` | Ignores fixed corner badges or the bottom area inside each cell |
 | occupancy brightness options | Decide whether a cell contains content |
 
 ### Main outputs
 
-`GridFrame` contains the row and column counts, modal cell width and height, diagnostics, and the `GridCell` list. Each `GridCell` contains its local row and column, current-frame index, screen rectangle, features, and `occupied`.
+`GridFrame` contains the row and column counts, modal cell width and height, diagnostics, alignment tiles, and the `GridCell` list. Each `GridCell` contains its local row and column, current-frame index, screen rectangle, and `occupied`.
 
-RecoGrid does not load item-classification templates or keep sessions. An empty image, invalid channels, or no detected grid returns an empty `GridFrame`, and the caller decides how to retry.
+RecoGrid does not load item-classification templates or keep sessions. Empty images or invalid grid geometry return an empty `GridFrame`; the caller owns failure and recovery decisions.
 
 ## GridTracker: order and end across frames
 
@@ -81,7 +81,7 @@ Each scrolling task holds one `GridTracker`. Call `reset()` when a new task star
 
 ### Status
 
-| Status | Meaning | EssenceGrid route |
+| Status | Meaning | Go / Pipeline route |
 | --- | --- | --- |
 | `Initial` | Top confirmed and first frame placed | Process new cells |
 | `Advanced` | Additional positions verified | Process new cells |
@@ -107,6 +107,7 @@ Custom filtering dispatches cells according to the user’s settings. After cust
 
 - `EssenceGridAdvanceRecognition`;
 - `EssenceGridPendingRecognition`;
+- `EssenceGridDetailRecognition`;
 - `EssenceGridResetAction`.
 
 The instance holds the tracker, task id, merged configuration, thumbnail templates, current page queue, and pending cell. A change of task id resets the tracker and the queue; running `EssenceGridResetAction` from Pipeline clears the same tracking state immediately so the next `EssenceGridAdvanceRecognition` scans from scratch, while loaded templates and configuration stay cached.
@@ -136,6 +137,8 @@ EssenceGrid processes only tracker `new_cells`:
 
 ## Go and Pipeline
 
+C++ returns the cell, tracking status, and coverage result; the existing `EssenceFilterReadLockStateAction` selects the next Pipeline node. `EssenceGridPendingRecognition` only supplies the click center and samples the core before clicking, while `EssenceGridDetailRecognition` only reads the resulting tier and core change. Neither switches responsibilities by node name. Pipeline's `EssenceGridClickPending.max_hit` preserves the two-click limit per cell. Go clears it when dispatching a new cell and counts completed detail reads for the identical-detail reclick rule.
+
 After Pipeline clicks a cell, OCR nodes read the three skills and their levels. The Go function `decideSkillMark` chooses the mark to apply.
 
 - target matched: go to `EssenceFilterLockItem`;
@@ -154,7 +157,7 @@ Lock and discard buttons need separate ROIs. A Pipeline `Click` uses the box ret
 
 | Symptom | First owner to inspect |
 | --- | --- |
-| Wrong rows, columns, or cell rectangles | RecoGrid ROI and segment settings |
+| Wrong rows, columns, or cell rectangles | InventoryLayout ROI, first cell, pitch, and contour location |
 | Accumulated row misalignment, duplicates, or early finish | GridTracker offset, support, match ratio, and status |
 | Wrong quality or lock/discard thumbnail state | EssenceGrid HSV and thumbnail templates |
 | Unexpected skill match | Go OCR normalization, data, and match options |

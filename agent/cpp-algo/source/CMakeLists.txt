@@ -33,10 +33,10 @@ target_link_libraries(icon-recognition-core
 add_dependencies(icon-recognition-core MaaUtils)
 
 set(recogrid_src
+    RecoGrid/CellFeature.cpp
     RecoGrid/CellMask.cpp
-    RecoGrid/GridDetector.cpp
+    RecoGrid/GridGeometry.cpp
     RecoGrid/GridRecognizer.cpp
-    RecoGrid/PHashFilter.cpp
 )
 list(TRANSFORM recogrid_src PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/")
 

@@ -183,15 +183,6 @@ func (s *inventorySnapshot) appendLockedMatch(item inventoryItem) {
 	}
 }
 
-// A confirmed purple position without observed skills contributes only to coverage.
-func (s *inventorySnapshot) appendObservation(item inventoryItem) {
-	if item.Quality == purple && len(item.Skills) == 0 {
-		s.Coverage[purple] = tierCoverage{Unread: s.Coverage[purple].Unread + 1}
-		return
-	}
-	s.Items = append(s.Items, item)
-}
-
 func (item inventoryItem) groupRow() inventoryEssence {
 	row := inventoryEssence{Count: 1}
 	for _, skill := range item.resolved {

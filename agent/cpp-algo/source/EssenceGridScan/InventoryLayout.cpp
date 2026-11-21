@@ -58,9 +58,9 @@ InventoryPage ReadInventoryPage(
     int inventory_count)
 {
     InventoryPage page;
-    const cv::Mat normalized = recogrid::NormalizeInputSize(image, options.detect.normalizedSize);
+    const cv::Mat normalized = recogrid::NormalizeInputSize(image, options.region_.normalized_size_);
     const cv::Rect bounds({}, normalized.size());
-    const auto& roi = options.detect.roi;
+    const auto& roi = options.region_.roi_;
     const auto& first = layout.first_cell;
     const auto& track = layout.scrollbar_track;
     if (normalized.empty() || roi.empty() || (roi & bounds) != roi || first.empty() || (first & roi) != first || layout.pitch <= first.width
@@ -118,7 +118,7 @@ InventoryPage ReadInventoryPage(
         tops.push_back(box.y + top_adjustment);
     }
     std::sort(tops.begin(), tops.end());
-    recogrid::GridResult detected;
+    recogrid::GridLayout detected;
     detected.roi = normalized(roi);
     for (size_t i = 0; i < tops.size();) {
         const auto end = std::upper_bound(tops.begin() + i, tops.end(), tops[i] + tolerance);

@@ -53,12 +53,7 @@ bool is_occupied(const cv::Mat& image, const GridRecognitionOptions& options)
 
 } // namespace
 
-GridFrame RecognizeGrid(const cv::Mat& image, const GridRecognitionOptions& options)
-{
-    return RecognizeGrid(image, options, DetectGrid(image, options.detect));
-}
-
-GridFrame RecognizeGrid(const cv::Mat& image, const GridRecognitionOptions& options, const GridResult& detected)
+GridFrame RecognizeGrid(const cv::Mat& image, const GridRecognitionOptions& options, const GridLayout& detected)
 {
     GridFrame frame;
     if (image.empty()) {
@@ -119,14 +114,11 @@ GridFrame RecognizeGrid(const cv::Mat& image, const GridRecognitionOptions& opti
             const cv::Rect tile(col * kAlignmentTileSize, row * kAlignmentTileSize, kAlignmentTileSize, kAlignmentTileSize);
             cv::resize(sample, frame.alignment_tiles(tile), tile.size(), 0, 0, cv::INTER_AREA);
 
-            const cv::Mat cell_image = ApplyIgnoreMask(detected.roi(roi_rect), options.mask);
             frame.cells.push_back({
                 row,
                 col,
                 index,
-                RoiToScreen(detected.cells[index], options.detect, image.size()),
-                ComputeHash(cell_image),
-                ComputeCellFeature(cell_image),
+                RoiToScreen(detected.cells[index], options.region_, image.size()),
                 is_occupied(detected.roi(roi_rect), options),
             });
         }

@@ -5,7 +5,8 @@
 ```mermaid
 flowchart LR
     P["Pipeline 截图"] --> E["EssenceGrid 业务实例"]
-    E --> R["RecoGrid 单帧识别"]
+    E --> L["InventoryLayout 格位定位"]
+    L --> R["RecoGrid 占用与彩色图块"]
     R --> T["GridTracker 跨帧追踪"]
     T --> E
     E --> C["Pipeline 点击格子"]
@@ -17,10 +18,10 @@ flowchart LR
 
 | 模块 | 负责 | 不负责 |
 | --- | --- | --- |
-| `RecoGrid` | 单张截图中的行列、格子矩形、占用状态、pHash 和比较特征 | 历史帧、滚动顺序、业务品质、点击 |
+| `RecoGrid` | 按输入布局换算格子矩形、判断占用、生成对齐图块 | 格位定位、历史帧、滚动顺序、业务品质、点击 |
 | `GridTracker` | 相邻帧对齐、全局行列、去重、顺序和结束确认 | 图像分割、模板加载、Pipeline 路由 |
 | `EssenceGrid` | 基质品质、锁定/废弃缩略图、待处理队列和 Maa 回调 | 技能 OCR、匹配规则、实际 UI 操作 |
-| Go `essencefilter` | OCR 归一化、目标组合匹配、Lock/Discard/Skip 决策 | 网格识别、点击按钮 |
+| Go `essencefilter` | 扫描结果到节点的映射、详情读取次数、OCR 归一化、目标组合匹配、Lock/Discard/Skip 决策 | 网格识别、点击按钮 |
 | Pipeline | 截图时机、点击、滑动、等待、操作后确认 | 图像算法和匹配数据结构 |
 
 源码旁还有更精确的模块文档：
@@ -37,35 +38,34 @@ flowchart LR
 ```cpp
 recogrid::GridFrame RecognizeGrid(
     const cv::Mat& image,
-    const recogrid::GridRecognitionOptions& options = {});
+    const recogrid::GridRecognitionOptions& options,
+    const recogrid::GridLayout& detected);
 ```
 
 识别过程：
 
-1. 把截图映射到 `normalizedSize`。
-2. 裁剪 `roi`，通过行列投影提取 segment。
-3. 组合出规则格子并换算回原截图坐标。
-4. 对每个格子应用固定装饰 mask。
-5. 计算占用状态、pHash 和紧凑颜色特征。
+1. `InventoryLayout` 在归一化截图中定位卡片，提供 `GridLayout` 的 ROI 图像、行列和格子矩形。
+2. RecoGrid 将输入格子矩形换算回原截图坐标。
+3. 判断格子占用，固定装饰 mask 只用于占用判断。
+4. 生成包含格间距的彩色图块，交给 GridTracker 对齐。
+
+旧的投影检测入口和每格 pHash 已移除。右侧详情核心的颜色采样与比较保留在 `CellFeature.*`，由 EssenceGrid 单独调用。
 
 ### 主要输入
 
 | 字段 | 含义 |
 | --- | --- |
-| `detect.normalizedSize` | 坐标基准，MaaEnd 通常使用 `1280x720` |
-| `detect.roi` | 网格区域 |
-| `rowThresholdRatio` / `colThresholdRatio` | 行列投影阈值 |
-| `minRawSegmentLength` | 原始 segment 最小长度 |
-| `minKeptSegmentRatio` | 相对主流格子尺寸的保留比例 |
-| `lockedRowHeight` / `lockedColWidth` | 首帧后锁定的格子尺寸，用于稳定后续检测 |
+| `region_.normalized_size_` | 坐标基准，MaaEnd 通常使用 `1280x720` |
+| `region_.roi_` | 网格区域 |
+| `GridLayout` | ROI 图像、相对 ROI 的行列和格子矩形 |
 | `mask` | 忽略格子内固定角标或底部区域 |
 | 占用亮度参数 | 判断格子是否有内容 |
 
 ### 主要输出
 
-`GridFrame` 包含行列数、主流格子宽高、诊断信息和 `GridCell` 列表。每个 `GridCell` 包含局部行列、当前帧 index、屏幕矩形、特征以及 `occupied`。
+`GridFrame` 包含行列数、主流格子宽高、诊断信息、对齐图块和 `GridCell` 列表。每个 `GridCell` 包含局部行列、当前帧 index、屏幕矩形以及 `occupied`。
 
-RecoGrid 不加载物品分类模板，也不保存 session。空图、无效通道或没有检测到网格时返回空 `GridFrame`，调用方决定如何重试。
+RecoGrid 不加载物品分类模板，也不保存 session。空图或无效网格几何返回空 `GridFrame`，调用方负责失败和恢复决策。
 
 ## GridTracker：跨帧顺序与结束
 
@@ -81,7 +81,7 @@ gridtracker::Result observe(
 
 ### 状态
 
-| 状态 | 含义 | EssenceGrid 路由 |
+| 状态 | 含义 | Go / Pipeline 路由 |
 | --- | --- | --- |
 | `Initial` | 已验证顶端，建立首屏坐标 | 处理新格 |
 | `Advanced` | 新增了可定位的格位 | 处理新格 |
@@ -107,6 +107,7 @@ gridtracker::Result observe(
 
 - `EssenceGridAdvanceRecognition`
 - `EssenceGridPendingRecognition`
+- `EssenceGridDetailRecognition`
 - `EssenceGridResetAction`
 
 实例持有 Tracker、任务 id、合并后的配置、缩略图模板、当前页队列和 pending cell。任务 id 变化时会重置 Tracker 与队列；Pipeline 执行 `EssenceGridResetAction` 时也会立即清空这些追踪状态，让下一次 `EssenceGridAdvanceRecognition` 从头扫描，已加载的模板与配置保留。
@@ -136,6 +137,8 @@ EssenceGrid 只处理 Tracker 的 `new_cells`：
 
 ## Go 与 Pipeline
 
+C++ 返回格位、追踪状态和覆盖结果，由现有 `EssenceFilterReadLockStateAction` 选择下一个 Pipeline 节点。`EssenceGridPendingRecognition` 只提供点击中心并采样点击前的核心，`EssenceGridDetailRecognition` 只读取点击后的品质和核心变化，不再按节点名称切换职责。Pipeline 的 `EssenceGridClickPending.max_hit` 保留每格最多两次点击的限制，Go 在派发新格子时清零，并记录已完成的详情读取次数，供相同详情补点规则使用。
+
 Pipeline 点击格子后，OCR 节点读取三个技能和等级。Go 的 `decideSkillMark` 决定下一步执行的标记操作。
 
 - 命中目标：进入 `EssenceFilterLockItem`；
@@ -154,7 +157,7 @@ Pipeline 点击格子后，OCR 节点读取三个技能和等级。Go 的 `decid
 
 | 现象 | 先查哪一层 |
 | --- | --- |
-| 行列数或格子矩形错误 | RecoGrid 的 ROI 和 segment 参数 |
+| 行列数或格子矩形错误 | InventoryLayout 的 ROI、首格、格距与轮廓定位 |
 | 累计错行、重复、提前结束 | GridTracker 的 offset、support、match ratio 和状态 |
 | 品质或已锁/已弃判断错误 | EssenceGrid 的 HSV 与缩略图模板 |
 | 技能匹配不符合预期 | Go OCR 归一化、数据和匹配选项 |

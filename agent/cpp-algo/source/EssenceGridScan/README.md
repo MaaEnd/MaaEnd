@@ -9,9 +9,9 @@ RecoGrid and GridTracker. It converts Maa screenshots and merged Pipeline
 One `EssenceGrid` is created in `main.cpp`. The same instance is passed through
 `trans_arg` to the registered custom recognitions and action:
 
-- `EssenceGridAdvanceRecognition` scans or consumes the current queue and
-  chooses the next Pipeline node;
-- `EssenceGridPendingRecognition` supplies the pending cell's center, verifies the detail tier, and compares the large icon before and after the click.
+- `EssenceGridAdvanceRecognition` scans or consumes the current queue and returns the selected cell, tracking status, and coverage result;
+- `EssenceGridPendingRecognition` supplies the pending cell's center and samples the detail core before the first click;
+- `EssenceGridDetailRecognition` reads the detail tier and compares the core after the click;
 - `EssenceGridResetAction` clears the tracking state, so the next advance starts
   a fresh scan. Loaded templates and configuration stay cached.
 
@@ -55,6 +55,8 @@ coordinates that genuinely differ from the base resource.
 
 ## Routing
 
+The existing Go `EssenceFilterReadLockStateAction` maps the scan result to the following Pipeline nodes. C++ does not override `next`.
+
 | Condition | Next node |
 | --- | --- |
 | Queue has a cell | `EssenceGridClickPending` |
@@ -65,9 +67,7 @@ coordinates that genuinely differ from the base resource.
 | Bottom and all positions resolved | `EssenceGridVerifyComplete` checks a fresh screenshot before `EssenceFilterFinish` |
 | Unresolved coverage | Fail the scan |
 
-Pipeline owns clicks, swipes, waits, and post-action verification. Go owns OCR
-normalization and match decisions. EssenceGrid owns only the inventory-specific
-adaptation around RecoGrid and GridTracker.
+Pipeline owns clicks, swipes, waits, and post-action verification. Its `EssenceGridClickPending.max_hit` preserves the two-click limit per cell; Go clears that count when dispatching a new cell and tracks completed detail reads for the existing identical-detail rule. Go also owns OCR normalization and match decisions. EssenceGrid owns the inventory-specific adaptation around RecoGrid and GridTracker.
 
 ## Error boundary
 

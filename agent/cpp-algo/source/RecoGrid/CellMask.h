@@ -15,6 +15,5 @@ struct CellMaskRatios
 };
 
 cv::Mat BuildIgnoreMask(cv::Size cellSize, const CellMaskRatios& ratios = {});
-cv::Mat ApplyIgnoreMask(const cv::Mat& image, const CellMaskRatios& ratios = {});
 
 } // namespace recogrid

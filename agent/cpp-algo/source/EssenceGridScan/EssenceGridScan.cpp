@@ -24,6 +24,7 @@
 
 #include "../Common/paths.h"
 #include "../GridTracker/GridTracker.h"
+#include "../RecoGrid/CellFeature.h"
 #include "../RecoGrid/GridGeometry.h"
 #include "../RecoGrid/GridRecognizer.h"
 #include "../utils.h"
@@ -33,8 +34,6 @@ namespace essencegridscan
 namespace
 {
 
-constexpr const char* kClickNextNode = "EssenceGridClickPending";
-constexpr const char* kSwipeNextNode = "EssenceGridSwipeNext";
 constexpr const char* kVerifyNode = "EssenceGridVerifyComplete";
 constexpr const char* kVerifyPrefixNode = "EssenceGridVerifyLockedPrefix";
 
@@ -122,7 +121,6 @@ struct EssenceGridState
     std::string panel_quality_;
     recogrid::CellFeature before_core_;
     bool core_changed_ = false;
-    int pending_clicks_ = 0;
     bool failed_ = false;
     std::optional<EssenceCell> pending_cell_;
     std::optional<gridtracker::Result> last_scan_result_;
@@ -231,8 +229,8 @@ std::optional<EssenceGridConfig> read_essence_grid_config(MaaContext* context, c
 recogrid::GridRecognitionOptions make_recognition_options(const EssenceGridConfig& config)
 {
     recogrid::GridRecognitionOptions options;
-    options.detect.roi = config.roi_;
-    options.detect.normalizedSize = config.normalized_size_;
+    options.region_.roi_ = config.roi_;
+    options.region_.normalized_size_ = config.normalized_size_;
     return options;
 }
 
@@ -394,20 +392,7 @@ cv::Mat to_gray_for_template(const cv::Mat& image)
     return gray;
 }
 
-struct ThumbMatchScore
-{
-    double score = 0.0;
-};
-
-struct ThumbDetection
-{
-    std::string state = "none";
-    cv::Rect search;
-    ThumbMatchScore lock;
-    ThumbMatchScore discard;
-};
-
-ThumbMatchScore match_template_score(const cv::Mat& search, const cv::Mat& templ)
+double match_template_score(const cv::Mat& search, const cv::Mat& templ)
 {
     if (search.empty() || templ.empty() || search.cols < templ.cols || search.rows < templ.rows) {
         return {};
@@ -422,45 +407,35 @@ ThumbMatchScore match_template_score(const cv::Mat& search, const cv::Mat& templ
     cv::Mat result;
     cv::matchTemplate(search_gray, template_gray, result, cv::TM_CCOEFF_NORMED);
 
-    ThumbMatchScore score;
-    cv::minMaxLoc(result, nullptr, &score.score);
-    if (!std::isfinite(score.score)) {
-        score.score = 0.0;
-    }
-    return score;
+    double score = 0.0;
+    cv::minMaxLoc(result, nullptr, &score);
+    return std::isfinite(score) ? score : 0.0;
 }
 
-ThumbDetection detect_cell_thumb_state(const EssenceGridState& state, const cv::Mat& image, const cv::Rect& screen_cell)
+std::string detect_cell_thumb_state(const EssenceGridState& state, const cv::Mat& image, const cv::Rect& screen_cell)
 {
-    ThumbDetection detection;
     const cv::Rect image_bounds(0, 0, image.cols, image.rows);
     const cv::Rect cell = screen_cell & image_bounds;
     if (cell.empty()) {
-        return detection;
+        return "none";
     }
 
     const int search_width = std::max(1, cell.width * kThumbSearchWidthPercent / 100);
     const int search_height = std::max(1, cell.height * kThumbSearchHeightPercent / 100);
     const cv::Rect search_rect(cell.x, cell.y + cell.height - search_height, search_width, search_height);
-    detection.search = search_rect & image_bounds;
-    const cv::Mat search = image(detection.search);
+    const cv::Mat search = image(search_rect & image_bounds);
 
+    double lock_score = 0.0;
     for (const cv::Mat& lock_template : state.thumb_lock_templates_) {
-        const ThumbMatchScore lock_score = match_template_score(search, lock_template);
-        if (lock_score.score > detection.lock.score) {
-            detection.lock = lock_score;
-        }
+        lock_score = std::max(lock_score, match_template_score(search, lock_template));
     }
-    detection.discard = match_template_score(search, state.thumb_discard_template_);
-    if (detection.discard.score >= kThumbDiscardMatchThreshold) {
-        detection.state = "discard";
-        return detection;
+    if (match_template_score(search, state.thumb_discard_template_) >= kThumbDiscardMatchThreshold) {
+        return "discard";
     }
-    if (detection.lock.score >= kThumbLockMatchThreshold) {
-        detection.state = "lock";
-        return detection;
+    if (lock_score >= kThumbLockMatchThreshold) {
+        return "lock";
     }
-    return detection;
+    return "none";
 }
 
 bool should_dispatch_quality(const EssenceCell& cell, const EssenceGridConfig& config)
@@ -532,6 +507,7 @@ void write_advance_detail(
     detail["issued_cells"] = static_cast<int>(state.issued_cells_);
     detail["queue_remaining"] = remaining_queue_cells;
     detail["scan_required"] = state.scan_required_;
+    detail["scan_failed"] = state.failed_;
     detail["filter_flawless_essence"] = config.flawless_essence_;
     detail["filter_pure_essence"] = config.pure_essence_;
     detail["skip_thumb_lock"] = config.skip_thumb_lock_;
@@ -540,7 +516,8 @@ void write_advance_detail(
     detail["selected_cell_index"] = selected ? static_cast<int>(selected->grid_.frame_index) : -1;
     detail["selected_row"] = selected ? selected->grid_.row : -1;
     detail["selected_col"] = selected ? selected->grid_.col : -1;
-    detail["selected_for_filter"] = selected && should_dispatch_quality(*selected, config) && should_dispatch_thumb_state(*selected, config);
+    detail["selected_for_filter"] =
+        selected && should_dispatch_quality(*selected, config) && should_dispatch_thumb_state(*selected, config);
     detail["selected_quality"] = selected ? selected->quality_ : "unknown";
     detail["selected_thumb_state"] = selected ? selected->thumb_state_ : "none";
     detail["boundary_candidate"] = selected && selected->boundary_candidate_;
@@ -604,7 +581,6 @@ void write_pending_detail(MaaStringBuffer* out_detail, const EssenceGridState& s
     json::object detail;
     detail["success"] = success;
     detail["message"] = message == nullptr ? "" : message;
-    detail["clicks"] = state.pending_clicks_;
     detail["core_changed"] = state.core_changed_;
     detail["panel_quality"] = state.panel_quality_;
     detail["selected_cell_index"] = state.pending_cell_ ? static_cast<int>(state.pending_cell_->grid_.frame_index) : -1;
@@ -612,31 +588,6 @@ void write_pending_detail(MaaStringBuffer* out_detail, const EssenceGridState& s
     detail["selected_box"] = state.pending_cell_ ? to_json_rect(state.pending_cell_->grid_.screen_rect) : json::object {};
     const std::string text = json::value(std::move(detail)).dumps();
     MaaStringBufferSet(out_detail, text.c_str());
-}
-
-bool override_next(MaaContext* context, const char* node_name, const char* next_node)
-{
-    if (context == nullptr || node_name == nullptr || next_node == nullptr) {
-        return false;
-    }
-
-    MaaStringBuffer* item = MaaStringBufferCreate();
-    MaaStringListBuffer* list = MaaStringListBufferCreate();
-    if (item == nullptr || list == nullptr) {
-        if (item != nullptr) {
-            MaaStringBufferDestroy(item);
-        }
-        if (list != nullptr) {
-            MaaStringListBufferDestroy(list);
-        }
-        return false;
-    }
-
-    const bool ok =
-        MaaStringBufferSet(item, next_node) && MaaStringListBufferAppend(list, item) && MaaContextOverrideNext(context, node_name, list);
-    MaaStringListBufferDestroy(list);
-    MaaStringBufferDestroy(item);
-    return ok;
 }
 
 std::optional<int> read_inventory_count(MaaContext* context, const MaaImageBuffer* image)
@@ -737,14 +688,14 @@ void rebuild_current_page_queue(
         EssenceCell essence_cell {
             .grid_ = cell,
             .quality_ = classify_cell_quality(image, cell.screen_rect, half_row_gap).quality_,
-            .thumb_state_ = detect_cell_thumb_state(state, image, cell.screen_rect).state,
+            .thumb_state_ = detect_cell_thumb_state(state, image, cell.screen_rect),
         };
         state.current_page_cells_.push_back(essence_cell);
         if (config.collect_inventory_) {
             if (essence_cell.thumb_state_ != "lock") {
                 const auto& box = cell.screen_rect;
                 const cv::Rect badge(box.x + box.width * 2 / 3, box.y, box.width - box.width * 2 / 3, box.height / 3);
-                const bool equipped = match_template_score(image(badge), state.thumb_equipped_template_).score >= kThumbLockMatchThreshold;
+                const bool equipped = match_template_score(image(badge), state.thumb_equipped_template_) >= kThumbLockMatchThreshold;
                 if (equipped) {
                     last_protected = cell.frame_index;
                     saw_protected = true;
@@ -886,7 +837,6 @@ MaaBool EssenceGrid::advance(
             return 1;
         }
         gridtracker::Result result = state.last_scan_result_.value_or(gridtracker::Result {});
-        const char* next_node = nullptr;
         if (state.pending_cell_) {
             const auto& cell = state.pending_cell_->grid_;
             state.resolved_.emplace(cell.row, cell.col);
@@ -903,14 +853,10 @@ MaaBool EssenceGrid::advance(
             result = scan_grid(state, scanned_image, config);
             state.last_scan_result_ = result;
             if (!result.accepted()) {
-                if (result.reason == "rewind_to_top") {
-                    next_node = "EssenceGridSwipeToTop";
-                }
-                else if (result.reason == "alignment_unverified" && state.recovery_at_count_ != result.tracked_cells) {
+                if (result.reason == "alignment_unverified" && state.recovery_at_count_ != result.tracked_cells) {
                     state.recovery_at_count_ = result.tracked_cells;
-                    next_node = "EssenceGridSwipeBack";
                 }
-                else {
+                else if (result.reason != "rewind_to_top") {
                     LogWarn << "Inventory coverage unverified" << VAR(result.reason) << VAR(result.tracked_cells) << VAR(*count);
                     write_advance_detail(out_detail, state, result, std::nullopt, config);
                     return 0;
@@ -922,31 +868,27 @@ MaaBool EssenceGrid::advance(
             }
         }
         std::optional<EssenceCell> selected;
-        if (!next_node) {
+        if (result.accepted()) {
             selected = select_next_queued_cell(state);
         }
-        if (!next_node && !selected) {
+        if (result.accepted() && !selected) {
             state.scan_required_ = true;
             if (result.status == gridtracker::Status::Complete) {
-                next_node = static_cast<int>(state.resolved_.size()) == *state.inventory_count_ ? kVerifyNode : "FailedNode";
+                state.failed_ = static_cast<int>(state.resolved_.size()) != *state.inventory_count_;
             }
             else if (result.status == gridtracker::Status::Stalled) {
-                next_node = state.recovery_at_count_ == result.tracked_cells ? "FailedNode" : "EssenceGridSwipeShort";
+                state.failed_ = state.recovery_at_count_ == result.tracked_cells;
                 state.recovery_at_count_ = result.tracked_cells;
                 result.reason = "no_new_cells";
-            }
-            else {
-                next_node = kSwipeNextNode;
             }
         }
 
         if (selected) {
             state.pending_cell_ = selected;
-            state.pending_clicks_ = 0;
+            state.before_core_ = {};
             state.core_changed_ = false;
             state.panel_quality_.clear();
             ++state.issued_cells_;
-            next_node = kClickNextNode;
             if (out_box != nullptr) {
                 const cv::Rect& box = selected->grid_.screen_rect;
                 *out_box = {
@@ -958,16 +900,10 @@ MaaBool EssenceGrid::advance(
             }
         }
 
-        LogInfo << "EssenceGridScan advance" << VAR(next_node) << VAR(result.tracked_cells) << VAR(state.issued_cells_)
+        LogInfo << "EssenceGridScan advance" << VAR(state.failed_) << VAR(result.tracked_cells) << VAR(state.issued_cells_)
                 << VAR(state.current_page_queue_.size()) << VAR(state.current_page_queue_index_) << VAR(state.scan_required_)
                 << gridtracker::ToString(result.status) << VAR(result.alignment.row_offset) << VAR(result.alignment.support_rows)
                 << VAR(result.alignment.match_ratio);
-        state.failed_ = std::string_view(next_node) == "FailedNode";
-        if (!override_next(context, node_name, next_node)) {
-            state.failed_ = true;
-            LogWarn << "EssenceGridScan override next failed" << VAR(next_node);
-            return 0;
-        }
         write_advance_detail(out_detail, state, result, selected, config);
         return 1;
     }
@@ -995,7 +931,7 @@ MaaBool MAA_CALL EssenceGrid::resetActionRun(
 MaaBool MAA_CALL EssenceGrid::pendingRecognitionRun(
     [[maybe_unused]] MaaContext* context,
     MaaTaskId task_id,
-    const char* node_name,
+    [[maybe_unused]] const char* node_name,
     [[maybe_unused]] const char* custom_recognition_name,
     [[maybe_unused]] const char* custom_recognition_param,
     const MaaImageBuffer* image,
@@ -1004,60 +940,62 @@ MaaBool MAA_CALL EssenceGrid::pendingRecognitionRun(
     MaaRect* out_box,
     MaaStringBuffer* out_detail)
 {
-    auto* grid = static_cast<EssenceGrid*>(trans_arg);
-    auto& state = *grid->state_;
+    return static_cast<EssenceGrid*>(trans_arg)->readPending(task_id, image, out_box, out_detail, false);
+}
+
+MaaBool MAA_CALL EssenceGrid::detailRecognitionRun(
+    [[maybe_unused]] MaaContext* context,
+    MaaTaskId task_id,
+    [[maybe_unused]] const char* node_name,
+    [[maybe_unused]] const char* custom_recognition_name,
+    [[maybe_unused]] const char* custom_recognition_param,
+    const MaaImageBuffer* image,
+    [[maybe_unused]] const MaaRect* roi,
+    void* trans_arg,
+    MaaRect* out_box,
+    MaaStringBuffer* out_detail)
+{
+    return static_cast<EssenceGrid*>(trans_arg)->readPending(task_id, image, out_box, out_detail, true);
+}
+
+MaaBool EssenceGrid::readPending(
+    MaaTaskId task_id,
+    const MaaImageBuffer* image,
+    MaaRect* out_box,
+    MaaStringBuffer* out_detail,
+    bool compare_detail)
+{
+    auto& state = *state_;
     if (state.failed_ || state.task_id_ != task_id || !state.pending_cell_ || !image || MaaImageBufferIsEmpty(image)) {
         write_error(out_detail, "No pending inventory cell for this task");
         return 0;
     }
     try {
         const auto frame = to_mat(image);
-        if (std::string_view(node_name) == "EssenceGridCheckSelection") {
+        if (compare_detail) {
             state.panel_quality_ = panel_quality(*state.config_, frame);
-            state.core_changed_ = recogrid::FeatureDistance(state.before_core_, panel_core(*state.config_, frame)) > kMaxUnchangedDetailCoreDistance;
+            state.core_changed_ =
+                recogrid::FeatureDistance(state.before_core_, panel_core(*state.config_, frame)) > kMaxUnchangedDetailCoreDistance;
         }
-        else if (std::string_view(node_name) == kClickNextNode) {
-            if (state.pending_clicks_ >= 2) {
-                write_error(out_detail, "Pending inventory cell still unconfirmed after reclick");
-                return 0;
-            }
-            if (state.pending_clicks_ == 0) {
-                state.before_core_ = panel_core(*state.config_, frame);
-            }
-            ++state.pending_clicks_;
+        else if (state.before_core_.data.empty()) {
+            state.before_core_ = panel_core(*state.config_, frame);
         }
-        const auto hit = grid->pending(out_box, out_detail);
-        if (hit && out_box && std::string_view(node_name) == kClickNextNode) {
-            const auto& box = state.pending_cell_->grid_.screen_rect;
-            *out_box = { box.x + box.width / 2, box.y + box.height / 2, 1, 1 };
+        const auto& box = state.pending_cell_->grid_.screen_rect;
+        if (out_box) {
+            *out_box = compare_detail ? MaaRect { box.x, box.y, box.width, box.height }
+                                      : MaaRect { box.x + box.width / 2, box.y + box.height / 2, 1, 1 };
         }
-        return hit;
+        write_pending_detail(out_detail, state, true, "Pending Essence grid cell");
+        LogInfo << "EssenceGridScan pending" << VAR(compare_detail) << VAR(state.pending_cell_->grid_.frame_index) << VAR(box.x)
+                << VAR(box.y) << VAR(box.width) << VAR(box.height);
+        return 1;
     }
     catch (const std::exception& e) {
         state.failed_ = true;
         write_error(out_detail, e.what());
-        LogError << "EssenceGridPendingRecognition failed" << VAR(e.what());
+        LogError << "EssenceGrid pending recognition failed" << VAR(compare_detail) << VAR(e.what());
         return 0;
     }
-}
-
-MaaBool EssenceGrid::pending(MaaRect* out_box, MaaStringBuffer* out_detail)
-{
-    const EssenceGridState& state = *state_;
-    if (!state.pending_cell_) {
-        write_pending_detail(out_detail, state, false, "No pending Essence grid cell");
-        LogWarn << "EssenceGridPendingRecognition missing pending cell";
-        return 0;
-    }
-
-    const cv::Rect& box = state.pending_cell_->grid_.screen_rect;
-    if (out_box != nullptr) {
-        *out_box = { box.x, box.y, box.width, box.height };
-    }
-    write_pending_detail(out_detail, state, true, "Pending Essence grid cell");
-    LogInfo << "EssenceGridScan pending" << VAR(state.pending_cell_->grid_.frame_index) << VAR(box.x) << VAR(box.y) << VAR(box.width)
-            << VAR(box.height);
-    return 1;
 }
 
 MaaBool EssenceGrid::resetTracking(MaaTaskId task_id, const char* node_name)

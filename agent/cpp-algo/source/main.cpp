@@ -148,6 +148,10 @@ int main(int argc, char** argv)
         "EssenceGridPendingRecognition",
         essencegridscan::EssenceGrid::pendingRecognitionRun,
         &essence_grid);
+    MaaAgentServerRegisterCustomRecognition(
+        "EssenceGridDetailRecognition",
+        essencegridscan::EssenceGrid::detailRecognitionRun,
+        &essence_grid);
     MaaAgentServerRegisterCustomAction("EssenceGridResetAction", essencegridscan::EssenceGrid::resetActionRun, &essence_grid);
     MaaAgentServerRegisterCustomRecognition("IconRecognition", iconrecognition::IconRecognitionRun, nullptr);
     MaaAgentServerRegisterCustomRecognition("MapFind", worldmap::MapFindRun, nullptr);

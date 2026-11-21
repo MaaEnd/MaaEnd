@@ -1,14 +1,37 @@
 #pragma once
 
-#include "GridDetector.h"
-
 #include <MaaUtils/NoWarningCV.hpp>
 
 #include <algorithm>
 #include <cmath>
+#include <vector>
 
 namespace recogrid
 {
+
+struct Segment
+{
+    int start = 0;
+    int end = 0;
+};
+
+struct GridRegion
+{
+    cv::Size normalized_size_ { 1280, 720 };
+    cv::Rect roi_ { 20, 70, 960, 600 };
+};
+
+// Geometry supplied by the caller, with coordinates relative to the cropped ROI.
+struct GridLayout
+{
+    cv::Mat roi;
+    std::vector<Segment> rows;
+    std::vector<Segment> cols;
+    std::vector<cv::Rect> cells;
+};
+
+int ModalSegmentLength(const std::vector<Segment>& segments);
+cv::Mat NormalizeInputSize(const cv::Mat& src, cv::Size normalizedSize);
 
 inline cv::Rect ClampRect(const cv::Rect& rect, const cv::Size& bounds)
 {
@@ -40,9 +63,9 @@ inline cv::Rect ScaleRect(const cv::Rect& rect, cv::Size fromSize, cv::Size toSi
     return ClampRect({ x, y, std::max(1, right - x), std::max(1, bottom - y) }, toSize);
 }
 
-inline cv::Rect RoiToScreen(const cv::Rect& rect, const GridDetectOptions& options, cv::Size imageSize)
+inline cv::Rect RoiToScreen(const cv::Rect& rect, const GridRegion& region, cv::Size imageSize)
 {
-    return ScaleRect(OffsetRect(rect, { options.roi.x, options.roi.y }), options.normalizedSize, imageSize);
+    return ScaleRect(OffsetRect(rect, region.roi_.tl()), region.normalized_size_, imageSize);
 }
 
 } // namespace recogrid

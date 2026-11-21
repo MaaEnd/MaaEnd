@@ -31,6 +31,28 @@ type gridSelection struct {
 	Expected          int    `json:"expected_cells"`
 	BoundaryCandidate bool   `json:"boundary_candidate"`
 	ReachedEnd        bool   `json:"reached_end"`
+	Status            string `json:"tracking_status"`
+	Reason            string `json:"unresolved_reason"`
+	Failed            bool   `json:"scan_failed"`
+}
+
+func (c gridSelection) nextNode() string {
+	switch {
+	case c.Failed:
+		return "FailedNode"
+	case c.Row >= 0:
+		return "EssenceGridClickPending"
+	case c.Reason == "rewind_to_top":
+		return "EssenceGridSwipeToTop"
+	case c.Reason == "alignment_unverified":
+		return "EssenceGridSwipeBack"
+	case c.Status == "complete":
+		return "EssenceGridVerifyComplete"
+	case c.Status == "stalled":
+		return "EssenceGridSwipeShort"
+	default:
+		return "EssenceGridSwipeNext"
+	}
 }
 
 // OCR resolves names to IDs but retains their displayed order and levels.
@@ -40,7 +62,7 @@ type warehouseDetail struct {
 }
 
 type warehouseDetailRead struct {
-	Clicks      int    `json:"clicks"`
+	Clicks      int    `json:"-"`
 	CoreChanged bool   `json:"core_changed"`
 	Quality     string `json:"panel_quality"`
 	previous    *warehouseDetail
@@ -111,7 +133,7 @@ func (s *warehouseScan) verify(c gridSelection) error {
 // click path, including the final C++ count and viewport verification.
 type EssenceFilterReadLockStateAction struct{}
 
-func (*EssenceFilterReadLockStateAction) Run(_ *maa.Context, arg *maa.CustomActionArg) bool {
+func (*EssenceFilterReadLockStateAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	st := currentRun
 	detail := arg.RecognitionDetail
 	if st == nil || st.TaskID != arg.TaskID || detail == nil || detail.Results == nil || detail.Results.Best == nil {
@@ -146,6 +168,15 @@ func (*EssenceFilterReadLockStateAction) Run(_ *maa.Context, arg *maa.CustomActi
 		return false
 	}
 	st.CurrentLocked = c.Mark == lockedMark
+	if arg.CurrentTaskName == "EssenceGridAdvance" {
+		if c.Row >= 0 {
+			st.warehouseDetail.Clicks = 0
+			if err := ctx.ClearHitCount("EssenceGridClickPending"); err != nil {
+				return inventoryFailed(err)
+			}
+		}
+		return ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: c.nextNode()}}) == nil
+	}
 	return true
 }
 
@@ -200,32 +231,20 @@ func (*EssenceFilterReadDetailAction) Run(ctx *maa.Context, arg *maa.CustomActio
 	if err := json.Unmarshal([]byte(result.Detail), &read); err != nil {
 		return inventoryFailed(err)
 	}
-	if read.Clicks < 1 || read.Clicks > 2 {
-		return false
-	}
 	r := &st.warehouseDetail
-	r.Clicks, r.CoreChanged, r.Quality = read.Clicks, read.CoreChanged, read.Quality
+	r.Clicks++
+	r.CoreChanged, r.Quality = read.CoreChanged, read.Quality
 	if s := st.Scan; s != nil {
-		next := "EssenceFilterCheckItemSlot1"
+		next := []maa.NextItem{{Name: "EssenceFilterCheckItemSlot1"}}
 		if s.current.Mark != lockedMark || s.current.Quality == purple {
 			s.skippedReads++
 			r.previous = nil
-			next = "EssenceGridAdvance"
+			next = []maa.NextItem{{Name: "EssenceGridAdvance"}}
 			if s.current.BoundaryCandidate {
-				img, err := taskController(ctx).CacheImage()
-				if err != nil || img == nil {
-					return false
-				}
-				equipped, err := ctx.RunRecognition("EssenceGridEquipSlotOccupied", img, nil)
-				if err != nil {
-					return inventoryFailed(err)
-				}
-				if equipped == nil || !equipped.Hit {
-					next = "EssenceGridVerifyLockedPrefix"
-				}
+				next = []maa.NextItem{{Name: "EssenceGridEquipSlotOccupied"}, {Name: "EssenceGridVerifyLockedPrefix"}}
 			}
 		}
-		return ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: next}}) == nil
+		return ctx.OverrideNext(arg.CurrentTaskName, next) == nil
 	}
 	return true
 }
