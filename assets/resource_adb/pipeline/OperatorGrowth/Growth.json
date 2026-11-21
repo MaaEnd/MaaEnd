@@ -22,14 +22,14 @@
             }
         }
     },
-    "OperatorGrowthAllOCR": {
+    "OperatorGrowthListComplete": {
         "recognition": {
             "param": {
                 "roi": [
-                    25,
-                    75,
-                    340,
-                    540
+                    45,
+                    85,
+                    315,
+                    530
                 ]
             }
         }
