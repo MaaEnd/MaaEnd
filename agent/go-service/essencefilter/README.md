@@ -71,7 +71,7 @@ Agent 回调按当前框架模型串行执行，因此 `currentRun` 不加锁。
 | `<账号哈希>.json` | 当前账号的公开库存文件，也是任务读取的缓存。 |
 | `unverified.json` | 无法确认 UID 时，「生成基质报告」写出的匿名报告，省略 `account_id`。匿名任务只复用本次任务的内存库存。 |
 
-协议第 1 版以 `format` 和 `version` 标识文件。写入方整份替换快照，用 UTC 时间 `updated_at` 记录最近一次提交。每个 `items` 条目记录一枚实物的品质、实际标记、按显示顺序排列的三条游戏词条 ID 和等级。武器适配、分组与可用数量由读取方按自己的数据计算。见[协议 Schema](../../../tools/schema/essence_inventory.schema.json) 和[一致性样例](./testdata/inventory/)。
+协议第 1 版以 `format` 和 `version` 标识文件。写入方整份替换快照，用 UTC 时间 `updated_at` 记录最近一次提交。每个 `items` 条目记录一枚实物的品质、实际标记、按显示顺序排列的三条游戏词条 ID 和等级。武器适配、分组与可用数量由读取方按自己的数据计算。见[协议 Schema](../../../tools/schema/essence_inventory.schema.json)。
 
 `coverage.locked_matching_flawless_gold.complete_at` 是最近一次完成已锁适配无瑕基质盘点的时间。已确认的增量保留这个时间。读取旧版全仓报告时，也接受无瑕品质的完整盘点时间。
 
