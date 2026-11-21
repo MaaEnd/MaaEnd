@@ -29,22 +29,6 @@ _Custom code is usually only maintainable by the original author. If even the au
 
 Node names use PascalCase, prefixed with the task name or module name within the same task. For example, `AutoSellPressStockRedistribution`, `DailyProtocolPassInMenu`, `RealTimeAutoSkipEntry`.
 
-### Prohibit Hard Delays
-
-Use `pre_delay`, `post_delay`, `timeout`, `on_error` as little as possible. Avoid blind sleep by adding intermediate recognition nodes.
-
-Use `pre_wait_freezes` / `post_wait_freezes` only when it is absolutely necessary to wait for the screen to stabilize; otherwise, avoid delays as much as possible.  
-**Do not use delays for stability; instead, add intermediate node judgments, because delays are actually masking problems and will still be unstable when the user's device has high latency.**
-
-> [!NOTE]
->
-> For more on delays, you can read the [basic operating mode of the neighboring ALAS](https://github.com/LmeSzinc/AzurLaneAutoScript/wiki/1.-Start#%E5%9F%BA%E6%9C%AC%E8%BF%90%E4%BD%9C%E6%A8%A1%E5%BC%8F), whose recommended practices are essentially equivalent to our `next` field.
-
-### `next` Hit on the First Round
-
-Expand the `next` list as much as possible to ensure that any game screen is expected, achieving the target node hit with a single screenshot and **executing the operation only once**.
-Use linear flows as much as possible to improve speed and stability.
-
 ### Recognize → Operate → Recognize Again
 
 Each step of operation is based on recognition.
@@ -88,13 +72,55 @@ If you truly run into a problem that cannot be solved (such as the game's own an
 
 ### Handling Pop-ups and Loading
 
-A good process is not just "the main flow works," but: the normal main flow works, pop-ups can be handled, loading can be waited through, and when it is not in the target scene it can automatically navigate there.
+A good process is not just "the main flow works," but: the normal main flow works, pop-ups can be handled, and loading can be waited through, while using linear flows as much as possible to improve speed and stability.
 
 Common practice is to add to `next`:
 
-- `[JumpBack]SceneDialogConfirm`
-- `[JumpBack]SceneWaitLoadingExit`
-- `[JumpBack]SceneAnyEnterWorld`
+```jsonc
+"next": {
+   "SceneEnterXXXSuccess", // Successfully entered the target scene
+   "SceneEnterXXXConfirmPopUp", // Handle pop-up. This node does not use JumpBack; its next connects to SceneEnterXXXSuccess to ensure a linear flow
+   "[JumpBack]SceneWaitLoadingExit"
+}
+```
+
+### Prohibit Hard Delays
+
+Use `pre_delay`, `post_delay`, `timeout`, `on_error` as little as possible. Avoid blind sleep by adding intermediate recognition nodes.
+
+**Do not use delays for stability; instead, add intermediate node judgments, because delays are actually masking problems and will still be unstable when the user's device has high latency.**
+
+> [!NOTE]
+>
+> For more on delays, you can read the [basic operating mode of the neighboring ALAS](https://github.com/LmeSzinc/AzurLaneAutoScript/wiki/1.-Start#%E5%9F%BA%E6%9C%AC%E8%BF%90%E4%BD%9C%E6%A8%A1%E5%BC%8F), whose recommended practices are essentially equivalent to our `next` field.
+
+### The `next` List Already Loops for Matching
+
+MaaFramework keeps looping when no `next` node hits, until any node hits or it times out. Most intermediate transition states are filtered out during this process, so there is no need to wait extra for the screen to stabilize.
+
+The only cases that require waiting for the screen to stabilize are:
+
+1. Subsequent recognition depends on a stable screen **to recognize accurately**. E.g., IMS A3 `AddItemData`, Aerial Salvage `AeroSalvageGridRecognition`
+2. Recognition hits prematurely during an animated transition state, and it is necessary to wait for the animation to finish before clicking. E.g., Base Rewards task DijiangRewards
+3. By design it must hand off after the screen is stable, while the recognition target and the main changing area of the screen are in different regions—so the main screen is not yet stable when the recognition target stabilizes. E.g., Universal Jump
+
+### wait_freezes Standards
+
+`pre_wait_freezes` / `post_wait_freezes` works by taking consecutive screenshots of a specified region and performing template matching between adjacent screenshots; reaching the threshold score indicates that the screen is roughly stable.
+
+When the target matching region `target` is not specified, it falls back to the `target` of the node's `action`, which further falls back to the node's recognition result `reco.box`.
+
+> [!NOTE]
+>
+> When the node property is `"inverse": true`, or the recognition type is `DirectHit` (in certain cases), the recognition result `reco.box` is empty, and a `wait_freezes` without an explicit `target` will be silently skipped.
+
+`pre_wait_freezes` is commonly used for recognitions that hit prematurely during transition states—for example, fade-in/fade-out effects when entering a screen can cause template matching to hit early. In principle, you must explicitly specify the `target` region for `pre_wait_freezes`: the default fallback target region has already passed recognition once, so performing template matching on this local region again is meaningless and degenerates into `pre_delay`. Adding `pre_wait_freezes` to a `DirectHit` node is not recommended.
+
+Pure recognition nodes without an `action` should prefer `pre_wait_freezes`.
+
+`post_wait_freezes` is commonly used when a `next` node uses Custom Recognition after a click, as such recognitions usually assume the screen is already in a stable state. For cases that do not use Custom Recognition but have a `DirectHit` fallback in the `next` list and require `wait_freezes` to ensure screen stability, prefer adding an intermediate recognition node that uses `pre_wait_freezes`; if an intermediate node cannot be added, it indicates a fragile recognition chain—consider switching to `on_error` to jump to the fallback node and handling transition states in the main flow via `next`.
+
+`Swipe` / `Scroll` screen changes usually displace the recognition targets, so `post_wait_freezes` must be used to stabilize the screen before any recognition hits.
 
 ### OCR Write Complete Text
 
