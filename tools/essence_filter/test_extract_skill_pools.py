@@ -7,7 +7,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from extract_skill_pools import load_suffix_stopwords  # noqa: E402
+from extract_skill_pools import load_suffix_stopwords
 
 
 class LoadSuffixStopwordsTest(unittest.TestCase):
