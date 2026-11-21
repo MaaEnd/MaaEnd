@@ -1,0 +1,22 @@
+{
+    "configs": {
+        "name": "一键据点交易，测试据点发展值未上限",
+        "resource": "官服",
+        "controller": [
+            "Win32",
+            "ADB"
+        ],
+        "imageRoot": "OutpostTrading"
+    },
+    "cases": [
+        {
+            "image": "据点_盈天台建设站_未满级.png",
+            "hits": [
+                "OutpostTradingInXiranflowCloudseederStation",
+                "OutpostTradingXiranflowCloudseederStationOutpostProsperityMax",
+                "OutpostTradingXiranflowCloudseederStationOutpostProsperityAvailable",
+                "OutpostTradingOutpostProsperityAvailable"
+            ]
+        }
+    ]
+}

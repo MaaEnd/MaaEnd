@@ -37,9 +37,8 @@
         },
         {
             "fileMatch": [
-                "/tests/**/*.json",
-                "/tests/**/*.jsonc",
-                "!/tests/MapNavmeshConnectivity/navmesh_connectivity.json"
+                "/tests/**/test_*.json",
+                "/tests/**/test_*.jsonc"
             ],
             "url": "/tools/schema/test.schema.json"
         },
