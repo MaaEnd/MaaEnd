@@ -33,8 +33,6 @@ target_link_libraries(icon-recognition-core
 add_dependencies(icon-recognition-core MaaUtils)
 
 set(recogrid_src
-    RecoGrid/CellFeature.cpp
-    RecoGrid/CellMask.cpp
     RecoGrid/GridGeometry.cpp
     RecoGrid/GridRecognizer.cpp
 )

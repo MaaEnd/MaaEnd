@@ -34,20 +34,10 @@ bool is_occupied(const cv::Mat& image, const GridRecognitionOptions& options)
     if (gray.empty()) {
         return false;
     }
-    const cv::Mat keep_mask = BuildIgnoreMask(gray.size(), options.mask);
-    const int kept_pixels = keep_mask.empty() ? gray.rows * gray.cols : cv::countNonZero(keep_mask);
-    if (kept_pixels <= 0) {
-        return false;
-    }
-
     cv::Mat bright;
     cv::threshold(gray, bright, std::clamp(options.occupied_bright_threshold, 0, 255), 255, cv::THRESH_BINARY);
-    if (!keep_mask.empty()) {
-        cv::bitwise_and(bright, keep_mask, bright);
-    }
-
-    const double mean = keep_mask.empty() ? cv::mean(gray)[0] : cv::mean(gray, keep_mask)[0];
-    const double bright_ratio = static_cast<double>(cv::countNonZero(bright)) / static_cast<double>(kept_pixels);
+    const double mean = cv::mean(gray)[0];
+    const double bright_ratio = static_cast<double>(cv::countNonZero(bright)) / static_cast<double>(gray.total());
     return mean >= options.min_occupied_mean && bright_ratio >= options.min_occupied_bright_ratio;
 }
 
@@ -63,10 +53,10 @@ GridFrame RecognizeGrid(const cv::Mat& image, const GridRecognitionOptions& opti
 
     frame.rows = static_cast<int>(detected.rows.size());
     frame.cols = static_cast<int>(detected.cols.size());
-    frame.row_height = ModalSegmentLength(detected.rows);
-    frame.col_width = ModalSegmentLength(detected.cols);
+    const int cell_height = frame.rows > 0 ? detected.rows.front().end - detected.rows.front().start : 0;
+    const int cell_width = frame.cols > 0 ? detected.cols.front().end - detected.cols.front().start : 0;
     frame.cells.reserve(detected.cells.size());
-    if (frame.rows == 0 || frame.cols == 0 || frame.col_width <= 0 || frame.row_height <= 0 || detected.roi.empty()) {
+    if (frame.rows == 0 || frame.cols == 0 || cell_width <= 0 || cell_height <= 0 || detected.roi.empty()) {
         frame.message = "Grid detected no cells";
         return frame;
     }
@@ -75,7 +65,7 @@ GridFrame RecognizeGrid(const cv::Mat& image, const GridRecognitionOptions& opti
     // sample on both controller layouts, even when only one row is visible.
     const int pitch = frame.cols > 1
                           ? cvRound(static_cast<double>(detected.cols.back().start - detected.cols.front().start) / (frame.cols - 1))
-                          : frame.col_width;
+                          : cell_width;
     if (pitch <= 0) {
         return {};
     }

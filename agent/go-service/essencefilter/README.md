@@ -36,7 +36,7 @@ Go 只通过 `ctx.OverrideNext` 选择 Pipeline 分支：
 | `inventory.go` | 在内存中按适配武器和等级分组，计算可用件数与目标缺口 |
 | `inventory_scan.go` | 按格位记录三条词条和确认后的标记，复核完整件数 |
 | `account_inventory.go` | 账号绑定、库存协议读写和更新事务 |
-| `lock_limit.go` | 相同词条组合的锁定名额：强化期望次数、逐份决策与次优超限报账 |
+| `lock_limit.go` | 相同词条组合的锁定名额：已有锁定占额，新增按顺序占用剩余名额 |
 | `inventory_after_battle.go` | 战后增量映射、合并与提交 |
 | `matchapi/` | 可复用的纯匹配 API：`OCRInput -> MatchResult` |
 | `register.go` | 注册本包 CustomAction / CustomRecognition |

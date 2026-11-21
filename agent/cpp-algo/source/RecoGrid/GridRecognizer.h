@@ -1,6 +1,5 @@
 #pragma once
 
-#include "CellMask.h"
 #include "GridGeometry.h"
 
 #include <MaaUtils/NoWarningCV.hpp>
@@ -17,7 +16,6 @@ inline constexpr int kAlignmentTileSize = 48;
 struct GridRecognitionOptions
 {
     GridRegion region_;
-    CellMaskRatios mask;
     int occupied_bright_threshold = 70;
     double min_occupied_mean = 55.0;
     double min_occupied_bright_ratio = 0.20;
@@ -36,8 +34,6 @@ struct GridFrame
 {
     int rows = 0;
     int cols = 0;
-    int row_height = 0;
-    int col_width = 0;
     std::vector<GridCell> cells;
     std::string message;
     cv::Mat alignment_tiles; // BGR tiles in grid order, including the gap after each card

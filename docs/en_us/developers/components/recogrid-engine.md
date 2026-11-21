@@ -46,10 +46,10 @@ Recognition performs these steps:
 
 1. `InventoryLayout` locates cards in the normalized screenshot and supplies the ROI image, rows, columns, and cell rectangles in `GridLayout`;
 2. RecoGrid projects the supplied cell rectangles back to screenshot coordinates;
-3. evaluate occupancy, applying fixed decoration masks only to this calculation;
+3. evaluate cell occupancy from brightness;
 4. generate color tiles including cell gaps for GridTracker alignment.
 
-The old projection detector and per-cell pHash have been removed. Color sampling and comparison for the right-hand detail icon remain in `CellFeature.*`, called separately by EssenceGrid.
+The old projection detector and per-cell pHash have been removed. EssenceGrid samples the right-hand detail core into an owned `cv::Mat` and compares it with OpenCV L1 distance.
 
 ### Main inputs
 
@@ -58,12 +58,11 @@ The old projection detector and per-cell pHash have been removed. Color sampling
 | `region_.normalized_size_` | Coordinate base; MaaEnd normally uses `1280x720` |
 | `region_.roi_` | Grid region |
 | `GridLayout` | ROI image, rows, columns, and cell rectangles relative to that ROI |
-| `mask` | Ignores fixed corner badges or the bottom area inside each cell |
 | occupancy brightness options | Decide whether a cell contains content |
 
 ### Main outputs
 
-`GridFrame` contains the row and column counts, modal cell width and height, diagnostics, alignment tiles, and the `GridCell` list. Each `GridCell` contains its local row and column, current-frame index, screen rectangle, and `occupied`.
+`GridFrame` contains the row and column counts, diagnostics, alignment tiles, and the `GridCell` list. Each `GridCell` contains its local row and column, current-frame index, screen rectangle, and `occupied`.
 
 RecoGrid does not load item-classification templates or keep sessions. Empty images or invalid grid geometry return an empty `GridFrame`; the caller owns failure and recovery decisions.
 

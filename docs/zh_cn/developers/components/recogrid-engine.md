@@ -46,10 +46,10 @@ recogrid::GridFrame RecognizeGrid(
 
 1. `InventoryLayout` 在归一化截图中定位卡片，提供 `GridLayout` 的 ROI 图像、行列和格子矩形。
 2. RecoGrid 将输入格子矩形换算回原截图坐标。
-3. 判断格子占用，固定装饰 mask 只用于占用判断。
+3. 按亮度判断格子占用。
 4. 生成包含格间距的彩色图块，交给 GridTracker 对齐。
 
-旧的投影检测入口和每格 pHash 已移除。右侧详情核心的颜色采样与比较保留在 `CellFeature.*`，由 EssenceGrid 单独调用。
+旧的投影检测入口和每格 pHash 已移除。EssenceGrid 将右侧详情核心采样为独立持有像素的 `cv::Mat`，使用 OpenCV L1 距离比较。
 
 ### 主要输入
 
@@ -58,12 +58,11 @@ recogrid::GridFrame RecognizeGrid(
 | `region_.normalized_size_` | 坐标基准，MaaEnd 通常使用 `1280x720` |
 | `region_.roi_` | 网格区域 |
 | `GridLayout` | ROI 图像、相对 ROI 的行列和格子矩形 |
-| `mask` | 忽略格子内固定角标或底部区域 |
 | 占用亮度参数 | 判断格子是否有内容 |
 
 ### 主要输出
 
-`GridFrame` 包含行列数、主流格子宽高、诊断信息、对齐图块和 `GridCell` 列表。每个 `GridCell` 包含局部行列、当前帧 index、屏幕矩形以及 `occupied`。
+`GridFrame` 包含行列数、诊断信息、对齐图块和 `GridCell` 列表。每个 `GridCell` 包含局部行列、当前帧 index、屏幕矩形以及 `occupied`。
 
 RecoGrid 不加载物品分类模板，也不保存 session。空图或无效网格几何返回空 `GridFrame`，调用方负责失败和恢复决策。
 

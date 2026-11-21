@@ -24,7 +24,6 @@
 
 #include "../Common/paths.h"
 #include "../GridTracker/GridTracker.h"
-#include "../RecoGrid/CellFeature.h"
 #include "../RecoGrid/GridGeometry.h"
 #include "../RecoGrid/GridRecognizer.h"
 #include "../utils.h"
@@ -103,6 +102,8 @@ constexpr int kQualityDominanceRatio = 2;
 constexpr int kThumbSearchWidthPercent = 20;
 constexpr int kThumbSearchHeightPercent = 20;
 constexpr int kMaxUnchangedDetailCoreDistance = 4; // 0..64 color distance between the same area of two frames
+constexpr int kDetailCoreSize = 16;
+constexpr int kDetailCoreDistanceScale = 64;
 constexpr double kThumbLockMatchThreshold = 0.7;
 constexpr double kThumbDiscardMatchThreshold = 0.75;
 
@@ -119,7 +120,7 @@ struct EssenceGridState
     int recovery_at_count_ = -1;
     std::optional<int> rewind_thumb_offset_;
     std::string panel_quality_;
-    recogrid::CellFeature before_core_;
+    cv::Mat before_core_;
     bool core_changed_ = false;
     bool failed_ = false;
     std::optional<EssenceCell> pending_cell_;
@@ -249,7 +250,7 @@ void reset_tracking(EssenceGridState& state)
     state.resolved_.clear();
     state.recovery_at_count_ = -1;
     state.rewind_thumb_offset_.reset();
-    state.before_core_ = {};
+    state.before_core_.release();
     state.failed_ = false;
     state.pending_cell_.reset();
     state.last_scan_result_.reset();
@@ -657,10 +658,34 @@ gridtracker::Result scan_grid(EssenceGridState& state, const cv::Mat& image, con
 }
 
 // Compare the large detail icon at the same screen position across clicks.
-recogrid::CellFeature panel_core(const EssenceGridConfig& config, const cv::Mat& image)
+cv::Mat panel_core(const EssenceGridConfig& config, const cv::Mat& image)
 {
     const auto core = recogrid::ScaleRect(config.preview_core_, config.normalized_size_, image.size());
-    return recogrid::ComputeCellFeature(image(core));
+    cv::Mat bgr = image(core);
+    if (bgr.empty()) {
+        return {};
+    }
+    if (bgr.channels() == 4) {
+        cv::cvtColor(bgr, bgr, cv::COLOR_BGRA2BGR);
+    }
+    else if (bgr.channels() == 1) {
+        cv::cvtColor(bgr, bgr, cv::COLOR_GRAY2BGR);
+    }
+    else if (bgr.channels() != 3) {
+        return {};
+    }
+    cv::Mat feature;
+    cv::resize(bgr, feature, cv::Size(kDetailCoreSize, kDetailCoreSize), 0, 0, cv::INTER_AREA);
+    return feature;
+}
+
+int core_distance(const cv::Mat& before, const cv::Mat& after)
+{
+    if (before.empty() || after.empty() || before.size() != after.size() || before.type() != after.type()) {
+        return kDetailCoreDistanceScale;
+    }
+    const double average = cv::norm(before, after, cv::NORM_L1) / static_cast<double>(before.total() * before.channels());
+    return static_cast<int>(std::round(average * kDetailCoreDistanceScale / 255.0));
 }
 
 // The panel stripe can distinguish successive reads. A missing stripe is
@@ -885,7 +910,7 @@ MaaBool EssenceGrid::advance(
 
         if (selected) {
             state.pending_cell_ = selected;
-            state.before_core_ = {};
+            state.before_core_.release();
             state.core_changed_ = false;
             state.panel_quality_.clear();
             ++state.issued_cells_;
@@ -974,10 +999,9 @@ MaaBool EssenceGrid::readPending(
         const auto frame = to_mat(image);
         if (compare_detail) {
             state.panel_quality_ = panel_quality(*state.config_, frame);
-            state.core_changed_ =
-                recogrid::FeatureDistance(state.before_core_, panel_core(*state.config_, frame)) > kMaxUnchangedDetailCoreDistance;
+            state.core_changed_ = core_distance(state.before_core_, panel_core(*state.config_, frame)) > kMaxUnchangedDetailCoreDistance;
         }
-        else if (state.before_core_.data.empty()) {
+        else if (state.before_core_.empty()) {
             state.before_core_ = panel_core(*state.config_, frame);
         }
         const auto& box = state.pending_cell_->grid_.screen_rect;

@@ -18,17 +18,14 @@ recogrid::GridFrame RecognizeGrid(
 `GridRecognitionOptions` contains:
 
 - `region_.normalized_size_` and `region_.roi_`: the coordinate system and grid region;
-- `mask`: fixed cell decorations excluded from occupancy evaluation;
 - brightness thresholds used to set `GridCell::occupied`.
 
-`GridFrame` contains row/column counts, modal cell size, one `GridCell` per supplied position, a diagnostic message, and color tiles for alignment. Each cell carries its local row/column, frame index, screen rectangle, and occupancy flag. Per-cell hashes and separate comparison features are not computed.
+`GridFrame` contains row/column counts, one `GridCell` per supplied position, a diagnostic message, and color tiles for alignment. Each cell carries its local row/column, frame index, screen rectangle, and occupancy flag. Per-cell hashes and separate comparison features are not computed.
 
 ## Files
 
-- `GridGeometry.*`: layout types, normalization, modal segment length, and rectangle conversion;
-- `GridRecognizer.*`: occupancy evaluation, alignment tiles, and frame construction;
-- `CellMask.*`: masks fixed decorations for occupancy evaluation;
-- `CellFeature.*`: compact color sampling and distance for the right-hand detail icon, called separately by EssenceGrid.
+- `GridGeometry.*`: layout types, normalization and rectangle conversion;
+- `GridRecognizer.*`: occupancy evaluation, alignment tiles, and frame construction.
 
 ## Failure contract
 

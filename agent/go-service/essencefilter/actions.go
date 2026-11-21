@@ -352,7 +352,6 @@ func (a *EssenceFilterFinishAction) Run(ctx *maa.Context, arg *maa.CustomActionA
 		reportColoredByKey(ctx, "#11cf00", "focus.finish.summary", st.MatchedCount)
 		reportFinishExtRuleStats(ctx, st)
 		reportFinishArtifacts(ctx, st)
-		reportFinishLockLimit(ctx, st)
 	}
 	currentRun = nil
 	return true

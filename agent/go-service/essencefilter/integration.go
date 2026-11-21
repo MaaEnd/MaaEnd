@@ -277,7 +277,7 @@ func applySkillMark(ctx *maa.Context, st *RunState, ocr matchapi.OCRInput, match
 	switch matchResult.Kind {
 	case matchapi.MatchExact:
 		if verdict := st.LockLimit.applyToExact(matchResult, st.CurrentLocked); verdict.Quota > 0 {
-			reportLockLimit(ctx, verdict, matchResult, st.CurrentLocked)
+			reportLockLimit(ctx, verdict, st.CurrentLocked)
 			if !matchResult.ShouldLock {
 				break
 			}
@@ -367,45 +367,13 @@ func loadMatchEngine(ctx *maa.Context, ctrl *maa.Controller, opts *EssenceFilter
 	return engine, nil
 }
 
-func reportLockLimit(ctx *maa.Context, verdict lockLimitDecision, match *matchapi.MatchResult, locked bool) {
-	levels := match.Levels
+func reportLockLimit(ctx *maa.Context, verdict lockLimitDecision, locked bool) {
 	switch {
 	case locked:
-		if verdict.NeedsUnlock {
-			reportColoredByKey(ctx, "#ff4d4f", "lock_limit.unlock_needed",
-				strings.Join(match.SkillsChinese, i18n.Separator()), levels[0], levels[1], levels[2])
-		} else {
-			reportSimpleByKey(ctx, "lock_limit.already_locked")
-		}
+		reportSimpleByKey(ctx, "lock_limit.already_locked")
 	case !verdict.Lock:
 		reportSimpleByKey(ctx, "lock_limit.not_in_quota", verdict.Quota)
 	default:
 		reportSimpleByKey(ctx, "lock_limit.in_quota", verdict.Quota)
-	}
-}
-
-// reportFinishLockLimit lists the combinations holding locked suboptimal essences.
-func reportFinishLockLimit(ctx *maa.Context, st *RunState) {
-	if st.LockLimit == nil {
-		return
-	}
-	summaries := st.LockLimit.overLimitSummaries()
-	if len(summaries) == 0 {
-		reportSimpleByKey(ctx, "lock_limit.summary_none")
-		return
-	}
-	reportColoredByKey(ctx, "#ff9f43", "lock_limit.summary_title")
-	for _, summary := range summaries {
-		reportSimpleByKey(ctx, "lock_limit.summary_row",
-			strings.Join(summary.Skills[:], i18n.Separator()),
-			strings.Join(summary.Weapons, i18n.Separator()),
-			summary.Quota,
-			summary.Locked,
-			summary.Excess,
-		)
-		for _, row := range summary.Rows {
-			reportSimpleByKey(ctx, "lock_limit.summary_level",
-				row.Levels[0], row.Levels[1], row.Levels[2], row.Count)
-		}
 	}
 }

@@ -30,7 +30,6 @@ struct GridLayout
     std::vector<cv::Rect> cells;
 };
 
-int ModalSegmentLength(const std::vector<Segment>& segments);
 cv::Mat NormalizeInputSize(const cv::Mat& src, cv::Size normalizedSize);
 
 inline cv::Rect ClampRect(const cv::Rect& rect, const cv::Size& bounds)
