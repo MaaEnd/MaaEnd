@@ -180,17 +180,21 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
+        // 工人之家那处在地图缩到最小时落在画面下沿，地图到底拖不上来，追踪图标认不了；
+        // 南部草甸认不到时按排除法认定是工人之家
         "next": [
-            "AutoDailyMissionFriendOfBotsCandidatesTheHub"
+            "AutoDailyMissionFriendOfBotsCandidatesTheHub",
+            "AutoDailyMissionFriendOfBotsWorkerDorms"
         ]
     },
     "AutoDailyMissionFriendOfBotsCandidatesTheHub": {
-        "desc": "在地图上确认今天的机械之友是枢纽区里的哪一处",
+        "desc": "在地图上确认今天的机械之友是枢纽区里的南部草甸那一处",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
         "custom_recognition_param": {
             "zone": "ValleyIV",
             "icon": "MissionTrack",
+            // 工人之家那处不放在这里认，见 AutoDailyMissionFriendOfBotsWorkerDorms
             "candidates": [
                 {
                     "at": [
@@ -198,13 +202,6 @@
                         961.065
                     ],
                     "next": "AutoDailyMissionFriendOfBotsSouthernMeadows"
-                },
-                {
-                    "at": [
-                        746.339,
-                        1043.826
-                    ],
-                    "next": "AutoDailyMissionFriendOfBotsWorkerDorms"
                 }
             ]
         },
@@ -380,16 +377,20 @@
         ]
     },
     "AutoDailyMissionFriendOfBotsWorkerDorms": {
-        "desc": "今天的机械之友在工人之家附近",
+        "desc": "通过万能跳转传送到工人之家前往今天的机械之友",
+        // 这处的追踪图标在地图缩到最小时落在画面下沿，地图拖不上来，认不了；
+        // 南部草甸没认到才会走到这里，按排除法认定是工人之家，改用万能跳转传送到工人之家传送点
         "pre_delay": 0,
-        "anchor": {
-            "AutoDailyMissionRoute": "AutoDailyMissionFriendOfBotsRouteWorkerDorms"
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldValleyIVTheHubWorkerDorms"
+            ]
         },
-        "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoDailyMissionQuickTeleport",
-            "AutoDailyMissionSelectTrackedMission"
+            "AutoDailyMissionFriendOfBotsRouteWorkerDorms"
         ]
     },
     "AutoDailyMissionFriendOfBotsCliffsideTrail": {
