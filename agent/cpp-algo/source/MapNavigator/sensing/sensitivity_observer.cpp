@@ -1,6 +1,5 @@
 #include "sensitivity_observer.h"
 
-#include <algorithm>
 #include <mutex>
 #include <optional>
 
@@ -50,8 +49,7 @@ void BeginRun(SensitivityRun* run, int64_t min_quiet_ms)
         LogInfo << "Turn sensitivity scale in effect." << VAR(scale);
     }
     const std::lock_guard<std::mutex> guard(run->mutex);
-    run->detector.config.min_quiet_ms = std::max<int64_t>(0, min_quiet_ms);
-    BeginDetectorRun(&run->detector);
+    BeginDetectorRun(&run->detector, min_quiet_ms);
 }
 
 void NoteTurnIssued(SensitivityRun* run, double delta_deg)

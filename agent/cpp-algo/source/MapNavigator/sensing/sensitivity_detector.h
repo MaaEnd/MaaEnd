@@ -24,7 +24,7 @@ struct Config
     // 孤立转向的指令量范围, 上限乘 max_ratio 须小于 180 度, 否则朝向差会绕反
     double min_command_deg = 3.0;
     double max_command_deg = 60.0;
-    // 发令后连续这么多拍不再发转向，且累计静默时长不低于 min_quiet_ms，末拍的朝向差才算这条指令的转量
+    // 发令后连续这么多拍不再发转向, 且累计静默时长不低于 min_quiet_ms, 末拍的朝向差才算这条指令的转量
     int quiet_ticks = 3;
     int64_t min_quiet_ms = 0;
     // 攒够这么多条样本后每来一条判一次
@@ -77,7 +77,7 @@ struct Detector
 };
 
 // 每次导航开始调用, 未完成的样本作废, 已攒样本保留
-void BeginDetectorRun(Detector* detector);
+void BeginDetectorRun(Detector* detector, int64_t min_quiet_ms = 0);
 // 所有路径发出的偏航度数都要报
 void NoteDetectorIssued(Detector* detector, double delta_deg);
 // camera_heading_deg 是本拍决策前读到的镜头朝向, 没读到传空

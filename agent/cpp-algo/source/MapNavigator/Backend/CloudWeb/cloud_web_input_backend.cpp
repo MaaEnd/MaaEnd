@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <cstdint>
 #include <cstdlib>
 #include <optional>
 #include <string>
@@ -28,14 +29,16 @@ constexpr std::string_view kCloudWebControllerName = "CloudWeb";
 constexpr int32_t kViewDeltaContactId = 4;
 constexpr int32_t kViewDeltaCenterX = kWorkWidth / 2;
 constexpr int32_t kViewDeltaCenterY = kWorkHeight / 2;
-// 1280×720 客户区实测线性区约 11.5 px/deg，单次超过约 160 px 会被云端截断
+// 1280×720 客户区实测线性区约 11.5 px/deg，俯仰换算与桌面端保持同一纵横比与速度比
 constexpr double kCloudWebDefaultUnitsPerDegree = 11.5;
 constexpr double kCloudWebDefaultPitchRangeUnits = kCloudWebDefaultUnitsPerDegree * kTurnDegreesPerCircle
     * (static_cast<double>(kWorkHeight) / kWorkWidth) / kMouseVerticalDragSpeedRatio;
-constexpr int kCloudWebMinSendIntervalMs = 50;
-constexpr double kCloudWebMinEmitDeltaDeg = 1.0;
+// 单次位移超过约 145 px 会被云端截断；10.5° ≈ 121 px 留在安全线性区内，且低于最小发射角不发包
 constexpr double kCloudWebMaxBatchDeltaDeg = 10.5;
+constexpr double kCloudWebMinEmitDeltaDeg = 1.0;
+// 每拍限发 1 批并保持最小发送间隔，避免连发在云端/WebView2 队列堆积后合并越界
 constexpr int kCloudWebMaxBatchesPerTick = 1;
+constexpr int kCloudWebMinSendIntervalMs = 50;
 // 实测云端画面转向落地需约 340~380 ms，灵敏度检测需等满该静默期再采样
 constexpr int64_t kCloudWebSensitivityMinQuietMs = 400;
 

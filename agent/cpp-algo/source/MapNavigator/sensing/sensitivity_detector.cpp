@@ -64,8 +64,9 @@ double NormalizeDeg(double deg)
     return out - 180.0;
 }
 
-void BeginDetectorRun(Detector* detector)
+void BeginDetectorRun(Detector* detector, int64_t min_quiet_ms)
 {
+    detector->config.min_quiet_ms = std::max<int64_t>(0, min_quiet_ms);
     detector->has_prev_tick = false;
     detector->pending.reset();
     detector->issued_since_record = 0.0;

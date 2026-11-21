@@ -30,7 +30,7 @@ constexpr int kButtonForward = 16;
 constexpr UINT_PTR kWatchdogTimer = 1;
 // 页面对话框或渲染进程卡死时 CDP 命令可能永远不返回，超时就丢弃，后面的输入才能继续
 constexpr UINT kCommandTimeoutMs = 3000;
-// 云端对单次鼠标位移有上限（实测约 160 px 以上即饱和），排队合并不能越过安全阈值
+// 云端对单次鼠标位移有上限（实测约 145 px 以上即饱和），排队合并不能越过安全阈值
 constexpr LONG kMaxMergedRelativeDelta = 128;
 
 std::string jsonEscape(std::string_view src)
