@@ -430,6 +430,7 @@
         "AutoEssenceDiscardOthers": {
             "type": "switch",
             "label": "$option.AutoEssenceDiscardOthers.label",
+            "description": "$option.AutoEssenceDiscardOthers.description",
             "cases": [
                 {
                     "name": "Yes",
