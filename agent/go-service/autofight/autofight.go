@@ -28,6 +28,7 @@ type autoFightAttach struct {
 	EnableHealthDangerousSwitch  bool     `json:"enable_health_dangerous_switch"`
 	EnableBreakAccumulatingPower bool     `json:"enable_break_accumulating_power"`
 	EnableSkill                  bool     `json:"enable_skill"`
+	EnableKeepSpecialForm        bool     `json:"enable_keep_special_form"`
 	EnableEndSkill               bool     `json:"enable_end_skill"`
 	EnableLockTarget             bool     `json:"enable_lock_target"`
 	ReserveSkillLevel            int      `json:"reserve_skill_level"`
@@ -484,6 +485,7 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 	skillCycleIndex := 1
 	skillModes := params.skillModes()
 	var skillUsedOnce [4]bool
+	var specialForms specialFormTracker
 
 	// 战斗开始前切换到用户指定的干员，0 表示不切换
 	if params.StartOperator >= 1 && params.StartOperator <= 4 {
@@ -748,15 +750,26 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 					}
 				}
 			}
+			modes := skillModes
+			keepSpecialForm := params.EnableKeepSpecialForm && params.EndAxisTimelineCode == "" && !screenAnalyzer.mobileLayout
+			if params.EnableSkill && keepSpecialForm {
+				specialForms.update(time.Now(), skillModes, characterCount, func(roi maa.Rect) skillFormState {
+					return recognizeLiinoSkillForm(ctx, img, roi)
+				})
+				modes = specialForms.releaseModes(skillModes, energyLevel, params.ReserveSkillLevel)
+			}
 			if params.EnableSkill && energyLevel >= 1 {
 				if params.EnableBreakAccumulatingPower && screenAnalyzer.GetEnemyAccumulatingPower(true) {
-					if op, next, ok := pickSkillOperator(skillModes, &skillUsedOnce, skillCycleIndex, characterCount); ok {
+					if op, next, ok := pickSkillOperator(modes, &skillUsedOnce, skillCycleIndex, characterCount); ok {
 						maafocus.Print(ctx, i18n.T("autofight.enemy_accumulating_power"))
 						enqueueAction(fightAction{
 							executeAt: time.Now(),
 							action:    skillAction(op),
 						})
 						skillCycleIndex = next
+						if keepSpecialForm {
+							specialForms.markReleased(op)
+						}
 					}
 				} else if energyLevel > params.ReserveSkillLevel && hasEnemyTarget {
 					log.Debug().
@@ -764,12 +777,15 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 						Int("energyLevel", energyLevel).
 						Int("reserveLevel", params.ReserveSkillLevel).
 						Msg("energy level above reserve, using skill")
-					if op, next, ok := pickSkillOperator(skillModes, &skillUsedOnce, skillCycleIndex, characterCount); ok {
+					if op, next, ok := pickSkillOperator(modes, &skillUsedOnce, skillCycleIndex, characterCount); ok {
 						enqueueAction(fightAction{
 							executeAt: time.Now(),
 							action:    skillAction(op),
 						})
 						skillCycleIndex = next
+						if keepSpecialForm {
+							specialForms.markReleased(op)
+						}
 					}
 				}
 				screenAnalyzer.MarkLabelUsed(LabelEnergyLevelFull)
