@@ -97,7 +97,7 @@ The controller's first cell, card pitch and scrollbar identify the layout. Compl
 
 Coverage starts at the verified top and continues across overlapping pages. The adapter records each position when a configured filter excludes it or when its selection is confirmed and detail processing returns successfully. At the bottom it checks the count, current page, bottom position and resolved count again. An inventory that fits on one screen can finish without scrolling.
 
-The vault option “Filter Flawless Essences for all 5- and 6-star weapons and generate a report” and the read-only scan in Target mode both enable `collect_inventory`. Each reads both qualities and all marks in a single traversal. The vault option locks unmarked exact matches. Target mode reads existing marks. Go verifies position coverage before committing. The account file records the quality, mark, skills and levels of each observed Essence with known skills. When Flawless coverage has a completion timestamp, Target mode uses the current weapon data to count eligible locked Essences.
+The vault report and Target mode use the same read-only scan. After entering the Essence tab, the scanner reads locked Flawless Essences from the start and records exact matches for five- and six-star weapons. Equipped but unlocked Essences keep the scan going. The first unequipped, unlocked Essence ends it. Selecting another cell on the same page uses the existing grid coordinates. Swipes wait for the grid to settle and cell clicks wait for the detail icon to settle.
 
 Custom filtering dispatches cells according to the user’s settings. After custom filtering, “Rescan essence inventory before farming” refreshes the current account’s stock from the marks observed in the vault.
 
@@ -116,7 +116,7 @@ The instance holds the tracker, task id, merged configuration, thumbnail templat
 | Field | Purpose |
 | --- | --- |
 | `roi`, `normalized_size`, `first_cell`, `row_pitch`, `scrollbar_track` | Locate cards and the scrollbar |
-| `preview_core` | Essence symbol in the detail panel |
+| `preview_core`, `preview_quality` | Large core icon and rarity stripe in the detail panel |
 | `thumb_lock_template_paths` | Recognize locked thumbnails |
 | `thumb_discard_template_path` | Recognize discarded thumbnails |
 | `flawless_essence` / `pure_essence` | Quality filter |
@@ -132,7 +132,7 @@ EssenceGrid processes only tracker `new_cells`:
 2. match lock/discard thumbnails in the lower-left cell region;
 3. apply the quality and skip options;
 4. enqueue accepted cells;
-5. Pipeline clicks the center of the pending cell. The scanner compares the pre-click symbol at that coordinate with the detail panel. Four selection corners or changes in the long edges distinguish cells with the same symbol. All four corners use one vertical offset to account for uncertainty in the row position. If the selection is unconfirmed, Pipeline can click the same coordinate once more. Both attempts compare against the original frame. OCR starts after confirmation. The scanner checks the selection and scrollbar again when processing returns.
+5. Pipeline clicks the target center. The scanner compares the large detail icon before and after the click. Go compares two complete reads by ordered affixes, levels and the panel tier when available. Only equal reads trigger one more click at the same coordinate. Equal items count separately. Marking uses the final read.
 
 ## Go and Pipeline
 

@@ -55,15 +55,6 @@
                 "custom_action": "EssenceFilterInitAction"
             }
         },
-        "post_wait_freezes": {
-            "time": 50,
-            "target": [
-                38,
-                398,
-                922,
-                198
-            ]
-        },
         "post_delay": 0,
         "next": [
             "EssenceGridAdvance"
@@ -76,22 +67,13 @@
         }
     },
     "EssenceFilterInventoryInit": {
-        "desc": "只读盘点无瑕和高纯基质，按已锁的五星、六星武器适配基质计算库存",
+        "desc": "只读盘点已锁定且适配五星、六星武器的无瑕基质",
         "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
                 "custom_action": "EssenceFilterInitAction"
             }
-        },
-        "post_wait_freezes": {
-            "time": 50,
-            "target": [
-                38,
-                398,
-                922,
-                198
-            ]
         },
         "post_delay": 0,
         "next": [

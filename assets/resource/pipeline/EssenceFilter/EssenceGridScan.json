@@ -7,15 +7,6 @@
                 "custom_recognition": "EssenceGridAdvanceRecognition"
             }
         },
-        "pre_wait_freezes": {
-            "time": 100,
-            "target": [
-                18,
-                72,
-                956,
-                570
-            ]
-        },
         "pre_delay": 0,
         "action": {
             "type": "Custom",
@@ -46,6 +37,12 @@
                 550
             ],
             "row_pitch": 103.5,
+            "preview_quality": [
+                984,
+                50,
+                250,
+                9
+            ],
             "preview_core": [
                 1167,
                 110,
@@ -62,7 +59,7 @@
                 1280,
                 720
             ],
-            //自定义筛选仅打开符合条件的格位，盘点和生成报告时逐格读取
+            //自定义筛选仅打开符合条件的格位，盘点和生成报告按缩略图标记扫描
             "flawless_essence": true,
             "pure_essence": false,
             "skip_thumb_lock": false,
@@ -82,18 +79,21 @@
             "type": "Click"
         },
         "post_wait_freezes": {
-            "time": 50,
+            "time": 300,
             "target": [
-                979,
-                101,
-                283,
-                250
-            ]
+                1167,
+                110,
+                38,
+                38
+            ],
+            "threshold": 0.05,
+            // 比较核心的像素差，详情淡入时即使图案相同，亮度仍在变化。
+            "method": 1,
+            "rate_limit": 75
         },
         "post_delay": 0,
         "next": [
-            "EssenceGridCheckSelection",
-            "EssenceGridClickPending"
+            "EssenceGridCheckSelection"
         ],
         "on_error": [
             "FailedNode"
@@ -143,12 +143,18 @@
             }
         },
         "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "EssenceFilterReadDetailAction"
+            }
+        },
         "post_delay": 0,
         "next": [
             "EssenceFilterCheckItemSlot1"
         ],
         "on_error": [
-            "EssenceFilterUnreadPurple"
+            "FailedNode"
         ]
     },
     "EssenceGridVerifyComplete": {
@@ -283,5 +289,45 @@
         "next": [
             "EssenceGridAdvance"
         ]
+    },
+    "EssenceGridVerifyLockedPrefix": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "EssenceGridAdvanceRecognition"
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "EssenceFilterReadLockStateAction"
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "EssenceFilterFinish"
+        ]
+    },
+    "EssenceGridEquipSlotOccupied": {
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    999,
+                    598,
+                    35,
+                    35
+                ],
+                "method": 6,
+                "lower": [
+                    125
+                ],
+                "upper": [
+                    255
+                ],
+                "count": 4
+            }
+        }
     }
 }

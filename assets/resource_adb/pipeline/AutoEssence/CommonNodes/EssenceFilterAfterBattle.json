@@ -1,0 +1,15 @@
+{
+    "EssenceRewardExitButton": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    886,
+                    615,
+                    100,
+                    70
+                ],
+                "order_by": "Score"
+            }
+        }
+    }
+}

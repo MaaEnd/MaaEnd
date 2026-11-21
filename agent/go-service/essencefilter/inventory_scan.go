@@ -13,21 +13,48 @@ import (
 // Coordinates belong only to this verified scan. Duplicate icons and identical
 // affixes at different positions are separate inventory items.
 type warehouseScan struct {
-	positions   map[[2]int]int
-	items       []inventoryItem
-	current     gridSelection
-	pendingMark string
-	verified    bool
+	positions    map[[2]int]int
+	items        []inventoryItem
+	current      gridSelection
+	skippedReads int
+	verified     bool
 }
 
 type gridSelection struct {
-	Row      int    `json:"selected_row"`
-	Col      int    `json:"selected_col"`
-	Quality  string `json:"selected_quality"`
-	Mark     string `json:"selected_thumb_state"`
-	Issued   int    `json:"issued_cells"`
-	Resolved int    `json:"resolved_cells"`
-	Expected int    `json:"expected_cells"`
+	StartRow          int    `json:"current_viewport_start_row"`
+	Row               int    `json:"selected_row"`
+	Col               int    `json:"selected_col"`
+	Quality           string `json:"selected_quality"`
+	Mark              string `json:"selected_thumb_state"`
+	Issued            int    `json:"issued_cells"`
+	Resolved          int    `json:"resolved_cells"`
+	Expected          int    `json:"expected_cells"`
+	BoundaryCandidate bool   `json:"boundary_candidate"`
+	ReachedEnd        bool   `json:"reached_end"`
+}
+
+// OCR resolves names to IDs but retains their displayed order and levels.
+type warehouseDetail struct {
+	Quality string
+	Skills  [3]matchapi.InventorySkill
+}
+
+type warehouseDetailRead struct {
+	Clicks      int    `json:"clicks"`
+	CoreChanged bool   `json:"core_changed"`
+	Quality     string `json:"panel_quality"`
+	previous    *warehouseDetail
+	startRow    int
+}
+
+// Only comparable reads can trigger a second click. A known change in the
+// panel's tier distinguishes two otherwise equal reads.
+func (r *warehouseDetailRead) needsSecondRead(current *warehouseDetail) bool {
+	prior := r.previous
+	if r.Clicks != 1 || r.CoreChanged || prior == nil || current == nil || prior.Skills != current.Skills {
+		return false
+	}
+	return prior.Quality == current.Quality || prior.Quality == "unknown" || current.Quality == "unknown"
 }
 
 func newWarehouseScan() *warehouseScan {
@@ -56,8 +83,7 @@ func (s *warehouseScan) observe(engine *matchapi.Engine, ocr matchapi.OCRInput) 
 	return item, nil
 }
 
-// EssenceFilterUnreadPurpleAction handles a failed affix read after both the
-// position and the purple tier have been confirmed.
+// EssenceFilterUnreadPurpleAction handles unread affixes during warehouse screening.
 type EssenceFilterUnreadPurpleAction struct{}
 
 func (*EssenceFilterUnreadPurpleAction) Run(_ *maa.Context, arg *maa.CustomActionArg) bool {
@@ -65,38 +91,16 @@ func (*EssenceFilterUnreadPurpleAction) Run(_ *maa.Context, arg *maa.CustomActio
 	if st == nil || st.TaskID != arg.TaskID {
 		return false
 	}
-	if s := st.Scan; s != nil {
-		c := s.current
-		key := [2]int{c.Row, c.Col}
-		if c.Row < 0 || c.Col < 0 || c.Quality != purple || !validQualityAndMark(c.Quality, c.Mark) {
-			return false
-		}
-		if _, recorded := s.positions[key]; recorded {
-			return false
-		}
-		s.positions[key] = len(s.items)
-		s.items = append(s.items, inventoryItem{Quality: purple, Mark: c.Mark})
-		return true
-	}
-	r := st.Loot
-	if r == nil || r.quality != purple || !validQualityAndMark(r.quality, r.mark) {
+	st.warehouseDetail.previous = nil
+	if st.PipelineOpts.Mode != InitModeFilter {
 		return false
 	}
-	if _, decided := r.expectedMarks[st.RowIndex]; decided {
-		return false
-	}
-	if err := r.observe(st.RowIndex, inventoryItem{Quality: purple, Mark: r.mark}); err != nil {
-		return inventoryFailed(err)
-	}
-	r.expectedMarks[st.RowIndex] = r.mark
+	log.Warn().Msg("Skipping essence with unread affixes; marks unchanged")
 	return true
 }
 
 func (s *warehouseScan) verify(c gridSelection) error {
-	if s.pendingMark != "" {
-		return fmt.Errorf("warehouse mark %q not confirmed", s.pendingMark)
-	}
-	if c.Expected < 0 || c.Expected != c.Resolved || c.Expected != c.Issued || c.Issued != len(s.items) {
+	if c.Expected < 0 || c.Expected != c.Resolved || c.Issued != len(s.items)+s.skippedReads {
 		return fmt.Errorf("inventory coverage: expected %d, resolved %d, issued %d, OCR %d", c.Expected, c.Resolved, c.Issued, len(s.items))
 	}
 	s.verified = true
@@ -121,11 +125,18 @@ func (*EssenceFilterReadLockStateAction) Run(_ *maa.Context, arg *maa.CustomActi
 	if err := json.Unmarshal([]byte(custom.Detail), &c); err != nil {
 		return inventoryFailed(err)
 	}
+	if c.Row >= 0 && c.StartRow != st.warehouseDetail.startRow {
+		st.warehouseDetail.previous = nil
+		st.warehouseDetail.startRow = c.StartRow
+	}
 	if st.Scan != nil {
-		if st.Scan.pendingMark != "" {
-			return inventoryFailed(fmt.Errorf("advance before warehouse mark confirmation"))
-		}
-		if arg.CurrentTaskName == "EssenceGridVerifyComplete" {
+		switch arg.CurrentTaskName {
+		case "EssenceGridVerifyLockedPrefix":
+			if !c.ReachedEnd || c.Issued != len(st.Scan.items)+st.Scan.skippedReads {
+				return inventoryFailed(fmt.Errorf("unverified locked inventory prefix"))
+			}
+			st.Scan.verified = true
+		case "EssenceGridVerifyComplete":
 			if err := st.Scan.verify(c); err != nil {
 				return inventoryFailed(err)
 			}
@@ -158,16 +169,6 @@ func (*EssenceFilterConfirmMarkAction) Run(_ *maa.Context, arg *maa.CustomAction
 	if st.PipelineOpts.Mode == InitModeFilter {
 		return true
 	}
-	if st.Scan != nil {
-		c := st.Scan.current
-		i, ok := st.Scan.positions[[2]int{c.Row, c.Col}]
-		if !ok || st.Scan.pendingMark != mark {
-			return false
-		}
-		st.Scan.items[i].Mark = mark
-		st.Scan.pendingMark = ""
-		return true
-	}
 	if st.Loot == nil {
 		return false
 	}
@@ -180,16 +181,64 @@ func (*EssenceFilterConfirmMarkAction) Run(_ *maa.Context, arg *maa.CustomAction
 	return true
 }
 
+type EssenceFilterReadDetailAction struct{}
+
+func (*EssenceFilterReadDetailAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+	st := currentRun
+	if st == nil || st.TaskID != arg.TaskID {
+		return false
+	}
+	d := arg.RecognitionDetail
+	if d == nil || d.Results == nil || d.Results.Best == nil {
+		return false
+	}
+	result, ok := d.Results.Best.AsCustom()
+	if !ok || result == nil {
+		return false
+	}
+	var read warehouseDetailRead
+	if err := json.Unmarshal([]byte(result.Detail), &read); err != nil {
+		return inventoryFailed(err)
+	}
+	if read.Clicks < 1 || read.Clicks > 2 {
+		return false
+	}
+	r := &st.warehouseDetail
+	r.Clicks, r.CoreChanged, r.Quality = read.Clicks, read.CoreChanged, read.Quality
+	if s := st.Scan; s != nil {
+		next := "EssenceFilterCheckItemSlot1"
+		if s.current.Mark != lockedMark || s.current.Quality == purple {
+			s.skippedReads++
+			r.previous = nil
+			next = "EssenceGridAdvance"
+			if s.current.BoundaryCandidate {
+				img, err := taskController(ctx).CacheImage()
+				if err != nil || img == nil {
+					return false
+				}
+				equipped, err := ctx.RunRecognition("EssenceGridEquipSlotOccupied", img, nil)
+				if err != nil {
+					return inventoryFailed(err)
+				}
+				if equipped == nil || !equipped.Hit {
+					next = "EssenceGridVerifyLockedPrefix"
+				}
+			}
+		}
+		return ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: next}}) == nil
+	}
+	return true
+}
+
 func finishWarehouse(ctx *maa.Context, st *RunState) bool {
 	if !st.Scan.verified {
 		return inventoryFailed(fmt.Errorf("warehouse end not verified"))
 	}
 	now := time.Now().UTC()
 	s := newSnapshot(st.Account.id)
-	s.Coverage[gold] = tierCoverage{CompleteAt: &now}
-	s.Coverage[purple] = tierCoverage{CompleteAt: &now}
+	s.Coverage[lockedGold] = tierCoverage{CompleteAt: &now}
 	for _, item := range st.Scan.items {
-		s.appendObservation(item)
+		s.appendLockedMatch(item)
 	}
 	weapons := st.MatchEngine.Weapons()
 	explicit := st.PipelineOpts.Mode == InitModeScreenAndReport
@@ -199,11 +248,8 @@ func finishWarehouse(ctx *maa.Context, st *RunState) bool {
 	groups := s.groups(weapons)
 	matched, _ := inventoryTotals(groups)
 	log.Info().Str("component", "EssenceInventory").Int("observed", len(s.Items)).Int("matched", matched).Msg("warehouse snapshot committed")
-	if s.Coverage[purple].Unread > 0 {
-		reportSimpleByKey(ctx, "inventory.unread_purple", s.Coverage[purple].Unread)
-	}
 	if explicit {
-		reportSimpleByKey(ctx, "inventory.saved", st.Account.path(), len(st.Scan.items), matched, len(groups))
+		reportSimpleByKey(ctx, "inventory.saved", st.Account.path(), matched, len(groups))
 	}
 	return true
 }

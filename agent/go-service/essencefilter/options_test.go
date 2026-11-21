@@ -2,6 +2,7 @@ package essencefilter
 
 import (
 	"encoding/json"
+	"strconv"
 	"testing"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter/matchapi"
@@ -22,25 +23,36 @@ func TestWarehouseAndRewardRarityRules(t *testing.T) {
 		tier, mark string
 		wantAction string
 		wantStock  int
+		discard    bool
 	}{
-		{"custom can discard a five-star match", InitModeFilter, five, gold, unmarked, discarded, 0},
-		{"custom can lock a six-star match", InitModeFilter, six, gold, unmarked, lockedMark, 0},
-		{"report locks five-star match", InitModeScreenAndReport, five, gold, unmarked, lockedMark, 1},
-		{"report locks six-star match", InitModeScreenAndReport, six, gold, unmarked, lockedMark, 1},
-		{"report keeps existing discard", InitModeScreenAndReport, five, gold, discarded, unmarked, 0},
-		{"report counts existing lock", InitModeScreenAndReport, five, gold, lockedMark, unmarked, 1},
-		{"report skips four-star match", InitModeScreenAndReport, four, gold, unmarked, unmarked, 0},
-		{"report excludes locked four-star match", InitModeScreenAndReport, four, gold, lockedMark, unmarked, 0},
-		{"report skips purple match", InitModeScreenAndReport, six, purple, unmarked, unmarked, 0},
-		{"read-only sees candidate", InitModeInventory, five, gold, unmarked, unmarked, 0},
-		{"read-only sees manual lock", InitModeInventory, five, gold, lockedMark, unmarked, 1},
-		{"battle locks five-star match", InitModeAfterBattle, five, gold, unmarked, lockedMark, 1},
-		{"battle locks six-star match", InitModeAfterBattle, six, gold, unmarked, lockedMark, 1},
-		{"battle skips four-star match", InitModeAfterBattle, four, gold, unmarked, unmarked, 0},
-		{"battle skips purple match", InitModeAfterBattle, six, purple, unmarked, unmarked, 0},
+		{"custom can discard a five-star match", InitModeFilter, five, gold, unmarked, discarded, 0, true},
+		{"custom can lock a six-star match", InitModeFilter, six, gold, unmarked, lockedMark, 0, true},
+		{"report leaves five-star match unmarked", InitModeScreenAndReport, five, gold, unmarked, unmarked, 0, true},
+		{"report leaves six-star match unmarked", InitModeScreenAndReport, six, gold, unmarked, unmarked, 0, true},
+		{"report keeps existing discard", InitModeScreenAndReport, five, gold, discarded, unmarked, 0, true},
+		{"report counts existing lock", InitModeScreenAndReport, five, gold, lockedMark, unmarked, 1, true},
+		{"report skips four-star match", InitModeScreenAndReport, four, gold, unmarked, unmarked, 0, true},
+		{"report excludes locked four-star match", InitModeScreenAndReport, four, gold, lockedMark, unmarked, 0, true},
+		{"report skips purple match", InitModeScreenAndReport, six, purple, unmarked, unmarked, 0, true},
+		{"read-only sees candidate", InitModeInventory, five, gold, unmarked, unmarked, 0, true},
+		{"read-only sees manual lock", InitModeInventory, five, gold, lockedMark, unmarked, 1, true},
+		{"battle locks five-star match", InitModeAfterBattle, five, gold, unmarked, lockedMark, 1, true},
+		{"battle locks six-star match", InitModeAfterBattle, six, gold, unmarked, lockedMark, 1, true},
+		{"battle discards unmatched gold", InitModeAfterBattle, four, gold, unmarked, discarded, 0, true},
+		{"battle discards unmatched purple", InitModeAfterBattle, four, purple, unmarked, discarded, 0, true},
+		{"battle keeps locked unmatched purple", InitModeAfterBattle, four, purple, lockedMark, unmarked, 0, true},
+		{"battle keeps discarded unmatched gold", InitModeAfterBattle, four, gold, discarded, unmarked, 0, true},
+		{"battle discards five-star purple match", InitModeAfterBattle, five, purple, unmarked, discarded, 0, true},
+		{"battle discards Nexus purple match", InitModeAfterBattle, [3]string{"智识提升", "终结技充能效率提升", "效益"}, purple, unmarked, discarded, 0, true},
+		{"battle keeps locked purple match", InitModeAfterBattle, six, purple, lockedMark, unmarked, 0, true},
+		{"battle keeps discarded purple match", InitModeAfterBattle, six, purple, discarded, unmarked, 0, true},
+		{"battle skips unmatched gold when discard disabled", InitModeAfterBattle, four, gold, unmarked, unmarked, 0, false},
+		{"battle skips purple match when discard disabled", InitModeAfterBattle, six, purple, unmarked, unmarked, 0, false},
+		{"battle skips purple without OCR when discard disabled", InitModeAfterBattle, [3]string{}, purple, unmarked, unmarked, 0, false},
+		{"battle locks gold when discard disabled", InitModeAfterBattle, six, gold, unmarked, lockedMark, 1, false},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			opts, err := parseFilterOptions(`{"attach":{"mode":"` + string(tc.mode) + `","rarity5_weapon":false,"rarity6_weapon":true,"rarity4_weapon":true,"pure_essence":true,"discard_unmatched":true}}`)
+			opts, err := parseFilterOptions(`{"attach":{"mode":"` + string(tc.mode) + `","rarity5_weapon":false,"rarity6_weapon":true,"rarity4_weapon":true,"pure_essence":true,"discard_unmatched":` + strconv.FormatBool(tc.discard) + `}}`)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -70,12 +82,6 @@ func TestWarehouseAndRewardRarityRules(t *testing.T) {
 				if action == discarded {
 					confirmed = prefix + "CheckDiscarded"
 				}
-				if st.Scan != nil {
-					end := gridSelection{Expected: 1, Resolved: 1, Issued: 1}
-					if err := st.Scan.verify(end); err == nil || (&EssenceFilterConfirmMarkAction{}).Run(nil, &maa.CustomActionArg{CurrentTaskName: prefix + "CheckDiscarded"}) {
-						t.Fatal("warehouse accepted an unconfirmed lock")
-					}
-				}
 				if !(&EssenceFilterConfirmMarkAction{}).Run(nil, &maa.CustomActionArg{CurrentTaskName: confirmed}) {
 					t.Fatal("failed to confirm", action)
 				}
@@ -83,8 +89,13 @@ func TestWarehouseAndRewardRarityRules(t *testing.T) {
 			s := newSnapshot("")
 			switch {
 			case st.Scan != nil:
-				s.Items = st.Scan.items
+				for _, item := range st.Scan.items {
+					s.appendLockedMatch(item)
+				}
 			case st.Loot != nil:
+				if err := st.Loot.check(1); err != nil {
+					t.Fatal("reward decision left the batch incomplete", err)
+				}
 				s = st.Loot.appendTo(s)
 			}
 			if tc.mode != InitModeFilter {
@@ -92,7 +103,7 @@ func TestWarehouseAndRewardRarityRules(t *testing.T) {
 				if action != unmarked {
 					want = action
 				}
-				if len(s.Items) != 1 || s.Items[0].Mark != want || len(s.Items[0].weaponIDs) == 0 {
+				if len(s.Items) != tc.wantStock || (len(s.Items) > 0 && (s.Items[0].Mark != want || len(s.Items[0].weaponIDs) == 0)) {
 					t.Fatal("item detail", s.Items)
 				}
 			}
@@ -140,13 +151,13 @@ func TestRewardScreeningByQualityAndExistingMark(t *testing.T) {
 		{gold, unmarked, false, lockedMark, lockedMark},
 		{gold, lockedMark, false, unmarked, lockedMark},
 		{gold, discarded, false, unmarked, discarded},
-		{purple, unmarked, false, unmarked, unmarked},
-		{purple, unmarked, true, unmarked, unmarked},
+		{purple, unmarked, false, discarded, discarded},
+		{purple, unmarked, true, discarded, discarded},
 	} {
 		st := &RunState{
 			MatchEngine: engine, Loot: newRewardInventory(), RowIndex: 1,
 			// Old overrides could disable flawless screening or enable only purple.
-			PipelineOpts:              EssenceFilterOptions{Rarity6Weapon: true, PureEssence: tc.pure, FlawlessEssence: false},
+			PipelineOpts:              EssenceFilterOptions{Rarity6Weapon: true, PureEssence: tc.pure, FlawlessEssence: false, DiscardUnmatched: true},
 			MatchedCombinationSummary: make(map[string]*matchapi.SkillCombinationSummary),
 		}
 		st.Loot.quality, st.Loot.mark = tc.quality, tc.initial

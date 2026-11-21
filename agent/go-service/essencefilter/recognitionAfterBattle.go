@@ -2,7 +2,7 @@ package essencefilter
 
 import (
 	"encoding/json"
-	"sort"
+	"fmt"
 	"strings"
 
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
@@ -14,8 +14,8 @@ type essenceAfterBattleNthParams struct {
 }
 
 // EssenceFilterAfterBattleNthRecognition 在战斗结算后按行序依次返回全屏识别结果中的第 N 个框。
-// 识别节点只提供目标区域。点击顺序由 sortBoxesByRow 决定：先上后下，同一行从左到右。
-// 框缓存在 RowBoxes 中，通过递增 RowIndex 逐个吐出；同一遍次只在首格采样，缓存用尽后回到本遍结束节点。
+// C++ 返回逐格分类结果，保留奖励网格的行列顺序。
+// 框缓存在 RowBoxes 中，通过递增 RowIndex 逐个吐出；每批只在首格采样，按卡片中心点击。
 type EssenceFilterAfterBattleNthRecognition struct{}
 
 var _ maa.CustomRecognitionRunner = &EssenceFilterAfterBattleNthRecognition{}
@@ -43,33 +43,25 @@ func (r *EssenceFilterAfterBattleNthRecognition) Run(ctx *maa.Context, arg *maa.
 		return nil, false
 	}
 
-	if len(st.RowBoxes) > 0 {
-		if st.RowIndex >= len(st.RowBoxes) {
+	if st.RowBoxes == nil {
+		detail, err := ctx.RunRecognition(params.RecognitionNodeName, arg.Img, nil)
+		if err != nil || detail == nil || !detail.Hit || detail.Results == nil || detail.Results.Best == nil {
 			return nil, false
 		}
-		box := st.RowBoxes[st.RowIndex]
-		st.RowIndex++
-		return &maa.CustomRecognitionResult{
-			Box:    maa.Rect{box[0], box[1], box[2], box[3]},
-			Detail: "",
-		}, true
-	}
 
-	detail, err := ctx.RunRecognition(params.RecognitionNodeName, arg.Img, nil)
-	if err != nil || detail == nil || !detail.Hit || detail.Results == nil || detail.Results.Filtered == nil {
-		return nil, false
-	}
-
-	st.RowBoxes = nil
-	for _, res := range detail.Results.Filtered {
-		tm, ok := res.AsTemplateMatch()
-		if !ok {
-			continue
+		custom, ok := detail.Results.Best.AsCustom()
+		if !ok || custom == nil || st.Loot == nil {
+			return nil, false
 		}
-		b := tm.Box
-		st.RowBoxes = append(st.RowBoxes, [4]int{b.X(), b.Y(), b.Width(), b.Height()})
+		boxes, qualities, err := parseRewardGrid(custom.Detail)
+		if err != nil {
+			log.Warn().Err(err).Msg("reward grid is incomplete")
+			return nil, false
+		}
+		st.RowBoxes = boxes
+		st.Loot.qualities = qualities
+		st.Loot.gridVerified = true
 	}
-	sortBoxesByRow(st.RowBoxes)
 
 	if st.RowIndex >= len(st.RowBoxes) {
 		return nil, false
@@ -78,53 +70,47 @@ func (r *EssenceFilterAfterBattleNthRecognition) Run(ctx *maa.Context, arg *maa.
 	box := st.RowBoxes[st.RowIndex]
 	st.RowIndex++
 	return &maa.CustomRecognitionResult{
-		Box:    maa.Rect{box[0], box[1], box[2], box[3]},
+		Box:    maa.Rect{box[0] + box[2]/2, box[1] + box[3]/2, 1, 1},
 		Detail: "",
 	}, true
 }
 
-// sortBoxesByRow 按行排列目标框：先上后下，同一行从左到右。
-// 与当前行首框的纵向差不超过该框高度一半时，仍视为同一行。
-// 这样同一列上下两格的 x 相差 1 像素时，下排不会排到上排前面。
-func sortBoxesByRow(boxes [][4]int) {
-	if len(boxes) < 2 {
-		return
+// Every occupied cell needs positive evidence, including ordinary rewards.
+func parseRewardGrid(raw string) ([][4]int, []string, error) {
+	var grid struct {
+		Complete bool `json:"complete"`
+		Cells    []struct {
+			Box     [4]int `json:"box"`
+			Quality string `json:"quality"`
+		} `json:"cells"`
 	}
-	sort.SliceStable(boxes, func(i, j int) bool {
-		if boxes[i][1] != boxes[j][1] {
-			return boxes[i][1] < boxes[j][1]
+	if err := json.Unmarshal([]byte(raw), &grid); err != nil {
+		return nil, nil, err
+	}
+	if !grid.Complete || len(grid.Cells) == 0 {
+		return nil, nil, fmt.Errorf("unresolved reward grid")
+	}
+	var boxes [][4]int
+	var qualities []string
+	seen := make(map[[4]int]bool)
+	for _, cell := range grid.Cells {
+		if cell.Box[0] < 0 || cell.Box[1] < 0 || cell.Box[2] <= 0 || cell.Box[3] <= 0 || seen[cell.Box] {
+			return nil, nil, fmt.Errorf("invalid or duplicate reward cell")
 		}
-		return boxes[i][0] < boxes[j][0]
-	})
-
-	rows := make([][][4]int, 0, 2)
-	row := [][4]int{boxes[0]}
-	anchorY, anchorH := boxes[0][1], boxes[0][3]
-	for _, box := range boxes[1:] {
-		if box[1]-anchorY > rowBand(anchorH) {
-			rows = append(rows, row)
-			row = [][4]int{box}
-			anchorY, anchorH = box[1], box[3]
-			continue
+		for box := range seen {
+			if cell.Box[0] < box[0]+box[2] && box[0] < cell.Box[0]+cell.Box[2] && cell.Box[1] < box[1]+box[3] && box[1] < cell.Box[1]+cell.Box[3] {
+				return nil, nil, fmt.Errorf("overlapping reward cells")
+			}
 		}
-		row = append(row, box)
+		seen[cell.Box] = true
+		switch cell.Quality {
+		case gold, purple:
+			boxes = append(boxes, cell.Box)
+			qualities = append(qualities, cell.Quality)
+		case "other":
+		default:
+			return nil, nil, fmt.Errorf("unknown reward cell")
+		}
 	}
-	rows = append(rows, row)
-
-	ordered := make([][4]int, 0, len(boxes))
-	for _, row := range rows {
-		sort.SliceStable(row, func(i, j int) bool {
-			return row[i][0] < row[j][0]
-		})
-		ordered = append(ordered, row...)
-	}
-	copy(boxes, ordered)
-}
-
-func rowBand(height int) int {
-	band := height / 2
-	if band < 1 {
-		return 1
-	}
-	return band
+	return boxes, qualities, nil
 }

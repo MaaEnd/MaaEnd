@@ -60,7 +60,7 @@ type lockLimitScan struct {
 	locked   bool
 }
 
-func TestLockLimitPlannerRankingByExpectedAttempts(t *testing.T) {
+func TestLockLimitPlannerUsesDropOrder(t *testing.T) {
 	combo := [3]int{1, 2, 3}
 	weapons := []matchapi.WeaponData{
 		testWeapon("w6", 6, combo),
@@ -86,7 +86,7 @@ func TestLockLimitPlannerRankingByExpectedAttempts(t *testing.T) {
 	for _, item := range scan {
 		got = append(got, planner.decide(item.skillIDs, item.levels, item.locked).Lock)
 	}
-	want := []bool{true, false, true, false}
+	want := []bool{true, true, false, false}
 	for i := range want {
 		if got[i] != want[i] {
 			t.Fatalf("decision %d: lock = %v, want %v (all: %v)", i, got[i], want[i], got)
@@ -120,7 +120,7 @@ func TestLockLimitPlannerKeepsExistingLocks(t *testing.T) {
 		{levels: [3]int{6, 6, 3}},
 		{levels: [3]int{1, 1, 1}, locked: true},
 	}
-	wantLock := []bool{false, false, true, false}
+	wantLock := []bool{false, true, false, false}
 	for i, step := range steps {
 		got := planner.decide(ids, step.levels, step.locked)
 		if got.Lock != wantLock[i] || got.NeedsUnlock {
@@ -215,20 +215,14 @@ func TestLockLimitPlannerMissingInventoryAndFourStarOnly(t *testing.T) {
 	absentIDs := []int{absent[0], absent[1], absent[2]}
 	fourIDs := []int{fourStarOnly[0], fourStarOnly[1], fourStarOnly[2]}
 
-	if got := planner.decide(knownIDs, [3]int{5, 5, 5}, false); !got.MissingRow || got.Lock {
-		t.Fatalf("missing level row: got %+v, want MissingRow without lock", got)
+	if got := planner.decide(knownIDs, [3]int{3, 2, 1}, false); !got.Lock {
+		t.Fatalf("new level combination did not take the free slot: %+v", got)
 	}
-	if got := planner.decide(knownIDs, [3]int{1, 1, 4}, false); !got.MissingRow || got.Lock {
-		t.Fatalf("illegal level row: got %+v, want MissingRow without lock", got)
+	if got := planner.decide(absentIDs, [3]int{1, 1, 1}, false); !got.Lock {
+		t.Fatalf("new target combination did not take the free slot: %+v", got)
 	}
-	if got := planner.decide(absentIDs, [3]int{6, 6, 3}, false); !got.MissingGroup || got.Lock {
-		t.Fatalf("missing group: got %+v, want MissingGroup without lock", got)
-	}
-	if got := planner.decide(fourIDs, [3]int{1, 1, 1}, false); got.MissingGroup || got.MissingRow || got.Lock {
-		t.Fatalf("four-star-only combination: got %+v, want silent skip", got)
-	}
-	if got := planner.decide(knownIDs, [3]int{6, 6, 3}, false); !got.Lock || got.Quota != 1 {
-		t.Fatalf("legal optimal row: got %+v, want lock with quota 1", got)
+	if got := planner.decide(fourIDs, [3]int{6, 6, 3}, false); got.Quota != 0 || got.Lock {
+		t.Fatalf("four-star-only match consumed a target slot: %+v", got)
 	}
 	if summaries := planner.overLimitSummaries(); len(summaries) != 0 {
 		t.Fatalf("illegal rows leaked into over-limit accounting: %+v", summaries)
@@ -276,10 +270,10 @@ func TestLockLimitPlannerQuotaFromEngineWeapons(t *testing.T) {
 		t.Fatalf("unexpected engine data: six-star=%v four-star-only=%v", hasSixStar, hasFourStarOnly)
 	}
 
-	if got := planner.decide([]int{sixStar[0], sixStar[1], sixStar[2]}, [3]int{1, 1, 1}, false); !got.MissingGroup || got.Quota < 1 {
-		t.Fatalf("six-star combination absent from an empty inventory: got %+v, want MissingGroup", got)
+	if got := planner.decide([]int{sixStar[0], sixStar[1], sixStar[2]}, [3]int{1, 1, 1}, false); !got.Lock || got.Quota < 1 {
+		t.Fatalf("six-star combination absent from an empty inventory: got %+v, want first slot", got)
 	}
-	if got := planner.decide([]int{fourStarOnly[0], fourStarOnly[1], fourStarOnly[2]}, [3]int{1, 1, 1}, false); got.MissingGroup || got.Lock {
+	if got := planner.decide([]int{fourStarOnly[0], fourStarOnly[1], fourStarOnly[2]}, [3]int{1, 1, 1}, false); got.Quota != 0 || got.Lock {
 		t.Fatalf("four-star-only combination: got %+v, want silent skip", got)
 	}
 }
@@ -302,7 +296,7 @@ func TestLockLimitQuotaUsesSelectedWeaponsSharingSkills(t *testing.T) {
 		planner := newLockLimitPlanner(groups, weapons, tc.selected)
 		for i := 0; i < 3; i++ {
 			got := planner.decide(skills[:], levels, false)
-			if got.Quota != tc.quota || got.Lock != (i < tc.quota) || got.MissingGroup {
+			if got.Quota != tc.quota || got.Lock != (i < tc.quota) {
 				t.Fatalf("selection %v, item %d: decision %+v, want quota %d", tc.selected, i, got, tc.quota)
 			}
 		}

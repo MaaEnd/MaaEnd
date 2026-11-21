@@ -1,10 +1,12 @@
 {
     "EssenceFilterAfterBattleStart": {
-        "desc": "识别画面中是否有基质，是的话开始任务,完成后会自动退出战利品界面",
+        "desc": "识别领奖界面，交给战后筛选逐格读取",
         "recognition": {
-            "type": "And",
+            "type": "Or",
             "param": {
-                "all_of": [
+                "any_of": [
+                    "EssenceRewardExitButton",
+                    "CloseRewardsButton",
                     "EssenceFullScreenDetectAll"
                 ]
             }
@@ -12,46 +14,11 @@
         "next": [
             "EssenceFilterAfterBattleInit"
         ],
-        "focus": {
-            "Node.Recognition.Succeeded": "$task.AutoEssence.focus.essence_filter_after_battle_start"
-        }
-    },
-    //目标模式开启锁定名额时先暂存整批奖励，执行遍按库存和本批掉落计算名额
-    "EssenceFilterAfterBattleReadonlyInit": {
-        "desc": "只读遍初始化：加载数据与预设，只记录本轮持有份数",
-        "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "EssenceFilterInitAction"
-            }
-        },
-        //两个锚点固定指向当前遍的首尾：只读遍与执行遍共用同一套单格节点，回落边与收尾边据此各回各的遍
-        "anchor": {
-            "EssenceFilterAfterBattleCurrentPassHead": "EssenceFilterAfterBattleRowNextItem",
-            "EssenceFilterAfterBattleCurrentPassTail": "EssenceFilterAfterBattleReadonlyCommitInventory"
-        },
-        "post_wait_freezes": {
-            "time": 50,
-            "target": [
-                38,
-                398,
-                922,
-                198
-            ]
-        },
-        "post_delay": 0,
-        "next": [
-            "EssenceFilterAfterBattleRowNextItem"
+        "on_error": [
+            "EssenceFilterAfterBattleFailed"
         ],
         "focus": {
-            "Node.Action.Succeeded": "$task.AutoEssence.focus.essence_filter_after_battle_init_succeeded"
-        },
-        //默认配置
-        "attach": {
-            //初始化模式：战后筛选（同一任务内重复进入时只清本轮状态）
-            "mode": "after_battle",
-            "after_battle_pass": "readonly"
+            "Node.Recognition.Succeeded": "$task.AutoEssence.focus.essence_filter_after_battle_start"
         }
     },
     "EssenceFilterAfterBattleInit": {
@@ -63,11 +30,6 @@
                 "custom_action": "EssenceFilterInitAction"
             }
         },
-        //两个锚点固定指向当前遍的首尾：只读遍与执行遍共用同一套单格节点，回落边与收尾边据此各回各的遍
-        "anchor": {
-            "EssenceFilterAfterBattleCurrentPassHead": "EssenceFilterAfterBattleRowNextItem",
-            "EssenceFilterAfterBattleCurrentPassTail": "EssenceFilterAfterBattleCommitInventory"
-        },
         "post_wait_freezes": {
             "time": 50,
             "target": [
@@ -81,35 +43,17 @@
         "next": [
             "EssenceFilterAfterBattleRowNextItem"
         ],
+        "on_error": [
+            "EssenceFilterAfterBattleFailed"
+        ],
         "focus": {
             "Node.Action.Succeeded": "$task.AutoEssence.focus.essence_filter_after_battle_init_succeeded"
         },
-        //默认配置
         "attach": {
-            //初始化模式：战后筛选（同一任务内重复进入时只清本轮状态）
-            "mode": "after_battle"
+            "mode": "after_battle",
+            "discard_unmatched": true
         }
     },
-    "EssenceFilterAfterBattleReadonlyCommitInventory": {
-        "desc": "核对并暂存本批奖励，进入执行遍",
-        "recognition": {
-            "type": "DirectHit",
-            "param": {}
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "EssenceFilterAfterBattleInventoryCommitAction"
-            }
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "EssenceFilterAfterBattleInit"
-        ]
-    },
-    //离开战利品界面之前，先并入本轮筛选结果
     "EssenceFilterAfterBattleCommitInventory": {
         "desc": "核对奖励覆盖并更新账号库存",
         "recognition": {
@@ -126,12 +70,45 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "EssenceFilterAfterBattleExit"
+            "EssenceFilterAfterBattleExit",
+            "EssenceFilterAfterBattleReturnWorld"
+        ],
+        "on_error": [
+            "EssenceFilterAfterBattleFailed"
         ]
     },
-    //节点出口，如果不加jumpback，那就得把这个出口节点的next接到你想要的下一个节点上
     "EssenceFilterAfterBattleExit": {
         "desc": "任务完成,点击离开",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "EssenceRewardExitButton",
+                    "CloseRewardsButton"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilNotFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_node": "EssenceFilterAfterBattleExit"
+                }
+            }
+        },
+        "post_wait_freezes": 200,
+        "post_delay": 0,
+        "next": [
+            "AutoEssenceOnSuccess"
+        ],
+        "on_error": [
+            "EssenceFilterAfterBattleReturnWorld"
+        ]
+    },
+    "EssenceRewardExitButton": {
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -148,20 +125,36 @@
                 "method": 5,
                 "threshold": 0.7
             }
-        },
+        }
+    },
+    "EssenceFilterAfterBattleFailed": {
         "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "RepeatUntilNotFoundAction",
+                "custom_action": "EssenceRewardFailedAction"
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "[JumpBack]EssenceFilterAfterBattleCloseDetailJumpback",
+            "EssenceFilterAfterBattleExit",
+            "EssenceFilterAfterBattleReturnWorld"
+        ]
+    },
+    "EssenceFilterAfterBattleReturnWorld": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
                 "custom_action_param": {
-                    "action": "Click",
-                    "wait_node": "EssenceFilterAfterBattleExit"
+                    "sub": [
+                        "SceneAnyEnterWorld"
+                    ],
+                    "strict": false
                 }
             }
         },
-        "post_wait_freezes": 200,
-        "post_delay": 0,
         "next": [
             "AutoEssenceOnSuccess"
         ]

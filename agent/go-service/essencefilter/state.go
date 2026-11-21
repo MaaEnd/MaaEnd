@@ -31,10 +31,12 @@ type RunState struct {
 	CurrentSkills      [3]string
 	CurrentSkillLevels [3]int
 
+	warehouseDetail warehouseDetailRead
+
 	// CurrentLocked is the lock state of the grid cell chosen by the C++ scanner.
 	CurrentLocked bool
 
-	// LockLimit is the per-combination quota plan; nil unless the lock-limit option is enabled.
+	// LockLimit is the per-combination quota plan; used for the selected farming targets.
 	LockLimit *lockLimitPlanner
 
 	// After-battle grid cache

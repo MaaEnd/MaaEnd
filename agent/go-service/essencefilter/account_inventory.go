@@ -22,6 +22,7 @@ const (
 	inventoryFormat  = "maaend.essence_inventory"
 	inventoryVersion = 1
 	gold             = "flawless_gold"
+	lockedGold       = "locked_matching_flawless_gold"
 	purple           = "high_purity_purple"
 	unmarked         = "none"
 	lockedMark       = "lock"
@@ -94,7 +95,9 @@ func observeItem(engine *matchapi.Engine, ocr matchapi.OCRInput, quality, mark s
 func (item *inventoryItem) matchWeapons(engine *matchapi.Engine) {
 	if match := engine.InventoryMatch(item.resolved); match != nil {
 		for _, weapon := range match.Weapons {
-			item.weaponIDs = append(item.weaponIDs, weapon.InternalID)
+			if weapon.Rarity == 5 || weapon.Rarity == 6 {
+				item.weaponIDs = append(item.weaponIDs, weapon.InternalID)
+			}
 		}
 		slices.Sort(item.weaponIDs)
 	}
@@ -171,7 +174,13 @@ func newSnapshot(id string) *inventorySnapshot {
 }
 
 func (s *inventorySnapshot) targetReady() bool {
-	return s.Coverage[gold].CompleteAt != nil
+	return s.Coverage[lockedGold].CompleteAt != nil || s.Coverage[gold].CompleteAt != nil
+}
+
+func (s *inventorySnapshot) appendLockedMatch(item inventoryItem) {
+	if item.Quality == gold && item.Mark == lockedMark && len(item.weaponIDs) > 0 {
+		s.Items = append(s.Items, item)
+	}
 }
 
 // A confirmed purple position without observed skills contributes only to coverage.
@@ -297,7 +306,11 @@ func (a *inventoryAccount) observedUID(ctx *maa.Context, ctrl *maa.Controller) s
 	if a.id == "" {
 		return ""
 	}
-	return currentInventoryUID(ctx, ctrl)
+	uid, err := captureuid.Observe(ctx, ctrl, captureuid.OutputTypeHashed)
+	if err != nil {
+		return ""
+	}
+	return uid
 }
 
 func (a *inventoryAccount) matchesUID(uid string) bool {
@@ -339,7 +352,7 @@ func (a *inventoryAccount) load(engine *matchapi.Engine) (*inventorySnapshot, er
 		return nil, errInvalidSnapshot
 	}
 	for quality, coverage := range s.Coverage {
-		if quality != gold && quality != purple {
+		if quality != gold && quality != purple && quality != lockedGold {
 			return nil, errInvalidSnapshot
 		}
 		if coverage == (tierCoverage{}) {
@@ -373,9 +386,8 @@ func (a *inventoryAccount) save(s *inventorySnapshot) error {
 	return writeInventoryJSON(a.path(), s)
 }
 
-// Mark the account before a scan or claim can change the warehouse. An OS lock
-// covers game interactions and is released by the OS if the agent exits.
-func (a *inventoryAccount) begin(engine *matchapi.Engine) error {
+// Keep the last published snapshot intact while rewards are being read.
+func (a *inventoryAccount) openBaseline(engine *matchapi.Engine) error {
 	if a.base != nil {
 		return fmt.Errorf("inventory update already in progress")
 	}
@@ -402,7 +414,16 @@ func (a *inventoryAccount) begin(engine *matchapi.Engine) error {
 		a.release()
 		return err
 	}
-	// Keep the verified baseline in memory until the game confirms the update.
+	a.base = s
+	return nil
+}
+
+// A warehouse refresh rebuilds coverage from the current grid.
+func (a *inventoryAccount) begin(engine *matchapi.Engine) error {
+	if err := a.openBaseline(engine); err != nil {
+		return err
+	}
+	s := a.base
 	incomplete := *s
 	incomplete.Coverage = make(map[string]tierCoverage)
 	for quality, coverage := range s.Coverage {
@@ -414,7 +435,6 @@ func (a *inventoryAccount) begin(engine *matchapi.Engine) error {
 		a.release()
 		return err
 	}
-	a.base = s
 	return nil
 }
 

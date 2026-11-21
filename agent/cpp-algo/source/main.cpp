@@ -19,6 +19,7 @@
 #include "Common/SystemMonitor.h"
 #include "Common/paths.h"
 #include "EssenceGridScan/EssenceGridScan.h"
+#include "EssenceReward/EssenceReward.h"
 #include "IconRecognition/IconRecognitionRecognition.h"
 #include "MapLocator/MapLocateAction.h"
 #include "MapNavigator/MapNavigator.h"
@@ -132,6 +133,7 @@ int main(int argc, char** argv)
 
     common::StartSystemMonitor();
 
+    MaaAgentServerRegisterCustomRecognition("EssenceRewardRecognition", essencereward::Recognize, nullptr);
     essencegridscan::EssenceGrid essence_grid;
 
     MaaAgentServerRegisterCustomRecognition("MyReco1", ChildCustomRecognitionCallback, nullptr);

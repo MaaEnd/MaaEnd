@@ -252,7 +252,10 @@ func decideSkillMark(ctx *maa.Context, st *RunState, ocr matchapi.OCRInput) (str
 
 // Mark from the same resolved weapon IDs that go into the report and target stock.
 func decideInventoryMark(ctx *maa.Context, st *RunState, ocr matchapi.OCRInput, item inventoryItem) (string, bool) {
-	result := &matchapi.MatchResult{Kind: matchapi.MatchNone}
+	result := &matchapi.MatchResult{
+		Kind:          matchapi.MatchNone,
+		ShouldDiscard: st.PipelineOpts.DiscardUnmatched && len(item.weaponIDs) == 0,
+	}
 	for _, weapon := range st.MatchEngine.Weapons() {
 		if (weapon.Rarity == 5 || weapon.Rarity == 6) && slices.Contains(item.weaponIDs, weapon.InternalID) {
 			result.Weapons = append(result.Weapons, weapon)
@@ -275,9 +278,6 @@ func applySkillMark(ctx *maa.Context, st *RunState, ocr matchapi.OCRInput, match
 	case matchapi.MatchExact:
 		if verdict := st.LockLimit.applyToExact(matchResult, st.CurrentLocked); verdict.Quota > 0 {
 			reportLockLimit(ctx, verdict, matchResult, st.CurrentLocked)
-			if verdict.MissingGroup || verdict.MissingRow {
-				return "", false
-			}
 			if !matchResult.ShouldLock {
 				break
 			}
@@ -370,10 +370,6 @@ func loadMatchEngine(ctx *maa.Context, ctrl *maa.Controller, opts *EssenceFilter
 func reportLockLimit(ctx *maa.Context, verdict lockLimitDecision, match *matchapi.MatchResult, locked bool) {
 	levels := match.Levels
 	switch {
-	case verdict.MissingGroup:
-		reportColoredByKey(ctx, "#ff9f43", "lock_limit.warn_missing_group", verdict.Quota)
-	case verdict.MissingRow:
-		reportColoredByKey(ctx, "#ff9f43", "lock_limit.warn_missing_row", levels[0], levels[1], levels[2])
 	case locked:
 		if verdict.NeedsUnlock {
 			reportColoredByKey(ctx, "#ff4d4f", "lock_limit.unlock_needed",

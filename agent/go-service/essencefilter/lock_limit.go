@@ -35,30 +35,22 @@ func ExpectedEnhanceAttempts(levels [3]int) (attempts float64, ok bool) {
 	return attempts, true
 }
 
-// lockLimitReference describes the five- and six-star weapons sharing one skill combination.
-type lockLimitReference struct {
-	quota   int
-	weapons []string
-	skills  [3]string
-}
-
 // lockLimitRow is one level triple held for a skill combination.
 type lockLimitRow struct {
-	levels        [3]int
-	expected      float64
-	count         int
-	locked        int
-	keptLocked    int
-	needLock      int
-	lockedThisRun int
+	levels     [3]int
+	expected   float64
+	locked     int
+	keptLocked int
 }
 
 // lockLimitCombination is the quota plan of one skill combination.
 type lockLimitCombination struct {
-	skillIDs [3]int
-	*lockLimitReference
+	quota          int
+	weapons        []string
+	skills         [3]string
 	rows           map[[3]int]*lockLimitRow
 	ordered        []*lockLimitRow
+	batchLocks     int
 	snapshotLocked int
 	excess         int
 }
@@ -66,10 +58,6 @@ type lockLimitCombination struct {
 // lockLimitDecision is the lock-limit verdict for one scanned essence.
 type lockLimitDecision struct {
 	Lock bool
-	// MissingGroup marks a five/six-star combination absent from the inventory snapshot.
-	MissingGroup bool
-	// MissingRow marks a level triple absent from its inventory group.
-	MissingRow bool
 	// NeedsUnlock marks a locked essence that sits outside the lock quota.
 	NeedsUnlock bool
 	Quota       int
@@ -78,7 +66,6 @@ type lockLimitDecision struct {
 // lockLimitPlanner decides lock or skip for exact-matching essences under the
 // per-combination quota. It neither touches the pipeline nor the file system.
 type lockLimitPlanner struct {
-	references   map[[3]int]*lockLimitReference
 	combinations map[[3]int]*lockLimitCombination
 }
 
@@ -90,7 +77,6 @@ func isLockLimitTarget(weapon matchapi.WeaponData, selected []string) bool {
 // newLockLimitPlanner resolves inventory groups against the full catalog and counts only selected weapons.
 func newLockLimitPlanner(groups []inventoryGroup, weapons []matchapi.WeaponData, selected []string) *lockLimitPlanner {
 	p := &lockLimitPlanner{
-		references:   make(map[[3]int]*lockLimitReference),
 		combinations: make(map[[3]int]*lockLimitCombination),
 	}
 	weaponByID := make(map[string]matchapi.WeaponData, len(weapons))
@@ -103,37 +89,26 @@ func newLockLimitPlanner(groups []inventoryGroup, weapons []matchapi.WeaponData,
 		if !ok {
 			continue
 		}
-		ref := p.references[ids]
-		if ref == nil {
-			ref = &lockLimitReference{}
-			if skills, ok := skillsTriple(weapon.SkillsChinese); ok {
-				ref.skills = skills
-			}
-			p.references[ids] = ref
+		combo := p.combinations[ids]
+		if combo == nil {
+			combo = &lockLimitCombination{rows: make(map[[3]int]*lockLimitRow)}
+			combo.skills, _ = skillsTriple(weapon.SkillsChinese)
+			p.combinations[ids] = combo
 		}
-		ref.quota++
-		ref.weapons = append(ref.weapons, weapon.ChineseName)
+		combo.quota++
+		combo.weapons = append(combo.weapons, weapon.ChineseName)
 	}
 	for _, group := range groups {
 		ids, ok := resolveGroupSkillIDs(group, weaponByID)
 		if !ok {
 			continue
 		}
-		ref := p.references[ids]
-		if ref == nil || ref.quota == 0 {
-			continue
-		}
 		combo := p.combinations[ids]
 		if combo == nil {
-			combo = &lockLimitCombination{
-				skillIDs:           ids,
-				lockLimitReference: ref,
-				rows:               make(map[[3]int]*lockLimitRow),
-			}
-			p.combinations[ids] = combo
+			continue
 		}
 		for _, essence := range group.Essences {
-			if essence.Count <= 0 || essence.Locked < 0 || essence.Locked > essence.Count {
+			if essence.Locked <= 0 || essence.Locked > essence.Count {
 				continue
 			}
 			expected, ok := ExpectedEnhanceAttempts(essence.Levels)
@@ -145,7 +120,6 @@ func newLockLimitPlanner(groups []inventoryGroup, weapons []matchapi.WeaponData,
 				row = &lockLimitRow{levels: essence.Levels, expected: expected}
 				combo.rows[essence.Levels] = row
 			}
-			row.count += essence.Count
 			row.locked += essence.Locked
 		}
 	}
@@ -155,8 +129,7 @@ func newLockLimitPlanner(groups []inventoryGroup, weapons []matchapi.WeaponData,
 	return p
 }
 
-// Existing locks occupy the quota first. Rank only this claim's unmarked
-// candidates for the remaining places.
+// Rank existing locks only for the inventory excess summary.
 func (c *lockLimitCombination) buildRanking() {
 	c.ordered = make([]*lockLimitRow, 0, len(c.rows))
 	for _, row := range c.rows {
@@ -170,13 +143,10 @@ func (c *lockLimitCombination) buildRanking() {
 		return slices.Compare(c.ordered[i].levels[:], c.ordered[j].levels[:]) < 0
 	})
 	keepLocked := c.quota
-	free := max(c.quota-c.snapshotLocked, 0)
 	for _, row := range c.ordered {
 		row.keptLocked = min(row.locked, keepLocked)
 		keepLocked -= row.keptLocked
 		c.excess += row.locked - row.keptLocked
-		row.needLock = min(row.count-row.locked, free)
-		free -= row.needLock
 	}
 }
 
@@ -201,26 +171,18 @@ func (p *lockLimitPlanner) decide(skillIDs []int, levels [3]int, locked bool) lo
 	}
 	combo := p.combinations[ids]
 	if combo == nil {
-		// Only a combination used by a selected weapon is expected in the snapshot.
-		if ref := p.references[ids]; ref != nil && ref.quota > 0 {
-			decision.MissingGroup = true
-			decision.Quota = ref.quota
-		}
 		return decision
 	}
 	decision.Quota = combo.quota
-	row := combo.rows[levels]
-	if row == nil {
-		decision.MissingRow = true
-		return decision
-	}
 	if locked {
-		decision.NeedsUnlock = row.locked > row.keptLocked
+		if row := combo.rows[levels]; row != nil {
+			decision.NeedsUnlock = row.locked > row.keptLocked
+		}
 		return decision
 	}
-	if row.lockedThisRun < row.needLock {
+	if combo.snapshotLocked+combo.batchLocks < combo.quota {
 		decision.Lock = true
-		row.lockedThisRun++
+		combo.batchLocks++
 	}
 	return decision
 }
@@ -268,11 +230,7 @@ type lockLimitSummaryRow struct {
 
 // lockedTotal returns the combination's locked essences, counting the locks made in this run.
 func (c *lockLimitCombination) lockedTotal() int {
-	total := c.snapshotLocked
-	for _, row := range c.ordered {
-		total += row.lockedThisRun
-	}
-	return total
+	return c.snapshotLocked + c.batchLocks
 }
 
 // overLimitSummaries lists what needs unlocking, ordered by skill combination and levels.

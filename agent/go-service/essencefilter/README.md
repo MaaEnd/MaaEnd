@@ -43,7 +43,7 @@ Go 只通过 `ctx.OverrideNext` 选择 Pipeline 分支：
 
 ## 运行流程
 
-1. `EssenceFilterInitAction` 先读当前 Init 节点 `attach.mode` 决定分支：`filter` 自定义筛选、`screen_and_report` 全仓筛选并生成报告、`inventory` 只读盘点、`after_battle` 战后（同一任务内重复进入只清本轮状态），未知值直接判失败。随后从界面 OCR 探测游戏语言（`__EssenceFilterDetectLang*`），或尊重 `attach.input_language` 显式覆盖；再从当前 Init 节点 `attach` 读取其余选项并加载 `data/EssenceFilter`。
+1. `EssenceFilterInitAction` 先读当前 Init 节点 `attach.mode` 决定分支：`filter` 自定义筛选、`screen_and_report` 只读盘点并生成报告、`inventory` 只读盘点、`after_battle` 战后（同一任务内重复进入只清本轮状态），未知值直接判失败。随后从界面 OCR 探测游戏语言（`__EssenceFilterDetectLang*`），或尊重 `attach.input_language` 显式覆盖；再从当前 Init 节点 `attach` 读取其余选项并加载 `data/EssenceFilter`。
 2. Pipeline 对 C++ 选中的格子依次 OCR 三个技能和等级。
 3. `decideSkillMark` 调用 `matchapi.Engine.MatchOCR`。
 4. Go 根据 `MatchResult` 覆盖下一 Pipeline 节点。
@@ -58,22 +58,22 @@ Agent 回调按当前框架模型串行执行，因此 `currentRun` 不加锁。
 
 | 入口 | 读取和标记 | 库存更新 |
 | --- | --- | --- |
-| 筛选全部五星、六星武器适配的无瑕基质并生成报告 | 一趟扫描整个仓库。三条词条精确适配任一五星或六星武器的未标记无瑕基质上锁，已有标记保留。 | 用操作后的标记重建库存文件，并显示路径与件数。 |
-| 目标模式首次盘点或「开始前重新盘点基质库存」 | 遍历仓库，读取当前标记。 | 重建当前账号库存，按已锁件数计算缺口。 |
-| 目标、地区、随机刷取实际领取奖励 | 按相同的五星、六星规则筛选本批掉落。 | 确认标记后一次性追加本批奖励。 |
+| 生成基质报告 | 从开头扫描已锁或已装备的格位，仅对已锁无瑕基质读取词条。 | 以精确适配五星、六星武器的已锁基质重建账号库存，并显示路径与件数。 |
+| 目标模式首次盘点或「开始前重新盘点基质库存」 | 复用生成报告的只读扫描流程。 | 按当前账号已锁定的适配件数计算缺口。 |
+| 目标、地区、随机刷取实际领取奖励 | 保留已有标记，无瑕按五星、六星武器匹配。「弃置其他基质」默认开启，对未标记的高纯和未适配无瑕执行弃置，关闭后跳过这些基质。 | 确认标记后一次性追加本批已锁的适配无瑕基质。 |
 
-同图标、同词条的不同格位分别计件。扫描结束时，Go 核对库存总数、格位数和已处理件数。已确认是高纯但未读全词条的格位只计入 `coverage.high_purity_purple.unread`。缺少格位、品质未知或无瑕词条未确认时，下次目标刷取会重新盘点。
+同图标、同词条的不同格位分别计件。已装备且未锁定的基质只影响扫描边界。遇到第一枚既未锁定也未装备的基质，核对已处理的前段并结束。
 
 库存文件位于用户数据目录的 `debug/record/EssenceInventory/` 下。
 
 | 文件 | 用途 |
 | --- | --- |
 | `<账号哈希>.json` | 当前账号的公开库存文件，也是任务读取的缓存。 |
-| `unverified.json` | 无法确认 UID 时，「筛选并生成报告」写出的匿名报告，省略 `account_id`。匿名任务只复用本次任务的内存库存。 |
+| `unverified.json` | 无法确认 UID 时，「生成基质报告」写出的匿名报告，省略 `account_id`。匿名任务只复用本次任务的内存库存。 |
 
 协议第 1 版以 `format` 和 `version` 标识文件。写入方整份替换快照，用 UTC 时间 `updated_at` 记录最近一次提交。每个 `items` 条目记录一枚实物的品质、实际标记、按显示顺序排列的三条游戏词条 ID 和等级。武器适配、分组与可用数量由读取方按自己的数据计算。见[协议 Schema](../../../tools/schema/essence_inventory.schema.json) 和[一致性样例](./testdata/inventory/)。
 
-`coverage.<品质>.complete_at` 表示该品质的每一枚基质都已列出且词条读全，值为那次完整盘点的 UTC 时间。后续已确认的增量保留这个时间。缺少该字段时，文件只承诺包含已知的部分。`unread` 单独计数已确认存在但未读全的基质，与 `complete_at` 互斥。
+`coverage.locked_matching_flawless_gold.complete_at` 是最近一次完成已锁适配无瑕基质盘点的时间。已确认的增量保留这个时间。读取旧版全仓报告时，也接受无瑕品质的完整盘点时间。
 
 同一版本只会增加可选字段和枚举值。外部读取方应忽略未知字段、跳过无法理解的条目，遇到更高版本时提示升级。MaaEnd 拥有文件并会整份重写，因此遇到无法表示的品质、标记或词条时，会放弃整份基线并重新盘点，以免遗漏实物。
 
@@ -81,17 +81,19 @@ Agent 回调按当前框架模型串行执行，因此 `currentRun` 不加锁。
 
 ## 限制相同词条基质的锁定数量
 
-「基质刷取 → 目标选择」提供此开关，默认关闭。开启后，`AutoEssenceTargetPlan` 将本次勾选的全部武器 ID 传给战后两遍的 `attach.lock_limit_weapon_ids`。每把勾选的五星或六星武器为其三词条组合提供一个名额。例如，只勾选「宏愿」时对应组合有一个名额，同时勾选「十二问」时有两个。
+在「基质刷取 → 目标选择」中，`AutoEssenceTargetPlan` 将本次勾选的全部武器 ID 传给战后初始化的 `attach.lock_limit_weapon_ids`。每把勾选的五星或六星武器为其三词条组合提供一个名额。例如，只勾选「宏愿」时对应组合有一个名额，同时勾选「十二问」时有两个。
 
-已有锁定先占名额。有空位时，在本批新掉落中按强化至 `[6, 6, 3]` 的期望次数由少到多上锁。名额已满时保留新掉落的原标记。仅适配未勾选武器的合格掉落照常锁定并计入库存，供下次切换目标时使用。
+已有锁定先占名额。有空位时，按结算页的格位顺序上锁。名额已满时保留新掉落的原标记。仅适配未勾选武器的合格掉落照常锁定并计入库存，供下次切换目标时使用。
 
 ## 战后更新与锁定名额
 
-随机、地区和目标模式都在实际领奖后逐枚读取奖励。未标记的无瑕基质精确适配任一五星或六星武器时上锁，并遵守已开启的目标组合名额。其余掉落与已有标记保持原状。
+随机、地区和目标模式都在领奖后逐枚处理基质，并保留已有标记。只有无瑕基质读取词条并匹配五星、六星武器。未标记的无瑕基质匹配成功时上锁，目标模式中对应名额已满时跳过。「弃置其他基质」默认开启，对未标记的高纯和未适配无瑕执行弃置，关闭后跳过这些基质。开关通过战后初始化的 `attach.discard_unmatched` 传入。
 
-领取或盘点开始前，先在磁盘上撤下所有品质的 `complete_at`，内存保留原始基线。结算页入口和逐枚扫描共用金色、紫色两种外壳模板，模板遮住会随词条变化的内核图案。执行遍在详情中核对每个奖励框的品质、三条词条与最终标记，再将整批奖励一次性提交。目标模式开启锁定名额时先暂存一遍奖励，再执行标记。计算刷取缺口时，每枚已确认锁定的精确匹配无瑕基质可分配给一把武器。两把勾选武器共用同一组词条时，库存需有两枚才能结束。
+仓库盘点开始时把旧库存标为待复核。领奖时保留上次提交的库存，逐格识别奖励和品质，核对整批后再一次性追加。只锁定已确认的匹配基质。每格在读取详情时直接执行标记。两把勾选武器若共用同一组词条，需要两枚实物才能同时满足。
 
-游戏明确提示体力不足并拒绝领取时，撤销本次领取记录，保留领取前的库存。领取后中断、遗漏已定位的奖励格、品质未知或无瑕词条识别失败会使库存待复核。下次目标刷取通过完整盘点恢复。进程重启后，缺少 `complete_at` 的无瑕库存仍需盘点。缺少仓库基线时只记录已确认的奖励，目标模式会先建立完整基线。
+领奖未确认时显示提示，并丢弃本批暂存数据。地区、随机和目标模式都回到原有的轮次流程。下一轮目标规划继续使用上次确认的库存；跳过的掉落可在下次仓库盘点时补入。
+
+目标模式开刷时按共用词条组合展示武器名、已锁数量和所需数量，并显示地点与全部目标的剩余需求。刻写参数可以在详情中展开。每批库存提交成功后，按实物数量汇总新锁定、顺带锁定、领取时已有标记、名额已满保留、弃置和跳过的结果。目标模式同时显示本轮补齐数量和剩余需求，已锁定与新锁定分开统计。
 
 ## 匹配数据
 
@@ -108,7 +110,7 @@ Init 语言探测节点见 Pipeline `EssenceFilter/DetectLanguage.json`（库存
 
 ## 运行选项
 
-`EssenceFilterOptions` 来自 MaaFramework 已合并的 Init 节点 `attach`（`EssenceFilterInit` / `EssenceFilterInventoryInit` / `EssenceFilterAfterBattleInit` / `EssenceFilterAfterBattleReadonlyInit`），包括 `mode`、`after_battle_pass`、武器稀有度、基质品质、扩展规则、未匹配废弃、导出选项。`mode` 由节点显式声明，Go 不再按节点名推断：`filter` 自定义筛选、`screen_and_report` 全仓筛选并生成报告、`inventory` 只读盘点、`after_battle` 战后。`after_battle_pass` 只由战后模式读取：`readonly` 只读遍、`execute`（留空同义）执行遍。`input_language` 可选：省略或 `AUTO` 时由屏幕 OCR 探测；显式 `CN|TC|EN|JP|KR` 则强制该语言。
+`EssenceFilterOptions` 来自 MaaFramework 已合并的 Init 节点 `attach`（`EssenceFilterInit` / `EssenceFilterInventoryInit` / `EssenceFilterAfterBattleInit`），包括 `mode`、武器稀有度、基质品质、扩展规则、未匹配废弃、导出选项。`mode` 由节点显式声明，Go 不再按节点名推断：`filter` 自定义筛选、`screen_and_report` 只读盘点并生成报告、`inventory` 只读盘点、`after_battle` 战后。`input_language` 可选：省略或 `AUTO` 时由屏幕 OCR 探测；显式 `CN|TC|EN|JP|KR` 则强制该语言。
 
 `flawless_essence` / `pure_essence` / `skip_thumb_lock` / `skip_thumb_discard` 属于 C++ `EssenceGridAdvance.attach`，默认值即库存盘点口径，不在 Go 状态中重复保存；普通筛选通过选项覆盖。
 

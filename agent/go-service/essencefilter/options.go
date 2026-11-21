@@ -57,8 +57,8 @@ func parseFilterOptions(raw string) (*EssenceFilterOptions, error) {
 			FlawlessEssence: true, Rarity5Weapon: true, Rarity6Weapon: true,
 		}
 		if opts.Mode == InitModeAfterBattle {
-			fixed.AfterBattlePass = opts.AfterBattlePass
 			fixed.LockLimitWeaponIDs = opts.LockLimitWeaponIDs
+			fixed.DiscardUnmatched = opts.DiscardUnmatched
 		}
 		return fixed, nil
 	}

@@ -123,12 +123,8 @@ func (a *TargetPlanAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		log.Error().Err(err).Str("component", componentPlan).Msg("failed to build engrave override")
 		return false
 	}
-	if node.Attach["limit_locked_per_combination"] == true {
-		// Both loot passes use the full selection, including weapons already present in inventory.
-		for _, initNode := range []string{"EssenceFilterAfterBattleReadonlyInit", "EssenceFilterAfterBattleInit"} {
-			engravePatch[initNode] = map[string]any{"attach": map[string]any{"lock_limit_weapon_ids": selected}}
-		}
-	}
+	// Include satisfied targets so another drop for a filled slot keeps its mark.
+	engravePatch["EssenceFilterAfterBattleInit"] = map[string]any{"attach": map[string]any{"lock_limit_weapon_ids": selected}}
 
 	// 换了淤积点：清零「整次任务只传送一次」的计数，让分发器先把人送到新点的最近锚点。
 	// 否则人还站在旧点，会直接认到旧点的「激发」并用新方案的预刻写条件在旧点开战。
@@ -168,14 +164,26 @@ func (a *TargetPlanAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 	for _, w := range plan.Needs {
 		needNames = append(needNames, w.ChineseName)
 	}
-	maafocus.Print(ctx, fmt.Sprintf(
-		"🎯目标模式：缺口 %d → 前往 %s｜基础 %s+%s+%s｜固定%s %s｜本轮可覆盖 %d",
-		len(missing),
-		plan.LocationName,
-		plan.Slot1Names[0], plan.Slot1Names[1], plan.Slot1Names[2],
-		fixedSlotLabel(plan.FixedSlot), plan.FixedName,
-		len(plan.Needs),
-	))
+	needed := make(map[string]bool, len(plan.Needs))
+	for _, weapon := range plan.Needs {
+		needed[weapon.InternalID] = true
+	}
+	var lines []string
+	for _, group := range stock.TargetProgress(engine.Weapons(), selected) {
+		if slices.ContainsFunc(group.WeaponIDs, func(id string) bool { return needed[id] }) {
+			lines = append(lines, group.Text())
+		}
+	}
+	lines = append(lines,
+		i18n.T("essencefilter.progress.location", plan.LocationName),
+		i18n.T("essencefilter.progress.remaining", len(missing)),
+	)
+	maafocus.Print(ctx, i18n.RenderHTML("essencefilter.progress", map[string]any{
+		"Title": i18n.T("essencefilter.progress.title"),
+		"Lines": lines,
+		"Details": i18n.T("essencefilter.progress.engrave",
+			strings.Join(plan.Slot1Names[:], "／"), fixedSlotLabel(plan.FixedSlot), plan.FixedName),
+	}))
 	if changed {
 		maafocus.Print(ctx, i18n.T(
 			"task.AutoEssence.focus.location_changed",

@@ -13,6 +13,41 @@ import (
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 )
 
+func TestWarehouseRechecksOnlyIndistinguishableDetails(t *testing.T) {
+	a := warehouseDetail{Quality: purple, Skills: [3]matchapi.InventorySkill{
+		{Pool: 1, ID: 1, Level: 1}, {Pool: 2, ID: 2, Level: 3}, {Pool: 3, ID: 3, Level: 2},
+	}}
+	level, order, tier, obscured := a, a, a, a
+	obscured.Quality = "unknown"
+	level.Skills[1].Level = 2
+	order.Skills[0], order.Skills[1] = order.Skills[1], order.Skills[0]
+	tier.Quality = gold
+	for _, tc := range []struct {
+		name                string
+		prior, read         *warehouseDetail
+		clicks              int
+		coreChanged, repeat bool
+	}{
+		{"initial selection", nil, &a, 1, false, false},
+		{"same core and terms", &a, &a, 1, false, true},
+		{"different large icon", &a, &a, 1, true, false},
+		{"different level", &a, &level, 1, false, false},
+		{"different display order", &a, &order, 1, false, false},
+		{"obscured stripe and matching terms", &a, &obscured, 1, false, true},
+		{"different tier", &a, &tier, 1, false, false},
+		{"identical copy reread", &a, &a, 2, false, false},
+		{"missed first click", &a, &level, 2, false, false},
+		{"unread first attempt", &a, nil, 1, false, false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			r := warehouseDetailRead{previous: tc.prior, Clicks: tc.clicks, CoreChanged: tc.coreChanged}
+			if r.needsSecondRead(tc.read) != tc.repeat {
+				t.Fatalf("expected repeat=%t", tc.repeat)
+			}
+		})
+	}
+}
+
 func inventoryTestEngine(t *testing.T) *matchapi.Engine {
 	t.Helper()
 	dir, err := filepath.Abs("../../../assets/data/EssenceFilter")
@@ -101,29 +136,22 @@ func TestInventoryTransactionCoverage(t *testing.T) {
 	if err := observer.begin(engine); err == nil {
 		t.Fatal("concurrent writer admitted")
 	}
-	if err := a.cancelClaim(a.id); err != nil {
-		t.Fatal(err)
-	}
-	cancelled, err := observer.load(engine)
-	if err != nil || !reflect.DeepEqual(cancelled, s) {
-		t.Fatal("cancelled claim did not restore the baseline", err)
-	}
-	begin()
 	if err := a.commit(newRewardInventory().appendTo(a.base), false, a.id); err != nil {
 		t.Fatal(err)
 	}
 	committed, err := observer.load(engine)
-	if err != nil || !reflect.DeepEqual(committed.Coverage, s.Coverage) {
+	if err != nil || len(committed.Coverage) != 1 || !reflect.DeepEqual(committed.Coverage[lockedGold], s.Coverage[gold]) {
 		t.Fatal("commit lost complete scan timestamps", err)
 	}
+	s = committed
 	begin()
-	a.release() // Process stopped after claiming the rewards.
+	a.release() // Process stopped during the warehouse refresh.
 	if err := observer.begin(engine); err != nil {
 		t.Fatal(err)
 	}
 	defer observer.release()
 	if observer.base.targetReady() {
-		t.Fatal("interrupted claim restored gold coverage")
+		t.Fatal("interrupted warehouse refresh restored gold coverage")
 	}
 }
 
@@ -290,12 +318,6 @@ func TestChangingAccountsCannotPublishOrCancelAnotherAccountsInventory(t *testin
 			t.Fatal("unverified account published the scan", err)
 		}
 	}
-	if err := a.begin(engine); err != nil {
-		t.Fatal(err)
-	}
-	if err := a.cancelClaim(b.id); !errors.Is(err, errInventoryAccountChanged) {
-		t.Fatal("other account cleared a pending claim", err)
-	}
 	savedA, err := a.load(engine)
 	if err != nil || savedA.targetReady() || len(savedA.Items) != 1 {
 		t.Fatal("first account lost its last inventory", err)
@@ -307,7 +329,7 @@ func TestChangingAccountsCannotPublishOrCancelAnotherAccountsInventory(t *testin
 
 }
 
-func TestRewardTwoPassCommitsOnce(t *testing.T) {
+func TestRewardSinglePassCommitsOnce(t *testing.T) {
 	a := testInventoryAccount(t.TempDir(), "aaaaaaaaaaaaaaaa")
 	engine := inventoryTestEngine(t)
 	if err := a.begin(engine); err != nil {
@@ -321,34 +343,13 @@ func TestRewardTwoPassCommitsOnce(t *testing.T) {
 	}
 	st := &RunState{
 		Account: a, MatchEngine: engine, RowBoxes: make([][4]int, 2),
-		PipelineOpts:              EssenceFilterOptions{Mode: InitModeAfterBattle, Rarity6Weapon: true, Rarity5Weapon: true},
+		PipelineOpts:              EssenceFilterOptions{Mode: InitModeAfterBattle, Rarity6Weapon: true, Rarity5Weapon: true, DiscardUnmatched: true},
 		MatchedCombinationSummary: make(map[string]*matchapi.SkillCombinationSummary),
 	}
 	inputs := []matchapi.OCRInput{
 		{Skills: [3]string{"敏捷", "攻击", "附术"}, Levels: [3]int{1, 1, 1}},
 		{Skills: [3]string{"力量", "力量", "意志"}, Levels: [3]int{1, 1, 1}},
 	}
-	st.PipelineOpts.AfterBattlePass = AfterBattlePassReadOnly
-	if err := prepareReward(st); err != nil {
-		t.Fatal(err)
-	}
-	st.Loot.quality, st.Loot.mark = gold, unmarked
-	for i, ocr := range inputs {
-		st.RowIndex = i + 1
-		if mark, ok := decideRewardMark(nil, st, ocr); !ok || mark != unmarked {
-			t.Fatal("read-only pass requested a mark", i, mark)
-		}
-		if i == 0 && commitAfterBattleInventory(st, a.id) {
-			t.Fatal("accepted incomplete first pass")
-		}
-	}
-	if !commitAfterBattleInventory(st, a.id) {
-		t.Fatal("staging failed")
-	}
-	if staged, err := a.load(engine); err != nil || staged.targetReady() || len(staged.Items) != 0 {
-		t.Fatal("read-only pass published rewards", staged, err)
-	}
-	st.PipelineOpts.AfterBattlePass = AfterBattlePassExecute
 	if err := prepareReward(st); err != nil {
 		t.Fatal(err)
 	}
@@ -356,7 +357,9 @@ func TestRewardTwoPassCommitsOnce(t *testing.T) {
 	currentRun = st
 	t.Cleanup(func() { currentRun = previous })
 	action := EssenceFilterConfirmMarkAction{}
-	for i, want := range []string{lockedMark, unmarked} {
+	st.Loot.gridVerified = true
+	st.Loot.quality, st.Loot.mark = gold, unmarked
+	for i, want := range []string{lockedMark, discarded} {
 		st.RowIndex = i + 1
 		if mark, ok := decideRewardMark(nil, st, inputs[i]); !ok || mark != want {
 			t.Fatal("unexpected execute decision", i, mark, want)
@@ -369,6 +372,8 @@ func TestRewardTwoPassCommitsOnce(t *testing.T) {
 			if !action.Run(nil, &maa.CustomActionArg{TaskID: st.TaskID, CurrentTaskName: "EssenceFilterAfterBattleCheckLocked"}) {
 				t.Fatal("lock confirmation failed")
 			}
+		} else if !action.Run(nil, &maa.CustomActionArg{TaskID: st.TaskID, CurrentTaskName: "EssenceFilterAfterBattleCheckDiscarded"}) {
+			t.Fatal("discard confirmation failed")
 		}
 	}
 	if !commitAfterBattleInventory(st, a.id) || !commitAfterBattleInventory(st, a.id) {
@@ -379,7 +384,7 @@ func TestRewardTwoPassCommitsOnce(t *testing.T) {
 		t.Fatal(err)
 	}
 	count, locks := inventoryTotals(got.groups(engine.Weapons()))
-	if len(got.Items) != 2 || count != 1 || locks != 1 || !got.targetReady() {
+	if len(got.Items) != 1 || count != 1 || locks != 1 || !got.targetReady() {
 		t.Fatal(got.Items, count, locks)
 	}
 }
@@ -389,13 +394,15 @@ func TestFourFlawlessRewardsWithTargetQuota(t *testing.T) {
 	engine := inventoryTestEngine(t)
 	drop := matchapi.OCRInput{Skills: [3]string{"敏捷", "攻击", "附术"}, Levels: [3]int{1, 1, 1}}
 	for _, tc := range []struct {
-		name     string
-		selected []string
-		locks    int
+		name        string
+		selected    []string
+		locks       int
+		firstLocked bool
 	}{
-		{"ordinary screening", nil, 4},
-		{"quota on a different combination", []string{exemplar}, 4},
-		{"one target sharing the drop", []string{grandVision}, 1},
+		{"ordinary screening", nil, 4, false},
+		{"quota on a different combination", []string{exemplar}, 4, false},
+		{"one target sharing the drop", []string{grandVision}, 1, false},
+		{"first drop already locked", []string{grandVision}, 1, true},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			a := testInventoryAccount(t.TempDir(), "aaaaaaaaaaaaaaaa")
@@ -412,36 +419,35 @@ func TestFourFlawlessRewardsWithTargetQuota(t *testing.T) {
 			previous := currentRun
 			currentRun = st
 			t.Cleanup(func() { currentRun = previous })
-			passes := []AfterBattlePass{AfterBattlePassExecute}
-			if len(tc.selected) > 0 {
-				passes = []AfterBattlePass{AfterBattlePassReadOnly, AfterBattlePassExecute}
+			if err := prepareReward(st); err != nil {
+				t.Fatal(err)
 			}
-			for _, pass := range passes {
-				st.PipelineOpts.AfterBattlePass = pass
-				if err := prepareReward(st); err != nil {
-					t.Fatal(err)
+			if !prepareLockLimit(nil, st, &st.PipelineOpts) {
+				t.Fatal("quota planning failed")
+			}
+			st.Loot.gridVerified = true
+			st.Loot.quality = gold
+			for i := 1; i <= 4; i++ {
+				st.RowIndex = i
+				st.Loot.mark = unmarked
+				if i == 1 && tc.firstLocked {
+					st.Loot.mark = lockedMark
 				}
-				if !prepareLockLimit(nil, st, &st.PipelineOpts) {
-					t.Fatal("quota planning failed")
+				want := unmarked
+				if i <= tc.locks && st.Loot.mark != lockedMark {
+					want = lockedMark
 				}
-				st.Loot.quality, st.Loot.mark = gold, unmarked
-				for i := 1; i <= 4; i++ {
-					st.RowIndex = i
-					want := unmarked
-					if pass == AfterBattlePassExecute && i <= tc.locks {
-						want = lockedMark
-					}
-					mark, ok := decideRewardMark(nil, st, drop)
-					if !ok || mark != want {
-						t.Fatalf("%s reward %d: got %q, want %q", pass, i, mark, want)
-					}
-					if mark == lockedMark && !(&EssenceFilterConfirmMarkAction{}).Run(nil, &maa.CustomActionArg{CurrentTaskName: "EssenceFilterAfterBattleCheckLocked"}) {
-						t.Fatal("lock confirmation failed", i)
-					}
+				drop.Levels = [3]int{i, i, min(i, 3)} // Later drops are better; the first free slot still goes to the first drop.
+				mark, ok := decideRewardMark(nil, st, drop)
+				if !ok || mark != want {
+					t.Fatalf("reward %d: got %q, want %q", i, mark, want)
 				}
-				if !commitAfterBattleInventory(st, a.id) {
-					t.Fatal("failed to finish pass", pass)
+				if mark == lockedMark && !(&EssenceFilterConfirmMarkAction{}).Run(nil, &maa.CustomActionArg{CurrentTaskName: "EssenceFilterAfterBattleCheckLocked"}) {
+					t.Fatal("lock confirmation failed", i)
 				}
+			}
+			if !commitAfterBattleInventory(st, a.id) {
+				t.Fatal("failed to finish batch")
 			}
 			saved, err := a.load(engine)
 			if err != nil || !saved.targetReady() {
@@ -450,7 +456,7 @@ func TestFourFlawlessRewardsWithTargetQuota(t *testing.T) {
 			groups := saved.groups(engine.Weapons())
 			count, locks := inventoryTotals(groups)
 			stock := stockFromGroups(groups)
-			if len(saved.Items) != 4 || count != tc.locks || locks != tc.locks || stock.Count([]string{grandVision}) != tc.locks || len(stock.MissingWeapons([]string{grandVision})) != 0 {
+			if len(saved.Items) != tc.locks || count != tc.locks || locks != tc.locks || stock.Count([]string{grandVision}) != tc.locks || len(stock.MissingWeapons([]string{grandVision})) != 0 {
 				t.Fatal("incorrect saved stock or target deficit", len(saved.Items), count, locks, groups)
 			}
 		})
@@ -506,7 +512,8 @@ func TestWarehouseRefreshAndReportUseConfirmedMarks(t *testing.T) {
 	}{
 		{InitModeInventory, unmarked, unmarked, 0},
 		{InitModeInventory, lockedMark, unmarked, 1},
-		{InitModeScreenAndReport, unmarked, lockedMark, 1},
+		{InitModeScreenAndReport, unmarked, unmarked, 0},
+		{InitModeScreenAndReport, lockedMark, unmarked, 1},
 	} {
 		if err := a.begin(engine); err != nil {
 			t.Fatal(err)
@@ -521,9 +528,6 @@ func TestWarehouseRefreshAndReportUseConfirmedMarks(t *testing.T) {
 		if got, ok := decideWarehouseMark(nil, st, ocr); !ok || got != tc.action {
 			t.Fatalf("%s requested %q", tc.mode, got)
 		}
-		if tc.action == lockedMark && !(&EssenceFilterConfirmMarkAction{}).Run(nil, &maa.CustomActionArg{CurrentTaskName: "EssenceFilterCheckLocked"}) {
-			t.Fatal("expected lock verification")
-		}
 		unread := &EssenceFilterUnreadPurpleAction{}
 		st.Scan.current.Col = 1
 		for _, quality := range []string{gold, "unknown"} {
@@ -537,14 +541,12 @@ func TestWarehouseRefreshAndReportUseConfirmedMarks(t *testing.T) {
 			t.Fatal("accepted a missing cell")
 		}
 		st.Scan.current.Quality = purple
-		if !unread.Run(nil, &maa.CustomActionArg{}) || unread.Run(nil, &maa.CustomActionArg{}) {
-			t.Fatal("purple cell was not recorded exactly once")
-		}
+		st.Scan.skippedReads++ // A confirmed purple cell never needs affix OCR.
 		if err := st.Scan.verify(end); err != nil || !finishWarehouse(nil, st) {
 			t.Fatal("warehouse did not finish", err)
 		}
 		s, err := a.load(engine)
-		if err != nil || !s.targetReady() || s.Coverage[purple].CompleteAt != nil || s.Coverage[purple].Unread != 1 || len(s.Items) != 1 {
+		if err != nil || !s.targetReady() || len(s.Coverage) != 1 || s.Coverage[lockedGold].CompleteAt == nil || len(s.Items) != tc.available {
 			t.Fatalf("incorrect coverage: %+v, %v", s, err)
 		}
 		if got := stockFromGroups(s.groups(engine.Weapons())).Count([]string{"wpn_sword_0021"}); got != tc.available {
@@ -569,32 +571,25 @@ func TestWarehouseRefreshAndReportUseConfirmedMarks(t *testing.T) {
 	}
 }
 
-func TestRewardUnreadPurpleRetainsGoldCoverage(t *testing.T) {
+func TestPurpleRewardDiscardWithoutAffixesRetainsGoldCoverage(t *testing.T) {
 	r := newRewardInventory()
 	r.quality, r.mark = purple, unmarked
-	st := &RunState{Loot: r, RowIndex: 1}
+	st := &RunState{Loot: r, RowIndex: 1, PipelineOpts: EssenceFilterOptions{DiscardUnmatched: true}}
 	previous := currentRun
 	currentRun = st
 	t.Cleanup(func() { currentRun = previous })
-	fallback := &EssenceFilterUnreadPurpleAction{}
-	if !fallback.Run(nil, &maa.CustomActionArg{}) || r.check(1) != nil {
-		t.Fatal("confirmed purple position lost")
+	if mark, ok := decideRewardMark(nil, st, matchapi.OCRInput{}); !ok || mark != discarded || r.check(1) == nil {
+		t.Fatal("unmarked purple should await discard confirmation")
 	}
-	clear(r.expectedMarks)
-	r.quality = gold
-	if fallback.Run(nil, &maa.CustomActionArg{}) || r.check(1) == nil {
-		t.Fatal("trusted a missing gold observation")
-	}
-	r.quality = purple
-	if !fallback.Run(nil, &maa.CustomActionArg{}) {
-		t.Fatal("failed to reobserve the same purple reward")
+	if !(&EssenceFilterConfirmMarkAction{}).Run(nil, &maa.CustomActionArg{CurrentTaskName: "EssenceFilterAfterBattleCheckDiscarded"}) || r.check(1) != nil {
+		t.Fatal("confirmed purple discard missing from batch coverage")
 	}
 	s := newSnapshot("")
 
 	s.Coverage[gold] = tierCoverage{CompleteAt: &s.UpdatedAt}
 	s.Coverage[purple] = s.Coverage[gold]
 	after := r.appendTo(s)
-	if !after.targetReady() || after.Coverage[purple].Unread != 1 || after.Coverage[purple].CompleteAt != nil || len(after.Items) != 0 || s.Coverage[purple].CompleteAt == nil {
+	if !after.targetReady() || len(after.Coverage) != 1 || after.Coverage[lockedGold].CompleteAt == nil || len(after.Items) != 0 || s.Coverage[purple].CompleteAt == nil {
 		t.Fatalf("incorrect reward coverage: %+v", after)
 	}
 }
@@ -602,10 +597,6 @@ func TestRewardUnreadPurpleRetainsGoldCoverage(t *testing.T) {
 func TestTargetQuotaUsesCurrentDropsAndExistingLocks(t *testing.T) {
 	engine := inventoryTestEngine(t)
 	ocr := matchapi.OCRInput{Skills: [3]string{"敏捷", "攻击", "附术"}, Levels: [3]int{3, 3, 2}}
-	drop, err := observeItem(engine, ocr, gold, unmarked)
-	if err != nil {
-		t.Fatal(err)
-	}
 	for _, tc := range []struct {
 		mark    string
 		levels  [3]int
@@ -623,10 +614,9 @@ func TestTargetQuotaUsesCurrentDropsAndExistingLocks(t *testing.T) {
 		base.Items = append(base.Items, old)
 		st := &RunState{
 			Account: &inventoryAccount{base: base}, MatchEngine: engine, Loot: newRewardInventory(), RowIndex: 1,
-			PipelineOpts:              EssenceFilterOptions{Mode: InitModeAfterBattle, AfterBattlePass: AfterBattlePassExecute, LockLimitWeaponIDs: []string{"wpn_sword_0021"}},
+			PipelineOpts:              EssenceFilterOptions{Mode: InitModeAfterBattle, LockLimitWeaponIDs: []string{"wpn_sword_0021"}},
 			MatchedCombinationSummary: make(map[string]*matchapi.SkillCombinationSummary),
 		}
-		st.Loot.staged, st.Loot.items[1] = true, drop
 		st.Loot.quality, st.Loot.mark = gold, unmarked
 		if !prepareLockLimit(nil, st, &st.PipelineOpts) {
 			t.Fatal("quota setup failed")

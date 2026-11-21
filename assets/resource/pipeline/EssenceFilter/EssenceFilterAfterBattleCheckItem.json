@@ -1,22 +1,16 @@
 {
     "EssenceFullScreenDetectAll": {
-        "desc": "在战利品界面模板匹配：收集所有基质图标（不点击）,给custom调用",
+        "desc": "逐格检查战利品：模板确认基质、色条判断品质，保留未能确认的格位",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "Custom",
             "param": {
+                "custom_recognition": "EssenceRewardRecognition",
                 "roi": [
                     34,
                     87,
                     1210,
                     522
-                ],
-                "template": [
-                    "EssenceFilter/EssenceGeneral.png",
-                    "EssenceFilter/EssenceRewardHighPurity.png"
-                ],
-                "green_mask": true,
-                "method": 5,
-                "threshold": 0.7
+                ]
             }
         },
         "pre_delay": 0,
@@ -30,7 +24,6 @@
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                //偏移方案会因为超过边界而到另一边，目前只能固定识别范围先凑合一下
                 "roi": [
                     276,
                     87,
@@ -53,6 +46,9 @@
         "next": [
             "EssenceFilterAfterBattleIsflawless",
             "EssenceFilterAfterBattleIsPure"
+        ],
+        "on_error": [
+            "EssenceFilterAfterBattleFailed"
         ],
         "focus": {
             "Node.Action.Succeeded": "已定位基质详情"
@@ -85,6 +81,9 @@
         "next": [
             "EssenceFilterAfterBattleTierGateFlawless"
         ],
+        "on_error": [
+            "EssenceFilterAfterBattleFailed"
+        ],
         "focus": {
             "Node.Recognition.Succeeded": "是无瑕基质"
         }
@@ -116,6 +115,9 @@
         "next": [
             "EssenceFilterAfterBattleTierGatePure"
         ],
+        "on_error": [
+            "EssenceFilterAfterBattleFailed"
+        ],
         "focus": {
             "Node.Recognition.Succeeded": "是高纯基质"
         }
@@ -135,6 +137,9 @@
         "post_delay": 0,
         "next": [
             "EssenceAfterBattleYellowSlot1"
+        ],
+        "on_error": [
+            "EssenceFilterAfterBattleFailed"
         ]
     },
     "EssenceFilterAfterBattleTierGatePure": {
@@ -151,10 +156,10 @@
         },
         "post_delay": 0,
         "next": [
-            "EssenceAfterBattleYellowSlot1"
+            "EssenceFilterAfterBattleSkillDecision"
         ],
         "on_error": [
-            "EssenceFilterAfterBattleUnreadPurple"
+            "EssenceFilterAfterBattleFailed"
         ]
     },
     "EssenceAfterBattleYellowSlot1": {
@@ -195,7 +200,7 @@
             "EssenceFilterAfterBattleCheckItemSlot1"
         ],
         "on_error": [
-            "EssenceFilterAfterBattleUnreadPurple"
+            "EssenceFilterAfterBattleFailed"
         ]
     },
     "EssenceAfterBattleYellowSlot2": {
@@ -235,7 +240,7 @@
             "EssenceFilterAfterBattleCheckItemSlot2"
         ],
         "on_error": [
-            "EssenceFilterAfterBattleUnreadPurple"
+            "EssenceFilterAfterBattleFailed"
         ]
     },
     "EssenceAfterBattleYellowSlot3": {
@@ -275,7 +280,7 @@
             "EssenceFilterAfterBattleCheckItemSlot3"
         ],
         "on_error": [
-            "EssenceFilterAfterBattleUnreadPurple"
+            "EssenceFilterAfterBattleFailed"
         ]
     },
     "EssenceFilterAfterBattleCheckItemSlot1": {
@@ -314,7 +319,7 @@
             "EssenceFilterAfterBattleCheckItemSlot1Level"
         ],
         "on_error": [
-            "EssenceFilterAfterBattleUnreadPurple"
+            "EssenceFilterAfterBattleFailed"
         ]
     },
     "EssenceFilterAfterBattleCheckItemSlot1Level": {
@@ -353,7 +358,7 @@
             "EssenceAfterBattleYellowSlot2"
         ],
         "on_error": [
-            "EssenceFilterAfterBattleUnreadPurple"
+            "EssenceFilterAfterBattleFailed"
         ]
     },
     "EssenceFilterAfterBattleCheckItemSlot2": {
@@ -392,7 +397,7 @@
             "EssenceFilterAfterBattleCheckItemSlot2Level"
         ],
         "on_error": [
-            "EssenceFilterAfterBattleUnreadPurple"
+            "EssenceFilterAfterBattleFailed"
         ]
     },
     "EssenceFilterAfterBattleCheckItemSlot2Level": {
@@ -431,7 +436,7 @@
             "EssenceAfterBattleYellowSlot3"
         ],
         "on_error": [
-            "EssenceFilterAfterBattleUnreadPurple"
+            "EssenceFilterAfterBattleFailed"
         ]
     },
     "EssenceFilterAfterBattleCheckItemSlot3": {
@@ -470,7 +475,7 @@
             "EssenceFilterAfterBattleCheckItemSlot3Level"
         ],
         "on_error": [
-            "EssenceFilterAfterBattleUnreadPurple"
+            "EssenceFilterAfterBattleFailed"
         ]
     },
     "EssenceFilterAfterBattleCheckItemSlot3Level": {
@@ -509,11 +514,11 @@
             "EssenceFilterAfterBattleSkillDecision"
         ],
         "on_error": [
-            "EssenceFilterAfterBattleUnreadPurple"
+            "EssenceFilterAfterBattleFailed"
         ]
     },
     "EssenceFilterAfterBattleSkillDecision": {
-        "desc": "匹配技能并决定是否上锁",
+        "desc": "根据品质、已有标记及无瑕基质的武器匹配结果决定标记",
         "pre_delay": 0,
         "action": {
             "type": "Custom",
@@ -526,23 +531,7 @@
             "FailedNode"
         ],
         "on_error": [
-            "EssenceFilterAfterBattleUnreadPurple"
-        ]
-    },
-    "EssenceFilterAfterBattleUnreadPurple": {
-        "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "EssenceFilterUnreadPurpleAction"
-            }
-        },
-        "post_delay": 0,
-        "next": [
-            "EssenceFilterAfterBattleCloseDetail"
-        ],
-        "on_error": [
-            "FailedNode"
+            "EssenceFilterAfterBattleFailed"
         ]
     }
 }

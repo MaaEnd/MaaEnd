@@ -1,13 +1,5 @@
 {
     "EssenceGridAdvance": {
-        "pre_wait_freezes": {
-            "target": [
-                89,
-                86,
-                808,
-                531
-            ]
-        },
         "attach": {
             "thumb_discard_template_path": "resource_adb/image/EssenceFilter/ThumbDiscard.png",
             "thumb_lock_template_paths": [
@@ -27,6 +19,12 @@
                 509
             ],
             "row_pitch": 129.375,
+            "preview_quality": [
+                914,
+                63,
+                310,
+                10
+            ],
             "preview_core": [
                 1139,
                 139,
@@ -43,12 +41,11 @@
     },
     "EssenceGridClickPending": {
         "post_wait_freezes": {
-            "time": 300,
             "target": [
-                912,
-                210,
-                334,
-                232
+                1139,
+                139,
+                47,
+                47
             ]
         }
     },
@@ -141,6 +138,18 @@
                 808,
                 531
             ]
+        }
+    },
+    "EssenceGridEquipSlotOccupied": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    927,
+                    570,
+                    43,
+                    43
+                ]
+            }
         }
     }
 }

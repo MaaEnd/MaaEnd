@@ -1,0 +1,120 @@
+{
+    "EssenceFindLockItem": {
+        "recognition": {
+            "param": {
+                "template": [
+                    "EssenceFilter/RewardLockButton.png",
+                    "EssenceFilter/RewardLockButtonLocked.png"
+                ]
+            }
+        }
+    },
+    "EssenceFilterAfterBattleIsflawless": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    -310,
+                    -150,
+                    310,
+                    16
+                ]
+            }
+        }
+    },
+    "EssenceFilterAfterBattleIsPure": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    -310,
+                    -150,
+                    310,
+                    16
+                ]
+            }
+        }
+    },
+    "EssenceAfterBattleYellowSlot1": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    -310,
+                    220,
+                    296,
+                    154
+                ]
+            }
+        }
+    },
+    "EssenceFilterAfterBattleCheckItemSlot1": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    8,
+                    -26,
+                    235,
+                    16
+                ]
+            }
+        }
+    },
+    "EssenceFilterAfterBattleCheckItemSlot2": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    8,
+                    -26,
+                    235,
+                    16
+                ]
+            }
+        }
+    },
+    "EssenceFilterAfterBattleCheckItemSlot3": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    8,
+                    -26,
+                    235,
+                    16
+                ]
+            }
+        }
+    },
+    "EssenceFilterAfterBattleCheckItemSlot1Level": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    281,
+                    -7,
+                    31,
+                    12
+                ]
+            }
+        }
+    },
+    "EssenceFilterAfterBattleCheckItemSlot2Level": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    281,
+                    -7,
+                    31,
+                    12
+                ]
+            }
+        }
+    },
+    "EssenceFilterAfterBattleCheckItemSlot3Level": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    281,
+                    -7,
+                    31,
+                    12
+                ]
+            }
+        }
+    }
+}

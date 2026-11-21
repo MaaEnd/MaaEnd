@@ -7,7 +7,15 @@
     },
     "cases": [
         {
-            "name": "同时领取无瑕与高纯基质",
+            "name": "Rewards 137",
+            "image": "137.png",
+            "hits": [
+                "EssenceFilterAfterBattleStart",
+                "EssenceFullScreenDetectAll"
+            ]
+        },
+        {
+            "name": "Rewards 138",
             "image": "138.png",
             "hits": [
                 "EssenceFilterAfterBattleStart",
@@ -15,9 +23,28 @@
             ]
         },
         {
-            "name": "普通物资奖励",
+            "name": "Rewards 141",
+            "image": "141.png",
+            "hits": [
+                "EssenceFilterAfterBattleStart",
+                "EssenceFullScreenDetectAll"
+            ]
+        },
+        {
+            "name": "Rewards 142",
+            "image": "142.png",
+            "hits": [
+                "EssenceFilterAfterBattleStart",
+                "EssenceFullScreenDetectAll"
+            ]
+        },
+        {
+            "name": "Rewards 143",
             "image": "143.png",
-            "hits": []
+            "hits": [
+                "EssenceFilterAfterBattleStart",
+                "EssenceFullScreenDetectAll"
+            ]
         }
     ]
 }

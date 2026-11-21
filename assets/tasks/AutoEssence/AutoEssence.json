@@ -147,6 +147,7 @@
                     "option": [
                         "AutoEssenceChooseLocation",
                         "AutoEssenceObtainMode",
+                        "AutoEssenceDiscardOthers",
                         "AutoEssenceRepeatCount"
                     ],
                     // 随机模式不配置预刻写词条：跳过条件检查/调整，直接开刷；
@@ -166,6 +167,7 @@
                     "option": [
                         "AutoEssenceSelectLocation",
                         "AutoEssenceObtainModeClaimOnly",
+                        "AutoEssenceDiscardOthers",
                         "AutoEssenceRepeatCount"
                     ]
                 },
@@ -180,8 +182,8 @@
                         "AutoEssenceWeaponTypeWand",
                         "AutoEssenceWeaponTypeLance",
                         "AutoEssenceObtainModeClaimOnlyForcedFilter",
-                        "AutoEssenceRefreshInventory",
-                        "AutoEssenceTargetLockLimit"
+                        "AutoEssenceDiscardOthers",
+                        "AutoEssenceRefreshInventory"
                     ],
                     "pipeline_override": {
                         "AutoEssenceMain": {
@@ -425,6 +427,33 @@
             ],
             "default_case": "ObtainScaling2"
         },
+        "AutoEssenceDiscardOthers": {
+            "type": "switch",
+            "label": "$option.AutoEssenceDiscardOthers.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "discard_unmatched": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "discard_unmatched": false
+                            }
+                        }
+                    }
+                }
+            ],
+            "default_case": "Yes"
+        },
         "AutoEssenceRefreshInventory": {
             "type": "switch",
             "label": "$option.AutoEssenceRefreshInventory.label",
@@ -437,32 +466,6 @@
                             "attach": {
                                 "force_refresh": true
                             }
-                        }
-                    }
-                },
-                {
-                    "name": "No"
-                }
-            ],
-            "default_case": "No"
-        },
-        "AutoEssenceTargetLockLimit": {
-            "type": "switch",
-            "label": "$option.LimitLockedPerCombination.label",
-            "description": "$option.LimitLockedPerCombination.description",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "limit_locked_per_combination": true
-                            }
-                        },
-                        "EssenceFilterAfterBattleStart": {
-                            "next": [
-                                "EssenceFilterAfterBattleReadonlyInit"
-                            ]
                         }
                     }
                 },

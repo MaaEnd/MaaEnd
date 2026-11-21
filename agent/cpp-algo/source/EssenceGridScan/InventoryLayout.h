@@ -31,7 +31,6 @@ InventoryPage ReadInventoryPage(
     const InventoryLayout& layout,
     int inventory_count);
 
-bool IsSelectedCell(const cv::Mat& image, const cv::Rect& cell);
 cv::Range ReadScrollThumb(const cv::Mat& image, cv::Size normalized_size, const cv::Rect& track);
 
 } // namespace essencegridscan

@@ -11,7 +11,7 @@ One `EssenceGrid` is created in `main.cpp`. The same instance is passed through
 
 - `EssenceGridAdvanceRecognition` scans or consumes the current queue and
   chooses the next Pipeline node;
-- `EssenceGridPendingRecognition` supplies the pending cell's center to the click node and verifies the resulting selection.
+- `EssenceGridPendingRecognition` supplies the pending cell's center, verifies the detail tier, and compares the large icon before and after the click.
 - `EssenceGridResetAction` clears the tracking state, so the next advance starts
   a fresh scan. Loaded templates and configuration stay cached.
 
@@ -34,7 +34,7 @@ MaaFramework has merged task and controller overrides.
 | Field | Owner |
 | --- | --- |
 | `roi`, `normalized_size`, `first_cell`, `row_pitch`, `scrollbar_track` | Controller-specific layout and position |
-| `preview_core` | Symbol in the right-hand detail panel |
+| `preview_core`, `preview_quality` | Large core icon and rarity stripe in the right-hand detail panel |
 | `thumb_lock_template_paths`, `thumb_discard_template_path` | Essence thumbnail state |
 | `flawless_essence`, `pure_essence` | Essence quality filter |
 | `skip_thumb_lock`, `skip_thumb_discard` | Essence dispatch filter |
@@ -49,11 +49,9 @@ coordinates that genuinely differ from the base resource.
 3. EssenceGrid samples the bottom strip for gold/purple quality and the
    lower-left cell area for lock/discard thumbnails.
 4. Direct callers receive cells passing the configured quality and thumbnail
-   filters. A warehouse scan opts into `collect_inventory` and dispatches every
-   occupied cell. `selected_for_filter` preserves the user's marking policy.
-5. Pipeline clicks the pending coordinate. EssenceGrid compares its pre-click symbol with the detail panel. Cells with the same symbol need spatial evidence from the selection marks or the change in card edges. If that check fails, Pipeline can click the same coordinate once more. Both attempts use the original frame. OCR starts only after confirmation.
-6. Go decides `Lock`, `Discard`, or `Skip`.
-7. Pipeline performs and verifies the chosen UI action. The scanner acknowledges that coordinate after checking the selection, the page icons and the scrollbar again.
+   filters. A warehouse report reads locked gold items and checks unequipped, unlocked cells for the end of the locked inventory. `selected_for_filter` preserves the user's marking policy.
+5. Pipeline clicks the pending cell. The scanner compares the large core icon before and after the click. A readable detail stripe also supplies the panel's tier for comparison.
+6. Go compares the three skill IDs and levels in display order. If successive complete reads agree and the icon stayed the same, Pipeline clicks the same coordinate once more. The final read belongs to that position even when two items have identical details.
 
 ## Routing
 

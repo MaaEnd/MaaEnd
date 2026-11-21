@@ -9,6 +9,9 @@
         "next": [
             "EssenceFilterAfterBattleCheckLocked",
             "EssenceFilterAfterBattleClickLockItem"
+        ],
+        "on_error": [
+            "EssenceFilterAfterBattleFailed"
         ]
     },
     "EssenceFilterAfterBattleClickLockItem": {
@@ -31,9 +34,13 @@
         "action": {
             "type": "Click"
         },
-        "post_delay": 300,
+        "post_wait_freezes": 200,
+        "post_delay": 0,
         "next": [
             "EssenceFilterAfterBattleCheckLocked"
+        ],
+        "on_error": [
+            "EssenceFilterAfterBattleFailed"
         ]
     },
     "EssenceFilterAfterBattleCheckLocked": {
@@ -61,7 +68,10 @@
         },
         "post_delay": 0,
         "next": [
-            "[Anchor]EssenceFilterAfterBattleCurrentPassHead"
+            "EssenceFilterAfterBattleRowNextItem"
+        ],
+        "on_error": [
+            "EssenceFilterAfterBattleFailed"
         ]
     },
     "EssenceFilterAfterBattleDiscardItem": {
@@ -74,6 +84,9 @@
         "next": [
             "EssenceFilterAfterBattleCheckDiscarded",
             "EssenceFilterAfterBattleClickDiscardItem"
+        ],
+        "on_error": [
+            "EssenceFilterAfterBattleFailed"
         ]
     },
     "EssenceFilterAfterBattleClickDiscardItem": {
@@ -100,6 +113,9 @@
         "post_delay": 0,
         "next": [
             "EssenceFilterAfterBattleCheckDiscarded"
+        ],
+        "on_error": [
+            "EssenceFilterAfterBattleFailed"
         ]
     },
     "EssenceFilterAfterBattleCheckDiscarded": {
@@ -128,7 +144,10 @@
         },
         "post_delay": 0,
         "next": [
-            "[Anchor]EssenceFilterAfterBattleCurrentPassHead"
+            "EssenceFilterAfterBattleRowNextItem"
+        ],
+        "on_error": [
+            "EssenceFilterAfterBattleFailed"
         ]
     },
     "EssenceFilterAfterBattleCloseDetail": {
@@ -138,7 +157,8 @@
             "param": {
                 "any_of": [
                     "EssenceFilterCloseDetailFourth",
-                    "EssenceFilterCloseDetailWuling"
+                    "EssenceFilterCloseDetailWuling",
+                    "EssenceFindLockItem"
                 ]
             }
         },
@@ -152,7 +172,10 @@
             }
         },
         "next": [
-            "[Anchor]EssenceFilterAfterBattleCurrentPassHead"
+            "EssenceFilterAfterBattleRowNextItem"
+        ],
+        "on_error": [
+            "EssenceFilterAfterBattleFailed"
         ]
     },
     "EssenceFilterCloseDetailFourth": {
@@ -192,7 +215,8 @@
             "param": {
                 "any_of": [
                     "EssenceFilterCloseDetailFourth",
-                    "EssenceFilterCloseDetailWuling"
+                    "EssenceFilterCloseDetailWuling",
+                    "EssenceFindLockItem"
                 ]
             }
         },
@@ -206,16 +230,17 @@
                 ]
             }
         },
-        "next": [
-            //无next，用来触发Jumpback
-        ]
+        "next": []
     },
     "EssenceFilterAfterBattleRowNextItem": {
         "desc": "处理下一个命中的格子，识别不到则退出任务",
         "next": [
             "[JumpBack]EssenceFilterAfterBattleCloseDetailJumpback",
             "EssenceFilterAfterBattleNthRecognition",
-            "[Anchor]EssenceFilterAfterBattleCurrentPassTail"
+            "EssenceFilterAfterBattleCommitInventory"
+        ],
+        "on_error": [
+            "EssenceFilterAfterBattleFailed"
         ]
     },
     "EssenceFilterAfterBattleNthRecognition": {
@@ -237,6 +262,9 @@
         "post_delay": 0,
         "next": [
             "EssenceFindLockItem"
+        ],
+        "on_error": [
+            "EssenceFilterAfterBattleFailed"
         ]
     }
 }

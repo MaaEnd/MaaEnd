@@ -36,8 +36,8 @@ const config: FullConfig = {
     errorDetailsPath: 'tests/maatools/error_details.json',
     // 只有待测节点用到 custom 识别时才会拉起；纯内置识别用例不依赖 install/ 下的产物。
     agent: [
-      { child_exec: agentPath('cpp-algo'), env: agentEnv },
-      { child_exec: agentPath('go-service'), env: { ...agentEnv, MAAFW_BINARY_PATH: maafwDir } },
+      { child_exec: agentPath('cpp-algo'), cwd: installDir, env: agentEnv },
+      { child_exec: agentPath('go-service'), cwd: installDir, env: { ...agentEnv, MAAFW_BINARY_PATH: maafwDir } },
     ],
   },
 

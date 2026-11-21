@@ -75,6 +75,32 @@ func controllerType(ctrl *maa.Controller) string {
 }
 
 func captureByOCR(ctx *maa.Context, ctrl *maa.Controller, stayOnCurrentScreen, allowUnknown bool, outputType OutputType) (string, error) {
+	raw, err := readUIDByOCR(ctx, ctrl, stayOnCurrentScreen, allowUnknown)
+	if err != nil || !IsValidRawUID(raw) {
+		return raw, err
+	}
+	return cacheAndFormat(raw, allowUnknown, outputType)
+}
+
+// Observe reads identity without publishing OCR noise into the shared login-session cache.
+func Observe(ctx *maa.Context, ctrl *maa.Controller, outputType OutputType) (string, error) {
+	var raw string
+	var err error
+	if controllerType(ctrl) == pienv.ControllerKindWin32 {
+		raw, err = gamesetting.GetCachedUID()
+	} else {
+		raw, err = readUIDByOCR(ctx, ctrl, true, false)
+	}
+	if err != nil {
+		return "", err
+	}
+	if !IsValidRawUID(raw) {
+		return "", fmt.Errorf("unverified account identity")
+	}
+	return formatUID(raw, outputType)
+}
+
+func readUIDByOCR(ctx *maa.Context, ctrl *maa.Controller, stayOnCurrentScreen, allowUnknown bool) (string, error) {
 	if ctx == nil || ctrl == nil {
 		return captureErr(allowUnknown, "OCR capture requires context and controller")
 	}
@@ -103,7 +129,7 @@ func captureByOCR(ctx *maa.Context, ctrl *maa.Controller, stayOnCurrentScreen, a
 	if !IsValidRawUID(digits) {
 		return captureErr(allowUnknown, "uid digit count %d not in [8,12]", len(digits))
 	}
-	return cacheAndFormat(digits, allowUnknown, outputType)
+	return digits, nil
 }
 
 func cacheAndFormat(raw string, allowUnknown bool, outputType OutputType) (string, error) {

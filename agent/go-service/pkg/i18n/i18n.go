@@ -36,6 +36,7 @@ var htmlTemplates = map[string]string{
 	"tasker.hdr_warning":                      "HTML/hdr-warning.html",
 	"tasker.aspect_ratio_warning":             "HTML/aspect-ratio-warning.html",
 	"essencefilter.loot_summary":              "HTML/essencefilter-loot-summary.html",
+	"essencefilter.progress":                  "HTML/essencefilter-progress.html",
 	"essencefilter.init_weapons":              "HTML/essencefilter-init-weapons.html",
 	"essencefilter.init_skills":               "HTML/essencefilter-init-skills.html",
 	"essencefilter.plan_recommend":            "HTML/essencefilter-plan-recommend.html",
