@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../navi_config.h"
+
 namespace mapnavigator
 {
 
@@ -17,6 +19,7 @@ struct SteeringTransportProfile
     int min_send_interval_ms = 0;
     double min_emit_delta_deg = 1.0;
     double max_batch_delta_deg = 18.0;
+    int max_batches_per_tick = kSteeringMaxBatchesPerTick;
     int action_quiet_period_ms = 0;
     bool drops_turn_sends = false;
 };

@@ -1,5 +1,6 @@
 #include "InputBridge.h"
 
+#include <cstdlib>
 #include <format>
 
 #include <windowsx.h>
@@ -29,6 +30,8 @@ constexpr int kButtonForward = 16;
 constexpr UINT_PTR kWatchdogTimer = 1;
 // 页面对话框或渲染进程卡死时 CDP 命令可能永远不返回，超时就丢弃，后面的输入才能继续
 constexpr UINT kCommandTimeoutMs = 3000;
+// 云端对单次鼠标位移有上限（实测约 160 px 以上即饱和），排队合并不能越过安全阈值
+constexpr LONG kMaxMergedRelativeDelta = 128;
 
 std::string jsonEscape(std::string_view src)
 {
@@ -241,12 +244,14 @@ void InputBridge::onRelativeMove(LPARAM lparam)
     pointer_ = { client.right / 2, client.bottom / 2 };
     POINT delta { GET_X_LPARAM(lparam) - pointer_.x, GET_Y_LPARAM(lparam) - pointer_.y };
 
-    // 位移不能丢：只与队尾还没发出的相对移动累加合并，不参与 dispatchMouse 的移动合并
+    // 位移不能丢：只与队尾还没发出的相对移动累加合并，且合并后不超过单次安全上限，不参与 dispatchMouse 的移动合并
     if (queue_.size() >= 2 && queue_.back().relative && queue_[queue_.size() - 2].relative) {
-        delta.x += queue_.back().relative->x;
-        delta.y += queue_.back().relative->y;
-        queue_.pop_back();
-        queue_.pop_back();
+        const POINT merged { delta.x + queue_.back().relative->x, delta.y + queue_.back().relative->y };
+        if (std::abs(merged.x) <= kMaxMergedRelativeDelta && std::abs(merged.y) <= kMaxMergedRelativeDelta) {
+            delta = merged;
+            queue_.pop_back();
+            queue_.pop_back();
+        }
     }
 
     const std::string expect =

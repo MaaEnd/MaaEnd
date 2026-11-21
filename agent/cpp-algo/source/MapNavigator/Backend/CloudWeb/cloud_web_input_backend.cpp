@@ -28,6 +28,14 @@ constexpr std::string_view kCloudWebControllerName = "CloudWeb";
 constexpr int32_t kViewDeltaContactId = 4;
 constexpr int32_t kViewDeltaCenterX = kWorkWidth / 2;
 constexpr int32_t kViewDeltaCenterY = kWorkHeight / 2;
+// 1280×720 客户区实测线性区约 11.5 px/deg，单次超过约 160 px 会被云端截断
+constexpr double kCloudWebDefaultUnitsPerDegree = 11.5;
+constexpr double kCloudWebDefaultPitchRangeUnits = kCloudWebDefaultUnitsPerDegree * kTurnDegreesPerCircle
+    * (static_cast<double>(kWorkHeight) / kWorkWidth) / kMouseVerticalDragSpeedRatio;
+constexpr int kCloudWebMinSendIntervalMs = 50;
+constexpr double kCloudWebMinEmitDeltaDeg = 1.0;
+constexpr double kCloudWebMaxBatchDeltaDeg = 10.5;
+constexpr int kCloudWebMaxBatchesPerTick = 1;
 
 struct PiController
 {
@@ -75,7 +83,24 @@ bool IsCloudWebController()
 InputBackend OpenCloudWebInputBackend(MaaController* ctrl, std::string controller_type)
 {
     LogInfo << "MapNavigator input backend selected." << VAR(controller_type) << " backend=cloud_web";
-    return desktop::MakeDesktopInputBackend(BackendKind::CloudWeb, ctrl, std::move(controller_type), "cloud_web");
+    InputBackend backend = desktop::MakeDesktopInputBackend(BackendKind::CloudWeb, ctrl, std::move(controller_type), "cloud_web");
+    backend.default_turn_units_per_degree = kCloudWebDefaultUnitsPerDegree;
+    backend.default_pitch_range_units = kCloudWebDefaultPitchRangeUnits;
+    LogInfo << "CloudWeb turn scale applied." << VAR(backend.default_turn_units_per_degree) << VAR(backend.default_pitch_range_units);
+    return backend;
+}
+
+SteeringTransportProfile CloudWebSteeringProfile()
+{
+    return SteeringTransportProfile {
+        .supports_concurrent_move_and_look = true,
+        .min_send_interval_ms = kCloudWebMinSendIntervalMs,
+        .min_emit_delta_deg = kCloudWebMinEmitDeltaDeg,
+        .max_batch_delta_deg = kCloudWebMaxBatchDeltaDeg,
+        .max_batches_per_tick = kCloudWebMaxBatchesPerTick,
+        .action_quiet_period_ms = 0,
+        .drops_turn_sends = true,
+    };
 }
 
 bool SendCloudWebViewDeltaSync(const InputBackend& backend, int dx, int dy)
