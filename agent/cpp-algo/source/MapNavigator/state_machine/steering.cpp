@@ -89,7 +89,8 @@ double SteerAlongCorridor(Navigator* nav, const NavigateTick& tick)
         tick_seq,
         nav->position->camera_angle,
         issued_delta_deg,
-        fix.degraded_fix);
+        fix.degraded_fix,
+        tick.gap_ms);
     UpdateForwardHold(
         &nav->runtime_state.flow,
         nav->motion_controller,

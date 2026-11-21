@@ -36,6 +36,8 @@ constexpr int kCloudWebMinSendIntervalMs = 50;
 constexpr double kCloudWebMinEmitDeltaDeg = 1.0;
 constexpr double kCloudWebMaxBatchDeltaDeg = 10.5;
 constexpr int kCloudWebMaxBatchesPerTick = 1;
+// 实测云端画面转向落地需约 340~380 ms，灵敏度检测需等满该静默期再采样
+constexpr int64_t kCloudWebSensitivityMinQuietMs = 400;
 
 struct PiController
 {
@@ -99,6 +101,7 @@ SteeringTransportProfile CloudWebSteeringProfile()
         .max_batch_delta_deg = kCloudWebMaxBatchDeltaDeg,
         .max_batches_per_tick = kCloudWebMaxBatchesPerTick,
         .action_quiet_period_ms = 0,
+        .sensitivity_min_quiet_ms = kCloudWebSensitivityMinQuietMs,
         .drops_turn_sends = true,
     };
 }

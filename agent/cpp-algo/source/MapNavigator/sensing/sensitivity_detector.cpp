@@ -88,7 +88,8 @@ std::optional<Verdict> RecordDetectorTick(
     uint64_t tick_seq,
     std::optional<double> camera_heading_deg,
     double issued_delta_deg,
-    bool degraded_fix)
+    bool degraded_fix,
+    int64_t tick_gap_ms)
 {
     const double issued_total = detector->issued_since_record;
     detector->issued_since_record = 0.0;
@@ -112,10 +113,15 @@ std::optional<Verdict> RecordDetectorTick(
         if (issued_delta_deg != 0.0) {
             detector->pending.reset();
         }
-        else if (++detector->pending->quiet_ticks >= detector->config.quiet_ticks) {
-            detector->samples.push_back(NormalizeDeg(heading - detector->pending->start_heading_deg) / detector->pending->command_deg);
-            detector->pending.reset();
-            sample_added = true;
+        else {
+            ++detector->pending->quiet_ticks;
+            detector->pending->quiet_ms += std::max<int64_t>(0, tick_gap_ms);
+            if (detector->pending->quiet_ticks >= detector->config.quiet_ticks
+                && detector->pending->quiet_ms >= detector->config.min_quiet_ms) {
+                detector->samples.push_back(NormalizeDeg(heading - detector->pending->start_heading_deg) / detector->pending->command_deg);
+                detector->pending.reset();
+                sample_added = true;
+            }
         }
     }
     const double magnitude = std::abs(issued_delta_deg);

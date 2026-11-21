@@ -24,8 +24,9 @@ struct Config
     // 孤立转向的指令量范围, 上限乘 max_ratio 须小于 180 度, 否则朝向差会绕反
     double min_command_deg = 3.0;
     double max_command_deg = 60.0;
-    // 发令后连续这么多拍不再发转向, 末拍的朝向差才算这条指令的转量
+    // 发令后连续这么多拍不再发转向，且累计静默时长不低于 min_quiet_ms，末拍的朝向差才算这条指令的转量
     int quiet_ticks = 3;
+    int64_t min_quiet_ms = 0;
     // 攒够这么多条样本后每来一条判一次
     int min_samples = 12;
     // 出口记账与本拍上报指令相差超过此值, 说明别的路径发过转向, 本拍作废
@@ -53,6 +54,7 @@ struct PendingTurn
     double start_heading_deg = 0.0;
     double command_deg = 0.0;
     int quiet_ticks = 0;
+    int64_t quiet_ms = 0;
 };
 
 // 只用孤立转向的样本估倍率, 样本跨导航在进程内累积
@@ -84,7 +86,8 @@ std::optional<Verdict> RecordDetectorTick(
     uint64_t tick_seq,
     std::optional<double> camera_heading_deg,
     double issued_delta_deg,
-    bool degraded_fix);
+    bool degraded_fix,
+    int64_t tick_gap_ms = 0);
 std::optional<Verdict> EndDetectorRun(Detector* detector);
 std::optional<Estimate> TakeLastEstimate(Detector* detector);
 

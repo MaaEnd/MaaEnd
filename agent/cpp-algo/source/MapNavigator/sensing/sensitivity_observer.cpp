@@ -1,5 +1,6 @@
 #include "sensitivity_observer.h"
 
+#include <algorithm>
 #include <mutex>
 #include <optional>
 
@@ -42,13 +43,14 @@ void log_estimate(const std::optional<Estimate>& estimate)
 
 } // namespace
 
-void BeginRun(SensitivityRun* run)
+void BeginRun(SensitivityRun* run, int64_t min_quiet_ms)
 {
     const double scale = run->turn_units_scale.load();
     if (scale != 1.0) {
         LogInfo << "Turn sensitivity scale in effect." << VAR(scale);
     }
     const std::lock_guard<std::mutex> guard(run->mutex);
+    run->detector.config.min_quiet_ms = std::max<int64_t>(0, min_quiet_ms);
     BeginDetectorRun(&run->detector);
 }
 
@@ -69,13 +71,14 @@ void RecordTick(
     uint64_t tick_seq,
     std::optional<double> camera_heading_deg,
     double issued_delta_deg,
-    bool degraded_fix)
+    bool degraded_fix,
+    int64_t tick_gap_ms)
 {
     std::optional<Verdict> verdict;
     std::optional<Estimate> estimate;
     {
         const std::lock_guard<std::mutex> guard(run->mutex);
-        verdict = RecordDetectorTick(&run->detector, tick_seq, camera_heading_deg, issued_delta_deg, degraded_fix);
+        verdict = RecordDetectorTick(&run->detector, tick_seq, camera_heading_deg, issued_delta_deg, degraded_fix, tick_gap_ms);
         estimate = TakeLastEstimate(&run->detector);
     }
 
