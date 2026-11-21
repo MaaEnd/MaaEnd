@@ -3,55 +3,41 @@
         "name": "一键据点交易，测试联络干员列表",
         "resource": "官服",
         "controller": [
-            "Win32",
-            "ADB"
-        ]
+            "ADB",
+            "CloudADB"
+        ],
+        "imageRoot": "OutpostTrading"
     },
     "cases": [
         {
-            "image": "四号谷地_地区建设_据点_难民暂居处.png",
+            "image": "据点_难民暂居处.png",
             "hits": [
                 "OutpostTradingOpenOperatorLiaisonButton",
                 "WhiteConfirmButtonType1"
             ]
         },
         {
-            "image": "四号谷地_地区建设_据点_联络干员_派驻.png",
+            "image": "联络干员_当前派驻.png",
+            "hits": [
+                "OutpostTradingInOperatorLiaison",
+                "OutpostTradingCheckWithdrawText"
+            ]
+        },
+        {
+            "image": "联络干员_派驻按钮.png",
             "hits": [
                 "OutpostTradingInOperatorLiaison",
                 "OutpostTradingCheckAssignText",
-                "WhiteConfirmButtonType1",
-                "OutpostTradingInfraStationConfirmTargetOperator",
-                "OutpostTradingInfraStationConfirmRestoreOperator"
+                "WhiteConfirmButtonType1"
             ]
         },
         {
-            "image": "四号谷地_地区建设_据点_联络干员_撤下.png",
+            "image": "联络干员_确认更改派驻.png",
             "hits": [
                 "OutpostTradingInOperatorLiaison",
-                "OutpostTradingCheckWithdrawText",
-                "OutpostTradingInfraStationCloseTargetOperatorLiaison",
-                "OutpostTradingInfraStationCloseRestoreOperatorLiaison"
-            ]
-        },
-        {
-            "image": "武陵_地区建设_据点_联络干员_撤下.png",
-            "hits": [
-                "OutpostTradingInOperatorLiaison",
-                "OutpostTradingCheckWithdrawText",
-                "OutpostTradingInfraStationCloseTargetOperatorLiaison",
-                "OutpostTradingInfraStationCloseRestoreOperatorLiaison"
-            ]
-        },
-        {
-            "image": "四号谷地_地区建设_据点_重建指挥部_联络干员_确认更改派驻.png",
-            "hits": [
-                "OutpostTradingInOperatorLiaison",
+                "OutpostTradingOperatorAlreadyAssignedPrompt",
                 "OutpostTradingCheckAssignText",
-                "WhiteConfirmButtonType1",
-                "OutpostTradingInfraStationConfirmTargetOperator",
-                "OutpostTradingInfraStationConfirmRestoreOperator",
-                "OutpostTradingOperatorAlreadyAssignedPrompt"
+                "WhiteConfirmButtonType1"
             ]
         }
     ]

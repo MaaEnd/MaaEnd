@@ -3,14 +3,23 @@
         "name": "一键据点交易，测试售卖",
         "resource": "官服",
         "controller": [
-            "Win32"
-        ]
+            "ADB",
+            "CloudADB"
+        ],
+        "imageRoot": "OutpostTrading"
     },
     "cases": [
         {
-            "image": "武陵_地区建设_据点交易超出上限.png",
+            "image": "交易完成_获得物品.png",
             "hits": [
-                "OutpostTradingAidQuotaExceededStop"
+                "OutpostTradingCheckHeader",
+                "OutpostTradingSellCheck"
+            ]
+        },
+        {
+            "image": "据点_调度券不足.png",
+            "hits": [
+                "OutpostTradingZeroMoney"
             ]
         }
     ]
