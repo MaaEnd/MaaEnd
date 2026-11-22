@@ -61,6 +61,18 @@
             }
         }
     },
+    "RefreshButton": {
+        "desc": "刷新按钮",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "RefreshCost",
+                    "RefreshUsedUp"
+                ]
+            }
+        }
+    },
     "CreditShoppingRefreshBalanceGate": {
         "desc": "刷新前余额检查",
         "enabled": false,
