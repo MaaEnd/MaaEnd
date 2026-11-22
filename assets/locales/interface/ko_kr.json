@@ -2901,6 +2901,7 @@
     "task.StashBackpack.option.StashBackpackTaskSubTask.label": "배낭 보관",
     "task.StashBackpack.option.UseConsumableSubTask.label": "사용 가능 아이템 가져오기",
     "task.SwitchTeam.label": "🔄 편성 전환",
+    "task.SwitchTeam.focus.dijiang_escape": "제강호에서는 오퍼레이터 위치를 전환할 수 없어 먼저 제4 계곡 허브 구역으로 텔레포트합니다",
     "task.TrialOfSwordmancy.description": "일일 검술 연무 / 자유 연산 자동 완료",
     "task.TrialOfSwordmancy.focus.coating_reward_mode": "오늘 남은 보상 횟수가 있습니다. 먼저 보상 연산을 완료해 주세요",
     "task.TrialOfSwordmancy.focus.operation_failed": "<span style=\"color: red; font-weight: bold;\">작전 실패</span>",

@@ -2901,6 +2901,7 @@
     "task.StashBackpack.option.StashBackpackTaskSubTask.label": "Stash backpack",
     "task.StashBackpack.option.UseConsumableSubTask.label": "Retrieve usable items",
     "task.SwitchTeam.label": "🔄 Switch Team",
+    "task.SwitchTeam.focus.dijiang_escape": "On the Dijiang Ship, operator slots cannot be switched; teleporting to The Hub, Valley IV first",
     "task.TrialOfSwordmancy.description": "Automatically complete Daily Trial of Swordmancy / Free calculation",
     "task.TrialOfSwordmancy.focus.coating_reward_mode": "There are still reward attempts left today. Please complete the reward trial first.",
     "task.TrialOfSwordmancy.focus.operation_failed": "<span style=\"color: red; font-weight: bold;\">Operation failed</span>",
