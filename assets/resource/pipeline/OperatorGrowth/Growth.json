@@ -62,8 +62,7 @@
                 "custom_action": "SubTask",
                 "custom_action_param": {
                     "sub": [
-                        "OperatorGrowthResetScrollCount",
-                        "OperatorGrowthResetTopReached"
+                        "OperatorGrowthResetScrollCount"
                     ]
                 }
             }
@@ -132,27 +131,6 @@
                         "OperatorGrowthWeaponLevelScrollDown",
                         "OperatorGrowthSwipePreciousMaterialsRight"
                     ]
-                }
-            }
-        },
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "OperatorGrowthResetTopReached": {
-        "desc": "每次进入培养总览前清空回顶画面比较状态",
-        "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "OperatorGrowthListComplete": {
-                            "attach": {
-                                "ready": false
-                            }
-                        }
-                    }
                 }
             }
         },
