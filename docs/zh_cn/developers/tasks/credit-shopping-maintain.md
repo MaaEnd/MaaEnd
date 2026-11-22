@@ -2,7 +2,7 @@
 
 本文说明 `CreditShopping` 的文件分布与执行流程。  
 购买条件不是几个独立开关，而是从 `Item/` 串到 `Flow/` 的整条筛选链，维护时需按链路理解。  
-该文档更新于 2026 年 11 月 18 日。
+该文档更新于 2026 年 11 月 22 日。
 
 ## 文件路径
 
@@ -10,7 +10,7 @@
 CreditShopping/
 ├── Flow/                  # 主购物流程
 │   ├── Entry.json         # 页签检测 + 进入扫描循环
-│   ├── Scan.json          # 货架扫描门控（触发购买决策循环）
+│   ├── Scan.json          # 货架扫描门控（信用点可读 + 触发购买决策循环）
 │   ├── BuyAction.json     # 三档购买 / 强制购买 / 余额不足改直购 / 次数用尽
 │   ├── BuyItem.json       # 购买确认 / 保留阈值检查
 │   └── Special.json       # 刷新时无法购买 / 刷新商品
@@ -41,7 +41,7 @@ CreditShopping/
 
 1. 进入信用交易所页签；若不在商店则先导航（`GoToShop.json`），再[领取待收取信用](#领取信用)（`Credit/ClaimCredit.json`）。
 2. 勾选商品由[各档物品节点的 `attach`](#物品勾选)直接覆盖 `item_ids`，扫描前不再需要额外的初始化步骤。
-3. 每轮扫描当前货架，按固定优先级依次判断（`Flow/Scan.json` → `Flow/BuyAction.json`）：
+3. 每轮扫描当前货架，按固定优先级依次判断（`Flow/Scan.json` → `Flow/BuyAction.json`）。扫描本身要求[当前信用点可读](#扫描门禁)，读不到时本轮不产生任何购买或刷新决策：
     - 某档开启了「自动获取信用点」，且该档目标商品[买不起（信用不够）](#自动补信用) → 跳基建补信用后回来；未开启的档位不做此判断。
     - 是否命中[购买物品选项 1 / 2 / 3](#三档购买优先级) → 直接确认购买。
     - 当前信用是否[低于保留阈值](#保留信用点阈值) → 结束任务。
@@ -52,6 +52,12 @@ CreditShopping/
 > 扫描循环的 `next` 顺序即业务优先级；改行为时要看整条链，不要只改单个识别器。
 
 ## 特殊处理
+
+### 扫描门禁
+
+`CreditShoppingScanItem`（`Flow/Scan.json`）是购买与刷新决策的唯一入口，识别要求三件事同时成立：信用交易所页签已选中、能识别刷新按钮（刷新花费或次数已用尽）、能识别到当前信用点（`CreditShoppingReserveCreditOCRInternal`）。
+
+第三条是信用点门禁：读不到当前信用点时，下游所有依赖余额的节点（保留阈值、三档门控、刷新前余额检查、直购前价格检查）都会因表达式求值失败而不命中，流程会一路掉到兜底分支。其中 `CreditShoppingRefreshCountReached`（刷新次数用尽直购）不含余额条件，命中后会直接点物品，而确认前的「持有 − 价格」检查同样求值失败，于是绕过保留阈值买下。加上门禁后，读不到信用点就不做任何购买/刷新决策，原地重试；持续读不到时任务以识别超时结束，日志停在该节点。
 
 ### 领取信用
 
@@ -151,6 +157,7 @@ CreditShopping/
 | 买得起却不买 | 该档保留阈值 / 无条件购买开关 |
 | 买不起不补信用 | 该档 AutoGetCredits 开关；买不起侧折扣与价格颜色阈值 |
 | 刷新行为异常 | `CreditShoppingForce`；`CreditShoppingRefreshBalanceGate`（含余额阈值） |
+| 扫描卡住直到超时 | `CreditShoppingScanItem` 的[信用点门禁](#扫描门禁)：`CreditShoppingReserveCreditOCRInternal` 的颜色 ROI 与 OCR |
 | 选项间行为不一致 | `CreditShopping.json` 的 `pipeline_override` 与扫描 `next` 顺序 |
 
 维护时分四层定位：入口（`GoToShop.json`）→ 扫描决策（`Flow/`）→ 识别链（`Item/` + `ShelfChecks.json`）→ 参数装配（任务选项 `attach`）。

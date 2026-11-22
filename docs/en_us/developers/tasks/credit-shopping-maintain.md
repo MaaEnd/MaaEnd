@@ -2,7 +2,7 @@
 
 This document describes the file layout and execution flow of `CreditShopping`.  
 Purchase conditions are not a few independent switches but a whole filter chain running from `Item/` to `Flow/`; maintenance must be understood along that chain.  
-This document was updated on November 18, 2026.
+This document was updated on November 22, 2026.
 
 ## File Paths
 
@@ -10,7 +10,7 @@ This document was updated on November 18, 2026.
 CreditShopping/
 ├── Flow/                  # Main shopping flow
 │   ├── Entry.json         # Tab detection + enter scan loop
-│   ├── Scan.json          # Shelf scan gate (triggers the buy decision loop)
+│   ├── Scan.json          # Shelf scan gate (credit readable + triggers the buy decision loop)
 │   ├── BuyAction.json     # Three-tier purchase / forced purchase / buy instead when balance runs short / attempts exhausted
 │   ├── BuyItem.json       # Purchase confirm / reserve threshold check
 │   └── Special.json       # Unable to buy while refreshing / refresh items
@@ -41,7 +41,7 @@ Other related files:
 
 1. Enter the credit exchange tab; if not in the shop, navigate first (`GoToShop.json`), then [claim pending credits](#claiming-credits) (`Credit/ClaimCredit.json`).
 2. Selected items are applied directly to `item_ids` through each tier item node's [`attach`](#item-selection), so no separate initialization step runs before the scan loop.
-3. In each round, scan the current shelf and evaluate in a fixed priority order (`Flow/Scan.json` → `Flow/BuyAction.json`):
+3. In each round, scan the current shelf and evaluate in a fixed priority order (`Flow/Scan.json` → `Flow/BuyAction.json`). The scan itself requires [readable credits](#scan-gate); when they cannot be read, that round makes no purchase or refresh decision:
     - A tier has "Automatically collect credits" enabled and its target item [is unaffordable (not enough credit)](#automatic-credit-replenishment) → jump to base to replenish credit and return; tiers with it disabled skip this check.
     - Whether it matches [Purchase Item Option 1 / 2 / 3](#three-tier-purchase-priority) → confirm purchase directly.
     - Whether the current credit is [below the reserve threshold](#credit-point-reserve-threshold) → end the task.
@@ -52,6 +52,12 @@ Other related files:
 > The `next` order of the scan loop defines the business priority; to change behavior, examine the entire chain, not just a single recognizer.
 
 ## Special Handling
+
+### Scan Gate
+
+`CreditShoppingScanItem` (`Flow/Scan.json`) is the only entry point for purchase and refresh decisions. Its recognition requires all three of: the credit exchange tab is selected, the refresh button is recognizable (refresh cost, or attempts used up), and the current credits are readable (`CreditShoppingReserveCreditOCRInternal`).
+
+The third condition is the credit gate. When the current credits cannot be read, every downstream node that depends on the balance (reserve threshold, tier gates, balance check before refreshing, price check before a forced buy) fails to resolve its expression and does not match, so the flow falls through to the fallback branches. Among them, `CreditShoppingRefreshCountReached` (buy the rest once refresh attempts are used up) carries no balance condition, so it clicks an item directly, and the "held − price" check before confirming cannot be evaluated either, so the purchase bypasses the reserve threshold. With the gate in place, unreadable credits mean no purchase or refresh decision at all: the node retries in place, and if the credits stay unreadable the task ends on a recognition timeout with the log stopping at that node.
 
 ### Claiming Credits
 
@@ -151,6 +157,7 @@ After adding a case, remember to check whether `default_case` also needs to incl
 | Affordable but not purchasing | The tier's reserve threshold / unconditional purchase switch |
 | Unaffordable but not replenishing credit | The tier's AutoGetCredits switch; the unaffordable side's discount and price color thresholds |
 | Abnormal refresh behavior | `CreditShoppingForce`; `CreditShoppingRefreshBalanceGate` (including the balance threshold) |
+| Scan stalls until timeout | The [credit gate](#scan-gate) on `CreditShoppingScanItem`: the color ROI and OCR of `CreditShoppingReserveCreditOCRInternal` |
 | Inconsistent behavior between options | `CreditShopping.json`'s `pipeline_override` and scan `next` order |
 
 Maintenance location is done in four layers: Entry (`GoToShop.json`) → Scan Decision (`Flow/`) → Recognition Chain (`Item/` + `ShelfChecks.json`) → Parameter Assembly (task options `attach`).
