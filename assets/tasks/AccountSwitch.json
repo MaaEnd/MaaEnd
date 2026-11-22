@@ -9,8 +9,8 @@
                 "other_menu"
             ],
             "controller": [
-                // TODO: CloudWeb 尚未实机验证，验证通过后删除本行
-                "CloudWeb",
+                // TODO: CloudWeb 尚未实机验证，验证通过后取消注释
+                // "CloudWeb",
                 "Win32-Front"
             ],
             "option": [
