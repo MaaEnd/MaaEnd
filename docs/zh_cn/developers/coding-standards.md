@@ -108,19 +108,25 @@ MaaFramework 会在未命中任何 `next` 节点时持续循环，直到任一�
 
 `pre_wait_freezes` / `post_wait_freezes` 的工作原理是对指定区域连续截图，相邻两次截图之间做一次模板匹配，分数达标说明画面大致稳定。
 
-目标匹配区域 `target` 未指定时会回退到节点 `action` 的 `target`，其进一步回退到节点识别结果 `reco.box`。
+目标匹配区域 `target` 未指定时会回退到节点 `action` 的 `target`，其进一步回退到节点识别结果 `reco.box`。注意 `target` 的默认值是识别结果 `reco.box`，不是节点里填写的 roi。
+
+原则上，必须为 `pre_wait_freezes` 显式指明 `target` 区域，不得使用默认的 `reco.box`：`reco.box` 本身已经通过一次识别，再对这一局部进行模板匹配是无意义的，会退化为 `pre_delay`。
 
 > [!NOTE]
 >
-> 节点属性 `"inverse": true`，或识别类型为 `DirectHit`（在某些情况下）时，识别结果 `reco.box` 为空，需要写明 `wait_freezes` 的 `target` 参数 ，否则会被静默跳过。
+> 节点属性 `"inverse": true`，或识别类型为 `DirectHit`（在某些情况下）时，识别结果 `reco.box` 为空，必须写明 `wait_freezes` 的 `target` 参数 ，否则会被静默跳过。
 
-`pre_wait_freezes` 常用于会在过渡态提前命中的识别，例如进入界面时的淡入淡出特效会使模板匹配提前命中。原则上，必须为 `pre_wait_freezes` 显式指明 `target` 区域：默认 fallback 的目标区域本身已经通过一次识别，再对这一局部进行模板匹配是无意义的，会退化为 `pre_delay`。不推荐对 `DirectHit` 节点添加 `pre_wait_freezes`。
+MaaEnd 的基本框架是 _识别 -> 操作 -> 再识别_。`pre_wait_freezes` 适用于识别后不能立刻操作，`post_wait_freezes` 适用于操作后不能立刻识别。
 
-没有 `action` 的纯识别节点应优先使用 `pre_wait_freezes`，而非 `post_wait_freezes`。
+不关联操作的仅识别节点，例如识别点击成功，随后跳转其他流程，需要确保画面稳定的，应使用 `pre_wait_freezes` 而非 `post_wait_freezes`。
 
-`post_wait_freezes` 常用于执行点击后，`next` 节点使用 Custom Recognition 的情况，这些识别通常假设已处于画面稳定的状态。非 Custom Recognition，但 `next` 列表中存在 `DirectHit` 备选，需要 `wait_freezes` 确保画面稳定的情况，应优先添加中间识别节点使用 `pre_wait_freezes`；若无法添加中间节点，说明识别链条脆弱，考虑改用 `on_error` 跳转兜底节点，主流程通过 `next` 处理过渡态。
+多数情况下，操作后都可以立刻进行识别：`next` 列表是轮询识别，不要求一次识别直接命中。因此我们对 `post_wait_freezes` 的使用有较为严格的限制：
 
-`Swipe` / `Scroll` 造成的画面变化通常会使识别对象发生位移，因此必须在任何识别命中前使用 `post_wait_freezes` 使画面稳定。
+- 不允许在 `"action": "DoNothing"` 的节点添加 `post_wait_freezes`。`post_wait_freezes` 必须紧跟在实际动作之后。
+- 应充分利用 `next` 轮询特性，不要在执行动作后的 `next` 列表中混杂 `DirectHit` 破坏轮询。
+- 非 `DirectHit`，但会在画面未稳定时识别命中，并造成负面影响的，应避免直接接在动作后；应改为先识别动作执行成功，再等待画面稳定，最后进行识别。
+
+根据这些限制，`post_wait_freezes` 的应用场景只能是在执行动作后，无法识别动作执行成功，并且后续识别要求画面稳定再识别。典型的例子是 `Swipe` / `Scroll` 搭配 `ListCompleteRecognition`。
 
 ### OCR 写完整文本
 

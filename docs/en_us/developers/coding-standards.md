@@ -108,19 +108,25 @@ The only cases that require waiting for the screen to stabilize are:
 
 `pre_wait_freezes` / `post_wait_freezes` works by taking consecutive screenshots of a specified region and performing template matching between adjacent screenshots; reaching the threshold score indicates that the screen is roughly stable.
 
-When the target matching region `target` is not specified, it falls back to the `target` of the node's `action`, which further falls back to the node's recognition result `reco.box`.
+When the target matching region `target` is not specified, it falls back to the `target` of the node's `action`, which further falls back to the node's recognition result `reco.box`. Note that the default value of `target` is the recognition result `reco.box`, not the `roi` specified in the node.
+
+In principle, you must explicitly specify the `target` region for `pre_wait_freezes` and must not use the default `reco.box`: `reco.box` itself has already passed recognition once, so performing template matching on this local region again is meaningless and degenerates into `pre_delay`.
 
 > [!NOTE]
 >
 > When the node property is `"inverse": true`, or the recognition type is `DirectHit` (in certain cases), the recognition result `reco.box` is empty, and you must specify the `target` parameter of `wait_freezes`, otherwise it will be silently skipped.
 
-`pre_wait_freezes` is commonly used for recognitions that hit prematurely during transition states—for example, fade-in/fade-out effects when entering a screen can cause template matching to hit early. In principle, you must explicitly specify the `target` region for `pre_wait_freezes`: the default fallback target region has already passed recognition once, so performing template matching on this local region again is meaningless and degenerates into `pre_delay`. Adding `pre_wait_freezes` to a `DirectHit` node is not recommended.
+The basic framework of MaaEnd is _Recognize -> Operate -> Recognize Again_. `pre_wait_freezes` applies when an operation cannot be performed immediately after recognition, while `post_wait_freezes` applies when recognition cannot be performed immediately after an operation.
 
-Pure recognition nodes without an `action` should prefer `pre_wait_freezes` rather than `post_wait_freezes`.
+For recognition-only nodes not associated with an operation—for example, recognizing that a click succeeded before jumping to another flow—where screen stability must be ensured, use `pre_wait_freezes` rather than `post_wait_freezes`.
 
-`post_wait_freezes` is commonly used when a `next` node uses Custom Recognition after a click, as such recognitions usually assume the screen is already in a stable state. For cases that do not use Custom Recognition but have a `DirectHit` fallback in the `next` list and require `wait_freezes` to ensure screen stability, prefer adding an intermediate recognition node that uses `pre_wait_freezes`; if an intermediate node cannot be added, it indicates a fragile recognition chain—consider switching to `on_error` to jump to the fallback node and handling transition states in the main flow via `next`.
+In most cases, recognition can be performed immediately after an operation: the `next` list polls for recognition and does not require a hit on the first attempt. Therefore, we impose relatively strict restrictions on the use of `post_wait_freezes`:
 
-`Swipe` / `Scroll` screen changes usually displace the recognition targets, so `post_wait_freezes` must be used to stabilize the screen before any recognition hits.
+- Do not add `post_wait_freezes` to nodes with `"action": "DoNothing"`. `post_wait_freezes` must immediately follow an actual action.
+- Make full use of the polling nature of `next`, and do not mix `DirectHit` into the `next` list after an action is executed, which would break polling.
+- Recognitions that are not `DirectHit` but may hit before the screen stabilizes and cause negative effects should not be placed directly after an action; instead, first recognize that the action succeeded, then wait for the screen to stabilize, and finally perform the recognition.
+
+Under these restrictions, `post_wait_freezes` should only be used when there is no way to recognize that an action succeeded after executing it, and subsequent recognition requires the screen to stabilize first. A typical example is `Swipe` / `Scroll` paired with `ListCompleteRecognition`.
 
 ### OCR Write Complete Text
 
