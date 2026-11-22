@@ -1,0 +1,95 @@
+{
+    "__ScenePrivateCloudWebLogin": {
+        "desc": "处理云终末地网页版官网页，直到进入游戏画面",
+        "enabled": true,
+        "recognition": "Or",
+        "any_of": [
+            "__ScenePrivateCloudWebLoginRequired",
+            "__ScenePrivateCloudWebQueue",
+            "__ScenePrivateCloudWebStarting",
+            "__ScenePrivateCloudWebStartGame"
+        ],
+        "next": [
+            "__ScenePrivateCloudWebEnterGameSuccess",
+            "__ScenePrivateCloudWebLoginRequired",
+            "[JumpBack]__ScenePrivateCloudWebQueue",
+            "[JumpBack]__ScenePrivateCloudWebStarting",
+            "[JumpBack]__ScenePrivateCloudWebStartGame"
+        ]
+    },
+    "__ScenePrivateCloudWebEnterGameSuccess": {
+        "desc": "串流已出现游戏画面",
+        "recognition": "And",
+        "all_of": [
+            "__ScenePrivateLogin"
+        ]
+    },
+    "__ScenePrivateCloudWebLoginRequired": {
+        "desc": "网页未登录，提示手动登录并停止任务",
+        "recognition": "OCR",
+        "roi": [
+            400,
+            150,
+            480,
+            400
+        ],
+        "expected": [
+            "请输入手机号",
+            "请输入验证码",
+            "密码登录"
+        ],
+        "next": [
+            "__SceneCheckAbortPipeline"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": {
+                "content": "$task.SceneManager.focus.cloud_web_login_required",
+                "display": "modal"
+            }
+        }
+    },
+    "__ScenePrivateCloudWebQueue": {
+        "desc": "网页排队中，继续等待，TODO这个pipeline的roi没有实机测试",
+        "recognition": "OCR",
+        "roi": [
+            255,
+            186,
+            771,
+            348
+        ],
+        "expected": [
+            "排队中",
+            "预计等待时间"
+        ]
+    },
+    "__ScenePrivateCloudWebStarting": {
+        "desc": "网页正在启动游戏，继续等待",
+        "recognition": "OCR",
+        "roi": [
+            400,
+            340,
+            480,
+            320
+        ],
+        "expected": [
+            "正在检测网络环境",
+            "游戏启动中，请耐心等待",
+            "游戏正在重连中",
+            "游戏已重连"
+        ]
+    },
+    "__ScenePrivateCloudWebStartGame": {
+        "desc": "点击官网页开始游戏",
+        "recognition": "OCR",
+        "roi": [
+            780,
+            550,
+            500,
+            90
+        ],
+        "expected": [
+            "开始游戏"
+        ],
+        "action": "Click"
+    }
+}

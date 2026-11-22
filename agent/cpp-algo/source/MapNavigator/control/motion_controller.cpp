@@ -53,10 +53,11 @@ bool steering_gate_open(const Motion& motion, double yaw_delta_deg, std::chrono:
 
 int64_t plan_batch_count(const Motion& motion, double yaw_delta_deg, int64_t tick_gap_ms)
 {
+    const int64_t max_batches = std::max<int64_t>(1, motion.steering_profile.max_batches_per_tick);
     int64_t batches = std::clamp<int64_t>(
         static_cast<int64_t>(std::ceil(std::abs(yaw_delta_deg) / motion.steering_profile.max_batch_delta_deg)),
         1,
-        kSteeringMaxBatchesPerTick);
+        max_batches);
     if (motion.steering_profile.min_send_interval_ms > 0) {
         batches = std::max<int64_t>(1, std::min(batches, tick_gap_ms / motion.steering_profile.min_send_interval_ms));
     }

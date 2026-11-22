@@ -99,7 +99,7 @@ OutpostTradingSellLoop（不限次数，每轮先查调度券）
 
 ### 缺货
 
-换货或沿用后识别到当前物品库存不足（`OutpostTradingZeroProduct`：红色库存文字，或 1～3 位白色库存即 1～999 件）→ `[Anchor]MarkOutOfStock` 按据点当前物品（最后一次 `commit` / `adopt`）的 `item_id` 写入任务级缺货集合，后续据点选品直接跳过；不落盘，下次任务初始化时清空。
+换货或沿用后识别到当前物品库存不足（`OutpostTradingZeroProduct`：识别到的库存为 0～999 即视为不足）→ `[Anchor]MarkOutOfStock` 按据点当前物品（最后一次 `commit` / `adopt`）的 `item_id` 写入任务级缺货集合，后续据点选品直接跳过；不落盘，下次任务初始化时清空。
 
 ## 自动选择干员规则（Go `operator/`）
 

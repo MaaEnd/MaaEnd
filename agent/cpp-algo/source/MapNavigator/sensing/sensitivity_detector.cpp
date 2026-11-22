@@ -53,6 +53,20 @@ Verdict fire_verdict(Detector* detector, const Estimate& estimate)
     return verdict;
 }
 
+bool quiet_window_elapsed(const Config& config, const PendingTurn& pending, TimePoint observed_at)
+{
+    if (pending.quiet_ticks < config.quiet_ticks) {
+        return false;
+    }
+    if (config.min_quiet_ms <= 0) {
+        return true;
+    }
+    if (IsUnset(pending.sent_at) || IsUnset(observed_at) || observed_at < pending.sent_at) {
+        return false;
+    }
+    return ElapsedMs(pending.sent_at, observed_at) >= config.min_quiet_ms;
+}
+
 } // namespace
 
 double NormalizeDeg(double deg)
@@ -64,8 +78,9 @@ double NormalizeDeg(double deg)
     return out - 180.0;
 }
 
-void BeginDetectorRun(Detector* detector)
+void BeginDetectorRun(Detector* detector, int64_t min_quiet_ms)
 {
+    detector->config.min_quiet_ms = std::max<int64_t>(0, min_quiet_ms);
     detector->has_prev_tick = false;
     detector->pending.reset();
     detector->issued_since_record = 0.0;
@@ -88,7 +103,9 @@ std::optional<Verdict> RecordDetectorTick(
     uint64_t tick_seq,
     std::optional<double> camera_heading_deg,
     double issued_delta_deg,
-    bool degraded_fix)
+    bool degraded_fix,
+    TimePoint observed_at,
+    TimePoint sent_at)
 {
     const double issued_total = detector->issued_since_record;
     detector->issued_since_record = 0.0;
@@ -112,15 +129,24 @@ std::optional<Verdict> RecordDetectorTick(
         if (issued_delta_deg != 0.0) {
             detector->pending.reset();
         }
-        else if (++detector->pending->quiet_ticks >= detector->config.quiet_ticks) {
-            detector->samples.push_back(NormalizeDeg(heading - detector->pending->start_heading_deg) / detector->pending->command_deg);
-            detector->pending.reset();
-            sample_added = true;
+        else {
+            ++detector->pending->quiet_ticks;
+            if (quiet_window_elapsed(detector->config, *detector->pending, observed_at)) {
+                detector->samples.push_back(NormalizeDeg(heading - detector->pending->start_heading_deg) / detector->pending->command_deg);
+                detector->pending.reset();
+                sample_added = true;
+            }
         }
     }
     const double magnitude = std::abs(issued_delta_deg);
-    if (!detector->pending && magnitude >= detector->config.min_command_deg && magnitude <= detector->config.max_command_deg) {
-        detector->pending = PendingTurn { .start_heading_deg = heading, .command_deg = issued_delta_deg };
+    const bool has_valid_send_time = detector->config.min_quiet_ms <= 0 || !IsUnset(sent_at);
+    if (!detector->pending && has_valid_send_time && magnitude >= detector->config.min_command_deg
+        && magnitude <= detector->config.max_command_deg) {
+        detector->pending = PendingTurn {
+            .start_heading_deg = heading,
+            .command_deg = issued_delta_deg,
+            .sent_at = sent_at,
+        };
     }
 
     if (!sample_added) {

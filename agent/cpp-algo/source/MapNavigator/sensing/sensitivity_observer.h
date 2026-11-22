@@ -22,7 +22,7 @@ struct SensitivityRun
     std::atomic<double> turn_units_scale { 1.0 };
 };
 
-void BeginRun(SensitivityRun* run);
+void BeginRun(SensitivityRun* run, int64_t min_quiet_ms = 0);
 
 // 所有路径发出的偏航度数都要报到这里
 void NoteTurnIssued(SensitivityRun* run, double delta_deg);
@@ -34,7 +34,9 @@ void RecordTick(
     uint64_t tick_seq,
     std::optional<double> camera_heading_deg,
     double issued_delta_deg,
-    bool degraded_fix);
+    bool degraded_fix,
+    TimePoint observed_at = {},
+    TimePoint sent_at = {});
 
 void EndRun(SensitivityRun* run, MaaContext* context);
 

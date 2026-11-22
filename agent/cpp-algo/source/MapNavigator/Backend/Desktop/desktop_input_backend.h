@@ -44,6 +44,7 @@ struct DesktopBackend
 };
 
 InputBackend MakeDesktopInputBackend(BackendKind kind, MaaController* ctrl, std::string controller_type, std::string backend_name);
+void EnableDesktopBackgroundInput(InputBackend* backend);
 InputBackend OpenDesktopInputBackend(MaaController* ctrl, std::string controller_type, std::string backend_name);
 void CloseDesktopInputBackend(const InputBackend& backend);
 

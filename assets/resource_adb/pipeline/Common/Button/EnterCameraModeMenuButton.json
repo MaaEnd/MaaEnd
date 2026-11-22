@@ -1,7 +1,5 @@
 {
     "EnterCameraModeMenuButton": {
-        "template": "AdbOnly/Common/Button/EnterCameraModeMenuButton.png",
-        "threshold": 0.7,
         "action": "Click"
     }
 }

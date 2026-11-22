@@ -1,6 +1,6 @@
 {
-    "version": "1.6.4+11262943-8",
-    "sha256": "c41ca14fe5747ca22e523e2eb22cbaf853b3f4f2e6fede67d364e32a61847f7a",
+    "version": "1.6.4+11944529-13",
+    "sha256": "e7c3dda3670c7605b1c356c01f9e7edc34743f476c4394613285085b12b5098c",
     "wpn_claym_0003": {
         "internal_id": "wpn_claym_0003",
         "icon_id": "wpn_claym_0003",
@@ -3256,6 +3256,46 @@
             ]
         }
     },
+    "wpn_sword_0025": {
+        "internal_id": "wpn_sword_0025",
+        "icon_id": "wpn_sword_0025",
+        "rarity": 6,
+        "weapon_type": "Sword",
+        "names": {
+            "CN": "唤月",
+            "TC": "喚月",
+            "EN": "Lunar Calling",
+            "JP": "問月",
+            "KR": "환월"
+        },
+        "skills": {
+            "CN": [
+                "意志提升·大",
+                "攻击提升·大",
+                "附术·垂星渡野"
+            ],
+            "TC": [
+                "意志提升·大",
+                "攻擊提升·大",
+                "附術·垂星渡野"
+            ],
+            "EN": [
+                "Will [L]",
+                "ATK [L]",
+                "Infliction: Coursing Stars"
+            ],
+            "JP": [
+                "意志UP・大",
+                "攻撃力UP・大",
+                "付術・星流る荒野"
+            ],
+            "KR": [
+                "의지 증가 · 대",
+                "공격력 증가 · 대",
+                "고통 · 별빛의 들판"
+            ]
+        }
+    },
     "wpn_sword_0026": {
         "internal_id": "wpn_sword_0026",
         "icon_id": "wpn_sword_0026",
@@ -3296,43 +3336,123 @@
             ]
         }
     },
-    "wpn_sword_0025": {
-        "internal_id": "wpn_sword_0025",
-        "icon_id": "wpn_sword_0025",
+    "wpn_lance_0017": {
+        "internal_id": "wpn_lance_0017",
+        "icon_id": "wpn_lance_0017",
         "rarity": 6,
-        "weapon_type": "Sword",
+        "weapon_type": "Lance",
         "names": {
-            "CN": "唤月",
-            "TC": "喚月",
-            "EN": "Lunar Calling",
-            "JP": "問月",
-            "KR": "환월"
+            "CN": "甜美交易",
+            "TC": "甜美交易",
+            "EN": "Sweet Deal",
+            "JP": "スウィートディール",
+            "KR": "달콤한 거래"
         },
         "skills": {
             "CN": [
-                "意志提升·大",
-                "攻击提升·大",
-                "附术·垂星渡野"
+                "力量提升·大",
+                "自然伤害提升·大",
+                "流转·甘甜动能"
             ],
             "TC": [
-                "意志提升·大",
-                "攻擊提升·大",
-                "附術·垂星渡野"
+                "力量提升·大",
+                "自然傷害提升·大",
+                "流轉·甘甜動能"
             ],
             "EN": [
-                "Will [L]",
-                "ATK [L]",
-                "Infliction: Coursing Stars"
+                "Strength [L]",
+                "Nature DMG [L]",
+                "Flow: Sweetening Function"
             ],
             "JP": [
-                "意志UP・大",
-                "攻撃力UP・大",
-                "付術・星流る荒野"
+                "筋力UP・大",
+                "自然ダメージUP・大",
+                "流回・あまいエネルギー"
             ],
             "KR": [
-                "의지 증가 · 대",
-                "공격력 증가 · 대",
-                "고통 · 별빛의 들판"
+                "힘 증가 · 대",
+                "자연 피해 증가 · 대",
+                "흐름 · 달콤한 에너지"
+            ]
+        }
+    },
+    "wpn_lance_0018": {
+        "internal_id": "wpn_lance_0018",
+        "icon_id": "wpn_lance_0018",
+        "rarity": 6,
+        "weapon_type": "Lance",
+        "names": {
+            "CN": "突击流星",
+            "TC": "突擊流星",
+            "EN": "Raid Comet",
+            "JP": "アサルトメテオ",
+            "KR": "유성 돌격"
+        },
+        "skills": {
+            "CN": [
+                "力量提升·大",
+                "终结技充能效率提升·大",
+                "迸发·划破天际"
+            ],
+            "TC": [
+                "力量提升·大",
+                "終結技蓄能效率提升·大",
+                "迸發·劃破天際"
+            ],
+            "EN": [
+                "Strength [L]",
+                "ULT Efficiency [L]",
+                "Detonate: Skybreaker"
+            ],
+            "JP": [
+                "筋力UP・大",
+                "必殺技効率UP・大",
+                "噴発・スカイブレイカー"
+            ],
+            "KR": [
+                "힘 증가 · 대",
+                "궁극기 충전 효율 증가 · 대",
+                "방출 · 하늘 가르기"
+            ]
+        }
+    },
+    "wpn_pistol_0013": {
+        "internal_id": "wpn_pistol_0013",
+        "icon_id": "wpn_pistol_0013",
+        "rarity": 5,
+        "weapon_type": "Pistol",
+        "names": {
+            "CN": "明日之星",
+            "TC": "明日之星",
+            "EN": "Star of Tomorrow",
+            "JP": "ライジングスター",
+            "KR": "떠오르는 별"
+        },
+        "skills": {
+            "CN": [
+                "力量提升·中",
+                "终结技充能效率提升·中",
+                "强攻·全般支援"
+            ],
+            "TC": [
+                "力量提升·中",
+                "終結技蓄能效率提升·中",
+                "強攻·全般支援"
+            ],
+            "EN": [
+                "Strength [M]",
+                "ULT Efficiency [M]",
+                "Assault: Total Support"
+            ],
+            "JP": [
+                "筋力UP・中",
+                "必殺技効率UP・中",
+                "強攻・全般支援"
+            ],
+            "KR": [
+                "힘 증가 · 중",
+                "궁극기 충전 효율 증가 · 중",
+                "강공 · 전면적 지원"
             ]
         }
     }

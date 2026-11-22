@@ -132,7 +132,8 @@
                             "Protohedron"
                         ],
                         "CreditShoppingPriority2DiscountValue": "-95%",
-                        "PrudentRefresh": "Yes",
+                        "CreditShoppingRefreshBalance": "Yes",
+                        "CreditShoppingRefreshBalanceBuy": "Yes",
                         "CreditShoppingRefreshCheckPrice": "No"
                     }
                 },

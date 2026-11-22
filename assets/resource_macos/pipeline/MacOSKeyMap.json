@@ -146,19 +146,11 @@
             }
         }
     },
-    "EnterCameraModeKeyUp": {
+    "GameLauncherWakePressEsc": {
         "action": {
-            "type": "KeyUp",
+            "type": "ClickKey",
             "param": {
-                "key": 15
-            }
-        }
-    },
-    "EnterCameraModeLongPress": {
-        "action": {
-            "type": "KeyDown",
-            "param": {
-                "key": 15
+                "key": 53
             }
         }
     },
@@ -274,14 +266,6 @@
             }
         }
     },
-    "ProtocolSpaceTouchExitTouchRetry": {
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 3
-            }
-        }
-    },
     "RealTimeAutoPat": {
         "action": {
             "type": "ClickKey",
@@ -343,6 +327,38 @@
             "type": "KeyUp",
             "param": {
                 "key": 56
+            }
+        }
+    },
+    "SwitchTeamOperatorPos1Press": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 122
+            }
+        }
+    },
+    "SwitchTeamOperatorPos2Press": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 120
+            }
+        }
+    },
+    "SwitchTeamOperatorPos3Press": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 99
+            }
+        }
+    },
+    "SwitchTeamOperatorPos4Press": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 118
             }
         }
     },
@@ -799,6 +815,22 @@
             "type": "ClickKey",
             "param": {
                 "key": 122
+            }
+        }
+    },
+    "__TakePhotoHoldR": {
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 15
+            }
+        }
+    },
+    "__TakePhotoKeyUp": {
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 15
             }
         }
     },

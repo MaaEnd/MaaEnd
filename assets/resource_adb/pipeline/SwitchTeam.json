@@ -33,5 +33,129 @@
             660,
             45
         ]
+    },
+    "SwitchTeamOperatorPos1Active": {
+        "roi": [
+            892,
+            47,
+            51,
+            34
+        ],
+        "template": [
+            "SwitchTeam/OperatorActive.png"
+        ],
+        "green_mask": false,
+        "threshold": 0.8
+    },
+    "SwitchTeamOperatorPos1Press": {
+        "action": "Click",
+        "target": [
+            913,
+            110,
+            1,
+            1
+        ],
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                860,
+                40,
+                420,
+                110
+            ]
+        }
+    },
+    "SwitchTeamOperatorPos2Active": {
+        "roi": [
+            989,
+            47,
+            51,
+            34
+        ],
+        "template": [
+            "SwitchTeam/OperatorActive.png"
+        ],
+        "green_mask": false,
+        "threshold": 0.8
+    },
+    "SwitchTeamOperatorPos2Press": {
+        "action": "Click",
+        "target": [
+            1004,
+            110,
+            1,
+            1
+        ],
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                860,
+                40,
+                420,
+                110
+            ]
+        }
+    },
+    "SwitchTeamOperatorPos3Active": {
+        "roi": [
+            1087,
+            47,
+            51,
+            34
+        ],
+        "template": [
+            "SwitchTeam/OperatorActive.png"
+        ],
+        "green_mask": false,
+        "threshold": 0.8
+    },
+    "SwitchTeamOperatorPos3Press": {
+        "action": "Click",
+        "target": [
+            1102,
+            109,
+            1,
+            1
+        ],
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                860,
+                40,
+                420,
+                110
+            ]
+        }
+    },
+    "SwitchTeamOperatorPos4Active": {
+        "roi": [
+            1184,
+            47,
+            51,
+            34
+        ],
+        "template": [
+            "SwitchTeam/OperatorActive.png"
+        ],
+        "green_mask": false,
+        "threshold": 0.8
+    },
+    "SwitchTeamOperatorPos4Press": {
+        "action": "Click",
+        "target": [
+            1196,
+            111,
+            1,
+            1
+        ],
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                860,
+                40,
+                420,
+                110
+            ]
+        }
     }
 }

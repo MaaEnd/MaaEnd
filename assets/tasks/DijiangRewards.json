@@ -11,6 +11,7 @@
             "controller": [
                 "ADB",
                 "CloudADB",
+                // "CloudWeb",
                 "Linux-Gamescope",
                 "Linux-ScreenCast",
                 "Linux-Wlroots",
@@ -543,9 +544,6 @@
                             "enabled": false
                         },
                         "ReceptionRoomSendCluesQuickGiveDuplicates": {
-                            "enabled": false
-                        },
-                        "ReceptionRoomSendCluesSwipe": {
                             "enabled": false
                         }
                     }

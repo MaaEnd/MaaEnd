@@ -11,6 +11,17 @@
         ],
         "next": [
             "GameLauncherEndfieldIconVisible",
+            "GameLauncherWakePressEsc"
+        ]
+    },
+    "GameLauncherWakePressEsc": {
+        "desc": "看不到左侧终末地图标时先按一次 Esc，收起遮挡启动器的开始菜单",
+        // Win10 开启全屏开始屏幕后从开始菜单睡眠，唤醒后开始菜单会盖住启动器，且系统不允许把启动器切到前台
+        // 实测无论是否有全屏开始菜单，按一次 Esc 都能收起开始菜单（息屏时同时唤醒显示器）；没有开始菜单时按 Esc 也不影响启动器；Win11 同样测试通过
+        "action": "ClickKey",
+        "key": 27,
+        "next": [
+            "GameLauncherEndfieldIconVisible",
             "GameLauncherBlackScreenClick"
         ]
     },

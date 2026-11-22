@@ -38,6 +38,7 @@ type autoFightAttach struct {
 	SkillMode2                   string   `json:"skill_mode_2"`
 	SkillMode3                   string   `json:"skill_mode_3"`
 	SkillMode4                   string   `json:"skill_mode_4"`
+	StartOperator                int      `json:"start_operator"`
 }
 
 // 每名干员的战技释放方式；空值按 cycle 处理。
@@ -115,6 +116,31 @@ func hitExitNode(ctx *maa.Context, img image.Image, nodes []string) string {
 		return node
 	}
 	return ""
+}
+
+// switchOffDisplacingOperator 战斗结束后，若当前操控的干员终结技结束后会位移（如庄方宜），切到其他干员。
+// 切走后终结技在后台继续，切上来的干员不会位移，避免后续流程中人物离开交互范围。
+func switchOffDisplacingOperator(ctx *maa.Context) {
+	img, ok := captureAndUpdateScreenDetail(ctx)
+	slot := screenAnalyzer.GetCharacterSelect()
+	if !ok || slot == 0 {
+		return
+	}
+	region := characterRegion(slot - 1)
+	detail, err := ctx.RunRecognition("__AutoFightRecognitionSwitchOffOperator", img, map[string]any{
+		"__AutoFightRecognitionSwitchOffOperator": map[string]any{
+			"roi": []int{region[0], region[1], region[2], region[3]},
+		},
+	})
+	if err != nil || detail == nil || !detail.Hit {
+		return
+	}
+	switchTo := 1
+	if slot == 1 {
+		switchTo = 2
+	}
+	maafocus.Print(ctx, i18n.T("autofight.switch_off_operator", slot, switchTo))
+	ctx.RunAction(fmt.Sprintf("__AutoFightActionSwitchCharacterOperators%d", switchTo), maa.Rect{600, 320, 80, 80}, "", nil)
 }
 
 func screencapImage(ctx *maa.Context) (image.Image, bool) {
@@ -458,6 +484,12 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 	skillCycleIndex := 1
 	skillModes := params.skillModes()
 	var skillUsedOnce [4]bool
+
+	// 战斗开始前切换到用户指定的干员，0 表示不切换
+	if params.StartOperator >= 1 && params.StartOperator <= 4 {
+		maafocus.Print(ctx, i18n.T("autofight.start_operator", params.StartOperator))
+		ctx.RunAction(fmt.Sprintf("__AutoFightActionSwitchCharacterOperators%d", params.StartOperator), maa.Rect{600, 320, 80, 80}, "", nil)
+	}
 
 	if params.EnableAttack {
 		ctx.RunAction("__AutoFightActionAttackTouchDown", maa.Rect{600, 320, 80, 80}, "", nil)
@@ -810,6 +842,9 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 		}
 
 		drainActionQueue(ctx)
+	}
+	if result && !ctx.GetTasker().Stopping() {
+		switchOffDisplacingOperator(ctx)
 	}
 	if params.EnableAttack {
 		ctx.RunAction("__AutoFightActionAttackTouchUp", maa.Rect{600, 320, 80, 80}, "", nil)

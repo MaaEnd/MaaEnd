@@ -52,6 +52,8 @@
     "MissionTrack": {
         "templates": [
             "../AutoDailyMission/MissionTrack.png"
-        ]
+        ],
+        // 圆环图标小、特征弱，默认 0.55 会在空地上误匹配到 0.57；真图标约 0.73
+        "threshold": 0.65
     }
 }

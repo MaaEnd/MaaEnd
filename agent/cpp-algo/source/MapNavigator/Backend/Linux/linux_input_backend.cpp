@@ -21,7 +21,9 @@ constexpr int32_t kVkShift = 0x10;
 InputBackend OpenLinuxInputBackend(MaaController* ctrl, std::string controller_type)
 {
     LogInfo << "MapNavigator input backend selected." << VAR(controller_type) << " backend=linux";
-    return desktop::MakeDesktopInputBackend(BackendKind::Linux, ctrl, std::move(controller_type), "linux");
+    InputBackend backend = desktop::MakeDesktopInputBackend(BackendKind::Linux, ctrl, std::move(controller_type), "linux");
+    desktop::EnableDesktopBackgroundInput(&backend);
+    return backend;
 }
 
 SteeringTransportProfile LinuxSteeringProfile()

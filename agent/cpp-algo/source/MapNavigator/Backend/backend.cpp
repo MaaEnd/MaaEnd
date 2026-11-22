@@ -7,6 +7,7 @@
 #include "../control/controller_type_utils.h"
 #include "../sensing/sensitivity_observer.h"
 #include "Adb/adb_input_backend.h"
+#include "CloudWeb/cloud_web_input_backend.h"
 #include "Desktop/desktop_input_backend.h"
 #include "Linux/linux_input_backend.h"
 #include "backend.h"
@@ -27,6 +28,10 @@ InputBackend OpenInputBackend(MaaController* ctrl)
 
     if (IsLinuxControllerType(controller_type)) {
         return backend::Linux::OpenLinuxInputBackend(ctrl, std::move(controller_type));
+    }
+
+    if (backend::cloudweb::IsCloudWebController()) {
+        return backend::cloudweb::OpenCloudWebInputBackend(ctrl, std::move(controller_type));
     }
 
     return backend::desktop::OpenDesktopInputBackend(ctrl, std::move(controller_type), "win32");
@@ -73,6 +78,9 @@ SteeringTransportProfile SteeringProfileOf(const InputBackend& backend)
     }
     if (backend.kind == BackendKind::Linux) {
         return backend::Linux::LinuxSteeringProfile();
+    }
+    if (backend.kind == BackendKind::CloudWeb) {
+        return backend::cloudweb::CloudWebSteeringProfile();
     }
     return backend::desktop::DesktopSteeringProfile();
 }
@@ -184,7 +192,10 @@ void TriggerZiplineDismountSync(InputBackend* backend, int hold_millis)
 bool SendViewDeltaSync(InputBackend* backend, int dx, int dy)
 {
     if (backend->kind == BackendKind::Adb) {
-        return backend::adb::SendAdbViewDeltaSync(*backend, dx, dy);
+        return backend::adb::SendAdbViewDeltaSync(backend, dx, dy);
+    }
+    if (backend->kind == BackendKind::CloudWeb) {
+        return backend::cloudweb::SendCloudWebViewDeltaSync(*backend, dx, dy);
     }
     return backend::desktop::SendDesktopViewDeltaSync(*backend, dx, dy);
 }

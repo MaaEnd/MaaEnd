@@ -46,6 +46,7 @@
                 "CharacterMoveToTargetNotFoundAction",
                 "CharacterSearchAction",
                 "ClearHitCount",
+                "CloseCloudShellAction",
                 "CloseGameAction",
                 "CountDownAction",
                 "DeliveryJobsResolveOngoingDepotAction",
@@ -102,6 +103,8 @@
                 "TextInputAction",
                 "TextInputInitAction",
                 "TrialOfSwordmancy.Decide",
+                "TrialOfSwordmancy.FreeCalcDecide",
+                "TrialOfSwordmancy.InitSolver",
                 "UpdateItemQuantity",
                 "VisitFriendsBtwSellSettleAction",
                 "VisitFriendsBtwSellSlidingAction",
@@ -634,6 +637,66 @@
                         }
                     }
                 }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "custom_action": {"const": "TrialOfSwordmancy.FreeCalcDecide"}
+                },
+                "required": ["custom_action"]
+            },
+            "then": {
+                "properties": {
+                    "custom_action_param": {
+                        "type": "object",
+                        "properties": {
+                            "lower_bound": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 25
+                            },
+                            "upper_bound": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 25
+                            }
+                        },
+                        "required": [
+                            "lower_bound",
+                            "upper_bound"
+                        ]
+                    }
+                },
+                "required": ["custom_action_param"]
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "custom_action": {"const": "TrialOfSwordmancy.InitSolver"}
+                },
+                "required": ["custom_action"]
+            },
+            "then": {
+                "properties": {
+                    "custom_action_param": {
+                        "type": "object",
+                        "properties": {
+                            "overflowMode": {
+                                "type": "string",
+                                "enum": [
+                                    "OverflowNone",
+                                    "OverflowOnce",
+                                    "OverflowTwice"
+                                ],
+                                "default": "OverflowTwice"
+                            }
+                        },
+                        "required": ["overflowMode"]
+                    }
+                },
+                "required": ["custom_action_param"]
             }
         },
         {

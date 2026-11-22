@@ -352,33 +352,7 @@
             ]
         },
         "next": [
-            "[JumpBack]AutoFight",
-            "AutoDailyMissionAethilluStudiesRouteMainSection2Return"
-        ]
-    },
-    "AutoDailyMissionAethilluStudiesRouteMainSection2Return": {
-        "desc": "自动战斗后走回第二个异常点",
-        "action": "Custom",
-        "custom_action": "MapNavigateAction",
-        "custom_action_param": {
-            "heading_source": "camera",
-            "path": [
-                {
-                    "action": "ZONE",
-                    "zone_id": "IndieDg007Base"
-                },
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        357.695,
-                        445.771
-                    ],
-                    "target_deck_y": 132.87
-                }
-            ]
-        },
-        "next": [
-            "AutoDailyMissionAethilluStudiesTakePhoto"
+            "AutoDailyMissionAethilluStudiesTakePhotoShowOperators"
         ]
     },
     "AutoDailyMissionAethilluStudiesRouteMainSection3": {
@@ -429,34 +403,7 @@
             ]
         },
         "next": [
-            "[JumpBack]AutoFight",
-            "AutoDailyMissionAethilluStudiesRouteMainSection3Return"
-        ]
-    },
-    "AutoDailyMissionAethilluStudiesRouteMainSection3Return": {
-        "desc": "自动战斗后走回第三个异常点",
-        "action": "Custom",
-        "custom_action": "MapNavigateAction",
-        // 异常点和上层平面重叠，寻路会把起点吸到上层、绕楼上走；打完架人就在异常点旁边同一层，直线走回去
-        "custom_action_param": {
-            "heading_source": "camera",
-            "enable_bootstrap_navmesh": false,
-            "path": [
-                {
-                    "action": "ZONE",
-                    "zone_id": "IndieDg007Base"
-                },
-                {
-                    "action": "RUN",
-                    "target": [
-                        358.495,
-                        414.882
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "AutoDailyMissionAethilluStudiesTakePhoto"
+            "AutoDailyMissionAethilluStudiesTakePhotoShowOperators"
         ]
     },
     "AutoDailyMissionAethilluStudiesRouteMainSection4": {
@@ -507,46 +454,33 @@
             ]
         },
         "next": [
-            "[JumpBack]AutoFight",
-            "AutoDailyMissionAethilluStudiesRouteMainSection4Return"
-        ]
-    },
-    "AutoDailyMissionAethilluStudiesRouteMainSection4Return": {
-        "desc": "自动战斗后走回第四个异常点",
-        "action": "Custom",
-        "custom_action": "MapNavigateAction",
-        "custom_action_param": {
-            "heading_source": "camera",
-            "path": [
-                {
-                    "action": "ZONE",
-                    "zone_id": "IndieDg007Base"
-                },
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        327.173,
-                        412.775
-                    ],
-                    "target_deck_y": 144.298
-                }
-            ]
-        },
-        "next": [
-            "AutoDailyMissionAethilluStudiesTakePhoto"
+            "AutoDailyMissionAethilluStudiesTakePhotoShowOperators"
         ]
     },
     "AutoDailyMissionAethilluStudiesTakePhoto": {
-        "desc": "在异常点拍下裂隙幻影，复用环境监测的拍照流程，拍完经锚点回到本流程",
+        "desc": "在异常点拍下裂隙幻影",
         "recognition": "And",
         "all_of": [
             "InWorld"
         ],
         "anchor": {
-            "EnvironmentMonitoringBackToTerminal": "AutoDailyMissionAethilluStudiesPhotoDone"
+            "TakePhotoDone": "AutoDailyMissionAethilluStudiesPhotoDone"
         },
         "next": [
-            "EnvironmentMonitoringTakePhotoDirectly"
+            "TakePhoto"
+        ]
+    },
+    "AutoDailyMissionAethilluStudiesTakePhotoShowOperators": {
+        "desc": "在异常点不隐藏干员拍下裂隙幻影",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "anchor": {
+            "TakePhotoDone": "AutoDailyMissionAethilluStudiesPhotoDone"
+        },
+        "next": [
+            "TakePhotoShowOperators"
         ]
     },
     "AutoDailyMissionAethilluStudiesPhotoDone": {

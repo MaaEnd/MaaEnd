@@ -104,6 +104,8 @@ InputBackend OpenAdbInputBackend(MaaController* ctrl, std::string controller_typ
 
 void CloseAdbInputBackend(InputBackend* backend)
 {
+    const bool camera_released = ReleaseCameraTouch(&backend->adb.camera_swipe);
+    (void)camera_released;
     const bool released = ReleaseJoystick(&backend->adb.joystick, 0);
     (void)released;
 }
@@ -198,13 +200,13 @@ void TriggerAdbZiplineDismountSync(const InputBackend& backend, int hold_millis)
     }
 }
 
-bool SendAdbViewDeltaSync(const InputBackend& backend, int dx, int dy)
+bool SendAdbViewDeltaSync(InputBackend* backend, int dx, int dy)
 {
-    if (backend.ctrl == nullptr || (dx == 0 && dy == 0)) {
-        return backend.ctrl != nullptr;
+    if (backend->ctrl == nullptr || (dx == 0 && dy == 0)) {
+        return backend->ctrl != nullptr;
     }
 
-    const bool applied = SwipeCameraByPixels(backend.adb.camera_swipe, dx, dy);
+    const bool applied = SwipeCameraByPixels(&backend->adb.camera_swipe, dx, dy);
     if (!applied) {
         LogWarn << "AdbInputBackend: failed to apply camera swipe." << VAR(dx) << VAR(dy);
         return false;

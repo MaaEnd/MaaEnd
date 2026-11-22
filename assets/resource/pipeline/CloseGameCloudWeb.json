@@ -1,0 +1,12 @@
+{
+    "CloseGameCloudWeb": {
+        "desc": "关闭游戏（网页）：结束云终末地网页外壳进程，云端串流随之结束；下次启动游戏会重新打开外壳",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CloseCloudShellAction"
+            }
+        },
+        "next": []
+    }
+}

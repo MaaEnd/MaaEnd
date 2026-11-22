@@ -445,31 +445,13 @@
         "pre_delay": 0,
         "action": "ClickKey",
         "key": 70, // F 交互
-        "post_delay": 2000, // 等一下看有没有弹出界面，如果没有的话继续找，避免例如庄方宜在此时大招结束位移
         "next": [
-            "ProtocolSpaceReward",
-            "ProtocolSpaceTouchExitRetry"
+            "ProtocolSpaceReward"
         ],
         "focus": {
-            "Node.Action.Succeeded": "$task.ProtocolSpace.focus.open_reward"
+            "Node.Action.Succeeded": "$task.ProtocolSpace.focus.open_reward",
+            "Node.PipelineNode.Failed": "$task.Keymap.focus.interact_failed"
         }
-    },
-    "ProtocolSpaceTouchExitRetry": {
-        "desc": "触碰后仍在协议空间，重新找退出点",
-        "recognition": "And",
-        "all_of": [
-            "InProtocolSpace"
-        ],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "ProtocolSpaceTouchExitTouchRetry",
-            "[JumpBack]ProtocolSpaceTouchExitMoveToTarget",
-            "[JumpBack]ProtocolSpaceTouchExitNotFound"
-        ],
-        "on_error": [
-            "ProtocolSpaceExitStuckRetreat"
-        ]
     },
     "ProtocolSpaceExitStuckRetreat": {
         "desc": "找退出点次数用完（被障碍卡住），点击左上角撤离直到弹出撤离弹窗",
@@ -512,39 +494,6 @@
             "[JumpBack]SceneWaitBlackScreenLoadingExit",
             "ProtocolSpaceEnterSpaceSuccess"
         ]
-    },
-    "ProtocolSpaceTouchExitTouchRetry": {
-        "desc": "重试触碰退出点",
-        "recognition": "And",
-        "all_of": [
-            "InProtocolSpace",
-            {
-                "recognition": "OCR",
-                "roi": [
-                    755,
-                    330,
-                    297,
-                    312
-                ],
-                "expected": [
-                    "领取",
-                    "領取",
-                    "[Cc]laim",
-                    "受取",
-                    "획득하기"
-                ]
-            }
-        ],
-        "box_index": 1,
-        "action": "ClickKey",
-        "key": 70, // F 交互
-        "next": [
-            "ProtocolSpaceReward"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": "$task.ProtocolSpace.focus.open_reward",
-            "Node.PipelineNode.Failed": "$task.Keymap.focus.interact_failed"
-        }
     },
     "ProtocolSpaceReward": {
         "desc": "协议空间奖励界面，播报当前理智",

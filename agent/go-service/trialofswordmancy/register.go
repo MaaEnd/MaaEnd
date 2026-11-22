@@ -1,3 +1,5 @@
+// Package trialofswordmancy 实现选剑演武的牌库识别、MDP 求解与单步决策。
+// 界面跳转由 pipeline 的 TrialOfSwordmancy*.json 负责，Go 侧只做识别、求解与路由。
 package trialofswordmancy
 
 import (
@@ -5,17 +7,15 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// Register 注册选剑演武包提供的自定义识别器与动作。
-//
-//   - TrialOfSwordmancy.Recognize：总成识别（每步只读 remainDeck，手牌由缓存的 Deck 反推；读取已缓存的放弃次数）。
-//   - TrialOfSwordmancy.RecognizeDeck：完整牌库识别（remainDeck + Hand → 缓存总牌量 Deck，轮次开始时调用）。
-//   - TrialOfSwordmancy.RecognizeAband：从放弃弹窗文本识别并缓存剩余放弃次数。
-//   - TrialOfSwordmancy.Decide：MDP 单步决策 → OverrideNext 路由执行（开始演算/放弃时重置牌库缓存）。
+// Register 注册选剑演武的自定义识别器与动作。
 func Register() {
-	maa.AgentServerRegisterCustomRecognition(recognitionName, &Recognition{})
-	maa.AgentServerRegisterCustomRecognition(deckRecognitionName, &DeckRecognition{})
-	maa.AgentServerRegisterCustomRecognition(abandRecognitionName, &AbandRecognition{})
+	maa.AgentServerRegisterCustomRecognition(recognizeBoardName, &BoardRecognition{})
+	maa.AgentServerRegisterCustomRecognition(recognizeDeckName, &DeckRecognition{})
+	maa.AgentServerRegisterCustomRecognition(recognizeFullDeckName, &FullDeckRecognition{})
+	maa.AgentServerRegisterCustomRecognition(recognizeRemainAbandonName, &RemainAbandonRecognition{})
 	maa.AgentServerRegisterCustomAction(decideName, &DecideAction{})
+	maa.AgentServerRegisterCustomAction(freeCalcDecideName, &FreeCalcDecideAction{})
+	maa.AgentServerRegisterCustomAction(initSolverName, &InitSolverAction{})
 
 	log.Info().
 		Str("component", component).

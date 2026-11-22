@@ -10,6 +10,7 @@
             "controller": [
                 "ADB",
                 "CloudADB",
+                // "CloudWeb",
                 "Linux-Gamescope",
                 "Linux-ScreenCast",
                 "Linux-Wlroots",
@@ -20,7 +21,8 @@
             ],
             "option": [
                 "SwitchTeamSchedule",
-                "SwitchTeamTeamChoose"
+                "SwitchTeamTeamChoose",
+                "SwitchTeamOperatorPos"
             ]
         }
     ],
@@ -200,6 +202,65 @@
                 }
             ],
             "default_case": "SwitchTeamTeamChoose01"
+        },
+        "SwitchTeamOperatorPos": {
+            "type": "select",
+            "label": "$option.SwitchTeamOperatorPos.label",
+            "cases": [
+                {
+                    "name": "SwitchTeamOperatorPosNone",
+                    "label": "$option.SwitchTeamOperatorPos.cases.None.label"
+                },
+                {
+                    "name": "SwitchTeamOperatorPos1",
+                    "label": "$option.SwitchTeamOperatorPos.cases.Pos1.label",
+                    "pipeline_override": {
+                        "SwitchTeamOperatorPosSkip": {
+                            "enabled": false
+                        },
+                        "SwitchTeamOperatorPos1": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "SwitchTeamOperatorPos2",
+                    "label": "$option.SwitchTeamOperatorPos.cases.Pos2.label",
+                    "pipeline_override": {
+                        "SwitchTeamOperatorPosSkip": {
+                            "enabled": false
+                        },
+                        "SwitchTeamOperatorPos2": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "SwitchTeamOperatorPos3",
+                    "label": "$option.SwitchTeamOperatorPos.cases.Pos3.label",
+                    "pipeline_override": {
+                        "SwitchTeamOperatorPosSkip": {
+                            "enabled": false
+                        },
+                        "SwitchTeamOperatorPos3": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "SwitchTeamOperatorPos4",
+                    "label": "$option.SwitchTeamOperatorPos.cases.Pos4.label",
+                    "pipeline_override": {
+                        "SwitchTeamOperatorPosSkip": {
+                            "enabled": false
+                        },
+                        "SwitchTeamOperatorPos4": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ],
+            "default_case": "SwitchTeamOperatorPosNone"
         }
     }
 }

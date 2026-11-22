@@ -11,7 +11,8 @@
             ],
             "cwd": "${workspaceFolder}/install",
             "env": {
-                "GOTRACEBACK": "crash"
+                "GOTRACEBACK": "crash",
+                "NIX_HARDENING_ENABLE": ""
             }
         },
         {

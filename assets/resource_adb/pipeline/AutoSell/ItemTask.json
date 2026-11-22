@@ -16,5 +16,32 @@
             ]
         ],
         "end_hold": 200
+    },
+    "AutoSellFriendsPricesExpectedBuySlide": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "BetterSliding",
+                "custom_action_param": {
+                    "ClampTargetToSliderMax": true,
+                    "DecreaseButton": {
+                        "template": "AutoStockpile/DecreaseButton.png"
+                    },
+                    "Direction": "right",
+                    "IncreaseButton": {
+                        "template": "AutoStockpile/IncreaseButton.png"
+                    },
+                    "SliderQuantity": {
+                        "roi": [
+                            305,
+                            550,
+                            91,
+                            35
+                        ],
+                        "only_rec": true
+                    }
+                }
+            }
+        }
     }
 }
