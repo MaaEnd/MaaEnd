@@ -1,18 +1,16 @@
 {
     "EssenceFullScreenDetectAll": {
-        "desc": "在战利品界面模板匹配：收集所有基质图标（不点击）,给custom调用",
+        "desc": "逐格检查战利品：模板确认基质、色条判断品质，保留未能确认的格位",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "Custom",
             "param": {
+                "custom_recognition": "EssenceRewardRecognition",
                 "roi": [
                     34,
                     87,
                     1210,
                     522
-                ],
-                "template": "EssenceFilter/EssenceGeneral.png",
-                "method": 5,
-                "threshold": 0.35
+                ]
             }
         },
         "pre_delay": 0,
@@ -22,18 +20,20 @@
         "post_delay": 0
     },
     "EssenceFindLockItem": {
-        "desc": "查找上锁的图标，已上锁就跳过",
+        "desc": "定位详情页锁按钮，作为品质和标记的识别锚点",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                //偏移方案会因为超过边界而到另一边，目前只能固定识别范围先凑合一下
                 "roi": [
                     276,
                     87,
                     972,
                     486
                 ],
-                "template": "EssenceFilter/LockButton.png",
+                "template": [
+                    "EssenceFilter/LockButton.png",
+                    "EssenceFilter/LockButtonLocked.png"
+                ],
                 "threshold": 0.9,
                 "order_by": "Score"
             }
@@ -45,11 +45,13 @@
         "post_wait_freezes": 300,
         "next": [
             "EssenceFilterAfterBattleIsflawless",
-            "EssenceFilterAfterBattleIsPure",
-            "[Anchor]EssenceFilterAfterBattleCurrentPassHead"
+            "EssenceFilterAfterBattleIsPure"
+        ],
+        "on_error": [
+            "EssenceFilterAfterBattleFailed"
         ],
         "focus": {
-            "Node.Action.Succeeded": "基质未锁定"
+            "Node.Action.Succeeded": "已定位基质详情"
         }
     },
     "EssenceFilterAfterBattleIsflawless": {
@@ -80,7 +82,7 @@
             "EssenceFilterAfterBattleTierGateFlawless"
         ],
         "on_error": [
-            "[Anchor]EssenceFilterAfterBattleCurrentPassHead"
+            "EssenceFilterAfterBattleFailed"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "是无瑕基质"
@@ -114,14 +116,14 @@
             "EssenceFilterAfterBattleTierGatePure"
         ],
         "on_error": [
-            "[Anchor]EssenceFilterAfterBattleCurrentPassHead"
+            "EssenceFilterAfterBattleFailed"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "是高纯基质"
         }
     },
     "EssenceFilterAfterBattleTierGateFlawless": {
-        "desc": "Tier gate: flawless detected, check mode before proceeding",
+        "desc": "读取无瑕基质的当前标记",
         "pre_delay": 0,
         "action": {
             "type": "Custom",
@@ -135,10 +137,13 @@
         "post_delay": 0,
         "next": [
             "EssenceAfterBattleYellowSlot1"
+        ],
+        "on_error": [
+            "EssenceFilterAfterBattleFailed"
         ]
     },
     "EssenceFilterAfterBattleTierGatePure": {
-        "desc": "Tier gate: pure detected, check mode before proceeding",
+        "desc": "读取高纯基质的当前标记",
         "pre_delay": 0,
         "action": {
             "type": "Custom",
@@ -151,69 +156,11 @@
         },
         "post_delay": 0,
         "next": [
-            "EssenceAfterBattleYellowSlot1"
-        ]
-    },
-    "EssenceFilterAfterBattleTierBoundaryFlawlessNotice": {
-        "desc": "仅选无瑕：战后检测到高纯基质，关闭详情后退出",
-        "recognition": {
-            "type": "DirectHit",
-            "param": {}
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "DoNothing"
-        },
-        "post_delay": 0,
-        "next": [
-            "EssenceFilterAfterBattleCloseDetailThenExit",
-            "[Anchor]EssenceFilterAfterBattleCurrentPassTail"
+            "EssenceFilterAfterBattleSkillDecision"
         ],
-        "focus": {
-            "Node.Action.Succeeded": "$task.EssenceFilter.focus.afterbattle_tier_boundary_flawless"
-        }
-    },
-    "EssenceFilterAfterBattleCloseDetailThenExit": {
-        "desc": "关闭详情页后退出（边界停扫专用）",
-        "recognition": {
-            "type": "Or",
-            "param": {
-                "any_of": [
-                    "EssenceFilterCloseDetailFourth",
-                    "EssenceFilterCloseDetailWuling"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {
-                "target": [
-                    0,
-                    0
-                ]
-            }
-        },
-        "next": [
-            "[Anchor]EssenceFilterAfterBattleCurrentPassTail"
+        "on_error": [
+            "EssenceFilterAfterBattleFailed"
         ]
-    },
-    "EssenceFilterAfterBattleTierSkipPureOnlyNotice": {
-        "desc": "仅选高纯：战后检测到无瑕基质，跳过",
-        "recognition": {
-            "type": "DirectHit",
-            "param": {}
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "DoNothing"
-        },
-        "post_delay": 0,
-        "next": [
-            "[Anchor]EssenceFilterAfterBattleCurrentPassHead"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": "$task.EssenceFilter.focus.afterbattle_tier_skip_pure_only"
-        }
     },
     "EssenceAfterBattleYellowSlot1": {
         "desc": "基于锁下方颜色匹配定位槽位1黄点（HSV中心: [28, 222, 239]）",
@@ -253,7 +200,7 @@
             "EssenceFilterAfterBattleCheckItemSlot1"
         ],
         "on_error": [
-            "EssenceFilterAfterBattleCheckItemOCRFallback"
+            "EssenceFilterAfterBattleFailed"
         ]
     },
     "EssenceAfterBattleYellowSlot2": {
@@ -293,7 +240,7 @@
             "EssenceFilterAfterBattleCheckItemSlot2"
         ],
         "on_error": [
-            "EssenceFilterAfterBattleCheckItemOCRFallback"
+            "EssenceFilterAfterBattleFailed"
         ]
     },
     "EssenceAfterBattleYellowSlot3": {
@@ -333,7 +280,7 @@
             "EssenceFilterAfterBattleCheckItemSlot3"
         ],
         "on_error": [
-            "EssenceFilterAfterBattleCheckItemOCRFallback"
+            "EssenceFilterAfterBattleFailed"
         ]
     },
     "EssenceFilterAfterBattleCheckItemSlot1": {
@@ -369,8 +316,10 @@
         "timeout": 1500,
         "rate_limit": 300,
         "next": [
-            "EssenceFilterAfterBattleCheckItemSlot1Level",
-            "EssenceFilterAfterBattleCheckItemOCRFallback"
+            "EssenceFilterAfterBattleCheckItemSlot1Level"
+        ],
+        "on_error": [
+            "EssenceFilterAfterBattleFailed"
         ]
     },
     "EssenceFilterAfterBattleCheckItemSlot1Level": {
@@ -406,8 +355,10 @@
         "timeout": 1500,
         "rate_limit": 300,
         "next": [
-            "EssenceAfterBattleYellowSlot2",
-            "EssenceFilterAfterBattleCheckItemOCRFallback"
+            "EssenceAfterBattleYellowSlot2"
+        ],
+        "on_error": [
+            "EssenceFilterAfterBattleFailed"
         ]
     },
     "EssenceFilterAfterBattleCheckItemSlot2": {
@@ -443,8 +394,10 @@
         "timeout": 1500,
         "rate_limit": 300,
         "next": [
-            "EssenceFilterAfterBattleCheckItemSlot2Level",
-            "EssenceFilterAfterBattleCheckItemOCRFallback"
+            "EssenceFilterAfterBattleCheckItemSlot2Level"
+        ],
+        "on_error": [
+            "EssenceFilterAfterBattleFailed"
         ]
     },
     "EssenceFilterAfterBattleCheckItemSlot2Level": {
@@ -480,8 +433,10 @@
         "timeout": 1500,
         "rate_limit": 300,
         "next": [
-            "EssenceAfterBattleYellowSlot3",
-            "EssenceFilterAfterBattleCheckItemOCRFallback"
+            "EssenceAfterBattleYellowSlot3"
+        ],
+        "on_error": [
+            "EssenceFilterAfterBattleFailed"
         ]
     },
     "EssenceFilterAfterBattleCheckItemSlot3": {
@@ -517,8 +472,10 @@
         "timeout": 1500,
         "rate_limit": 300,
         "next": [
-            "EssenceFilterAfterBattleCheckItemSlot3Level",
-            "EssenceFilterAfterBattleCheckItemOCRFallback"
+            "EssenceFilterAfterBattleCheckItemSlot3Level"
+        ],
+        "on_error": [
+            "EssenceFilterAfterBattleFailed"
         ]
     },
     "EssenceFilterAfterBattleCheckItemSlot3Level": {
@@ -554,27 +511,14 @@
         "timeout": 1500,
         "rate_limit": 300,
         "next": [
-            "EssenceFilterAfterBattleSkillDecision",
-            "EssenceFilterAfterBattleCheckItemOCRFallback"
-        ]
-    },
-    "EssenceFilterAfterBattleCheckItemOCRFallback": {
-        "desc": "OCR 超时：跳过",
-        "recognition": {
-            "type": "DirectHit",
-            "param": {}
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "DoNothing"
-        },
-        "post_delay": 0,
-        "next": [
-            "[Anchor]EssenceFilterAfterBattleCurrentPassHead"
+            "EssenceFilterAfterBattleSkillDecision"
+        ],
+        "on_error": [
+            "EssenceFilterAfterBattleFailed"
         ]
     },
     "EssenceFilterAfterBattleSkillDecision": {
-        "desc": "匹配技能并决定是否上锁",
+        "desc": "根据品质、已有标记及无瑕基质的武器匹配结果决定标记",
         "pre_delay": 0,
         "action": {
             "type": "Custom",
@@ -584,7 +528,10 @@
         },
         "post_delay": 0,
         "next": [
-            "[Anchor]EssenceFilterAfterBattleCurrentPassHead"
+            "FailedNode"
+        ],
+        "on_error": [
+            "EssenceFilterAfterBattleFailed"
         ]
     }
 }

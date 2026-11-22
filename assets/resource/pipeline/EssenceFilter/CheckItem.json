@@ -32,8 +32,10 @@
         "timeout": 1500,
         "rate_limit": 300,
         "next": [
-            "EssenceFilterCheckItemSlot1Level",
-            "EssenceFilterCheckItemOCRFallback"
+            "EssenceFilterCheckItemSlot1Level"
+        ],
+        "on_error": [
+            "EssenceFilterUnreadPurple"
         ]
     },
     "EssenceFilterCheckItemSlot1Level": {
@@ -68,8 +70,10 @@
         "timeout": 1500,
         "rate_limit": 300,
         "next": [
-            "EssenceFilterCheckItemSlot2",
-            "EssenceFilterCheckItemOCRFallback"
+            "EssenceFilterCheckItemSlot2"
+        ],
+        "on_error": [
+            "EssenceFilterUnreadPurple"
         ]
     },
     "EssenceFilterCheckItemSlot2": {
@@ -105,8 +109,10 @@
         "timeout": 1500,
         "rate_limit": 300,
         "next": [
-            "EssenceFilterCheckItemSlot2Level",
-            "EssenceFilterCheckItemOCRFallback"
+            "EssenceFilterCheckItemSlot2Level"
+        ],
+        "on_error": [
+            "EssenceFilterUnreadPurple"
         ]
     },
     "EssenceFilterCheckItemSlot2Level": {
@@ -141,8 +147,10 @@
         "timeout": 1500,
         "rate_limit": 300,
         "next": [
-            "EssenceFilterCheckItemSlot3",
-            "EssenceFilterCheckItemOCRFallback"
+            "EssenceFilterCheckItemSlot3"
+        ],
+        "on_error": [
+            "EssenceFilterUnreadPurple"
         ]
     },
     "EssenceFilterCheckItemSlot3": {
@@ -178,8 +186,10 @@
         "timeout": 1500,
         "rate_limit": 300,
         "next": [
-            "EssenceFilterCheckItemSlot3Level",
-            "EssenceFilterCheckItemOCRFallback"
+            "EssenceFilterCheckItemSlot3Level"
+        ],
+        "on_error": [
+            "EssenceFilterUnreadPurple"
         ]
     },
     "EssenceFilterCheckItemSlot3Level": {
@@ -214,23 +224,10 @@
         "timeout": 1500,
         "rate_limit": 300,
         "next": [
-            "EssenceFilterSkillDecision",
-            "EssenceFilterCheckItemOCRFallback"
-        ]
-    },
-    "EssenceFilterCheckItemOCRFallback": {
-        "desc": "OCR 超时：跳过",
-        "recognition": {
-            "type": "DirectHit",
-            "param": {}
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "DoNothing"
-        },
-        "post_delay": 0,
-        "next": [
-            "EssenceGridAdvance"
+            "EssenceFilterSkillDecision"
+        ],
+        "on_error": [
+            "EssenceFilterUnreadPurple"
         ]
     },
     "EssenceFilterSkillDecision": {
@@ -245,6 +242,25 @@
         "post_delay": 0,
         "next": [
             "EssenceGridAdvance"
+        ],
+        "on_error": [
+            "EssenceFilterUnreadPurple"
+        ]
+    },
+    "EssenceFilterUnreadPurple": {
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "EssenceFilterUnreadPurpleAction"
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "EssenceGridAdvance"
+        ],
+        "on_error": [
+            "FailedNode"
         ]
     }
 }

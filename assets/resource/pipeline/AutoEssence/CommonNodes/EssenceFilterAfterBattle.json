@@ -1,110 +1,24 @@
 {
-    //这是一个调用EssenceFilter任务中战斗后识别基质节点的入口，内部节点在EssenceFilter文件夹中，包括以下2个
-    //EssenceFilterAfterBattleCheckItem.json
-    //EssenceFilterAfterBattleLockDiscard.json
-    //使用说明
-    //   一句话版本：
-    //脚本运行到弹出基质战利品界面后，在next里加上"[Jumpback]EssenceFilterAfterBattleStart"，下面直接跟下一个界面的任务即可（我这个任务会自动点退出战利品界面）
-    //任务实现逻辑：
-    //1、这个任务开始是个识别节点，会先判断屏幕中是否有基质，有的话才开始，否则直接返回false跳过自身
-    //2、开始任务后会逐个识别屏幕中的基质，如果符合条件就上锁，不符合就弃置
-    //3、可以自定义设置来决定识别策略和上锁弃置策略，只要在自己的任务option里override"EssenceFilterAfterBattleInit"的"attach"部分即可，具体设置方法同EssenceFilter
-    //4、任务结束后会自己点击退出战利品界面（你就不用另外点击退出了），然后Jumpback回来
-    //5、Jumpback回来后因开始节点识别失败跳过自身，继续你后面的任务
-    //6、如果不想强制退出战利品界面，那就不加[Jumpback]，把"EssenceFilterAfterBattleExit"的next改成你想要的下一个节点
-    //7、EssenceFilterInitAction 按 attach.mode 分支处理：EssenceFilterAfterBattleInit 的 mode 为 after_battle，首次进入战后流程时完整初始化；同一任务内再次进入时仅清本轮 UI 遍历状态并保留累计锁定统计；基质刷取开启「战后基质筛选」时由 AutoEssenceAfterBattleRunEndLootReport（[JumpBack]、max_hit=1，体力不足与整次结束共用）调用 EssenceFilterFinishAction 输出汇总
-    //8、每次离开战利品界面前会经过 EssenceFilterAfterBattleCommitInventory，把本轮的锁定与保留决策按词条组合和等级合并写入 EssenceInventory.json；要改变退出行为请改 EssenceFilterAfterBattleExit 的 next，写入节点仍会执行
-    //9、开启「限制相同词条基质的锁定数量」时每轮走两遍：只读遍（EssenceFilterAfterBattleReadonlyInit 起，只记录本轮持有份数并提交）结束后接执行遍（EssenceFilterAfterBattleInit 起，按名额落锁并提交）；两遍共用同一套单格节点，遍首遍尾由 EssenceFilterAfterBattleCurrentPassHead / EssenceFilterAfterBattleCurrentPassTail 锚点指向当前遍
     "EssenceFilterAfterBattleStart": {
-        "desc": "识别画面中是否有基质，是的话开始任务,完成后会自动退出战利品界面",
-        "enabled": false,
-        //有基质才开始任务，不然直接返回失败
+        "desc": "识别领奖界面，交给战后筛选逐格读取",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "Or",
             "param": {
-                "roi": [
-                    0,
-                    0,
-                    1280,
-                    720
-                ],
-                "template": "EssenceFilter/EssenceGeneral.png",
-                "green_mask": true,
-                "method": 5,
-                "threshold": 0.7
+                "any_of": [
+                    "EssenceRewardExitButton",
+                    "CloseRewardsButton",
+                    "EssenceFullScreenDetectAll"
+                ]
             }
         },
         "next": [
             "EssenceFilterAfterBattleInit"
         ],
-        "focus": {
-            "Node.Recognition.Succeeded": "$task.AutoEssence.focus.essence_filter_after_battle_start"
-        }
-    },
-    //只读遍初始化：只识别、只记录本轮持有份数、只关闭详情，不锁定也不弃置；结束后由只读遍写入节点提交并接执行遍
-    //武器稀有度与扩展规则必须与执行遍初始化节点逐项一致（选项树同时覆盖两个节点）：只读遍记下的份数是执行遍排名的依据
-    "EssenceFilterAfterBattleReadonlyInit": {
-        "desc": "只读遍初始化：加载数据与预设，只记录本轮持有份数",
-        "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "EssenceFilterInitAction"
-            }
-        },
-        //两个锚点固定指向当前遍的首尾：只读遍与执行遍共用同一套单格节点，回落边与收尾边据此各回各的遍
-        "anchor": {
-            "EssenceFilterAfterBattleCurrentPassHead": "EssenceFilterAfterBattleRowNextItem",
-            "EssenceFilterAfterBattleCurrentPassTail": "EssenceFilterAfterBattleReadonlyCommitInventory"
-        },
-        "post_wait_freezes": {
-            "time": 50,
-            "target": [
-                38,
-                398,
-                922,
-                198
-            ]
-        },
-        "post_delay": 0,
-        "next": [
-            "EssenceFilterAfterBattleRowNextItem"
+        "on_error": [
+            "EssenceFilterAfterBattleFailed"
         ],
         "focus": {
-            "Node.Action.Succeeded": "$task.AutoEssence.focus.essence_filter_after_battle_init_succeeded"
-        },
-        //默认配置
-        "attach": {
-            //初始化模式：战后筛选（同一任务内重复进入时只清本轮状态）
-            "mode": "after_battle",
-            //遍次：只读遍
-            "after_battle_pass": "readonly",
-            //是否匹配6星武器
-            "rarity6_weapon": true,
-            //是否匹配5星武器
-            "rarity5_weapon": true,
-            //是否匹配4星武器
-            "rarity4_weapon": false,
-            //是否筛选金基质
-            "flawless_essence": true,
-            //是否筛选紫基质
-            "pure_essence": false,
-            //是否保留未来可期的基质
-            "keep_future_promising": false,
-            //“未来可期基质”最低要满足多少总词条
-            "future_promising_min_total": 6,
-            //是否锁上未来可期的基质
-            "lock_future_promising": false,
-            //是否保留高等级技能3的实用基质
-            "keep_slot3_level3_practical": false,
-            //“高等级”对应多少技能等级
-            "slot3_min_level": 3,
-            //是否锁上高等级技能3的实用基质
-            "lock_slot3_practical": false,
-            //是否丢弃不匹配的基质
-            "discard_unmatched": false,
-            //限制相同词条基质的锁定数量：只读遍不建名额计划，只严格校验库存是否存在
-            "limit_locked_per_combination": true
+            "Node.Recognition.Succeeded": "$task.AutoEssence.focus.essence_filter_after_battle_start"
         }
     },
     "EssenceFilterAfterBattleInit": {
@@ -116,11 +30,6 @@
                 "custom_action": "EssenceFilterInitAction"
             }
         },
-        //两个锚点固定指向当前遍的首尾：只读遍与执行遍共用同一套单格节点，回落边与收尾边据此各回各的遍
-        "anchor": {
-            "EssenceFilterAfterBattleCurrentPassHead": "EssenceFilterAfterBattleRowNextItem",
-            "EssenceFilterAfterBattleCurrentPassTail": "EssenceFilterAfterBattleCommitInventory"
-        },
         "post_wait_freezes": {
             "time": 50,
             "target": [
@@ -134,62 +43,19 @@
         "next": [
             "EssenceFilterAfterBattleRowNextItem"
         ],
+        "on_error": [
+            "EssenceFilterAfterBattleFailed"
+        ],
         "focus": {
             "Node.Action.Succeeded": "$task.AutoEssence.focus.essence_filter_after_battle_init_succeeded"
         },
-        //默认配置
         "attach": {
-            //初始化模式：战后筛选（同一任务内重复进入时只清本轮状态）
             "mode": "after_battle",
-            //是否匹配6星武器
-            "rarity6_weapon": true,
-            //是否匹配5星武器
-            "rarity5_weapon": true,
-            //是否匹配4星武器
-            "rarity4_weapon": false,
-            //是否筛选金基质
-            "flawless_essence": true,
-            //是否筛选紫基质
-            "pure_essence": false,
-            //是否保留未来可期的基质
-            "keep_future_promising": false,
-            //“未来可期基质”最低要满足多少总词条
-            "future_promising_min_total": 6,
-            //是否锁上未来可期的基质
-            "lock_future_promising": false,
-            //是否保留高等级技能3的实用基质
-            "keep_slot3_level3_practical": false,
-            //“高等级”对应多少技能等级
-            "slot3_min_level": 3,
-            //是否锁上高等级技能3的实用基质
-            "lock_slot3_practical": false,
-            //是否丢弃不匹配的基质
-            "discard_unmatched": false
+            "discard_unmatched": true
         }
     },
-    //只读遍结束：先把本轮持有份数写进基质库存，再进入执行遍（执行遍 Init 重建名额计划时就能看到本轮份数）
-    "EssenceFilterAfterBattleReadonlyCommitInventory": {
-        "desc": "把只读遍记录的本轮持有份数合并写入 EssenceInventory.json",
-        "recognition": {
-            "type": "DirectHit",
-            "param": {}
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "EssenceFilterAfterBattleInventoryCommitAction"
-            }
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "EssenceFilterAfterBattleInit"
-        ]
-    },
-    //离开战利品界面之前，先并入本轮筛选结果
     "EssenceFilterAfterBattleCommitInventory": {
-        "desc": "把本轮战后决策按词条组合与等级合并写入 EssenceInventory.json",
+        "desc": "核对奖励覆盖并更新账号库存",
         "recognition": {
             "type": "DirectHit",
             "param": {}
@@ -204,12 +70,45 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "EssenceFilterAfterBattleExit"
+            "EssenceFilterAfterBattleExit",
+            "EssenceFilterAfterBattleReturnWorld"
+        ],
+        "on_error": [
+            "EssenceFilterAfterBattleFailed"
         ]
     },
-    //节点出口，如果不加jumpback，那就得把这个出口节点的next接到你想要的下一个节点上
     "EssenceFilterAfterBattleExit": {
         "desc": "任务完成,点击离开",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "EssenceRewardExitButton",
+                    "CloseRewardsButton"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilNotFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_node": "EssenceFilterAfterBattleExit"
+                }
+            }
+        },
+        "post_wait_freezes": 200,
+        "post_delay": 0,
+        "next": [
+            "AutoEssenceOnSuccess"
+        ],
+        "on_error": [
+            "EssenceFilterAfterBattleReturnWorld"
+        ]
+    },
+    "EssenceRewardExitButton": {
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -226,20 +125,36 @@
                 "method": 5,
                 "threshold": 0.7
             }
-        },
+        }
+    },
+    "EssenceFilterAfterBattleFailed": {
         "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "RepeatUntilNotFoundAction",
+                "custom_action": "EssenceRewardFailedAction"
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "[JumpBack]EssenceFilterAfterBattleCloseDetailJumpback",
+            "EssenceFilterAfterBattleExit",
+            "EssenceFilterAfterBattleReturnWorld"
+        ]
+    },
+    "EssenceFilterAfterBattleReturnWorld": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
                 "custom_action_param": {
-                    "action": "Click",
-                    "wait_node": "EssenceFilterAfterBattleExit"
+                    "sub": [
+                        "SceneAnyEnterWorld"
+                    ],
+                    "strict": false
                 }
             }
         },
-        "post_wait_freezes": 200,
-        "post_delay": 0,
         "next": [
             "AutoEssenceOnSuccess"
         ]

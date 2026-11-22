@@ -1,0 +1,5 @@
+<div style="line-height: 1.6; margin-top: 4px;">
+<div style="color: #00bfff; font-weight: 700;">{{escapeHTML .Title}}</div>
+{{range .Lines}}<div>{{escapeHTML .}}</div>{{end}}
+{{if .Details}}<details><summary>{{t "details"}}</summary><div>{{escapeHTML .Details}}</div></details>{{end}}
+</div>

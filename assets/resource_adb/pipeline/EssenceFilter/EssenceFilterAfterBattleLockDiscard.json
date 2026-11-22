@@ -1,0 +1,42 @@
+{
+    "EssenceFilterAfterBattleClickLockItem": {
+        "recognition": {
+            "param": {
+                "template": "EssenceFilter/RewardLockButton.png"
+            }
+        }
+    },
+    "EssenceFilterAfterBattleCheckLocked": {
+        "recognition": {
+            "param": {
+                "template": "EssenceFilter/RewardLockButtonLocked.png"
+            }
+        }
+    },
+    "EssenceFilterAfterBattleClickDiscardItem": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    -48,
+                    -6,
+                    12,
+                    12
+                ],
+                "template": "EssenceFilter/RewardDiscardButton.png"
+            }
+        }
+    },
+    "EssenceFilterAfterBattleCheckDiscarded": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    -48,
+                    -6,
+                    12,
+                    12
+                ],
+                "template": "EssenceFilter/RewardDiscardButtonDiscarded.png"
+            }
+        }
+    }
+}

@@ -5,7 +5,8 @@
 ```mermaid
 flowchart LR
     P["Pipeline 截图"] --> E["EssenceGrid 业务实例"]
-    E --> R["RecoGrid 单帧识别"]
+    E --> L["InventoryLayout 格位定位"]
+    L --> R["RecoGrid 占用与彩色图块"]
     R --> T["GridTracker 跨帧追踪"]
     T --> E
     E --> C["Pipeline 点击格子"]
@@ -17,10 +18,10 @@ flowchart LR
 
 | 模块 | 负责 | 不负责 |
 | --- | --- | --- |
-| `RecoGrid` | 单张截图中的行列、格子矩形、占用状态、pHash 和比较特征 | 历史帧、滚动顺序、业务品质、点击 |
+| `RecoGrid` | 按输入布局换算格子矩形、判断占用、生成对齐图块 | 格位定位、历史帧、滚动顺序、业务品质、点击 |
 | `GridTracker` | 相邻帧对齐、全局行列、去重、顺序和结束确认 | 图像分割、模板加载、Pipeline 路由 |
 | `EssenceGrid` | 基质品质、锁定/废弃缩略图、待处理队列和 Maa 回调 | 技能 OCR、匹配规则、实际 UI 操作 |
-| Go `essencefilter` | OCR 归一化、目标组合匹配、Lock/Discard/Skip 决策 | 网格识别、点击按钮 |
+| Go `essencefilter` | 扫描结果到节点的映射、详情读取次数、OCR 归一化、目标组合匹配、Lock/Discard/Skip 决策 | 网格识别、点击按钮 |
 | Pipeline | 截图时机、点击、滑动、等待、操作后确认 | 图像算法和匹配数据结构 |
 
 源码旁还有更精确的模块文档：
@@ -37,35 +38,33 @@ flowchart LR
 ```cpp
 recogrid::GridFrame RecognizeGrid(
     const cv::Mat& image,
-    const recogrid::GridRecognitionOptions& options = {});
+    const recogrid::GridRecognitionOptions& options,
+    const recogrid::GridLayout& detected);
 ```
 
 识别过程：
 
-1. 把截图映射到 `normalizedSize`。
-2. 裁剪 `roi`，通过行列投影提取 segment。
-3. 组合出规则格子并换算回原截图坐标。
-4. 对每个格子应用固定装饰 mask。
-5. 计算占用状态、pHash 和紧凑颜色特征。
+1. `InventoryLayout` 在归一化截图中定位卡片，提供 `GridLayout` 的 ROI 图像、行列和格子矩形。
+2. RecoGrid 将输入格子矩形换算回原截图坐标。
+3. 按亮度判断格子占用。
+4. 生成包含格间距的彩色图块，交给 GridTracker 对齐。
+
+旧的投影检测入口和每格 pHash 已移除。EssenceGrid 将右侧详情核心采样为独立持有像素的 `cv::Mat`，使用 OpenCV L1 距离比较。
 
 ### 主要输入
 
 | 字段 | 含义 |
 | --- | --- |
-| `detect.normalizedSize` | 坐标基准，MaaEnd 通常使用 `1280x720` |
-| `detect.roi` | 网格区域 |
-| `rowThresholdRatio` / `colThresholdRatio` | 行列投影阈值 |
-| `minRawSegmentLength` | 原始 segment 最小长度 |
-| `minKeptSegmentRatio` | 相对主流格子尺寸的保留比例 |
-| `lockedRowHeight` / `lockedColWidth` | 首帧后锁定的格子尺寸，用于稳定后续检测 |
-| `mask` | 忽略格子内固定角标或底部区域 |
+| `region_.normalized_size_` | 坐标基准，MaaEnd 通常使用 `1280x720` |
+| `region_.roi_` | 网格区域 |
+| `GridLayout` | ROI 图像、相对 ROI 的行列和格子矩形 |
 | 占用亮度参数 | 判断格子是否有内容 |
 
 ### 主要输出
 
-`GridFrame` 包含行列数、主流格子宽高、诊断信息和 `GridCell` 列表。每个 `GridCell` 包含局部行列、当前帧 index、屏幕矩形、特征以及 `occupied`。
+`GridFrame` 包含行列数、诊断信息、对齐图块和 `GridCell` 列表。每个 `GridCell` 包含局部行列、当前帧 index、屏幕矩形以及 `occupied`。
 
-RecoGrid 不加载物品分类模板，也不保存 session。空图、无效通道或没有检测到网格时返回空 `GridFrame`，调用方决定如何重试。
+RecoGrid 不加载物品分类模板，也不保存 session。空图或无效网格几何返回空 `GridFrame`，调用方负责失败和恢复决策。
 
 ## GridTracker：跨帧顺序与结束
 
@@ -74,43 +73,32 @@ RecoGrid 不加载物品分类模板，也不保存 session。空图、无效通
 ```cpp
 gridtracker::Result observe(
     const recogrid::GridFrame& frame,
-    const gridtracker::Options& options = {});
+    const gridtracker::Options& options);
 ```
 
 一个滚动任务持有一个 `GridTracker`。新任务开始时调用 `reset()`。
 
 ### 状态
 
-| 状态 | 含义 | EssenceGrid 路由 |
+| 状态 | 含义 | Go / Pipeline 路由 |
 | --- | --- | --- |
-| `Initial` | 首个有效帧 | 处理新格子；无候选则滑动 |
-| `Advanced` | 正向推进，或零偏移但不构成完整重复（如行数变化）时刷新基准 | 处理新格子；无候选则滑动 |
-| `ConfirmingEnd` | 第一次完整重复 | 再滑一次确认 |
-| `Repeated` | 连续第二次完整重复 | 完成任务 |
-| `Rejected` | 空帧、列数变化、低置信对齐，或零偏移完整重复但匹配比例低于 `repeat_match_ratio` | 返回识别失败，让 Maa 同屏重试 |
+| `Initial` | 已验证顶端，建立首屏坐标 | 处理新格 |
+| `Advanced` | 新增了可定位的格位 | 处理新格 |
+| `Stalled` | 与上一页对齐但没有新增格位 | 短滑一次，仍无进展则失败 |
+| `Complete` | 已确认底部且不同格位数等于库存数量 | 处理剩余队列，然后独立复核 |
+| `Rejected` | 起点、网格或重叠关系未能验证 | 起始时可回顶，对齐丢失时可回滑找重叠 |
 
 ### 对齐与去重
 
-Tracker 在前一帧中枚举非负行偏移，按以下顺序选择候选：
+使用控制器对应的首格、格距和滚动条位置确定布局。完整卡片的轮廓提供行位置，每一列独立判断占用。滚动条位置限定可能的绝对行号。滚动条和数量只允许一个行偏移时，一整行各列核心一致即可确认重叠。存在多个可能偏移时需要至少两行和唯一的图案匹配，否则保留原进度。只有符合库存数量的连续占用位置才进入全局坐标表。
 
-1. 匹配格比例更高；
-2. 平均特征距离更低；
-3. 参与比较的格子更多。
+### 完成条件
 
-候选还必须满足最小重叠行数和 `min_match_ratio`。接受正偏移后，本地行会映射为 `viewport_start_row + local_row`。
+起点已确认，各页之间有连续重叠，每个库存格位都有识别结果。符合跳过选项的格位可直接记账。需要处理的格位在确认选中并从详情流程成功返回后记账。到达底部时，再次读取数量、检查底部和当前页，已处理格位数须等于库存数量。单屏库存可以在首屏完成。
 
-业务层只消费 `Result::new_cells`。Tracker 已按全局 `(row, col)` 去重，外层不要再维护第二份去重表。
+「生成基质报告」和目标模式的盘点共用只读扫描。进入基质页后，从开头读取已锁定的无瑕基质词条，按五星、六星武器的精确适配关系入库。已装备但未锁定的基质只影响扫描边界。遇到第一枚未锁定且未装备的基质后结束。同一页取下一格直接使用已定位的格子，滑动后等网格稳定，点格后等右侧核心稳定。
 
-### 为什么结束要确认两次
-
-`row_offset == 0` 不能单独证明到底。一次完整重复必须同时满足：
-
-- 两帧行列形状一致；
-- 两帧都具有完整的 `rows * cols` 格子向量；
-- 全部格子参与比较；
-- 匹配比例达到 `repeat_match_ratio`。
-
-第一次返回 `ConfirmingEnd`，Pipeline 再滑一次。第二次连续满足条件才返回 `Repeated`。任何有效推进、形状变化或失败识别都会清除待确认状态。
+自定义筛选按用户配置派发需要处理的格位。用户在自定义筛选后可以运行目标模式的「开始前重新盘点基质库存」，将实际标记反映到当前账号库存。
 
 ## EssenceGrid：基质业务实例
 
@@ -118,6 +106,7 @@ Tracker 在前一帧中枚举非负行偏移，按以下顺序选择候选：
 
 - `EssenceGridAdvanceRecognition`
 - `EssenceGridPendingRecognition`
+- `EssenceGridDetailRecognition`
 - `EssenceGridResetAction`
 
 实例持有 Tracker、任务 id、合并后的配置、缩略图模板、当前页队列和 pending cell。任务 id 变化时会重置 Tracker 与队列；Pipeline 执行 `EssenceGridResetAction` 时也会立即清空这些追踪状态，让下一次 `EssenceGridAdvanceRecognition` 从头扫描，已加载的模板与配置保留。
@@ -126,8 +115,8 @@ Tracker 在前一帧中枚举非负行偏移，按以下顺序选择候选：
 
 | 字段 | 用途 |
 | --- | --- |
-| `roi`、`normalized_size`、行列阈值、segment 参数 | 构造 RecoGrid 选项 |
-| `repeat_match_ratio` | 构造 GridTracker 选项 |
+| `roi`、`normalized_size`、`first_cell`、`row_pitch`、`scrollbar_track` | 定位卡片和滚动条 |
+| `preview_core`, `preview_quality` | 右侧详情大图的核心与顶部品质色条 |
 | `thumb_lock_template_paths` | 识别已锁定缩略图 |
 | `thumb_discard_template_path` | 识别已废弃缩略图 |
 | `flawless_essence` / `pure_essence` | 品质过滤 |
@@ -143,11 +132,13 @@ EssenceGrid 只处理 Tracker 的 `new_cells`：
 2. 在格子左下区域匹配锁定/废弃缩略图。
 3. 应用品质与跳过选项。
 4. 把通过的格子加入队列。
-5. `PendingRecognition` 返回屏幕矩形，Pipeline 执行点击。
+5. Pipeline 点击目标格中心。扫描器比较点击前后右侧大图的核心图案和颜色。Go 比较两份完整读数的词条顺序和等级，色条清晰时也比较详情品质。只有两份读数相同且核心未变才在原坐标补点一次。最终读数用于标记和计数，不同格位上的相同基质分别计数。
 
 ## Go 与 Pipeline
 
-Pipeline 点击格子后，三个技能和等级由 OCR 节点读取。Go 的 `runUnifiedSkillDecision` 只决定分支：
+C++ 返回格位、追踪状态和覆盖结果，由现有 `EssenceFilterReadLockStateAction` 选择下一个 Pipeline 节点。`EssenceGridPendingRecognition` 只提供点击中心并采样点击前的核心，`EssenceGridDetailRecognition` 只读取点击后的品质和核心变化，不再按节点名称切换职责。Pipeline 的 `EssenceGridClickPending.max_hit` 保留每格最多两次点击的限制，Go 在派发新格子时清零，并记录已完成的详情读取次数，供相同详情补点规则使用。
+
+Pipeline 点击格子后，OCR 节点读取三个技能和等级。Go 的 `decideSkillMark` 决定下一步执行的标记操作。
 
 - 命中目标：进入 `EssenceFilterLockItem`；
 - 未命中且开启废弃：进入 `EssenceFilterDiscardItem`；
@@ -165,7 +156,7 @@ Pipeline 点击格子后，三个技能和等级由 OCR 节点读取。Go 的 `r
 
 | 现象 | 先查哪一层 |
 | --- | --- |
-| 行列数或格子矩形错误 | RecoGrid 的 ROI 和 segment 参数 |
+| 行列数或格子矩形错误 | InventoryLayout 的 ROI、首格、格距与轮廓定位 |
 | 累计错行、重复、提前结束 | GridTracker 的 offset、support、match ratio 和状态 |
 | 品质或已锁/已弃判断错误 | EssenceGrid 的 HSV 与缩略图模板 |
 | 技能匹配不符合预期 | Go OCR 归一化、数据和匹配选项 |

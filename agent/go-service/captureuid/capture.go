@@ -36,6 +36,7 @@ var (
 	// capturedUid 缓存 OCR 或注册表得到的原始 UID 数字；未捕获或失败时为空字符串。
 	capturedUid   string
 	capturedUidMu sync.Mutex
+	uidGeneration uint64
 
 	uidDigitRe = regexp.MustCompile(`\d+`)
 )
@@ -74,6 +75,32 @@ func controllerType(ctrl *maa.Controller) string {
 }
 
 func captureByOCR(ctx *maa.Context, ctrl *maa.Controller, stayOnCurrentScreen, allowUnknown bool, outputType OutputType) (string, error) {
+	raw, err := readUIDByOCR(ctx, ctrl, stayOnCurrentScreen, allowUnknown)
+	if err != nil || !IsValidRawUID(raw) {
+		return raw, err
+	}
+	return cacheAndFormat(raw, allowUnknown, outputType)
+}
+
+// Observe reads identity without publishing OCR noise into the shared login-session cache.
+func Observe(ctx *maa.Context, ctrl *maa.Controller, outputType OutputType) (string, error) {
+	var raw string
+	var err error
+	if controllerType(ctrl) == pienv.ControllerKindWin32 {
+		raw, err = gamesetting.GetCachedUID()
+	} else {
+		raw, err = readUIDByOCR(ctx, ctrl, true, false)
+	}
+	if err != nil {
+		return "", err
+	}
+	if !IsValidRawUID(raw) {
+		return "", fmt.Errorf("unverified account identity")
+	}
+	return formatUID(raw, outputType)
+}
+
+func readUIDByOCR(ctx *maa.Context, ctrl *maa.Controller, stayOnCurrentScreen, allowUnknown bool) (string, error) {
 	if ctx == nil || ctrl == nil {
 		return captureErr(allowUnknown, "OCR capture requires context and controller")
 	}
@@ -102,7 +129,7 @@ func captureByOCR(ctx *maa.Context, ctrl *maa.Controller, stayOnCurrentScreen, a
 	if !IsValidRawUID(digits) {
 		return captureErr(allowUnknown, "uid digit count %d not in [8,12]", len(digits))
 	}
-	return cacheAndFormat(digits, allowUnknown, outputType)
+	return digits, nil
 }
 
 func cacheAndFormat(raw string, allowUnknown bool, outputType OutputType) (string, error) {
@@ -110,6 +137,9 @@ func cacheAndFormat(raw string, allowUnknown bool, outputType OutputType) (strin
 		return captureErr(allowUnknown, "uid is not a valid 8-12 digit uid (len=%d)", len(raw))
 	}
 	capturedUidMu.Lock()
+	if capturedUid != raw {
+		uidGeneration++
+	}
 	capturedUid = raw
 	capturedUidMu.Unlock()
 	uid, err := formatUID(raw, outputType)
@@ -124,8 +154,16 @@ func cacheAndFormat(raw string, allowUnknown bool, outputType OutputType) (strin
 func ClearCache() {
 	capturedUidMu.Lock()
 	capturedUid = ""
+	uidGeneration++
 	capturedUidMu.Unlock()
 	log.Info().Str("component", component).Msg("uid cache cleared")
+}
+
+// CacheGeneration changes when a different UID is observed or the login session is cleared.
+func CacheGeneration() uint64 {
+	capturedUidMu.Lock()
+	defer capturedUidMu.Unlock()
+	return uidGeneration
 }
 
 // GetCachedUID 返回最近捕获的原始 UID 按 outputType 转换后的结果（线程安全）。

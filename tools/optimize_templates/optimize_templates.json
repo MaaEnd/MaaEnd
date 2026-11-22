@@ -2689,5 +2689,7 @@
     "resource/image/UI/Item/item_charpotentialup_chr_0037_minghe": "7ae850cb6c624085cac995d9dc102caec65fe6b60a526b379a996d299429bc22",
     "resource/image/UI/Item/wpn_lance_0018": "9ec7a14c466c7d305c9739546aeb4d5c4caa4b591d47dfc0d5fb970ca3560dca",
     "resource/image/UI/Item/ticketgacha_special_single_lt_1_6_2": "9b800f770dcdf5017344753276ee189941e50611c432f6956850b4623163ea06",
-    "resource/image/UI/Item/item_char_equip_supply_minghe": "5afabc1086b473a2f0f00d3a74867e613d6204f11cb330763cd844a4fc2454f3"
+    "resource/image/UI/Item/item_char_equip_supply_minghe": "5afabc1086b473a2f0f00d3a74867e613d6204f11cb330763cd844a4fc2454f3",
+    "resource/image/EssenceFilter/ThumbEquipped": "cca66e3e3db6441c985cf46463c54fb2ac3359289eaf1e460dc3cf72d926dbe8",
+    "resource/image/EssenceFilter/EssenceRewardHighPurity": "30859cf544292669dd21365a9a27722d61c035bf555cff046c51e772ecb05151"
 }

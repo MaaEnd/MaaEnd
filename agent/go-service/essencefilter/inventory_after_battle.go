@@ -3,149 +3,162 @@ package essencefilter
 import (
 	"fmt"
 	"slices"
-	"strings"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter/matchapi"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
-	"github.com/rs/zerolog/log"
 )
 
-// inventoryDelta is one after-battle inventory increment: one skill combination, one
-// level triple, and how many of them are held and locked.
-type inventoryDelta struct {
-	WeaponIDs []string
-	Levels    [3]int
-	Count     int
-	Locked    int
+// Reward positions and their confirmed marks belong to a single claim.
+type rewardInventory struct {
+	gridVerified  bool
+	qualities     []string
+	items         map[int]inventoryItem
+	originalMarks map[int]string
+	// A position is complete only when its observed mark agrees with the decision for this position.
+	expectedMarks map[int]string
+	quality       string
+	mark          string
+	committed     bool
 }
 
-// inventoryIncrement says what one after-battle decision adds to the inventory: holding the
-// essence in this loot round, locking it in this run, or both.
-type inventoryIncrement struct {
-	Held   bool
-	Locked bool
+func newRewardInventory() *rewardInventory {
+	return &rewardInventory{
+		items: make(map[int]inventoryItem), originalMarks: make(map[int]string), expectedMarks: make(map[int]string),
+	}
 }
 
-// afterBattleInventoryDelta maps one after-battle decision to an inventory increment.
-// Only exact matches and kept slot-3 practical matches have a weapon combination and
-// levels that EssenceInventory.json can express; future-promising, unmatched and
-// discarded essences produce no entry.
-func afterBattleInventoryDelta(result *matchapi.MatchResult, increment inventoryIncrement) (inventoryDelta, bool) {
-	if result == nil {
-		return inventoryDelta{}, false
+func (r *rewardInventory) observe(row int, item inventoryItem) error {
+	if row < 1 {
+		return fmt.Errorf("missing reward position")
 	}
-	switch result.Kind {
-	case matchapi.MatchExact, matchapi.MatchSlot3Level3Practical:
-	default:
-		return inventoryDelta{}, false
-	}
-
-	ids := make([]string, 0, len(result.Weapons))
-	for _, weapon := range result.Weapons {
-		if weapon.InternalID != "" {
-			ids = append(ids, weapon.InternalID)
+	if prev, ok := r.items[row]; ok {
+		if prev.Quality != item.Quality || prev.Mark != item.Mark ||
+			len(prev.Skills) != 0 && len(item.Skills) != 0 && prev.resolved != item.resolved {
+			return fmt.Errorf("reward at position %d changed during the claim", row)
 		}
 	}
-	ids = normalizeWeaponIDs(ids)
-	if len(ids) == 0 {
-		return inventoryDelta{}, false
+	r.items[row] = item
+	if _, recorded := r.originalMarks[row]; !recorded {
+		r.originalMarks[row] = item.Mark
 	}
-
-	delta := inventoryDelta{WeaponIDs: ids, Levels: result.Levels}
-	if increment.Held {
-		delta.Count = 1
-	}
-	if increment.Locked {
-		delta.Locked = 1
-	}
-	if delta.Count == 0 && delta.Locked == 0 {
-		return inventoryDelta{}, false
-	}
-	return delta, true
+	delete(r.expectedMarks, row)
+	return nil
 }
 
-// mergeInventoryGroups merges increments into existing groups. Existing groups and rows
-// are kept; the result is normalized: groups sorted by weapon IDs, rows sorted by levels.
-func mergeInventoryGroups(groups []inventoryGroup, deltas []inventoryDelta) []inventoryGroup {
-	merged := make(map[string]*inventoryGroup, len(groups))
-	for _, group := range groups {
-		mergeInventoryRows(merged, group.WeaponIDs, group.Essences)
+func (r *rewardInventory) check(count int) error {
+	if count < 0 || (count == 0 && !r.gridVerified) || len(r.expectedMarks) != count {
+		return fmt.Errorf("reward coverage: processed %d of %d positions", len(r.expectedMarks), count)
 	}
-	for _, delta := range deltas {
-		mergeInventoryRows(merged, delta.WeaponIDs, []inventoryEssence{{
-			Levels: delta.Levels,
-			Count:  delta.Count,
-			Locked: delta.Locked,
-		}})
-	}
-
-	out := make([]inventoryGroup, 0, len(merged))
-	for _, group := range merged {
-		out = append(out, *group)
-	}
-	sortInventoryGroups(out)
-	return out
-}
-
-// mergeInventoryRows adds rows to the group identified by weaponIDs, creating the group
-// and its rows on demand.
-func mergeInventoryRows(merged map[string]*inventoryGroup, weaponIDs []string, essences []inventoryEssence) {
-	ids := normalizeWeaponIDs(weaponIDs)
-	if len(ids) == 0 {
-		return
-	}
-	key := strings.Join(ids, "\x00")
-	group := merged[key]
-	if group == nil {
-		group = &inventoryGroup{WeaponIDs: ids}
-		merged[key] = group
-	}
-	for _, essence := range essences {
-		idx := slices.IndexFunc(group.Essences, func(row inventoryEssence) bool {
-			return row.Levels == essence.Levels
-		})
-		if idx < 0 {
-			group.Essences = append(group.Essences, essence)
-			continue
+	for i := 1; i <= count; i++ {
+		item, observed := r.items[i]
+		want, decided := r.expectedMarks[i]
+		if !observed || !decided || item.Mark != want {
+			return fmt.Errorf("reward %d: observed mark %q, expected %q", i, item.Mark, want)
 		}
-		group.Essences[idx].Count += essence.Count
-		group.Essences[idx].Locked += essence.Locked
 	}
+	return nil
 }
 
-// mergeInventoryFile merges after-battle increments into the export at path and returns
-// the merged groups. A missing or empty file is merged from scratch; an unreadable or
-// invalid file is left untouched.
-func mergeInventoryFile(path string, deltas []inventoryDelta) ([]inventoryGroup, error) {
-	existing, err := loadInventoryGroups(path)
-	if err != nil {
-		return nil, fmt.Errorf("load inventory: %w", err)
+func (r *rewardInventory) appendTo(s *inventorySnapshot) *inventorySnapshot {
+	out := *s
+	out.Coverage = make(map[string]tierCoverage)
+	if coverage := s.Coverage[lockedGold]; coverage.CompleteAt != nil {
+		out.Coverage[lockedGold] = coverage
+	} else if coverage := s.Coverage[gold]; coverage.CompleteAt != nil {
+		out.Coverage[lockedGold] = coverage
 	}
-	groups := mergeInventoryGroups(existing, deltas)
-	if err := writeInventoryFile(path, groups); err != nil {
-		return nil, fmt.Errorf("write inventory: %w", err)
+	out.Items = slices.Clone(s.Items)
+	for i := 1; i <= len(r.items); i++ {
+		out.appendLockedMatch(r.items[i])
 	}
-	return groups, nil
+	return &out
 }
 
-// commitAfterBattleInventory writes the increments of this loot run into EssenceInventory.json.
-func commitAfterBattleInventory(ctx *maa.Context, st *RunState) bool {
-	// 盘点模式由 Finish 覆盖写全量快照，这里不参与。
-	if st.Inventory != nil || len(st.PendingInventory) == 0 {
-		return true
+func prepareReward(st *RunState) error {
+	if st.Account.base == nil {
+		if err := st.Account.openBaseline(st.MatchEngine); err != nil {
+			return err
+		}
 	}
-	path := InventoryPath()
-	groups, err := mergeInventoryFile(path, st.PendingInventory)
-	if err != nil {
-		log.Error().Err(err).Str("component", "EssenceInventory").Str("path", path).
-			Msg("after-battle inventory not committed")
-		reportFocusByKey(ctx, "inventory.failed")
+	if st.Loot == nil || st.Loot.committed {
+		st.Loot = newRewardInventory()
+	} else {
+		return fmt.Errorf("unexpected re-entry into reward scan")
+	}
+	return nil
+}
+
+func commitAfterBattleInventory(st *RunState, observedUID string) bool {
+	r := st.Loot
+	if r == nil {
 		return false
 	}
-	st.PendingInventory = nil
-	total, locked := inventoryTotals(groups)
-	log.Info().Str("component", "EssenceInventory").Str("path", path).
-		Int("groups", len(groups)).Int("count", total).Int("locked", locked).
-		Msg("after-battle inventory committed")
+	if r.committed {
+		return true
+	}
+	if !r.gridVerified {
+		return inventoryFailed(fmt.Errorf("reward grid not verified"))
+	}
+	if err := r.check(len(st.RowBoxes)); err != nil {
+		return inventoryFailed(err)
+	}
+	if st.Account.base == nil {
+		return inventoryFailed(fmt.Errorf("reward journal missing"))
+	}
+	s := r.appendTo(st.Account.base)
+	if err := st.Account.commit(s, false, observedUID); err != nil {
+		return inventoryFailed(err)
+	}
+	r.committed = true
 	return true
+}
+
+// decideRewardMark records every item and the final mark required for publication.
+// The returned mark selects the UI action; an existing mark needs no click.
+func decideRewardMark(ctx *maa.Context, st *RunState, ocr matchapi.OCRInput) (string, bool) {
+	r := st.Loot
+	if want, ok := r.expectedMarks[st.RowIndex]; ok {
+		if want == r.mark {
+			return unmarked, true
+		}
+		return want, true
+	}
+	item := inventoryItem{Quality: r.quality, Mark: r.mark}
+	if item.Quality != purple {
+		var err error
+		item, err = observeItem(st.MatchEngine, ocr, r.quality, r.mark)
+		if err != nil {
+			return "", inventoryFailed(err)
+		}
+	}
+	if err := r.observe(st.RowIndex, item); err != nil {
+		return "", inventoryFailed(err)
+	}
+	want := item.Mark
+	if item.Mark == lockedMark && item.Quality == gold && len(item.weaponIDs) > 0 && st.LockLimit != nil {
+		var ids [3]int
+		for _, skill := range item.resolved {
+			ids[skill.Pool-1] = skill.ID
+		}
+		if combo := st.LockLimit.combinations[ids]; combo != nil {
+			combo.batchLocks++
+		}
+	}
+	switch {
+	case item.Mark == unmarked && item.Quality == purple:
+		if st.PipelineOpts.DiscardUnmatched {
+			want = discarded
+		}
+	case item.Mark == unmarked:
+		var ok bool
+		want, ok = decideInventoryMark(ctx, st, ocr, item)
+		if !ok {
+			return "", false
+		}
+	}
+	r.expectedMarks[st.RowIndex] = want
+	if want == item.Mark {
+		return unmarked, true
+	}
+	return want, true
 }
