@@ -11,22 +11,12 @@
         "template": "CreditShopping/CreditShoppingTabSelected.png",
         "threshold": 0.7
     },
-    "CreditShoppingScanCreditGate": {
-        "desc": "扫描信用点门禁（识别不到当前信用点时不做任何购买/刷新决策）",
-        // 下游依赖余额的节点（保留阈值、三档门控、刷新前余额检查、直购前价格检查）在
-        // 读不到信用点时都会求值失败而放行，「刷新次数已用尽直购」更是不含余额条件，
-        // 于是流程会绕过保留信用点直接买下，所以把余额可读做成扫描前的独立门禁。
-        "recognition": "And",
-        "all_of": [
-            "CreditShoppingReserveCreditOCRInternal"
-        ]
-    },
     "CreditShoppingScanItem": {
         "desc": "货架扫描门控（商店 Tab 已选中且已识别到当前信用点）",
         "recognition": "And",
         "all_of": [
             "CreditShoppingScanItemTabSelected",
-            "CreditShoppingScanCreditGate"
+            "CreditShoppingReserveCreditOCRInternal"
         ],
         "next": [
             "AutoGetCredits",

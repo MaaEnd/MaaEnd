@@ -1,6 +1,6 @@
 {
     "CreditShoppingBuyPriority1": {
-        "desc": "优先购买1（选项：优先购买物品、折扣设置、是否检测信用点阈值）。点击物品图标格中心",
+        "desc": "优先购买1（选项：优先购买物品、折扣设置、是否检测信用点阈值）",
         "recognition": "And",
         "all_of": [
             "CreditShoppingPriority1Item",
@@ -23,7 +23,7 @@
         ]
     },
     "CreditShoppingBuyPriority2": {
-        "desc": "优先购买2（选项：普通购买3物品、折扣设置、是否检测信用点阈值）。点击物品图标格中心",
+        "desc": "优先购买2（选项：普通购买3物品、折扣设置、是否检测信用点阈值）",
         "recognition": "And",
         "all_of": [
             "CreditShoppingPriority2Item",
@@ -46,7 +46,7 @@
         ]
     },
     "CreditShoppingBuyPriority3": {
-        "desc": "优先购买3（选项：优先购买3物品、折扣设置、是否检测信用点阈值）。点击物品图标格中心",
+        "desc": "优先购买3（选项：优先购买3物品、折扣设置、是否检测信用点阈值）",
         "recognition": "And",
         "all_of": [
             "CreditShoppingPriority3Item",
@@ -115,11 +115,12 @@
             "type": "And",
             "param": {
                 "all_of": [
+                    "CreditShoppingReserveCreditOCRInternal",
                     "RefreshUsedUp",
                     "CreditShoppingShelfAnyItem",
                     "CreditShoppingShelfAnyCanAfford"
                 ],
-                "box_index": 2
+                "box_index": 3
             }
         },
         "pre_wait_freezes": 100,
