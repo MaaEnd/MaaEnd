@@ -15,7 +15,8 @@
                 "Linux-Gamescope",
                 "Linux-ScreenCast",
                 "Linux-Wlroots",
-                // "CloudWeb",
+                // TODO: CloudWeb 尚未实机验证，验证通过后删除本行
+                "CloudWeb",
                 "Win32-Front"
             ],
             "option": [

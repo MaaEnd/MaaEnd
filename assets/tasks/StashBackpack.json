@@ -11,7 +11,8 @@
             "controller": [
                 "ADB",
                 "CloudADB",
-                // "CloudWeb",
+                // TODO: CloudWeb 尚未实机验证，验证通过后删除本行
+                "CloudWeb",
                 "PlayCover",
                 "Linux-Gamescope",
                 "Linux-ScreenCast",
