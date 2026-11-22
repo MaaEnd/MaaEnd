@@ -29,22 +29,6 @@ _Custom 代码通常只能由作者本人维护。若连作者都看不懂，就
 
 节点名称使用 PascalCase，同一任务内以任务名或模块名为前缀。例如 `AutoSellPressStockRedistribution`、`DailyProtocolPassInMenu`、`RealTimeAutoSkipEntry`。
 
-### 禁止硬延迟
-
-尽可能少使用 `pre_delay`、`post_delay`、`timeout`、`on_error`。通过增加中间识别节点避免盲目 sleep。
-
-只在必须等待画面稳定时使用 `pre_wait_freezes` / `post_wait_freezes`，其他时候应尽量避免延迟。  
-**不要为了执行稳定而使用延迟，而是通过增加中间节点判断，因为延迟实际上是在掩盖问题，在用户设备存在高延迟时仍然不会稳定。**
-
-> [!NOTE]
->
-> 关于延迟，可扩展阅读[隔壁 ALAS 的基本运作模式](https://github.com/LmeSzinc/AzurLaneAutoScript/wiki/1.-Start#%E5%9F%BA%E6%9C%AC%E8%BF%90%E4%BD%9C%E6%A8%A1%E5%BC%8F)，其推荐的实践基本等同于我们的 `next` 字段。
-
-### `next` 第一轮即命中
-
-尽可能扩充 `next` 列表，保证任何游戏画面都处于预期中，实现一次截图就命中目标节点，**只执行一次操作**。
-尽量使用线性流程以提高速度和稳定性。
-
 ### 识别 → 操作 → 再识别
 
 每一步操作都基于识别。
@@ -88,13 +72,61 @@ _Custom 代码通常只能由作者本人维护。若连作者都看不懂，就
 
 ### 处理弹窗和加载
 
-好的流程不是"主线能跑就行"，而是：正常主线能跑、弹窗能处理、加载能等过去、不在目标场景时能自动跳过去。
+好的流程不是"主线能跑就行"，而是：正常主线能跑、弹窗能处理、加载能等过去，同时尽量使用线性流程以提高速度和稳定性。
 
 常见做法是在 `next` 里挂：
 
-- `[JumpBack]SceneDialogConfirm`
-- `[JumpBack]SceneWaitLoadingExit`
-- `[JumpBack]SceneAnyEnterWorld`
+```jsonc
+"next": [
+   "SceneEnterXXXSuccess", // 成功进入目标场景
+   "SceneEnterXXXConfirmPopUp", // 处理弹窗。此节点不使用 JumpBack，next 连接 SceneEnterXXXSuccess，确保线性流程
+   "[JumpBack]SceneWaitLoadingExit"
+]
+```
+
+### 禁止硬延迟
+
+尽可能少使用 `pre_delay`、`post_delay`、`timeout`、`on_error`。通过增加中间识别节点避免盲目 sleep。
+
+**不要为了执行稳定而使用延迟，而是通过增加中间节点判断，因为延迟实际上是在掩盖问题，在用户设备存在高延迟时仍然不会稳定。**
+
+> [!NOTE]
+>
+> 关于延迟，可扩展阅读[隔壁 ALAS 的基本运作模式](https://github.com/LmeSzinc/AzurLaneAutoScript/wiki/1.-Start#%E5%9F%BA%E6%9C%AC%E8%BF%90%E4%BD%9C%E6%A8%A1%E5%BC%8F)，其推荐的实践基本等同于我们的 `next` 字段。
+
+### `next` 列表已是循环匹配
+
+MaaFramework 会在未命中任何 `next` 节点时持续循环，直到任一节点命中或超时。多数中间过渡状态会在此过程中被筛掉，无需额外等待画面稳定。
+
+需要等待画面稳定的情况只能是：
+
+1. 后续识别依赖画面稳定**才能准确识别**。例：IMS A3 `AddItemData`，浮空回收 `AeroSalvageGridRecognition`
+2. 识别在动画过渡状态提前命中，需要等待动画结束再点击。例：基建任务 DijiangRewards
+3. 设计上需要在画面稳定后交付，且识别目标与画面变化的主体分属不同区域，识别目标稳定时主体画面未稳定。例：万能跳转
+
+### wait_freezes 规范
+
+`pre_wait_freezes` / `post_wait_freezes` 的工作原理是对指定区域连续截图，相邻两次截图之间做一次模板匹配，分数达标说明画面大致稳定。
+
+目标匹配区域 `target` 未指定时会回退到节点 `action` 的 `target`，其进一步回退到节点识别结果 `reco.box`。注意 `target` 的默认值是识别结果 `reco.box`，不是节点里填写的 roi。
+
+原则上，必须为 `pre_wait_freezes` 显式指明 `target` 区域，不得使用默认的 `reco.box`：`reco.box` 本身已经通过一次识别，再对这一局部进行模板匹配是无意义的，会退化为 `pre_delay`。
+
+> [!NOTE]
+>
+> 节点属性 `"inverse": true`，或识别类型为 `DirectHit`（在某些情况下）时，识别结果 `reco.box` 为空，必须写明 `wait_freezes` 的 `target` 参数 ，否则会被静默跳过。
+
+MaaEnd 的基本框架是 _识别 -> 操作 -> 再识别_。`pre_wait_freezes` 适用于识别后不能立刻操作，`post_wait_freezes` 适用于操作后不能立刻识别。
+
+不关联操作的仅识别节点，例如识别点击成功，随后跳转其他流程，需要确保画面稳定的，应使用 `pre_wait_freezes` 而非 `post_wait_freezes`。
+
+多数情况下，操作后都可以立刻进行识别：`next` 列表是轮询识别，不要求一次识别直接命中。因此我们对 `post_wait_freezes` 的使用有较为严格的限制：
+
+- 不允许在 `"action": "DoNothing"` 的节点添加 `post_wait_freezes`。`post_wait_freezes` 必须紧跟在实际动作之后。
+- 应充分利用 `next` 轮询特性，不要在执行动作后的 `next` 列表中混杂 `DirectHit` 破坏轮询。
+- 非 `DirectHit`，但会在画面未稳定时识别命中，并取信错误的识别结果的，应避免直接接在动作后；应改为先识别动作执行成功，再等待画面稳定，最后进行识别。
+
+根据这些限制，`post_wait_freezes` 的应用场景只能是在执行动作后，无法识别动作执行成功，并且后续识别要求画面稳定再识别。典型的例子是 `Swipe` / `Scroll` 搭配 `ListCompleteRecognition`。
 
 ### OCR 写完整文本
 

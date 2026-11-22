@@ -29,22 +29,6 @@ _Custom code is usually only maintainable by the original author. If even the au
 
 Node names use PascalCase, prefixed with the task name or module name within the same task. For example, `AutoSellPressStockRedistribution`, `DailyProtocolPassInMenu`, `RealTimeAutoSkipEntry`.
 
-### Prohibit Hard Delays
-
-Use `pre_delay`, `post_delay`, `timeout`, `on_error` as little as possible. Avoid blind sleep by adding intermediate recognition nodes.
-
-Use `pre_wait_freezes` / `post_wait_freezes` only when it is absolutely necessary to wait for the screen to stabilize; otherwise, avoid delays as much as possible.  
-**Do not use delays for stability; instead, add intermediate node judgments, because delays are actually masking problems and will still be unstable when the user's device has high latency.**
-
-> [!NOTE]
->
-> For more on delays, you can read the [basic operating mode of the neighboring ALAS](https://github.com/LmeSzinc/AzurLaneAutoScript/wiki/1.-Start#%E5%9F%BA%E6%9C%AC%E8%BF%90%E4%BD%9C%E6%A8%A1%E5%BC%8F), whose recommended practices are essentially equivalent to our `next` field.
-
-### `next` Hit on the First Round
-
-Expand the `next` list as much as possible to ensure that any game screen is expected, achieving the target node hit with a single screenshot and **executing the operation only once**.
-Use linear flows as much as possible to improve speed and stability.
-
 ### Recognize → Operate → Recognize Again
 
 Each step of operation is based on recognition.
@@ -88,13 +72,61 @@ If you truly run into a problem that cannot be solved (such as the game's own an
 
 ### Handling Pop-ups and Loading
 
-A good process is not just "the main flow works," but: the normal main flow works, pop-ups can be handled, loading can be waited through, and when it is not in the target scene it can automatically navigate there.
+A good process is not just "the main flow works," but: the normal main flow works, pop-ups can be handled, and loading can be waited through, while using linear flows as much as possible to improve speed and stability.
 
 Common practice is to add to `next`:
 
-- `[JumpBack]SceneDialogConfirm`
-- `[JumpBack]SceneWaitLoadingExit`
-- `[JumpBack]SceneAnyEnterWorld`
+```jsonc
+"next": [
+   "SceneEnterXXXSuccess", // Successfully entered the target scene
+   "SceneEnterXXXConfirmPopUp", // Handle pop-up. This node does not use JumpBack; its next connects to SceneEnterXXXSuccess to ensure a linear flow
+   "[JumpBack]SceneWaitLoadingExit"
+]
+```
+
+### Prohibit Hard Delays
+
+Use `pre_delay`, `post_delay`, `timeout`, `on_error` as little as possible. Avoid blind sleep by adding intermediate recognition nodes.
+
+**Do not use delays for stability; instead, add intermediate node judgments, because delays are actually masking problems and will still be unstable when the user's device has high latency.**
+
+> [!NOTE]
+>
+> For more on delays, you can read the [basic operating mode of the neighboring ALAS](https://github.com/LmeSzinc/AzurLaneAutoScript/wiki/1.-Start#%E5%9F%BA%E6%9C%AC%E8%BF%90%E4%BD%9C%E6%A8%A1%E5%BC%8F), whose recommended practices are essentially equivalent to our `next` field.
+
+### The `next` List Already Loops for Matching
+
+MaaFramework keeps looping when no `next` node hits, until any node hits or it times out. Most intermediate transition states are filtered out during this process, so there is no need to wait extra for the screen to stabilize.
+
+The only cases that require waiting for the screen to stabilize are:
+
+1. Subsequent recognition depends on a stable screen **to recognize accurately**. E.g., IMS A3 `AddItemData`, Aerial Salvage `AeroSalvageGridRecognition`
+2. Recognition hits prematurely during an animated transition state, and it is necessary to wait for the animation to finish before clicking. E.g., Base Rewards task DijiangRewards
+3. By design it must hand off after the screen is stable, while the recognition target and the main changing area of the screen are in different regions—so the main screen is not yet stable when the recognition target stabilizes. E.g., Universal Jump
+
+### wait_freezes Standards
+
+`pre_wait_freezes` / `post_wait_freezes` works by taking consecutive screenshots of a specified region and performing template matching between adjacent screenshots; reaching the threshold score indicates that the screen is roughly stable.
+
+When the target matching region `target` is not specified, it falls back to the `target` of the node's `action`, which further falls back to the node's recognition result `reco.box`. Note that the default value of `target` is the recognition result `reco.box`, not the `roi` specified in the node.
+
+In principle, you must explicitly specify the `target` region for `pre_wait_freezes` and must not use the default `reco.box`: `reco.box` itself has already passed recognition once, so performing template matching on this local region again is meaningless and degenerates into `pre_delay`.
+
+> [!NOTE]
+>
+> When the node property is `"inverse": true`, or the recognition type is `DirectHit` (in certain cases), the recognition result `reco.box` is empty, and you must specify the `target` parameter of `wait_freezes`, otherwise it will be silently skipped.
+
+The basic framework of MaaEnd is _Recognize -> Operate -> Recognize Again_. `pre_wait_freezes` applies when an operation cannot be performed immediately after recognition, while `post_wait_freezes` applies when recognition cannot be performed immediately after an operation.
+
+For recognition-only nodes not associated with an operation—for example, recognizing that a click succeeded before jumping to another flow—where screen stability must be ensured, use `pre_wait_freezes` rather than `post_wait_freezes`.
+
+In most cases, recognition can be performed immediately after an operation: the `next` list polls for recognition and does not require a hit on the first attempt. Therefore, we impose relatively strict restrictions on the use of `post_wait_freezes`:
+
+- Do not add `post_wait_freezes` to nodes with `"action": "DoNothing"`. `post_wait_freezes` must immediately follow an actual action.
+- Make full use of the polling nature of `next`, and do not mix `DirectHit` into the `next` list after an action is executed, which would break polling.
+- Recognitions that are not `DirectHit` but may hit before the screen stabilizes and trust an incorrect recognition result should not be placed directly after an action; instead, first recognize that the action succeeded, then wait for the screen to stabilize, and finally perform the recognition.
+
+Under these restrictions, `post_wait_freezes` should only be used when there is no way to recognize that an action succeeded after executing it, and subsequent recognition requires the screen to stabilize first. A typical example is `Swipe` / `Scroll` paired with `ListCompleteRecognition`.
 
 ### OCR Write Complete Text
 
