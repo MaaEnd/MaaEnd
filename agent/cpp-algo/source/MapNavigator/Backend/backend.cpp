@@ -79,6 +79,9 @@ SteeringTransportProfile SteeringProfileOf(const InputBackend& backend)
     if (backend.kind == BackendKind::Linux) {
         return backend::Linux::LinuxSteeringProfile();
     }
+    if (backend.kind == BackendKind::CloudWeb) {
+        return backend::cloudweb::CloudWebSteeringProfile();
+    }
     return backend::desktop::DesktopSteeringProfile();
 }
 

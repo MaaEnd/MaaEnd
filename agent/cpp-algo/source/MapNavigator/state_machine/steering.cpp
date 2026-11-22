@@ -83,13 +83,16 @@ double SteerAlongCorridor(Navigator* nav, const NavigateTick& tick)
         fix.steer_heading,
         tick.now,
         fix.drops_turn_sends);
+    const TimePoint steer_issued_at = issued_delta_deg != 0.0 ? std::chrono::steady_clock::now() : TimePoint {};
     sensitivity::RecordTick(
         &nav->process->sensitivity,
         nav->maa_context,
         tick_seq,
         nav->position->camera_angle,
         issued_delta_deg,
-        fix.degraded_fix);
+        fix.degraded_fix,
+        nav->position->timestamp,
+        steer_issued_at);
     UpdateForwardHold(
         &nav->runtime_state.flow,
         nav->motion_controller,
