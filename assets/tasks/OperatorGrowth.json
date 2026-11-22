@@ -1105,6 +1105,61 @@
                             }
                         }
                     }
+                },
+                {
+                    "name": "Kay",
+                    "label": "$operator.Kay",
+                    "pipeline_override": {
+                        "OperatorGrowthTargetAvatar": {
+                            "recognition": {
+                                "param": {
+                                    "template": [
+                                        "OperatorGrowth/Operators/Kay.png"
+                                    ]
+                                }
+                            }
+                        },
+                        "OperatorGrowthTargetName": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "小刻",
+                                        "Kay",
+                                        "ケーちゃん",
+                                        "케르"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Mimino",
+                    "label": "$operator.Mimino",
+                    "pipeline_override": {
+                        "OperatorGrowthTargetAvatar": {
+                            "recognition": {
+                                "param": {
+                                    "template": [
+                                        "OperatorGrowth/Operators/Mimino.png"
+                                    ]
+                                }
+                            }
+                        },
+                        "OperatorGrowthTargetName": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "米米诺",
+                                        "米米諾",
+                                        "Mimino",
+                                        "ミミノ",
+                                        "미미노"
+                                    ]
+                                }
+                            }
+                        }
+                    }
                 }
             ],
             "default_case": "Perlica"
