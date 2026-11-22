@@ -14,8 +14,9 @@ set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 include(cmake/WebView2Sdk.cmake)
 
-# 资源脚本里用绝对路径引用页面脚本
+# 资源脚本里用绝对路径引用页面脚本与程序图标
 set(CLOUD_SHELL_SCRIPTS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/scripts")
+set(CLOUD_SHELL_RES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/res")
 configure_file(src/resources.rc.in "${CMAKE_CURRENT_BINARY_DIR}/resources.rc" @ONLY)
 
 add_executable(cloud-shell WIN32
@@ -34,8 +35,9 @@ target_link_libraries(cloud-shell PRIVATE WebView2::LoaderStatic)
 target_compile_definitions(cloud-shell PRIVATE UNICODE _UNICODE WIN32_LEAN_AND_MEAN NOMINMAX)
 target_compile_options(cloud-shell PRIVATE /utf-8 /W4 /WX /permissive-)
 
-# RCDATA 引用的文件不在资源编译的依赖里
+# RCDATA / ICON 引用的文件不在资源编译的依赖里，换文件不会触发重编，得手动登记
 set_property(SOURCE "${CMAKE_CURRENT_BINARY_DIR}/resources.rc" APPEND PROPERTY OBJECT_DEPENDS
-    "${CLOUD_SHELL_SCRIPTS_DIR}/cloud_policy.js")
+    "${CLOUD_SHELL_SCRIPTS_DIR}/cloud_policy.js"
+    "${CLOUD_SHELL_RES_DIR}/maaend-cloud.ico")
 
 install(TARGETS cloud-shell RUNTIME DESTINATION .)

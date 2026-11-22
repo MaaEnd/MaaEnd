@@ -27,6 +27,13 @@ constexpr const wchar_t* kBrowserArguments =
     L"--disable-features=CalculateNativeWinOcclusion --disable-backgrounding-occluded-windows "
     L"--disable-renderer-backgrounding --disable-background-timer-throttling --autoplay-policy=no-user-gesture-required";
 
+// 窗口类图标：exe 里已经打包了 16~256 多个尺寸，这里按系统要求的大/小尺寸各取一张
+HICON loadAppIcon(int size)
+{
+    return static_cast<HICON>(LoadImageW(
+        GetModuleHandleW(nullptr), MAKEINTRESOURCEW(IDI_APP_ICON), IMAGE_ICON, size, size, LR_DEFAULTCOLOR));
+}
+
 // 前台事件回调拿不到 this，每个进程只有一个外壳窗口
 ShellWindow* g_foreground_owner = nullptr;
 
@@ -62,6 +69,8 @@ bool ShellWindow::Create()
     wc.lpfnWndProc = &ShellWindow::windowProc;
     wc.hInstance = GetModuleHandleW(nullptr);
     wc.hCursor = LoadCursorW(nullptr, IDC_ARROW);
+    wc.hIcon = loadAppIcon(GetSystemMetrics(SM_CXICON));
+    wc.hIconSm = loadAppIcon(GetSystemMetrics(SM_CXSMICON));
     wc.hbrBackground = static_cast<HBRUSH>(GetStockObject(BLACK_BRUSH));
     wc.lpszClassName = kWindowClassName;
     if (!RegisterClassExW(&wc)) {

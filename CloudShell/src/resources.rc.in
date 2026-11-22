@@ -3,4 +3,7 @@
 
 #include "ResourceIds.h"
 
+// exe 图标与窗口图标共用这一份，多尺寸打包在 ico 里
+IDI_APP_ICON ICON "@CLOUD_SHELL_RES_DIR@/maaend-cloud.ico"
+
 IDR_SCRIPT_CLOUD_POLICY RCDATA "@CLOUD_SHELL_SCRIPTS_DIR@/cloud_policy.js"
