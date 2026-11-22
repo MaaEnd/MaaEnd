@@ -124,7 +124,7 @@ MaaEnd 的基本框架是 _识别 -> 操作 -> 再识别_。`pre_wait_freezes` �
 
 - 不允许在 `"action": "DoNothing"` 的节点添加 `post_wait_freezes`。`post_wait_freezes` 必须紧跟在实际动作之后。
 - 应充分利用 `next` 轮询特性，不要在执行动作后的 `next` 列表中混杂 `DirectHit` 破坏轮询。
-- 非 `DirectHit`，但会在画面未稳定时识别命中，并造成负面影响的，应避免直接接在动作后；应改为先识别动作执行成功，再等待画面稳定，最后进行识别。
+- 非 `DirectHit`，但会在画面未稳定时识别命中，并取信错误的识别结果的，应避免直接接在动作后；应改为先识别动作执行成功，再等待画面稳定，最后进行识别。
 
 根据这些限制，`post_wait_freezes` 的应用场景只能是在执行动作后，无法识别动作执行成功，并且后续识别要求画面稳定再识别。典型的例子是 `Swipe` / `Scroll` 搭配 `ListCompleteRecognition`。
 

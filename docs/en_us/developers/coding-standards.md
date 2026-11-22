@@ -124,7 +124,7 @@ In most cases, recognition can be performed immediately after an operation: the 
 
 - Do not add `post_wait_freezes` to nodes with `"action": "DoNothing"`. `post_wait_freezes` must immediately follow an actual action.
 - Make full use of the polling nature of `next`, and do not mix `DirectHit` into the `next` list after an action is executed, which would break polling.
-- Recognitions that are not `DirectHit` but may hit before the screen stabilizes and cause negative effects should not be placed directly after an action; instead, first recognize that the action succeeded, then wait for the screen to stabilize, and finally perform the recognition.
+- Recognitions that are not `DirectHit` but may hit before the screen stabilizes and trust an incorrect recognition result should not be placed directly after an action; instead, first recognize that the action succeeded, then wait for the screen to stabilize, and finally perform the recognition.
 
 Under these restrictions, `post_wait_freezes` should only be used when there is no way to recognize that an action succeeded after executing it, and subsequent recognition requires the screen to stabilize first. A typical example is `Swipe` / `Scroll` paired with `ListCompleteRecognition`.
 
