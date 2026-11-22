@@ -25,7 +25,7 @@ CreditShopping/
 │   ├── AnyItems.json      # 任意可买物品：全 catalog IconRecognition
 │   └── ShelfChecks.json   # 买得起 / 折扣（相对物品框偏移）
 ├── GoToShop.json           # 导航到商店并切到信用交易所页签
-└── Reflash.json            # 刷新按钮 / 花费 / 次数用尽 / 无法刷新
+└── Reflash.json            # 刷新花费 / 次数用尽 / 无法刷新
 ```
 
 其他关联文件：
@@ -55,9 +55,11 @@ CreditShopping/
 
 ### 扫描门禁
 
-`CreditShoppingScanItem`（`Flow/Scan.json`）是购买与刷新决策的唯一入口，识别要求三件事同时成立：信用交易所页签已选中、能识别刷新按钮（刷新花费或次数已用尽）、能识别到当前信用点（`CreditShoppingReserveCreditOCRInternal`）。
+`CreditShoppingScanItem`（`Flow/Scan.json`）是购买与刷新决策的唯一入口，识别要求两件事同时成立：信用交易所页签已选中（`CreditShoppingScanItemTabSelected`）、识别到当前信用点（`CreditShoppingScanCreditGate`，内部即 `CreditShoppingReserveCreditOCRInternal`）。
 
-第三条是信用点门禁：读不到当前信用点时，下游所有依赖余额的节点（保留阈值、三档门控、刷新前余额检查、直购前价格检查）都会因表达式求值失败而不命中，流程会一路掉到兜底分支。其中 `CreditShoppingRefreshCountReached`（刷新次数用尽直购）不含余额条件，命中后会直接点物品，而确认前的「持有 − 价格」检查同样求值失败，于是绕过保留阈值买下。加上门禁后，读不到信用点就不做任何购买/刷新决策，原地重试；持续读不到时任务以识别超时结束，日志停在该节点。
+信用点门禁是独立节点，不并进 `CreditShoppingScanItem` 的识别链：读不到当前信用点时，下游所有依赖余额的节点（保留阈值、三档门控、刷新前余额检查、直购前价格检查）都会因表达式求值失败而不命中，流程会一路掉到兜底分支。其中 `CreditShoppingRefreshCountReached`（刷新次数用尽直购）不含余额条件，命中后会直接点物品，而确认前的「持有 − 价格」检查同样求值失败，于是绕过保留阈值买下。加上门禁后，读不到信用点就不做任何购买/刷新决策，原地重试；持续读不到时任务以识别超时结束，日志停在该门禁节点。
+
+扫描门控**不要求识别刷新按钮**：刷新花费、刷新次数用尽由需要它们的节点各自判断（`CreditShoppingRefreshCountReached` 认 `RefreshUsedUp`，`RefreshItem` 认 `RefreshCost`），刷新区识别不到时不阻塞买货判断。
 
 ### 领取信用
 
@@ -157,7 +159,7 @@ CreditShopping/
 | 买得起却不买 | 该档保留阈值 / 无条件购买开关 |
 | 买不起不补信用 | 该档 AutoGetCredits 开关；买不起侧折扣与价格颜色阈值 |
 | 刷新行为异常 | `CreditShoppingForce`；`CreditShoppingRefreshBalanceGate`（含余额阈值） |
-| 扫描卡住直到超时 | `CreditShoppingScanItem` 的[信用点门禁](#扫描门禁)：`CreditShoppingReserveCreditOCRInternal` 的颜色 ROI 与 OCR |
+| 扫描卡住直到超时 | [信用点门禁](#扫描门禁) `CreditShoppingScanCreditGate`：`CreditShoppingReserveCreditOCRInternal` 的颜色 ROI 与 OCR |
 | 选项间行为不一致 | `CreditShopping.json` 的 `pipeline_override` 与扫描 `next` 顺序 |
 
 维护时分四层定位：入口（`GoToShop.json`）→ 扫描决策（`Flow/`）→ 识别链（`Item/` + `ShelfChecks.json`）→ 参数装配（任务选项 `attach`）。
