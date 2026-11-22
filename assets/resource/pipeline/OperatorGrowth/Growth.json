@@ -158,34 +158,35 @@
             }
         }
     },
-    "OperatorGrowthAllOCR": {
-        "desc": "左侧干员列表上方的全部标题，作为回顶完成标志",
+    "OperatorGrowthListComplete": {
+        "desc": "比较左侧列表从近期标题上方到干员卡片的区域，向上滑动后画面不再变化时判定回顶",
         "recognition": {
-            "type": "OCR",
+            "type": "Custom",
             "param": {
+                "custom_recognition": "ListCompleteRecognition",
+                "custom_recognition_param": {
+                    "threshold": 0.98
+                },
                 "roi": [
-                    25,
+                    35,
                     65,
-                    180,
-                    190
-                ],
-                "expected": [
-                    "全部",
-                    "(?i)All",
-                    "すべて",
-                    "전체"
+                    340,
+                    555
                 ]
             }
+        },
+        "attach": {
+            "ready": false
         }
     },
     "OperatorGrowthTopReached": {
-        "desc": "在培养总览左侧识别到全部后开始查找目标干员",
+        "desc": "在培养总览中向上滑动后列表画面不再变化，开始查找目标干员",
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
                     "OperatorGrowthInOverview",
-                    "OperatorGrowthAllOCR"
+                    "OperatorGrowthListComplete"
                 ]
             }
         },
@@ -194,7 +195,7 @@
         ]
     },
     "OperatorGrowthScrollUp": {
-        "desc": "未看到全部时向列表顶部滑动 240 像素，静止后重新检查；每次进入总览时重置计数",
+        "desc": "尚未确认回顶时向列表顶部滑动 240 像素，静止后重新检查；每次进入总览时重置计数",
         "max_hit": 10,
         "recognition": {
             "type": "And",
