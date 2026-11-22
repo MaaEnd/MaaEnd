@@ -31,6 +31,7 @@ from detect_screenshot_platform import (
     covers,
     detect_platform,
     format_extra_rois,
+    same_hud_family,
 )
 from detect_screenshot_platform import (
     UID_FIXED_ROIS as FIXED_ROIS,
@@ -139,7 +140,7 @@ def controller_from_destination(repo: Path, destination: Path) -> str:
         )
     controller = SUPPORTED_CONTROLLERS.get(relative.parts[0].casefold())
     if controller is None:
-        raise SystemExit("目标图片必须位于 ADB/、CloudADB/ 或 Win32/ 目录中。")
+        raise SystemExit("目标图片必须位于 ADB/、CloudADB/、CloudWeb/ 或 Win32/ 目录中。")
     return controller
 
 
@@ -219,7 +220,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--controller",
-        choices=("ADB", "CloudADB", "Win32"),
+        choices=("ADB", "CloudADB", "CloudWeb", "Win32"),
         help="可选；默认从目标路径推断，并校验两者一致",
     )
     parser.add_argument(
@@ -275,11 +276,15 @@ def main() -> None:
     detection = detect_platform(image)
     print(f"平台判定：{detection.describe()}")
     if not args.skip_platform_check and detection.platform is not None and detection.platform != controller:
-        raise SystemExit(
-            f"原图平台判定为 {detection.platform}，与目标路径的 {controller} 不一致。\n"
-            f"- 若原图来自 {detection.platform}，请把目标改到 tests/MaaEndTestset/{detection.platform}/<resource>/ 下；\n"
-            "- 若确认平台无误（例如同平台下 UID 文字更长），用 --skip-platform-check 并用 --extra-roi 补齐遮盖范围。"
-        )
+        if same_hud_family(controller, detection.platform):
+            # 云网页版和云安卓版左下是同一套云 HUD，判定只能给出一个，按目标路径处理即可。
+            print(f"提示：{controller} 与 {detection.platform} 是同一套云 HUD，平台判定分不开，按目标路径的 {controller} 处理。")
+        else:
+            raise SystemExit(
+                f"原图平台判定为 {detection.platform}，与目标路径的 {controller} 不一致。\n"
+                f"- 若原图来自 {detection.platform}，请把目标改到 tests/MaaEndTestset/{detection.platform}/<resource>/ 下；\n"
+                "- 若确认平台无误（例如同平台下 UID 文字更长），用 --skip-platform-check 并用 --extra-roi 补齐遮盖范围。"
+            )
     if detection.confidence == "unknown":
         print(f"提示：无法判定平台（{detection.reason}），按目标路径的 {controller} 处理，请务必目视复核。")
     elif detection.confidence == "ambiguous":

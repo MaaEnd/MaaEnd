@@ -120,6 +120,7 @@ export async function fetchCases(): Promise<TestCases[]> {
   const controllerMap: Record<string, string> = {
     Win32: 'Win32',
     'Win32-Front': 'Win32',
+    CloudWeb: 'CloudWeb',
     ADB: 'ADB',
     CloudADB: 'CloudADB',
     // 'PlayCover': '',
