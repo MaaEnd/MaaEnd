@@ -36,7 +36,7 @@ double family_score(const cv::Mat& image, const cv::Rect& box, const cv::Mat& or
     mask.rowRange(mask.rows - std::max(1, cvRound(mask.rows * kStripeFraction)), mask.rows).setTo(0);
     const cv::Rect search =
         (box + cv::Size(2 * kPositionTolerance, 2 * kPositionTolerance) - cv::Point(kPositionTolerance, kPositionTolerance))
-        & cv::Rect({ }, image.size());
+        & cv::Rect({}, image.size());
     cv::matchTemplate(image(search), templ, response, cv::TM_CCOEFF_NORMED, mask);
     double score = 0;
     cv::minMaxLoc(response, nullptr, &score);

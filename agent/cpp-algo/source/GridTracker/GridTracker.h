@@ -74,7 +74,9 @@ class GridTracker
 public:
     Result observe(const recogrid::GridFrame& frame, const Options& options);
     [[nodiscard]] bool matches_current_viewport(const recogrid::GridFrame& frame, int expected_cells) const;
+
     [[nodiscard]] bool has_viewport() const { return !previous_frame_.empty(); }
+
     void reset();
 
 private:

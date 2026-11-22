@@ -104,13 +104,14 @@ GridFrame RecognizeGrid(const cv::Mat& image, const GridRecognitionOptions& opti
             const cv::Rect tile(col * kAlignmentTileSize, row * kAlignmentTileSize, kAlignmentTileSize, kAlignmentTileSize);
             cv::resize(sample, frame.alignment_tiles(tile), tile.size(), 0, 0, cv::INTER_AREA);
 
-            frame.cells.push_back({
-                row,
-                col,
-                index,
-                RoiToScreen(detected.cells[index], options.region_, image.size()),
-                is_occupied(detected.roi(roi_rect), options),
-            });
+            frame.cells.push_back(
+                {
+                    row,
+                    col,
+                    index,
+                    RoiToScreen(detected.cells[index], options.region_, image.size()),
+                    is_occupied(detected.roi(roi_rect), options),
+                });
         }
     }
 

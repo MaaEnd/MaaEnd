@@ -31,8 +31,8 @@ constexpr int32_t kViewDeltaCenterX = kWorkWidth / 2;
 constexpr int32_t kViewDeltaCenterY = kWorkHeight / 2;
 // 1280×720 客户区实测线性区约 11.5 px/deg，俯仰换算与桌面端保持同一纵横比与速度比
 constexpr double kCloudWebDefaultUnitsPerDegree = 11.5;
-constexpr double kCloudWebDefaultPitchRangeUnits = kCloudWebDefaultUnitsPerDegree * kTurnDegreesPerCircle
-    * (static_cast<double>(kWorkHeight) / kWorkWidth) / kMouseVerticalDragSpeedRatio;
+constexpr double kCloudWebDefaultPitchRangeUnits =
+    kCloudWebDefaultUnitsPerDegree * kTurnDegreesPerCircle * (static_cast<double>(kWorkHeight) / kWorkWidth) / kMouseVerticalDragSpeedRatio;
 // 单次位移超过约 145 px 会被云端截断；10.5° ≈ 121 px 留在安全线性区内，且低于最小发射角不发包
 constexpr double kCloudWebMaxBatchDeltaDeg = 10.5;
 constexpr double kCloudWebMinEmitDeltaDeg = 1.0;

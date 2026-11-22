@@ -113,8 +113,8 @@ InventoryPage ReadInventoryPage(
         // the nominal top using the measured growth on both sides.
         const int left = first.x + cvRound(col * layout.pitch);
         const int growth = std::min(left - box.x, box.br().x - (left + first.width));
-        const int top_adjustment = growth > 0 ? cvRound(static_cast<double>(growth) * first.height / first.width)
-                                              : cvRound((box.height - first.height) * 0.5);
+        const int top_adjustment =
+            growth > 0 ? cvRound(static_cast<double>(growth) * first.height / first.width) : cvRound((box.height - first.height) * 0.5);
         tops.push_back(box.y + top_adjustment);
     }
     std::sort(tops.begin(), tops.end());
