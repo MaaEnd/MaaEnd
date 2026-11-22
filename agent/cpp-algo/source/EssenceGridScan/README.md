@@ -9,10 +9,9 @@ RecoGrid and GridTracker. It converts Maa screenshots and merged Pipeline
 One `EssenceGrid` is created in `main.cpp`. The same instance is passed through
 `trans_arg` to the registered custom recognitions and action:
 
-- `EssenceGridAdvanceRecognition` scans or consumes the current queue and
-  chooses the next Pipeline node;
-- `EssenceGridPendingRecognition` returns the exact rectangle of the selected
-  cell so Pipeline can click it;
+- `EssenceGridAdvanceRecognition` scans or consumes the current queue and returns the selected cell, tracking status, and coverage result;
+- `EssenceGridPendingRecognition` supplies the pending cell's center and samples the detail core before the first click;
+- `EssenceGridDetailRecognition` reads the detail tier and compares the core after the click;
 - `EssenceGridResetAction` clears the tracking state, so the next advance starts
   a fresh scan. Loaded templates and configuration stay cached.
 
@@ -25,7 +24,7 @@ The instance owns:
 - the current page's Essence cells, dispatch queue, queue cursor, and pending
   cell.
 
-No process-global inventory state or secondary deduplication set is required.
+The instance also records the starting inventory count and the global coordinates resolved by filtering or by successful item processing.
 
 ## Pipeline attach
 
@@ -34,8 +33,8 @@ MaaFramework has merged task and controller overrides.
 
 | Field | Owner |
 | --- | --- |
-| `roi`, `normalized_size`, row/column thresholds, segment filters | RecoGrid geometry |
-| `repeat_match_ratio` | GridTracker end confirmation |
+| `roi`, `normalized_size`, `first_cell`, `row_pitch`, `scrollbar_track` | Controller-specific layout and position |
+| `preview_core`, `preview_quality` | Large core icon and rarity stripe in the right-hand detail panel |
 | `thumb_lock_template_paths`, `thumb_discard_template_path` | Essence thumbnail state |
 | `flawless_essence`, `pure_essence` | Essence quality filter |
 | `skip_thumb_lock`, `skip_thumb_discard` | Essence dispatch filter |
@@ -45,29 +44,30 @@ coordinates that genuinely differ from the base resource.
 
 ## Frame processing
 
-1. RecoGrid recognizes one frame.
+1. Read the displayed inventory count. Locate complete cards at the configured pitch and pass their grid to RecoGrid for occupancy and features.
 2. GridTracker aligns it and returns `new_cells`.
 3. EssenceGrid samples the bottom strip for gold/purple quality and the
    lower-left cell area for lock/discard thumbnails.
-4. Only cells passing the configured quality and thumbnail filters enter the
-   dispatch queue.
-5. Pipeline clicks the pending cell and runs OCR.
-6. Go decides `Lock`, `Discard`, or `Skip`.
-7. Pipeline performs and verifies the chosen UI action.
+4. Direct callers receive cells passing the configured quality and thumbnail
+   filters. A warehouse report reads locked gold items and checks unequipped, unlocked cells for the end of the locked inventory. `selected_for_filter` preserves the user's marking policy.
+5. Pipeline clicks the pending cell. The scanner compares the large core icon before and after the click. A readable detail stripe also supplies the panel's tier for comparison.
+6. Go compares the three skill IDs and levels in display order. If successive complete reads agree and the icon stayed the same, Pipeline clicks the same coordinate once more. The final read belongs to that position even when two items have identical details.
 
 ## Routing
+
+The existing Go `EssenceFilterReadLockStateAction` maps the scan result to the following Pipeline nodes. C++ does not override `next`.
 
 | Condition | Next node |
 | --- | --- |
 | Queue has a cell | `EssenceGridClickPending` |
 | Accepted frame needs more scrolling | `EssenceGridSwipeNext` |
-| First complete repeat | `EssenceGridSwipeNext` for confirmation |
-| Second consecutive complete repeat | `EssenceFilterFinish` |
-| Rejected frame | Recognition returns false; Maa retries the current node |
+| Entry away from the top | `EssenceGridSwipeToTop` while the thumb moves upwards |
+| Accepted page with no additional positions | `EssenceGridSwipeShort` once at the current coverage |
+| Lost overlap | `EssenceGridSwipeBack` once at the current coverage |
+| Bottom and all positions resolved | `EssenceGridVerifyComplete` checks a fresh screenshot before `EssenceFilterFinish` |
+| Unresolved coverage | Fail the scan |
 
-Pipeline owns clicks, swipes, waits, and post-action verification. Go owns OCR
-normalization and match decisions. EssenceGrid owns only the inventory-specific
-adaptation around RecoGrid and GridTracker.
+Pipeline owns clicks, swipes, waits, and post-action verification. Its `EssenceGridClickPending.max_hit` preserves the two-click limit per cell; Go clears that count when dispatching a new cell and tracks completed detail reads for the existing identical-detail rule. Go also owns OCR normalization and match decisions. EssenceGrid owns the inventory-specific adaptation around RecoGrid and GridTracker.
 
 ## Error boundary
 

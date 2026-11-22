@@ -15,6 +15,9 @@
                 }
             }
         },
+        "anchor": {
+            "EssenceFilterScanResult": "FailedNode"
+        },
         "post_delay": 0,
         "next": [
             "EssenceFilterInit"
@@ -36,6 +39,9 @@
                 }
             }
         },
+        "anchor": {
+            "EssenceFilterScanResult": "FailedNode"
+        },
         "post_delay": 0,
         "next": [
             "EssenceFilterInventoryInit"
@@ -49,15 +55,6 @@
                 "custom_action": "EssenceFilterInitAction"
             }
         },
-        "post_wait_freezes": {
-            "time": 50,
-            "target": [
-                38,
-                398,
-                922,
-                198
-            ]
-        },
         "post_delay": 0,
         "next": [
             "EssenceGridAdvance"
@@ -70,22 +67,13 @@
         }
     },
     "EssenceFilterInventoryInit": {
-        "desc": "初始化：库存盘点模式（只读扫描无瑕基质，匹配四至六星武器）",
+        "desc": "只读盘点已锁定且适配五星、六星武器的无瑕基质",
         "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
                 "custom_action": "EssenceFilterInitAction"
             }
-        },
-        "post_wait_freezes": {
-            "time": 50,
-            "target": [
-                38,
-                398,
-                922,
-                198
-            ]
         },
         "post_delay": 0,
         "next": [
@@ -97,8 +85,7 @@
         "attach": {
             "mode": "inventory",
             "flawless_essence": true,
-            "pure_essence": false,
-            "rarity4_weapon": true,
+            "pure_essence": true,
             "rarity5_weapon": true,
             "rarity6_weapon": true
         }
@@ -113,8 +100,21 @@
             }
         },
         "post_delay": 0,
+        "next": [
+            "EssenceFilterScanCompleted"
+        ],
+        "on_error": [
+            "FailedNode"
+        ],
         "focus": {
             "Node.Action.Succeeded": "任务完成"
         }
+    },
+    "EssenceFilterScanCompleted": {
+        "pre_delay": 0,
+        "anchor": {
+            "EssenceFilterScanResult": "EmptyNode"
+        },
+        "post_delay": 0
     }
 }

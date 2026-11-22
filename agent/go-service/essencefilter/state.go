@@ -12,10 +12,10 @@ var currentRun *RunState
 // RunState holds all runtime state for a single EssenceFilter run.
 // Init allocates it; Finish clears it. Agent callbacks execute serially.
 type RunState struct {
-	TaskID    int64
-	Inventory *inventoryState
-	// PendingInventory holds the after-battle increments of the current loot run until they are committed.
-	PendingInventory []inventoryDelta
+	TaskID  int64
+	Account *inventoryAccount
+	Scan    *warehouseScan
+	Loot    *rewardInventory
 	// Stats
 	MatchedCount            int
 	ExtFuturePromisingCount int
@@ -31,18 +31,17 @@ type RunState struct {
 	CurrentSkills      [3]string
 	CurrentSkillLevels [3]int
 
+	warehouseDetail warehouseDetailRead
+
 	// CurrentLocked is the lock state of the grid cell chosen by the C++ scanner.
 	CurrentLocked bool
 
-	// LockLimit is the per-combination quota plan; nil unless the lock-limit option is enabled.
+	// LockLimit is the per-combination quota plan; used for the selected farming targets.
 	LockLimit *lockLimitPlanner
 
 	// After-battle grid cache
 	RowBoxes [][4]int
 	RowIndex int
-
-	// EssenceMode derived from selection: flawless_only / pure_only / both
-	EssenceMode EssenceMode
 
 	// PipelineOpts is a copy of the init node's attach JSON; filled in Init for the run (avoids re-parsing).
 	PipelineOpts EssenceFilterOptions
@@ -57,12 +56,13 @@ func (*runStateResetSink) OnTaskerTask(_ *maa.Tasker, event maa.EventStatus, det
 	if event != maa.EventStatusSucceeded && event != maa.EventStatusFailed {
 		return
 	}
+	releaseInventoryTask(int64(detail.TaskID))
 	st := currentRun
 	if st == nil || st.TaskID != int64(detail.TaskID) {
 		return
 	}
 	currentRun = nil
-	if st.Inventory != nil {
+	if st.Scan != nil {
 		maafocus.PrintLargeContent(i18n.T("essencefilter.inventory.failed"))
 	}
 }

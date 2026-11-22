@@ -44,6 +44,7 @@ uv run tools/essence_filter/extract_skill_pools.py
 - 技能名取「基名」：按 `·`、`・`、`:`、`：`、`[` 分割，取第一段（如 `力量提升·小` → `力量提升`，`Strength Boost [S]` → `Strength Boost`）。
 - 多语言从同武器的 skills.CN/TC/EN/JP/KR 同位置提取基名。
 - 每 slot 去重后保留已有 `(slot, cn)` 的 id；新增词条从该 slot 的最大 id 加一分配，最后按 id 排序。
+- `term_id` 是客户端 GemTable 的 `gemTermId`，库存协议用它标识词条。重新生成会保留同一槽位、同一中文基名的 `term_id`。遇到新词条时脚本照常输出，并列出缺失项。维护者应在 `assets/data/EssenceFilter/skill_pools.json` 对应条目补齐游戏 ID，并核对格式与唯一性。
 
 ## build_locations.py
 

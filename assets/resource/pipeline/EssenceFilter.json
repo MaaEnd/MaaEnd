@@ -2,11 +2,14 @@
     "EssenceFilterMain": {
         "desc": "入口点",
         "pre_delay": 0,
+        "anchor": {
+            "EssenceFilterScanResult": "FailedNode"
+        },
         "post_delay": 0,
         "next": [
             "[JumpBack]EssenceFilterInventoryEntry",
             "[JumpBack]EssenceFilterEntry",
-            "EmptyNode"
+            "[Anchor]EssenceFilterScanResult"
         ]
     },
     "EssenceFilterNavigateToInventory": {
@@ -18,21 +21,7 @@
             "EssenceFilterInitNormalize",
             "[JumpBack]SceneEnterMenuValuables"
         ],
-        "on_error": "EssenceFilterNavigateToInventoryFailed"
-    },
-    "EssenceFilterNavigateToInventoryFailed": {
-        "desc": "入口点失败",
-        "pre_delay": 0,
-        "action": {
-            "type": "DoNothing"
-        },
-        "post_delay": 0,
-        "next": [
-            "EssenceFilterFinish"
-        ],
-        "focus": {
-            "Node.Action.Failed": "未能进入基质界面，结束任务"
-        }
+        "on_error": "FailedNode"
     },
     "EssenceFilterInitNormalize": {
         "desc": "初始化：若在基质栏位则先切武器库再切回基质页，否则直接切基质页（已选中武器基质页签）",

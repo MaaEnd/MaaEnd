@@ -6,6 +6,7 @@ require (
 	github.com/MaaXYZ/maa-framework-go/v4 v4.0.0-beta.19
 	github.com/bytedance/sonic v1.15.5
 	github.com/elazarl/goproxy v1.9.0
+	github.com/gofrs/flock v0.13.0
 	github.com/rs/zerolog v1.34.0
 	github.com/shirou/gopsutil/v4 v4.26.2
 	golang.org/x/image v0.37.0
