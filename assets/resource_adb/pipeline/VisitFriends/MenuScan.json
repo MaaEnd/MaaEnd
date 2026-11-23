@@ -1,9 +1,9 @@
 {
     "VisitFriendsPrioritySearchFocusBox": {
         "roi_offset": [
-            120,
+            80,
             20,
-            20,
+            40,
             0
         ]
     },
