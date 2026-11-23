@@ -16,7 +16,7 @@
         "desc": "先点击停止追踪",
         "recognition": "And",
         "all_of": [
-            "AlreadyTrackedMissionButton"
+            "CheckAlreadyTrackingText"
         ],
         "pre_wait_freezes": 100,
         "action": "Click",

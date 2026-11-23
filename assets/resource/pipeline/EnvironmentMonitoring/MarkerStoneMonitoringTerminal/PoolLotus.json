@@ -93,7 +93,7 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "CheckPoolLotusJob": {
+    "CheckPoolLotusJobText": {
         "desc": "检查小池荷委托是否可以接取",
         "recognition": "OCR",
         "roi": "CheckPoolLotusIcon",
@@ -162,7 +162,7 @@
         "all_of": [
             "CheckPoolLotusText",
             "CheckPoolLotusIcon",
-            "CheckPoolLotusJob"
+            "CheckPoolLotusJobText"
         ],
         "box_index": 2,
         "pre_delay": 0,
@@ -234,7 +234,7 @@
         "desc": "小池荷任务已经在追踪中",
         "recognition": "And",
         "all_of": [
-            "AlreadyTrackedMissionButton",
+            "CheckAlreadyTrackingText",
             "InPoolLotusMission"
         ],
         "pre_delay": 0,

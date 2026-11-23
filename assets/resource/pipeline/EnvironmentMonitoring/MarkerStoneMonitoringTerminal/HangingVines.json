@@ -93,7 +93,7 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "CheckHangingVinesJob": {
+    "CheckHangingVinesJobText": {
         "desc": "检查垂藤委托是否可以接取",
         "recognition": "OCR",
         "roi": "CheckHangingVinesIcon",
@@ -162,7 +162,7 @@
         "all_of": [
             "CheckHangingVinesText",
             "CheckHangingVinesIcon",
-            "CheckHangingVinesJob"
+            "CheckHangingVinesJobText"
         ],
         "box_index": 2,
         "pre_delay": 0,
@@ -234,7 +234,7 @@
         "desc": "垂藤任务已经在追踪中",
         "recognition": "And",
         "all_of": [
-            "AlreadyTrackedMissionButton",
+            "CheckAlreadyTrackingText",
             "InHangingVinesMission"
         ],
         "pre_delay": 0,

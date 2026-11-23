@@ -93,7 +93,7 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "CheckCleansingJadeJob": {
+    "CheckCleansingJadeJobText": {
         "desc": "检查漱玉委托是否可以接取",
         "recognition": "OCR",
         "roi": "CheckCleansingJadeIcon",
@@ -162,7 +162,7 @@
         "all_of": [
             "CheckCleansingJadeText",
             "CheckCleansingJadeIcon",
-            "CheckCleansingJadeJob"
+            "CheckCleansingJadeJobText"
         ],
         "box_index": 2,
         "pre_delay": 0,
@@ -234,7 +234,7 @@
         "desc": "漱玉任务已经在追踪中",
         "recognition": "And",
         "all_of": [
-            "AlreadyTrackedMissionButton",
+            "CheckAlreadyTrackingText",
             "InCleansingJadeMission"
         ],
         "pre_delay": 0,

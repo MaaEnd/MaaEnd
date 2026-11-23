@@ -98,7 +98,7 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "CheckSerenityGardenTianshiPillarJob": {
+    "CheckSerenityGardenTianshiPillarJobText": {
         "desc": "检查安思园的天师桩委托是否可以接取",
         "recognition": "OCR",
         "roi": "CheckSerenityGardenTianshiPillarIcon",
@@ -172,7 +172,7 @@
         "all_of": [
             "CheckSerenityGardenTianshiPillarText",
             "CheckSerenityGardenTianshiPillarIcon",
-            "CheckSerenityGardenTianshiPillarJob"
+            "CheckSerenityGardenTianshiPillarJobText"
         ],
         "box_index": 2,
         "pre_delay": 0,
@@ -244,7 +244,7 @@
         "desc": "安思园的天师桩任务已经在追踪中",
         "recognition": "And",
         "all_of": [
-            "AlreadyTrackedMissionButton",
+            "CheckAlreadyTrackingText",
             "InSerenityGardenTianshiPillarMission"
         ],
         "pre_delay": 0,

@@ -93,7 +93,7 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "CheckAutumnGoldJob": {
+    "CheckAutumnGoldJobText": {
         "desc": "检查金秋时委托是否可以接取",
         "recognition": "OCR",
         "roi": "CheckAutumnGoldIcon",
@@ -162,7 +162,7 @@
         "all_of": [
             "CheckAutumnGoldText",
             "CheckAutumnGoldIcon",
-            "CheckAutumnGoldJob"
+            "CheckAutumnGoldJobText"
         ],
         "box_index": 2,
         "pre_delay": 0,
@@ -234,7 +234,7 @@
         "desc": "金秋时任务已经在追踪中",
         "recognition": "And",
         "all_of": [
-            "AlreadyTrackedMissionButton",
+            "CheckAlreadyTrackingText",
             "InAutumnGoldMission"
         ],
         "pre_delay": 0,

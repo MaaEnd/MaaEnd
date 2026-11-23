@@ -93,7 +93,7 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "CheckAnnularWaterfallJob": {
+    "CheckAnnularWaterfallJobText": {
         "desc": "检查环形瀑布委托是否可以接取",
         "recognition": "OCR",
         "roi": "CheckAnnularWaterfallIcon",
@@ -162,7 +162,7 @@
         "all_of": [
             "CheckAnnularWaterfallText",
             "CheckAnnularWaterfallIcon",
-            "CheckAnnularWaterfallJob"
+            "CheckAnnularWaterfallJobText"
         ],
         "box_index": 2,
         "pre_delay": 0,
@@ -234,7 +234,7 @@
         "desc": "环形瀑布任务已经在追踪中",
         "recognition": "And",
         "all_of": [
-            "AlreadyTrackedMissionButton",
+            "CheckAlreadyTrackingText",
             "InAnnularWaterfallMission"
         ],
         "pre_delay": 0,

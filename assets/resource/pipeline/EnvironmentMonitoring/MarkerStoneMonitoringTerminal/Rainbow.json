@@ -93,7 +93,7 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "CheckRainbowJob": {
+    "CheckRainbowJobText": {
         "desc": "检查彩虹委托是否可以接取",
         "recognition": "OCR",
         "roi": "CheckRainbowIcon",
@@ -162,7 +162,7 @@
         "all_of": [
             "CheckRainbowText",
             "CheckRainbowIcon",
-            "CheckRainbowJob"
+            "CheckRainbowJobText"
         ],
         "box_index": 2,
         "pre_delay": 0,
@@ -234,7 +234,7 @@
         "desc": "彩虹任务已经在追踪中",
         "recognition": "And",
         "all_of": [
-            "AlreadyTrackedMissionButton",
+            "CheckAlreadyTrackingText",
             "InRainbowMission"
         ],
         "pre_delay": 0,
