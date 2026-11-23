@@ -518,7 +518,8 @@
                                 255,
                                 255,
                                 255
-                            ]
+                            ],
+                            "order_by": "Vertical"
                         },
                         "CreditShoppingPriority1DiscountCannotAfford": {
                             "recognition": "ColorMatch",
@@ -989,7 +990,8 @@
                                 255,
                                 255,
                                 255
-                            ]
+                            ],
+                            "order_by": "Vertical"
                         },
                         "CreditShoppingPriority2DiscountCannotAfford": {
                             "recognition": "ColorMatch",
@@ -1448,7 +1450,8 @@
                                 255,
                                 255,
                                 255
-                            ]
+                            ],
+                            "order_by": "Vertical"
                         },
                         "CreditShoppingPriority3DiscountCannotAfford": {
                             "recognition": "ColorMatch",
