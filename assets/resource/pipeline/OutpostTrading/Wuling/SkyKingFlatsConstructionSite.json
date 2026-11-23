@@ -44,7 +44,7 @@
         "recognition": "And",
         "all_of": [
             "OutpostTradingInSkyKingFlatsConstructionSite",
-            "OutpostTradingOutpostProsperityAvailable"
+            "OutpostTradingCheckOutpostProsperityIcon"
         ],
         "pre_delay": 0,
         "action": "Custom",
