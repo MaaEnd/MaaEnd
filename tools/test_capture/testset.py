@@ -116,6 +116,7 @@ class TestSetWriter:
             command.append("--force")
         return subprocess.run(command, cwd=self.repo, capture_output=True, text=True, check=False)
 
+
 def export_run(run_dir: Path, repo: Path, resource: str, folder: str) -> list[str]:
     """把一次运行目录里的截图重新脱敏导出到测试集，返回写进去的相对路径。
 

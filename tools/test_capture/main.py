@@ -27,7 +27,7 @@ import click
 
 from .flow import FlowError, load_flow
 from .output import DEFAULT_KEEP, new_run_dir, prune_runs
-from .runner import DEFAULT_WAIT, RunSettings, run_controller
+from .runner import DEFAULT_WAIT, RunSettings, run_flow, split_segments
 from .runtime import ROOT, load_interface, prepare_framework
 from .testset import TestSetError, TestSetWriter, export_run
 
@@ -78,32 +78,29 @@ def _run(
         folder = testset_dir or flow_path.resolve().parent.name
         writer = TestSetWriter(ROOT, testset_resource, folder)
 
-    failed = False
-    for name in controllers:
-        try:
-            if writer is not None:
-                writer.start_controller(name)
-            result = run_controller(interface, flow, name, run_dir / name, settings, writer)
-            manifest["controllers"].append(result)
-        except (FlowError, TestSetError) as error:
-            failed = True
-            click.echo(str(error), err=True)
-            manifest["controllers"].append(
-                {
-                    "controller": name,
-                    "dir": str(run_dir / name),
-                    "steps": [],
-                    "error": {"message": str(error)},
-                }
-            )
+    results = run_flow(interface, flow, controllers, run_dir, settings, writer)
+    manifest["controllers"] = results
+    failed = [item["controller"] for item in results if item.get("error")]
+    segments = split_segments(flow)
+    skipped = [
+        item["controller"]
+        for item in results
+        if not item.get("error") and len(item.get("segments") or []) < len(segments)
+    ]
 
     (run_dir / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=4) + "\n", encoding="utf-8")
     if writer is not None:
         where = "tests/MaaEndTestset/<控制器>/<资源>/" + writer.folder
         if failed:
             click.echo(f"有平台没跑完，这次的测试图不全，没写完的步骤没有新图；目录：{where}", err=True)
+        elif skipped:
+            click.echo(f"有平台因为前面失败，后面几段没跑，图不全；目录：{where}", err=True)
         else:
             click.echo(f"测试图：{where}（用例里 imageRoot 写 {writer.folder} 才对得上）")
+    if len(segments) > 1:
+        click.echo(f"共 {len(segments)} 段，每段在 {len(controllers)} 个平台上各跑一遍")
+    if failed:
+        click.echo(f"失败的平台：{'、'.join(failed)}", err=True)
     click.echo(f"{'结束（有失败）' if failed else '完成'}：{run_dir}")
     if failed:
         raise click.exceptions.Exit(1)

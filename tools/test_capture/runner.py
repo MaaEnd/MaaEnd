@@ -20,7 +20,7 @@ from .agents import Agents, pi_environment
 from .controllers import create_controller
 from .flow import BASE_HEIGHT, BASE_WIDTH, Flow, FlowError, Step, as_dict, as_list
 from .runtime import AGENT_DIR, LOG_DIR, controller_entry, load_task, maafw_dir, resource_bundles
-from .testset import TestSetWriter
+from .testset import TestSetError, TestSetWriter
 from .types import Box, Controller, Image, Point, Recognition, RecognitionDetail, Resource, Tasker
 
 PROBE_NODE = "TestCaptureProbe"
@@ -354,6 +354,7 @@ class Session:
             "step": step.name,
             "shots": list(self.records),
             "clicked": [list(point) for point in self.clicked],
+            "stopped": step.stop,
         }
 
 
@@ -392,23 +393,92 @@ def enter_world(tasker: Tasker, resource: Resource, controller_name: str) -> Non
     click.echo(f"[{controller_name}] 已回到大世界")
 
 
-def run_controller(
+@dataclass
+class Segment:
+    """流程里的一段：两个 stop 标记之间（含结尾那个 stop）的那几步。"""
+
+    index: int
+    steps: list[tuple[int, Step]]
+
+
+def split_segments(flow: Flow) -> list[Segment]:
+    """按 stop 标记把流程切成几段。
+
+    每段都在所有平台上各跑一遍：stop 只负责切段，不负责结束整场运行。
+    """
+    segments: list[Segment] = []
+    current: list[tuple[int, Step]] = []
+    for index, step in enumerate(flow.steps, 1):
+        current.append((index, step))
+        if step.stop:
+            segments.append(Segment(index=len(segments) + 1, steps=current))
+            current = []
+    if current:
+        segments.append(Segment(index=len(segments) + 1, steps=current))
+    return segments
+
+
+class Platform:
+    """一台平台的一次连接：控制器、资源、Agent，加上跑步骤用的 Session。
+
+    同一台平台连着跑好几段时复用这一个连接，不重连、不重新登录。
+    """
+
+    def __init__(
+        self,
+        name: str,
+        out_dir: Path,
+        controller: Controller,
+        resource: Resource,
+        tasker: Tasker,
+        agents: Agents,
+        session: Session,
+    ) -> None:
+        self.name = name
+        self.out_dir = out_dir
+        self.controller = controller
+        self.resource = resource
+        self.tasker = tasker
+        self.agents = agents
+        self.session = session
+
+    def run_segment(self, segment: Segment, result: dict[str, Any]) -> None:
+        """跑这一段，把每步的记录追加到 result["steps"]。"""
+        for index, step in segment.steps:
+            try:
+                record = self.session.run_step(index, step)
+            except FlowError as error:
+                result["error"] = {"step": index, "name": step.name, "message": str(error)}
+                failure_path = self.out_dir / f"{index:02d}_{step.name}_失败.png"
+                try:
+                    image = self.session.capture()
+                    if image.size:
+                        save_image(image, failure_path)
+                        result["error"]["image"] = failure_path.name
+                except Exception:  # 失败截图失败就不再掩盖原始错误
+                    pass
+                raise FlowError(
+                    f"[{self.name}] 第 {index} 步「{step.name}」失败：{error}；现场截图已存到 {failure_path}"
+                ) from error
+            result["steps"].append(record)
+        result.setdefault("segments", []).append(segment.index)
+
+    def close(self) -> None:
+        self.session.close()
+        self.agents.close()
+
+
+def open_platform(
     interface: dict[str, Any],
-    flow: Flow,
     controller_name: str,
     out_dir: Path,
     settings: RunSettings,
-    testset: TestSetWriter | None = None,
-) -> dict[str, Any]:
+    testset: TestSetWriter | None,
+) -> Platform:
+    """连上这台平台、装好资源与 Agent，并把它带回大世界。"""
     from maa.resource import Resource as MaaResource
     from maa.tasker import Tasker as MaaTasker
 
-    result: dict[str, Any] = {
-        "controller": controller_name,
-        "dir": str(out_dir),
-        "steps": [],
-        "error": None,
-    }
     kind = str(controller_entry(interface, controller_name).get("type") or "")
     env_extra = pi_environment(interface, controller_name, LOG_DIR)
     if settings.open_game:
@@ -450,7 +520,7 @@ def run_controller(
         raise
 
     out_dir.mkdir(parents=True, exist_ok=True)
-    runner = Session(
+    session = Session(
         tasker,
         resource,
         controller,
@@ -460,24 +530,63 @@ def run_controller(
         settings.wait,
         testset,
     )
+    return Platform(controller_name, out_dir, controller, resource, tasker, agents, session)
+
+
+def run_flow(
+    interface: dict[str, Any],
+    flow: Flow,
+    controllers: tuple[str, ...],
+    run_dir: Path,
+    settings: RunSettings,
+    testset: TestSetWriter | None = None,
+) -> list[dict[str, Any]]:
+    """按「段」和「平台」两层循环跑，返回每个平台汇总后的结果。
+
+    外层是段、内层是平台：一段在所有平台上各跑一遍才进下一段，这样同一段里各平台的
+    前置状态一致。平台顺序一段正、一段反（A B → B A → A B），让上一段的最后一台直接
+    接着跑下一段，少一次重新登录；只有换平台那一次才需要顶号。
+    """
+    segments = split_segments(flow)
+    results: dict[str, dict[str, Any]] = {
+        name: {
+            "controller": name,
+            "dir": str(run_dir / name),
+            "steps": [],
+            "segments": [],
+            "error": None,
+        }
+        for name in controllers
+    }
+    if len(segments) > 1:
+        click.echo(f"流程按 stop 切成 {len(segments)} 段，每段在 {len(controllers)} 个平台上各跑一遍")
+
+    failed: set[str] = set()
+    platform: Platform | None = None
     try:
-        for index, step in enumerate(flow.steps, 1):
-            try:
-                result["steps"].append(runner.run_step(index, step))
-            except FlowError as error:
-                result["error"] = {"step": index, "name": step.name, "message": str(error)}
-                failure_path = out_dir / f"{index:02d}_{step.name}_失败.png"
+        for segment in segments:
+            order = controllers if segment.index % 2 == 1 else tuple(reversed(controllers))
+            for name in order:
+                if name in failed:
+                    click.echo(f"[{name}] 前面失败了，第 {segment.index} 段跳过", err=True)
+                    continue
+                if platform is not None and platform.name != name:
+                    platform.close()
+                    platform = None
                 try:
-                    image = runner.capture()
-                    if image.size:
-                        save_image(image, failure_path)
-                        result["error"]["image"] = failure_path.name
-                except Exception:  # 失败截图失败就不再掩盖原始错误
-                    pass
-                raise FlowError(
-                    f"[{controller_name}] 第 {index} 步「{step.name}」失败：{error}；现场截图已存到 {failure_path}"
-                ) from error
+                    if platform is None:
+                        platform = open_platform(interface, name, run_dir / name, settings, testset)
+                    if testset is not None:
+                        testset.start_controller(name)
+                    platform.run_segment(segment, results[name])
+                except (FlowError, TestSetError) as error:
+                    failed.add(name)
+                    results[name]["error"] = results[name]["error"] or {"message": str(error)}
+                    click.echo(str(error), err=True)
+                    if platform is not None and platform.name == name:
+                        platform.close()
+                        platform = None
     finally:
-        runner.close()
-        agents.close()
-    return result
+        if platform is not None:
+            platform.close()
+    return [results[name] for name in controllers]

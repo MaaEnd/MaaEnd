@@ -51,12 +51,15 @@ class Step:
     enter 是这个步骤要求的界面：开跑前先看一眼在不在，不在就转跳过去；
     route 是转跳用的现成节点，一般是 SceneEnter... 这种「从任意界面进入某菜单」，
     不写就退回 SceneAnyEnterWorld 回大世界。
+    stop 只是切段用的：从开头到这一步算一段，之后到下一个 stop 算下一段；
+    每段都在所有平台上各跑一遍，一段跑完才进下一段。
     """
 
     name: str
     func: StepFunc
     enter: str | None = None
     route: str | None = None
+    stop: bool = False
 
 
 class Flow:
@@ -74,6 +77,7 @@ class Flow:
         *,
         enter: str | None = ...,
         route: str | None = ...,
+        stop: bool = ...,
     ) -> StepFunc: ...
 
     @overload
@@ -84,6 +88,7 @@ class Flow:
         *,
         enter: str,
         route: str | None = ...,
+        stop: bool = ...,
     ) -> Callable[[StepFunc], StepFunc]: ...
 
     def step(
@@ -93,16 +98,18 @@ class Flow:
         *,
         enter: str | None = None,
         route: str | None = None,
+        stop: bool = False,
     ) -> StepFunc | Callable[[StepFunc], StepFunc]:
         """登记一步。
 
-        光写 @flow.step 也行；写 @flow.step(enter="InWorld") 就声明这步要求的界面。
+        光写 @flow.step 也行；写 @flow.step(enter="InWorld") 就声明这步要求的界面，
+        写 stop=True 则这里是本段的结尾，后面属于下一段。
         """
 
         def register(target: StepFunc) -> StepFunc:
             if any(item.name == target.__name__ for item in self.steps):
                 raise FlowError(f"步骤名重复了：{target.__name__}")
-            self.steps.append(Step(name=target.__name__, func=target, enter=enter, route=route))
+            self.steps.append(Step(name=target.__name__, func=target, enter=enter, route=route, stop=stop))
             return target
 
         if func is None:
@@ -115,13 +122,14 @@ class Flow:
         *,
         enter: str | None = None,
         route: str | None = None,
+        stop: bool = False,
     ) -> Callable[[StepFunc], StepFunc]:
         """名字里不能写下的字符（空格之类）可以用这个指定步骤名。"""
 
         def register(func: StepFunc) -> StepFunc:
             if any(item.name == name for item in self.steps):
                 raise FlowError(f"步骤名重复了：{name}")
-            self.steps.append(Step(name=name, func=func, enter=enter, route=route))
+            self.steps.append(Step(name=name, func=func, enter=enter, route=route, stop=stop))
             return func
 
         return register

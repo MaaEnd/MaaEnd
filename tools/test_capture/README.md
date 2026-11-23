@@ -51,6 +51,31 @@ def 四号谷地据点(c: Capture) -> None:
 
 函数名里的字符不够用时，用 `@flow.named("据点 难民暂居处", enter=..., route=...)` 指定步骤名。
 
+### 走到没回头路的步骤就分段
+
+有些界面点下一步就回不来了（货卖光了、一次性弹窗关掉了），所以流程要分段跑。
+给那一步加 `stop=True`，它就是本段的结尾，后面属于下一段：
+
+```python
+@flow.step(enter="OutpostTradingInSkyKingFlatsConstructionSite", route="...", stop=True)
+def 交易(c: Capture) -> None:
+    c.run("OutpostTradingSell")
+```
+
+分段之后按「段在外、平台在内」跑：**一段在所有平台上各跑一遍，才进下一段**。
+两个平台 A、B，6 步里第 3 步标了 stop，实际顺序是：
+
+```text
+A 跑 1-3  →  B 跑 1-3  →  B 跑 4-6  →  A 跑 4-6
+```
+
+平台顺序一段正、一段反（A B → B A → A B……），这样上一段的最后一台可以直接接着跑下一段，
+不用重连也不用重新登录；只有真正换平台那一次，才靠下一个客户端登录把上一个挤下线（顶号）。
+工具不会主动关游戏。
+
+某台平台中途失败时，它后面的段会跳过，别的平台照常跑完，最后汇总哪些平台失败了。
+全流程没有 `stop` 时就是一段，一台跑完全部再换下一台，和以前一样。
+
 已有的 `tests/OutpostTrading/capture_flow.py` 一趟跑完两个地区、截 11 张图：
 四号谷地三个据点、武陵三个据点、联络干员列表的撤下与派驻两种按钮状态、选择交易货品、交易完成，
 最后把据点调度券卖到见底，截一张「当前据点调度券储量不足」；
@@ -119,8 +144,8 @@ uv run test-capture --from-run .cache/test-capture/20261122-075434
 | `sleep(秒)` | 硬等，能不用就不用 |
 
 ```python
-c.shot("据点_天王坪援建点")                                # 等 2 秒画面稳定，再截一张
-c.click("OutpostTradingOpenOperatorLiaisonButton")        # 点进去
+c.shot("据点_天王坪援建点")  # 等 2 秒画面稳定，再截一张
+c.click("OutpostTradingOpenOperatorLiaisonButton")  # 点进去
 ```
 
 界面已经在 `enter` 里声明过，函数里不用再写一遍 `wait`。
@@ -138,15 +163,15 @@ c.click("OutpostTradingOpenOperatorLiaisonButton")        # 点进去
 
 ```python
 for round_index in range(1, 13):
-    if c.hit("OutpostTradingZeroMoney"):   # 已经提示储量不足
+    if c.hit("OutpostTradingZeroMoney"):  # 已经提示储量不足
         break
-    c.swipe((940, 548), (1180, 548))       # 份数拉满
+    c.swipe((940, 548), (1180, 548))  # 份数拉满
     tradeable = c.number((1150, 528, 100, 44))
     if tradeable < 1:
         break
     c.click("OutpostTradingSell")
-    c.wait("OutpostTradingCheckHeader")    # 交易完成的提示出来了
-    c.run("OutpostTradingSellCheck")       # 现成的「交易后确认」节点，自己点 ✓
+    c.wait("OutpostTradingCheckResultHeader")  # 交易完成的提示出来了
+    c.run("OutpostTradingSellCheck")  # 现成的「交易后确认」节点，自己点 ✓
 ```
 
 ## 顺手写进测试集
