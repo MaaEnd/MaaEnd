@@ -21,10 +21,9 @@ type DecisionAction struct{}
 var _ maa.CustomActionRunner = &DecisionAction{}
 
 type decisionParam struct {
-	Step      string `json:"step"`
-	Kind      string `json:"kind"`
-	Category  string `json:"category"`
-	MaxRounds int    `json:"max_rounds"`
+	Step     string `json:"step"`
+	Kind     string `json:"kind"`
+	Category string `json:"category"`
 }
 
 type session struct {
@@ -89,20 +88,6 @@ func (a *DecisionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	patch := make(map[string]any)
 	observed := indexObservations(arg.RecognitionDetail)
 	switch param.Step {
-	case "initialize":
-		if param.MaxRounds < 0 || param.MaxRounds > 20 {
-			err = fmt.Errorf("maximum innkeeping runs must be between 0 and 20")
-			break
-		}
-		skipBusiness := param.MaxRounds == 0
-		patch["RestaurantRoundGate"] = map[string]any{
-			"enabled": !skipBusiness,
-			"max_hit": param.MaxRounds,
-		}
-		patch["RestaurantSkipBusiness"] = map[string]any{"enabled": skipBusiness}
-		patch["RestaurantSkipBusinessAtManor"] = map[string]any{"enabled": skipBusiness}
-		patch["RestaurantShopApproach"] = map[string]any{"enabled": skipBusiness}
-		patch["RestaurantShopApproachAfterBusiness"] = map[string]any{"enabled": !skipBusiness}
 	case "menu_page":
 		err = readMenuPage(state, param.Kind, param.Category, patch)
 	case "menu_card":

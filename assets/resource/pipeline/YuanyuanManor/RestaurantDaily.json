@@ -22,7 +22,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RestaurantInitialize"
+            "RestaurantResetThemeScrollHitCount"
         ],
         "attach": {
             "monday": false,
@@ -39,79 +39,6 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
-    },
-    "RestaurantInitialize": {
-        "desc": "初始化经营决策状态和经营次数。",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "YuanyuanManorInnkeepingDecide",
-        "custom_action_param": {
-            "step": "initialize",
-            "max_rounds": 1
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "RestaurantResetRoundCount"
-        ]
-    },
-    "RestaurantResetRoundCount": {
-        "desc": "清除本轮计数，然后决定跳过经营、进入经营循环或停止。",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "ClearHitCount",
-        "custom_action_param": {
-            "nodes": [
-                "RestaurantRoundGate"
-            ],
-            "strict": true
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "RestaurantSkipBusiness",
-            "RestaurantRoundGate",
-            "StopNode"
-        ]
-    },
-    "RestaurantSkipBusiness": {
-        "desc": "转入跳过经营阶段的流程。",
-        "enabled": false,
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "RestaurantNoTasksConfigured",
-            "RestaurantCancelMissionTracking"
-        ]
-    },
-    "RestaurantNoTasksConfigured": {
-        "desc": "经营轮数为零且未启用商店时报告没有任务并正常结束。",
-        "enabled": false,
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "StopNode"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "$task.YuanyuanManor.focus.no_tasks_configured"
-        }
-    },
-    "RestaurantRoundGate": {
-        "desc": "检查经营循环次数是否允许继续。",
-        "max_hit": 0,
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "RestaurantResetThemeScrollHitCount"
-        ]
     },
     "RestaurantResetThemeScrollHitCount": {
         "desc": "清除主题列表滚动状态的计数。",
@@ -353,7 +280,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RestaurantSkipBusinessAtManor",
             "NavigateSisPaintingYuanyuanManorTarget"
         ]
     },
@@ -370,19 +296,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RestaurantSkipBusinessAtManor",
             "NavigateSisPaintingYuanyuanManorTarget"
-        ]
-    },
-    "RestaurantSkipBusinessAtManor": {
-        "enabled": false,
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "RestaurantShopAfterRounds",
-            "StopNode"
         ]
     },
     "NavigateSisPaintingYuanyuanManorTarget": {
@@ -2315,7 +2229,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RestaurantRoundGate",
             "RestaurantShopAfterRounds",
             "StopNode"
         ],

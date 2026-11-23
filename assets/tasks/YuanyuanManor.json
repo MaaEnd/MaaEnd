@@ -18,7 +18,6 @@
             ],
             "option": [
                 "YuanyuanManorSchedule",
-                "InnkeepingMaxRounds",
                 "PantryShopDiscountedItems"
             ]
         }
@@ -116,28 +115,6 @@
                 "YuanyuanManorScheduleSunday"
             ]
         },
-        "InnkeepingMaxRounds": {
-            "type": "input",
-            "label": "$task.YuanyuanManor.option.MaxRounds.label",
-            "inputs": [
-                {
-                    "name": "MaxRounds",
-                    "label": "$task.YuanyuanManor.option.MaxRounds.input_label",
-                    "default": "5",
-                    "pipeline_type": "int",
-                    "verify": "^(?:0|[1-9]|1[0-9]|20)$",
-                    "pattern_msg": "$task.YuanyuanManor.option.MaxRounds.pattern_msg"
-                }
-            ],
-            "pipeline_override": {
-                "RestaurantInitialize": {
-                    "custom_action_param": {
-                        "step": "initialize",
-                        "max_rounds": "{MaxRounds}"
-                    }
-                }
-            }
-        },
         "PantryShopDiscountedItems": {
             "type": "switch",
             "label": "$task.YuanyuanManor.option.BuyShopDiscountedItems.label",
@@ -150,9 +127,6 @@
                     "pipeline_override": {
                         "RestaurantShopAfterRounds": {
                             "enabled": true
-                        },
-                        "RestaurantNoTasksConfigured": {
-                            "enabled": false
                         }
                     }
                 },
@@ -161,9 +135,6 @@
                     "pipeline_override": {
                         "RestaurantShopAfterRounds": {
                             "enabled": false
-                        },
-                        "RestaurantNoTasksConfigured": {
-                            "enabled": true
                         }
                     }
                 }

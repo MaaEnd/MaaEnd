@@ -562,7 +562,6 @@
                         "properties": {
                             "step": {
                                 "enum": [
-                                    "initialize",
                                     "menu_page",
                                     "menu_card",
                                     "menu_advance",
@@ -582,11 +581,6 @@
                                     "vegetable",
                                     "dessert"
                                 ]
-                            },
-                            "max_rounds": {
-                                "type": "integer",
-                                "minimum": 1,
-                                "maximum": 1000
                             }
                         }
                     }

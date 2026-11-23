@@ -7,71 +7,14 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RestaurantShopApproach",
             "RestaurantShopApproachAfterBusiness"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "$task.YuanyuanManor.focus.shop_started"
         }
     },
-    "RestaurantShopApproach": {
-        "desc": "导航到堂头小铺交互区域。",
-        "enabled": false,
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapNavigateAction",
-        "custom_action_param": {
-            "path": [
-                {
-                    "action": "ZONE",
-                    "zone_id": "Wuling_Base"
-                },
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        137.48,
-                        138.67
-                    ],
-                    "target_tier": "Wuling_L10_468",
-                    "required": true
-                },
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        136.44,
-                        133.13
-                    ],
-                    "target_tier": "Wuling_L10_468",
-                    "strict": true,
-                    "required": true
-                }
-            ]
-        },
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                796,
-                347,
-                253,
-                279
-            ]
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "RestaurantShopInteract"
-        ],
-        "on_error": [
-            "FailedNode"
-        ],
-        "focus": {
-            "Node.Action.Starting": "$task.YuanyuanManor.focus.shop_approach"
-        }
-    },
     "RestaurantShopApproachAfterBusiness": {
         "desc": "从缘缘庄经营区域导航到堂头小铺交互区域。",
-        "enabled": false,
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
