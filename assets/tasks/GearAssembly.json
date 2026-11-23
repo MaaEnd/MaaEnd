@@ -23,11 +23,38 @@
             ],
             "option": [
                 "GearAssemblyType",
+                "GearAssemblySpecifyGear",
                 "GearAssemblySortOrder"
             ]
         }
     ],
     "option": {
+        "GearAssemblyGearName": {
+            "type": "input",
+            "label": "$task.GearAssembly.option.GearAssemblyGearName.label",
+            "inputs": [
+                {
+                    "name": "GearName",
+                    "label": "$task.GearAssembly.option.GearAssemblyGearName.inputs.GearName.label",
+                    "default": "",
+                    "pipeline_type": "string",
+                    "verify": "\\S",
+                    "pattern_msg": "$task.GearAssembly.option.GearAssemblyGearName.inputs.GearName.pattern_msg"
+                }
+            ],
+            "pipeline_override": {
+                "GearAssemblySpecifiedFindGear": {
+                    "expected": [
+                        "{GearName}"
+                    ]
+                },
+                "GearAssemblySpecifiedCheckSelected": {
+                    "expected": [
+                        "{GearName}"
+                    ]
+                }
+            }
+        },
         "GearAssemblySortOrder": {
             "type": "select",
             "label": "$task.GearAssembly.option.GearAssemblySortOrder.label",
@@ -52,6 +79,60 @@
                 }
             ],
             "default_case": "Lower"
+        },
+        "GearAssemblySpecifyGear": {
+            "type": "switch",
+            // 先只开 Win32-Front，其他控制器实机验证后再加
+            "controller": [
+                "Win32-Front"
+            ],
+            "label": "$task.GearAssembly.option.GearAssemblySpecifyGear.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "GearAssemblyGearName"
+                    ],
+                    // 进入类别后改走按名称查找：找到就点开核对再制作，找不到就往下翻，翻到底结束任务
+                    "pipeline_override": {
+                        "GearAssemblyBasicGear": {
+                            "next": [
+                                "GearAssemblySpecifiedFindGear",
+                                "GearAssemblyGearListScrollEnd",
+                                "GearAssemblySwipeToNextRow"
+                            ]
+                        },
+                        "GearAssemblySetGear": {
+                            "next": [
+                                "GearAssemblySpecifiedFindGear",
+                                "GearAssemblyGearListScrollEnd",
+                                "GearAssemblySwipeToNextRow"
+                            ]
+                        },
+                        "GearAssemblyNonsetGear": {
+                            "next": [
+                                "GearAssemblySpecifiedFindGear",
+                                "GearAssemblyGearListScrollEnd",
+                                "GearAssemblySwipeToNextRow"
+                            ]
+                        },
+                        "GearAssemblySwipeToNextRow": {
+                            "next": [
+                                "GearAssemblySpecifiedFindGear",
+                                "GearAssemblyGearListScrollEnd",
+                                "GearAssemblySwipeToNextRow"
+                            ]
+                        },
+                        "GearAssemblyGearListScrollEnd": {
+                            "next": []
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
         },
         "GearAssemblyType": {
             "type": "select",
