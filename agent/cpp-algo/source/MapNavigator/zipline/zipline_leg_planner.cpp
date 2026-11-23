@@ -319,7 +319,7 @@ double polyline_length(const navmesh::WorldPath& path)
 
 constexpr size_t kNoTower = std::numeric_limits<size_t>::max();
 
-// 中段架子到索线的三维垂距在此以内时, 这条直索只算不确定边
+// 中段架子到索线的三维垂距在此以内时, 这条直索算被它拦下
 constexpr double kRopeInterceptLateralWu = 15.0;
 
 // 中段架子与索线的竖直落差超过此值时不算拦路
@@ -354,12 +354,26 @@ struct RopeCandidate
     std::vector<NavmeshAirLine> lines;
 };
 
-// certain 是 all 的子集, 要求中段无拦路架且有一组连线不撞实体, 任一条不成立只降档不删边
+struct InterceptedHop
+{
+    size_t to = 0;
+    size_t interceptor = 0;
+};
+
+struct RopeInterceptors
+{
+    size_t near_from = 0;
+    size_t near_to = 0;
+    double lateral = 0.0;
+};
+
+// certain 是 all 的子集, 要求有一组连线不撞实体, 被拦的直索还要过 drop_intercepted_from_certain, 不成立只降档不删边
 struct ZipLinkGraph
 {
     std::vector<std::vector<size_t>> all;
     std::vector<std::vector<size_t>> certain;
-    // 没被拦路架拦下、还要问遮挡体才能进 certain 的边
+    std::vector<std::vector<InterceptedHop>> intercepted;
+    // 还要问遮挡体才能进 certain 的边
     std::vector<RopeCandidate> ropes;
 };
 
@@ -374,8 +388,8 @@ void drop_edge(std::vector<std::vector<size_t>>* links, size_t a, size_t b)
     erase_target(&(*links)[b], a);
 }
 
-// 返回拦路架到索线的垂距, nodes 须已做过通电筛选
-std::optional<double> rope_intercepted(
+// 返回离两端最近的拦路架和到索线的垂距, nodes 须已做过通电筛选
+std::optional<RopeInterceptors> rope_intercepted(
     const std::vector<zipline::ZiplineNode>& nodes,
     const std::vector<size_t>& node_record,
     size_t from,
@@ -391,6 +405,9 @@ std::optional<double> rope_intercepted(
         return std::nullopt;
     }
     const double planar_squared = dx * dx + dz * dz;
+    RopeInterceptors found;
+    double near_from_along = span;
+    double near_to_along = 0.0;
     for (size_t k = 0; k < nodes.size(); ++k) {
         if (k == from || k == to || node_record[k] != node_record[from]) {
             continue;
@@ -419,9 +436,20 @@ std::optional<double> rope_intercepted(
         if (minimum_possible_world_span_squared(offset_x, offset_y, offset_z, footprints[from], footprints[k]) > limit * limit) {
             continue;
         }
-        return lateral;
+        if (along < near_from_along) {
+            near_from_along = along;
+            found.near_from = k;
+            found.lateral = lateral;
+        }
+        if (along > near_to_along) {
+            near_to_along = along;
+            found.near_to = k;
+        }
     }
-    return std::nullopt;
+    if (near_from_along >= span) {
+        return std::nullopt;
+    }
+    return found;
 }
 
 ZipLinkGraph build_links(
@@ -434,7 +462,8 @@ ZipLinkGraph build_links(
     ZipLinkGraph graph;
     graph.all.resize(nodes.size());
     graph.certain.resize(nodes.size());
-    std::vector<double> demoted_lateral;
+    graph.intercepted.resize(nodes.size());
+    std::vector<double> intercepted_lateral;
     for (size_t i = 0; i < nodes.size(); ++i) {
         if (span_limit[i] <= 0.0) {
             continue;
@@ -471,15 +500,16 @@ ZipLinkGraph build_links(
             }
             graph.all[i].push_back(j);
             graph.all[j].push_back(i);
-            if (const std::optional<double> lateral = rope_intercepted(nodes, node_record, i, j, span_limit, footprints)) {
-                demoted_lateral.push_back(*lateral);
-                continue;
+            if (const std::optional<RopeInterceptors> stop = rope_intercepted(nodes, node_record, i, j, span_limit, footprints)) {
+                intercepted_lateral.push_back(stop->lateral);
+                graph.intercepted[i].push_back(InterceptedHop { .to = j, .interceptor = stop->near_from });
+                graph.intercepted[j].push_back(InterceptedHop { .to = i, .interceptor = stop->near_to });
             }
             graph.ropes.push_back(RopeCandidate { .a = i, .b = j, .lines = std::move(lines) });
         }
     }
-    if (!demoted_lateral.empty()) {
-        LogDebug << "ZiplineRoute: demoted the straight ropes intercepted by another tower." << VAR(demoted_lateral);
+    if (!intercepted_lateral.empty()) {
+        LogDebug << "ZiplineRoute: straight ropes intercepted by another tower." << VAR(intercepted_lateral);
     }
     return graph;
 }
@@ -488,6 +518,7 @@ ZipLinkGraph build_links(
 void solve_zip_chains(
     const std::vector<zipline::ZiplineNode>& nodes,
     const std::vector<std::vector<size_t>>& links,
+    const std::vector<std::vector<InterceptedHop>>& intercepted,
     const zipline::ZiplineCostModel& cost,
     size_t source,
     std::vector<double>* dist,
@@ -508,7 +539,10 @@ void solve_zip_chains(
         }
         for (const size_t next : links[at]) {
             // 代价用像素距离, 要和 navmesh 路径长度相加比较
-            const double hop = planar_distance(to_world(nodes[at]), to_world(nodes[next])) * cost.speed_ratio + cost.transfer_penalty;
+            double hop = planar_distance(to_world(nodes[at]), to_world(nodes[next])) * cost.speed_ratio + cost.transfer_penalty;
+            if (std::ranges::find(intercepted[at], next, &InterceptedHop::to) != intercepted[at].end()) {
+                hop += cost.transfer_penalty;
+            }
             if (reached_at + hop >= (*dist)[next]) {
                 continue;
             }
@@ -778,6 +812,24 @@ bool linked(const std::vector<std::vector<size_t>>& links, size_t a, size_t b)
     return std::ranges::find(links[a], b) != links[a].end();
 }
 
+void drop_intercepted_from_certain(ZipLinkGraph* graph, const std::vector<std::vector<size_t>>& certain_before_bans)
+{
+    bool dropped = true;
+    while (dropped) {
+        dropped = false;
+        for (size_t from = 0; from < graph->intercepted.size(); ++from) {
+            for (const InterceptedHop& hop : graph->intercepted[from]) {
+                const bool rides_two_hops = linked(certain_before_bans, from, hop.interceptor);
+                const bool stranded_at_interceptor = !linked(graph->certain, hop.interceptor, hop.to);
+                if (linked(graph->certain, from, hop.to) && (rides_two_hops || stranded_at_interceptor)) {
+                    erase_target(&graph->certain[from], hop.to);
+                    dropped = true;
+                }
+            }
+        }
+    }
+}
+
 ZipLinkGraph build_rope_graph(const PlanInputs& in, const TowerSites& sites)
 {
     // 未登记的架子类型索长上限为 0, 不参与配对
@@ -907,8 +959,8 @@ std::vector<Candidate> collect_candidates(const PlanInputs& in, const TowerSites
             continue;
         }
 
-        solve_zip_chains(sites.nodes, graph.certain, in.cost, i, &certain_cost, &certain_prev);
-        solve_zip_chains(sites.nodes, graph.all, in.cost, i, &chain_cost, &chain_prev);
+        solve_zip_chains(sites.nodes, graph.certain, graph.intercepted, in.cost, i, &certain_cost, &certain_prev);
+        solve_zip_chains(sites.nodes, graph.all, graph.intercepted, in.cost, i, &chain_cost, &chain_prev);
         for (size_t j = 0; j < sites.nodes.size(); ++j) {
             if (j == i || sites.land_spots[j].empty()) {
                 continue;
@@ -1112,7 +1164,7 @@ ZiplineRoute assemble_route(const PlanInputs& in, const TowerSites& sites, const
     const std::vector<std::vector<size_t>>& links = picked.candidate.certain ? graph.certain : graph.all;
     std::vector<double> chain_cost;
     std::vector<size_t> chain_prev;
-    solve_zip_chains(sites.nodes, links, in.cost, picked.candidate.mount, &chain_cost, &chain_prev);
+    solve_zip_chains(sites.nodes, links, graph.intercepted, in.cost, picked.candidate.mount, &chain_cost, &chain_prev);
     std::vector<size_t> chain;
     for (size_t at = picked.candidate.dismount; at != kNoTower; at = chain_prev[at]) {
         chain.push_back(at);
@@ -1133,6 +1185,11 @@ ZiplineRoute assemble_route(const PlanInputs& in, const TowerSites& sites, const
                 if (other != chain[hop + 1] && !linked(links, chain[hop], other)) {
                     bystanders.push_back(sites.nodes[other]);
                 }
+            }
+            const std::vector<InterceptedHop>& intercepted = graph.intercepted[chain[hop]];
+            const auto stop = std::ranges::find(intercepted, chain[hop + 1], &InterceptedHop::to);
+            if (stop != intercepted.end() && !linked(graph.all, chain[hop], stop->interceptor)) {
+                bystanders.push_back(sites.nodes[stop->interceptor]);
             }
             route.hop_bystanders.push_back(std::move(bystanders));
         }
@@ -1277,7 +1334,9 @@ std::optional<ZiplineRoute> PlanZiplineRoute(ZiplineOutcome* outcome, const Navi
 
     walk_bounds(&sites, in);
     ZipLinkGraph graph = build_rope_graph(in, sites);
+    const std::vector<std::vector<size_t>> certain_before_bans = graph.certain;
     ban_failed_hops(&graph, param, sites.nodes);
+    drop_intercepted_from_certain(&graph, certain_before_bans);
 
     const std::vector<Candidate> candidates = collect_candidates(in, sites, graph);
     if (candidates.empty()) {
