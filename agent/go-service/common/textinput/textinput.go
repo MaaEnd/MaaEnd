@@ -116,12 +116,12 @@ func (a *InputAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 				return false
 			}
 			if upper {
-				// shift
-				controller.PostKeyDown(0x10).Wait()
+				// capslock
+				controller.PostClickKey(0x14).Wait()
 			}
 			if job := controller.PostClickKey(int32(r)).Wait(); job == nil || !job.Success() {
 				if upper {
-					controller.PostKeyUp(0x10).Wait()
+					controller.PostClickKey(0x14).Wait()
 				}
 				log.Error().
 					Str("component", componentName+".InputAction").
@@ -129,7 +129,7 @@ func (a *InputAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 				return false
 			}
 			if upper {
-				controller.PostKeyUp(0x10).Wait()
+				controller.PostClickKey(0x14).Wait()
 			}
 		}
 	}
