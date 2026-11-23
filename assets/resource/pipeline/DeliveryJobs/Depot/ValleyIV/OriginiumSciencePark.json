@@ -1,5 +1,5 @@
 {
-    "DeliveryJobsCheckOriginiumScienceParkDeliveryJob": {
+    "DeliveryJobsCheckOriginiumScienceParkDeliveryJobText": {
         "desc": "检查源石研究园的送货任务按钮",
         "recognition": "OCR",
         "roi": "DeliveryJobsCheckLocalDepotNodeOriginiumScienceParkText",
@@ -26,7 +26,7 @@
         "recognition": "And",
         "all_of": [
             "DeliveryJobsCheckLocalDepotNodeOriginiumScienceParkText",
-            "DeliveryJobsCheckOriginiumScienceParkDeliveryJob"
+            "DeliveryJobsCheckOriginiumScienceParkDeliveryJobText"
         ],
         "box_index": 1,
         "pre_delay": 0,
@@ -62,7 +62,7 @@
         "recognition": "And",
         "all_of": [
             "DeliveryJobsCheckLocalDepotNodeOriginiumScienceParkText",
-            "DeliveryJobsCheckOriginiumScienceParkDeliveryJob"
+            "DeliveryJobsCheckOriginiumScienceParkDeliveryJobText"
         ],
         "box_index": 1,
         "pre_delay": 0,
@@ -141,7 +141,7 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "DeliveryJobsCheckOriginiumScienceParkCargo": {
+    "DeliveryJobsCheckOriginiumScienceParkCargoText": {
         "desc": "检查源石研究园的货物是否准备好",
         "recognition": "OCR",
         "roi": "DeliveryJobsCheckLocalDepotNodeOriginiumScienceParkText",
@@ -173,7 +173,7 @@
         "recognition": "And",
         "all_of": [
             "DeliveryJobsCheckLocalDepotNodeOriginiumScienceParkText",
-            "DeliveryJobsCheckOriginiumScienceParkCargo"
+            "DeliveryJobsCheckOriginiumScienceParkCargoText"
         ],
         "box_index": 1,
         "pre_delay": 0,

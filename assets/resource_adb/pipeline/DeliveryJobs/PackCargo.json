@@ -23,7 +23,7 @@
             0
         ]
     },
-    "DeliveryJobsSelectedBidPriceOCR": {
+    "DeliveryJobsCheckSelectedBidPriceText": {
         "roi_offset": [
             170,
             20,

@@ -187,7 +187,7 @@ retry 节点不继承主路线的 `zip`，也不形成 anchor 或循环重试。
 交货图标模板只有十几像素，目标周围还有别的角色时，模板匹配可能命中别人的交互提示。`verify_name: true` 让「已站在送货目标前」的判定在图标之外再复核一次交互提示中的文本：
 
 - 世界交互提示把目标名称渲染在图标旁的提示区域里（NPC 显示角色名，如「赵昭」），这块提示区域和交货图标共用同一片 ROI，因此名称识别跟随控制器覆盖同步生效；
-- Go 侧解析出终点后，把该终点的五语言名称注入 `AutoDeliveryCheckSubmitGoodsName` 的 `expected`，并把 `AutoDeliveryCheckSubmitGoodsTarget` 的 `all_of` 扩成「交货图标 + 名称复核」；未开启的终点 `all_of` 只保留交货图标，行为与过去一致；
+- Go 侧解析出终点后，把该终点的五语言名称注入 `AutoDeliveryCheckSubmitGoodsNameText` 的 `expected`，并把 `AutoDeliveryCheckSubmitGoodsTarget` 的 `all_of` 扩成「交货图标 + 名称复核」；未开启的终点 `all_of` 只保留交货图标，行为与过去一致；
 - 名称不命中时按「未到位」处理：先由 `CharacterSearchAction` 环绕寻找，再执行一次站位修正路线，最终失败，而不是把货物交给提示里的另一个角色。
 
 只在确认过会被周围角色干扰的 NPC 终点上开启。资源回收站与仓储节点的提示文本不显示终点名称，生成器与运行时都会拒绝这类终点开启该选项（`kind` 必须为 `npc`）。

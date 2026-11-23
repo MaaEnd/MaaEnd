@@ -15,7 +15,7 @@
             590
         ]
     },
-    "AutoDeliveryCheckDeliveryMissionListItem": {
+    "AutoDeliveryCheckDeliveryMissionListItemText": {
         "roi": [
             105,
             85,
@@ -23,7 +23,7 @@
             590
         ]
     },
-    "AutoDeliveryCheckDeliveryMissionSelected": {
+    "AutoDeliveryCheckDeliveryMissionSelectedText": {
         "roi": [
             570,
             70,
@@ -39,7 +39,7 @@
             43
         ]
     },
-    "AutoDeliveryCheckDestinationYellowText": {
+    "AutoDeliveryCheckDestinationYellowColor": {
         "roi": [
             621,
             247,
@@ -63,7 +63,7 @@
             270
         ]
     },
-    "AutoDeliveryCheckSubmitGoodsName": {
+    "AutoDeliveryCheckSubmitGoodsNameText": {
         "roi": [
             720,
             349,

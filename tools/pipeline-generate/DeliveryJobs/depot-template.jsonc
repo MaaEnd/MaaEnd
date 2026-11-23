@@ -1,5 +1,5 @@
 {
-    "DeliveryJobsCheck${DepotId}DeliveryJob": {
+    "DeliveryJobsCheck${DepotId}DeliveryJobText": {
         "desc": "检查${DepotName}的送货任务按钮",
         "recognition": "OCR",
         "roi": "DeliveryJobsCheckLocalDepotNode${DepotId}Text",
@@ -26,7 +26,7 @@
         "recognition": "And",
         "all_of": [
             "DeliveryJobsCheckLocalDepotNode${DepotId}Text",
-            "DeliveryJobsCheck${DepotId}DeliveryJob"
+            "DeliveryJobsCheck${DepotId}DeliveryJobText"
         ],
         "box_index": 1,
         "pre_delay": 0,
@@ -62,7 +62,7 @@
         "recognition": "And",
         "all_of": [
             "DeliveryJobsCheckLocalDepotNode${DepotId}Text",
-            "DeliveryJobsCheck${DepotId}DeliveryJob"
+            "DeliveryJobsCheck${DepotId}DeliveryJobText"
         ],
         "box_index": 1,
         "pre_delay": 0,
@@ -135,7 +135,7 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "DeliveryJobsCheck${DepotId}Cargo": {
+    "DeliveryJobsCheck${DepotId}CargoText": {
         "desc": "检查${DepotName}的货物是否准备好",
         "recognition": "OCR",
         "roi": "DeliveryJobsCheckLocalDepotNode${DepotId}Text",
@@ -156,7 +156,7 @@
         "recognition": "And",
         "all_of": [
             "DeliveryJobsCheckLocalDepotNode${DepotId}Text",
-            "DeliveryJobsCheck${DepotId}Cargo"
+            "DeliveryJobsCheck${DepotId}CargoText"
         ],
         "box_index": 1,
         "pre_delay": 0,

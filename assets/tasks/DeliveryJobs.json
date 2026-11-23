@@ -178,7 +178,7 @@
                                 "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
                             }
                         },
-                        "DeliveryJobsCheckOriginiumScienceParkCargo": {
+                        "DeliveryJobsCheckOriginiumScienceParkCargoText": {
                             "expected": [
                                 "货物装箱",
                                 "貨物裝箱",
@@ -479,7 +479,7 @@
                                 "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
                             }
                         },
-                        "DeliveryJobsCheckOriginLodespringCargo": {
+                        "DeliveryJobsCheckOriginLodespringCargoText": {
                             "expected": [
                                 "货物装箱",
                                 "貨物裝箱",
@@ -780,7 +780,7 @@
                                 "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
                             }
                         },
-                        "DeliveryJobsCheckPowerPlateauCargo": {
+                        "DeliveryJobsCheckPowerPlateauCargoText": {
                             "expected": [
                                 "货物装箱",
                                 "貨物裝箱",
@@ -1108,7 +1108,7 @@
                                 "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
                             }
                         },
-                        "DeliveryJobsCheckWulingCityCargo": {
+                        "DeliveryJobsCheckWulingCityCargoText": {
                             "expected": [
                                 "货物装箱",
                                 "貨物裝箱",
@@ -1409,7 +1409,7 @@
                                 "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
                             }
                         },
-                        "DeliveryJobsCheckTestAreaCargo": {
+                        "DeliveryJobsCheckTestAreaCargoText": {
                             "expected": [
                                 "货物装箱",
                                 "貨物裝箱",
