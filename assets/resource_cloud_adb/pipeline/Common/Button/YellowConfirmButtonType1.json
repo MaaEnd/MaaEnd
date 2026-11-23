@@ -2,6 +2,8 @@
     "__YellowConfigmButtonType1IconStable": {
         "recognition": {
             "param": {
+                // 云adb中开启画面增强会导致模板分数降低
+                // 转交委托的确认按钮(DeliveryJobsRedistributionBidAction)正常的分数只有0.90,一旦画面波动就可能低于0.9
                 "threshold": 0.8
             }
         }
