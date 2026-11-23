@@ -292,6 +292,12 @@
         "recognition": {
             "type": "ColorMatch",
             "param": {
+                "roi": [
+                    0,
+                    0,
+                    1280,
+                    562
+                ],
                 "method": 40,
                 "lower": [
                     27,
@@ -315,15 +321,12 @@
             "type": "ColorMatch",
             "param": {
                 "roi": "GiftOperatorCheckSelectedLabelColor",
+                "method": 6,
                 "lower": [
-                    0,
-                    0,
-                    45
+                    0
                 ],
                 "upper": [
-                    80,
-                    78,
-                    55
+                    80
                 ],
                 "count": 15
             }
