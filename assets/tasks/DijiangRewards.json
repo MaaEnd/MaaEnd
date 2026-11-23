@@ -11,7 +11,8 @@
             "controller": [
                 "ADB",
                 "CloudADB",
-                "CloudWeb",
+                // TODO: CloudWeb 下制造舱等红点颜色匹配（HSV 饱和度 255）不命中，基建流程会被跳过，修复后再启用
+                // "CloudWeb",
                 "Linux-Gamescope",
                 "Linux-ScreenCast",
                 "Linux-Wlroots",
