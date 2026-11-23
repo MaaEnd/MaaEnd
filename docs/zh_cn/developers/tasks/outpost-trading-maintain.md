@@ -1,7 +1,7 @@
 # 开发手册 - OutpostTrading 据点交易
 
 `OutpostTrading` 按用户配置的地区/据点自动完成据点交易。任务遵循「Pipeline 管流程，Go 管算法」：Pipeline（`assets/resource/pipeline/OutpostTrading*.json`）负责界面识别与点击；Go Service（`agent/go-service/outposttrading/`）负责选品策略、保留规则、干员规划与缓存。  
-该文档更新于 2026 年 10 月 23 日。
+该文档更新于 2026 年 11 月 23 日。
 
 ## 要点速览
 
@@ -99,7 +99,7 @@ OutpostTradingSellLoop（不限次数，每轮先查调度券）
 
 ### 缺货
 
-换货或沿用后识别到当前物品库存不足（`OutpostTradingZeroProduct`：识别到的库存为 0～999 即视为不足）→ `[Anchor]MarkOutOfStock` 按据点当前物品（最后一次 `commit` / `adopt`）的 `item_id` 写入任务级缺货集合，后续据点选品直接跳过；不落盘，下次任务初始化时清空。
+换货或沿用后识别到当前物品库存不足（`OutpostTradingCheckLowStockText`：识别到的库存为 0～999 即视为不足）→ `[Anchor]MarkOutOfStock` 按据点当前物品（最后一次 `commit` / `adopt`）的 `item_id` 写入任务级缺货集合，后续据点选品直接跳过；不落盘，下次任务初始化时清空。
 
 ## 自动选择干员规则（Go `operator/`）
 

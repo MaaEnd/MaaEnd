@@ -59,12 +59,12 @@
         "rate_limit": 0,
         "next": [
             "[Anchor]OutpostTradingZeroMoneyHandler",
-            "OutpostTradingZeroProductAfterChangeStillEmpty",
+            "OutpostTradingLowStockAfterChange",
             "OutpostTradingNeedSelectGoodsTryChangeGoods",
             "[Anchor]OutpostTradingBetterSliding"
         ]
     },
-    "OutpostTradingZeroProduct": {
+    "OutpostTradingCheckLowStockText": {
         "desc": "货物数量不足（库存 0～999 视为不足）",
         "recognition": "OCR",
         "roi": [
@@ -85,11 +85,11 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "OutpostTradingZeroProductAfterChangeStillEmpty": {
+    "OutpostTradingLowStockAfterChange": {
         "desc": "换货后货物仍不足，继续选择下一个优先物品",
         "recognition": "And",
         "all_of": [
-            "OutpostTradingZeroProduct"
+            "OutpostTradingCheckLowStockText"
         ],
         "pre_delay": 0,
         "post_delay": 0,

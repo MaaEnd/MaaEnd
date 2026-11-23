@@ -1,7 +1,7 @@
 # Developer Manual - OutpostTrading
 
 `OutpostTrading` automatically sells products at the regions/outposts selected by the user. The task follows "Pipeline owns flow, Go owns algorithms": Pipeline (`assets/resource/pipeline/OutpostTrading*.json`) handles screen recognition and clicking; the Go service (`agent/go-service/outposttrading/`) owns selection strategy, reserve rules, operator planning, and caching.  
-This document was updated on October 23, 2026.
+This document was updated on November 23, 2026.
 
 ## At a Glance
 
@@ -99,7 +99,7 @@ The minimum unit price (task option `SellProductStockMinimumUnitPrice`, default 
 
 ### Out of Stock
 
-When the current item's stock is found insufficient after switching or adopting (`OutpostTradingZeroProduct`: a recognized stock of 0–999 counts as insufficient), `[Anchor]MarkOutOfStock` records the outpost's current item (`item_id` of the last `commit` / `adopt`) into a task-scoped set so later outposts skip it during selection; not persisted, cleared on the next task init.
+When the current item's stock is found insufficient after switching or adopting (`OutpostTradingCheckLowStockText`: a recognized stock of 0–999 counts as insufficient), `[Anchor]MarkOutOfStock` records the outpost's current item (`item_id` of the last `commit` / `adopt`) into a task-scoped set so later outposts skip it during selection; not persisted, cleared on the next task init.
 
 ## Operator Rules (Go `operator/`)
 
