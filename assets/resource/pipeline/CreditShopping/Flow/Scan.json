@@ -12,11 +12,11 @@
         "threshold": 0.7
     },
     "CreditShoppingScanItem": {
-        "desc": "货架扫描门控（商店 Tab 已选中且可识别刷新花费）",
+        "desc": "货架扫描门控（商店 Tab 已选中且已识别到当前信用点）",
         "recognition": "And",
         "all_of": [
             "CreditShoppingScanItemTabSelected",
-            "RefreshButton"
+            "CreditShoppingReserveCreditOCRInternal"
         ],
         "next": [
             "AutoGetCredits",

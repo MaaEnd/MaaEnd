@@ -74,6 +74,7 @@
         }
     },
     "CreditShoppingRefreshBalanceGate": {
+        "desc": "刷新前余额检查",
         "enabled": false,
         "recognition": {
             "type": "Custom",
