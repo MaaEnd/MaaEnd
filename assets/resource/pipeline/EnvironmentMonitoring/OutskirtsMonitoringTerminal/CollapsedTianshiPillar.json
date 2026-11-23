@@ -93,7 +93,7 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "CheckCollapsedTianshiPillarJob": {
+    "CheckCollapsedTianshiPillarJobText": {
         "desc": "检查倒塌的天师桩委托是否可以接取",
         "recognition": "OCR",
         "roi": "CheckCollapsedTianshiPillarIcon",
@@ -162,7 +162,7 @@
         "all_of": [
             "CheckCollapsedTianshiPillarText",
             "CheckCollapsedTianshiPillarIcon",
-            "CheckCollapsedTianshiPillarJob"
+            "CheckCollapsedTianshiPillarJobText"
         ],
         "box_index": 2,
         "pre_delay": 0,
@@ -234,7 +234,7 @@
         "desc": "倒塌的天师桩任务已经在追踪中",
         "recognition": "And",
         "all_of": [
-            "AlreadyTrackedMissionButton",
+            "CheckAlreadyTrackingText",
             "InCollapsedTianshiPillarMission"
         ],
         "pre_delay": 0,

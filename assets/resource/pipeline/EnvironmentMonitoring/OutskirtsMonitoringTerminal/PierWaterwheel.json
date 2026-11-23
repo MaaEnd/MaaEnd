@@ -93,7 +93,7 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "CheckPierWaterwheelJob": {
+    "CheckPierWaterwheelJobText": {
         "desc": "检查码头水车委托是否可以接取",
         "recognition": "OCR",
         "roi": "CheckPierWaterwheelIcon",
@@ -162,7 +162,7 @@
         "all_of": [
             "CheckPierWaterwheelText",
             "CheckPierWaterwheelIcon",
-            "CheckPierWaterwheelJob"
+            "CheckPierWaterwheelJobText"
         ],
         "box_index": 2,
         "pre_delay": 0,
@@ -234,7 +234,7 @@
         "desc": "码头水车任务已经在追踪中",
         "recognition": "And",
         "all_of": [
-            "AlreadyTrackedMissionButton",
+            "CheckAlreadyTrackingText",
             "InPierWaterwheelMission"
         ],
         "pre_delay": 0,

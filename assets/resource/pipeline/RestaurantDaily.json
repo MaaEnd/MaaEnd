@@ -279,7 +279,7 @@
         "recognition": "And",
         "all_of": [
             "InMenuMission",
-            "AlreadyTrackedMissionButton"
+            "CheckAlreadyTrackingText"
         ],
         "box_index": 1,
         "pre_wait_freezes": {

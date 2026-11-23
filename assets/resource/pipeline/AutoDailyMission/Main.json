@@ -90,7 +90,7 @@
         "all_of": [
             "InMenuMission",
             "AutoDailyMissionSnsStep",
-            "AlreadyTrackedMissionButton"
+            "CheckAlreadyTrackingText"
         ],
         "box_index": 2,
         "pre_wait_freezes": {

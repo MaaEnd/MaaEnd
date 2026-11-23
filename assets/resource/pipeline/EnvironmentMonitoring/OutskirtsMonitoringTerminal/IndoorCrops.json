@@ -93,7 +93,7 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "CheckIndoorCropsJob": {
+    "CheckIndoorCropsJobText": {
         "desc": "检查室内作物委托是否可以接取",
         "recognition": "OCR",
         "roi": "CheckIndoorCropsIcon",
@@ -162,7 +162,7 @@
         "all_of": [
             "CheckIndoorCropsText",
             "CheckIndoorCropsIcon",
-            "CheckIndoorCropsJob"
+            "CheckIndoorCropsJobText"
         ],
         "box_index": 2,
         "pre_delay": 0,
@@ -234,7 +234,7 @@
         "desc": "室内作物任务已经在追踪中",
         "recognition": "And",
         "all_of": [
-            "AlreadyTrackedMissionButton",
+            "CheckAlreadyTrackingText",
             "InIndoorCropsMission"
         ],
         "pre_delay": 0,
