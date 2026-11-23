@@ -18,7 +18,7 @@
             ],
             "option": [
                 "YuanyuanManorSchedule",
-                "PantryShopDiscountedItems"
+                "PantryShop"
             ]
         }
     ],
@@ -115,7 +115,7 @@
                 "YuanyuanManorScheduleSunday"
             ]
         },
-        "PantryShopDiscountedItems": {
+        "PantryShop": {
             "type": "switch",
             "label": "$task.YuanyuanManor.option.BuyShopDiscountedItems.label",
             "cases": [
@@ -125,18 +125,13 @@
                         "PantryShopUseDailyRefresh"
                     ],
                     "pipeline_override": {
-                        "RestaurantShopAfterRounds": {
+                        "PantryShopMain": {
                             "enabled": true
                         }
                     }
                 },
                 {
-                    "name": "No",
-                    "pipeline_override": {
-                        "RestaurantShopAfterRounds": {
-                            "enabled": false
-                        }
-                    }
+                    "name": "No"
                 }
             ],
             "default_case": "No"

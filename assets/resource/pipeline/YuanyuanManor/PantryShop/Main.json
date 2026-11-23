@@ -1,0 +1,23 @@
+{
+    "PantryShopMain": {
+        "desc": "堂头小铺任务入口",
+        "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "YuanyuanManorEnterMenuPantryShop"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "RestaurantShopEnsurePriorityStorage"
+        ]
+    }
+}

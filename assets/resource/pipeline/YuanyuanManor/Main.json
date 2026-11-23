@@ -19,7 +19,9 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "RestaurantResetThemeScrollHitCount"
+            "[JumpBack]InnkeepingMain",
+            "[JumpBack]PantryShopMain",
+            "StopNode"
         ],
         "attach": {
             "monday": false,

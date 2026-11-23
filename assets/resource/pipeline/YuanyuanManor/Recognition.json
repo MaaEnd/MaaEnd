@@ -1,4 +1,191 @@
 {
+    // =========================================================================
+    // 大世界
+    // =========================================================================
+    "YuanyuanManorOpenTheInnButton": {
+        "desc": "大世界「开始经营」按钮",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    833,
+                    409,
+                    210,
+                    62
+                ],
+                "template": [
+                    "YuanyuanManor/Innkeeping/OpenTheInn.png"
+                ],
+                "threshold": 0.85
+            }
+        }
+    },
+    "YuanyuanManorPantryShopInteractButton": {
+        "desc": "大世界「堂头小铺」交互按钮",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    760,
+                    350,
+                    200,
+                    270
+                ],
+                "template": [
+                    "AutoDelivery/SubmitGoods.png" // TODO: 转为通用按钮
+                ],
+                "threshold": 0.9,
+                "order_by": "Vertical"
+            }
+        }
+    },
+    "YuanyuanManorPantryShopInteractText": {
+        "desc": "大世界「堂头小铺」交互文本",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    760,
+                    350,
+                    300,
+                    270
+                ],
+                "expected": [
+                    "小聪明",
+                    "手不停",
+                    "小聰明",
+                    "手不停",
+                    "꾸러기",
+                    "열일이",
+                    "ソウメイ",
+                    "コマメ",
+                    "Witty",
+                    "Job Rusher"
+                ]
+            }
+        }
+    },
+    // =========================================================================
+    // 对话界面
+    // TODO: 转通用按钮
+    // =========================================================================
+    "YuanyuanManorChatLogButton": {
+        "desc": "对话界面左上角的 Log 按钮",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    10,
+                    20,
+                    55,
+                    40
+                ],
+                "template": [
+                    "RealTimeTask/AutoSkipLog.png"
+                ],
+                "threshold": 0.7
+            }
+        }
+    },
+    "YuanyuanManorChatAutoButton": {
+        "desc": "对话界面右上角的自动继续按钮",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1140,
+                    0,
+                    120,
+                    90
+                ],
+                "template": [
+                    "RealTimeTask/AutoSkipA.png"
+                ],
+                "threshold": 0.7
+            }
+        }
+    },
+    "YuanyuanManorChatSkipButton": {
+        "desc": "对话界面右上角的跳过对话按钮",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1140,
+                    0,
+                    120,
+                    90
+                ],
+                "template": [
+                    "RealTimeTask/AutoSkipEsc.png"
+                ],
+                "threshold": 0.7
+            }
+        }
+    },
+    "YuanyuanManorChatNextIcon": {
+        "desc": "对话界面最下方中央的点击继续示意图标",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    630,
+                    680,
+                    20,
+                    35
+                ],
+                "template": [
+                    "RealTimeTask/AutoSkipNext.png",
+                    "RealTimeTask/AutoSkipNext2.png"
+                ],
+                "threshold": 0.7
+            }
+        }
+    },
+    "YuanyuanManorPantryShopCheckGoodsButton": {
+        "desc": "「堂头小铺」对话界面右侧的「看看货物」选项按钮",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    943,
+                    328,
+                    123,
+                    123
+                ],
+                "template": [
+                    "YuanyuanManor/PantryShop/CheckGoods.png"
+                ],
+                "threshold": 0.9
+            }
+        }
+    },
+    // =========================================================================
+    // 地区建设-事务总览
+    // =========================================================================
+    "YuanyuanManorViewPositionButton": {
+        "desc": "在武陵事务总览界面，找到缘缘庄客栈的查看位置按钮",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "SceneMenuRegionalOverviewWulingYuanyuanManorInn",
+                "roi_offset": [
+                    767,
+                    85,
+                    -14,
+                    -12
+                ],
+                "template": [
+                    "SceneManager/RegionalOverview/ViewPositionButton.png",
+                    "SceneManager/RegionalOverview/ViewPositionButtonHover.png"
+                ],
+                "threshold": 0.85
+            }
+        }
+    },
+    // =========================================================================
+    // 客栈经营
+    // =========================================================================
     "RestaurantObservationEmpty": {
         "desc": "表示当前桌位观察结果为空的识别状态。",
         "recognition": "DirectHit"

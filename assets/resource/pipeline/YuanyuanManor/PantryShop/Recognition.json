@@ -1,0 +1,23 @@
+{
+    "YuanyuanManorInPantryShop": {
+        "desc": "在堂头小铺界面内",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    200,
+                    60
+                ],
+                "expected": [
+                    "堂头小铺",
+                    "堂頭小鋪",
+                    "(?i)Pantry\\s*Shop",
+                    "給仕頭の八百屋",
+                    "열일 상점"
+                ]
+            }
+        }
+    }
+}

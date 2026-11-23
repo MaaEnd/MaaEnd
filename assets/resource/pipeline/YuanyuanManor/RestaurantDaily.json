@@ -1,7 +1,10 @@
 {
     "RestaurantResetThemeScrollHitCount": {
         "desc": "清除主题列表滚动状态的计数。",
-        "recognition": "DirectHit",
+        "recognition": "And",
+        "all_of": [
+            "InnkeepingInThemeSetting"
+        ],
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "ClearHitCount",
@@ -112,237 +115,15 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RestaurantThemeSettings",
-            "RestaurantOpenCounter",
-            "RestaurantCancelMissionTracking"
+            "RestaurantThemeSettings"
         ]
     },
     "RestaurantThemeSettings": {
-        "recognition": "OCR",
-        "roi": [
-            27,
-            7,
-            101,
-            46
-        ],
-        "expected": [
-            "主题设定",
-            "Theme Settings",
-            "テーマ設定",
-            "테마 설정",
-            "主題設定"
-        ],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "RestaurantThemeSelected",
-            "RestaurantThemeListScan"
-        ]
-    },
-    "RestaurantCancelMissionTracking": {
-        "desc": "进入任务列表，为后续停止当前追踪做准备。",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SceneEnterMenuMission"
-            ],
-            "continue": false,
-            "strict": true
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "RestaurantCancelCurrentMissionTracking",
-            "NavigateSisPaintingYuanyuanManorStart"
-        ]
-    },
-    "RestaurantCancelCurrentMissionTracking": {
-        "desc": "在任务列表中重复点击“停止追踪”，直到按钮消失。",
         "recognition": "And",
         "all_of": [
-            "InMenuMission",
-            "CheckAlreadyTrackingText"
+            "InnkeepingInThemeSetting"
         ],
-        "box_index": 1,
-        "pre_wait_freezes": {
-            "time": 200,
-            "target": [
-                1021,
-                598,
-                251,
-                106
-            ]
-        },
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "RepeatUntilNotFoundAction",
-        "custom_action_param": {
-            "action": "Click",
-            "wait_node": "RestaurantCancelCurrentMissionTracking"
-        },
-        "target": true,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "RestaurantMissionTrackingCancelled"
-        ]
-    },
-    "RestaurantMissionTrackingCancelled": {
-        "recognition": "And",
-        "all_of": [
-            "InMenuMission",
-            "TrackMissionButton"
-        ],
-        "box_index": 1,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "NavigateSisPaintingYuanyuanManorStart"
-        ]
-    },
-    "NavigateSisPaintingYuanyuanManorStart": {
-        "desc": "返回大世界，然后传送到缘缘庄。",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SceneAnyEnterWorld"
-            ]
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "NavigateSisPaintingYuanyuanManorTeleportNearby",
-            "NavigateSisPaintingYuanyuanManorTeleport"
-        ]
-    },
-    "NavigateSisPaintingYuanyuanManorTeleportNearby": {
-        "desc": "玩家已在缘缘庄传送点附近时跳过传送。",
-        "recognition": "Custom",
-        "custom_recognition": "MapLocateAssertLocation",
-        "custom_recognition_param": {
-            "zone_id": "Wuling_Base",
-            "target": [
-                2186.33,
-                497.78,
-                29.14,
-                32.28
-            ]
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "NavigateSisPaintingYuanyuanManorTarget"
-        ]
-    },
-    "NavigateSisPaintingYuanyuanManorTeleport": {
-        "desc": "传送到武陵-祀的画-缘缘庄",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SceneEnterWorldWulingSisPaintingYuanyuanManor"
-            ]
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "NavigateSisPaintingYuanyuanManorTarget"
-        ]
-    },
-    "NavigateSisPaintingYuanyuanManorTarget": {
-        "desc": "导航到缘缘庄柜台。",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapNavigateAction",
-        "custom_action_param": {
-            "path": [
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        142.6,
-                        138.01
-                    ],
-                    "target_tier": "Wuling_L10_468"
-                }
-            ]
-        },
-        "post_wait_freezes": {
-            "time": 400,
-            "target": [
-                834,
-                408,
-                230,
-                153
-            ],
-            "timeout": 3000
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "RestaurantOpenCounter",
-            "RestaurantCounterPromptApproach"
-        ],
-        "focus": {
-            "Node.Action.Starting": "$task.YuanyuanManor.focus.navigate_counter"
-        }
-    },
-    // 每次前进前先检查柜台提示；最多短按前进 5 次。
-    "RestaurantCounterPromptApproach": {
-        "desc": "在柜台交互提示出现前执行靠近操作，并限制尝试次数。",
-        "max_hit": 5,
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "__CharacterControllerAxisLongPressForwardAction"
-            ]
-        },
-        "post_wait_freezes": {
-            "time": 400,
-            "target": [
-                834,
-                408,
-                230,
-                153
-            ],
-            "timeout": 3000
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "RestaurantOpenCounter",
-            "RestaurantCounterPromptApproach",
-            "FailedNode"
-        ]
-    },
-    "RestaurantOpenCounter": {
-        "recognition": "TemplateMatch",
-        "roi": [
-            833,
-            409,
-            210,
-            62
-        ],
-        "template": "YuanyuanManor/Innkeeping/OpenTheInn.png",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "RepeatUntilNotFoundAction",
-        "custom_action_param": {
-            "custom_action": "AutoAltClickAction",
-            "wait_node": "RestaurantOpenCounter"
-        },
-        "target": true,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -681,10 +462,6 @@
         "target": true,
         "post_delay": 0,
         "rate_limit": 0,
-        "next": [
-            "RestaurantShopAfterRounds",
-            "StopNode"
-        ],
         "focus": {
             "Node.Action.Starting": "当前客源小于60，结束经营流程"
         }
@@ -2187,10 +1964,6 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
-        "next": [
-            "RestaurantShopAfterRounds",
-            "StopNode"
-        ],
         "focus": {
             "Node.Recognition.Succeeded": "$task.YuanyuanManor.focus.returned_world"
         }

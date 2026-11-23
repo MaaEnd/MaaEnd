@@ -1,0 +1,23 @@
+{
+    "InnkeepingMain": {
+        "desc": "客栈经营入口",
+        "enabled": true,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "YuanyuanManorEnterMenuInnkeeping"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "RestaurantResetThemeScrollHitCount"
+        ]
+    }
+}
