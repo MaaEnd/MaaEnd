@@ -243,7 +243,7 @@
         "count": 20
     },
     "CreditShoppingShelfAnyCanAfford": {
-        "desc": "任意物品买得起。相对物品框，偏移与三档购买相同",
+        "desc": "任意物品买得起。相对物品框，偏移与三档购买相同；行优先排序，直购按 上排左→右、下排左→右 的顺序取格",
         "recognition": "ColorMatch",
         "roi": "CreditShoppingShelfAnyItem",
         "roi_offset": [
@@ -263,6 +263,7 @@
             2,
             150
         ],
-        "count": 30
+        "count": 30,
+        "order_by": "Vertical"
     }
 }
