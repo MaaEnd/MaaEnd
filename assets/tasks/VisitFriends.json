@@ -12,6 +12,7 @@
                 "ADB",
                 "CloudADB",
                 // "CloudWeb",
+                "CloudWebGamescope",
                 "Linux-Gamescope",
                 "Linux-ScreenCast",
                 "Linux-Wlroots",

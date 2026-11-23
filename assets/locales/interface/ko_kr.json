@@ -6,6 +6,8 @@
     "controller.CloudADB.label": "클라우드 종말지(ADB)(테스트판)",
     "controller.CloudWeb.description": "클라우드 종말지 웹 버전용. MaaEnd 내장 웹 셸에서 실행되며 백그라운드 실행을 지원합니다. 먼저 셸 창에서 로그인하고 게임에 진입하세요. 현재 테스트 중입니다.",
     "controller.CloudWeb.label": "클라우드 종말지(웹)(테스트판)",
+    "controller.CloudWebGamescope.description": "클라우드 종말지 웹 버전용. 1280x720 Gamescope 브라우저 세션을 직접 준비하고 로그인해야 합니다. 현재 테스트 중입니다.",
+    "controller.CloudWebGamescope.label": "클라우드 종말지(웹)(Gamescope)(테스트판)",
     "controller.Linux-Gamescope.description": "Gamescope용입니다.",
     "controller.Linux-Gamescope.label": "Linux-Gamescope",
     "controller.Linux-ScreenCast.description": "wlroots와 Gamescope를 사용할 수 없을 때만 대체로 권장됩니다. 게임은 디스플레이에서 전체 화면으로 실행해야 하며, 사용자에게 input 권한이 필요합니다.",
