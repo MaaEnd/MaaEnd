@@ -1,4 +1,4 @@
-package restaurant
+package yuanyuanmanor
 
 import (
 	"encoding/json"
@@ -56,9 +56,9 @@ type tableOrder struct {
 var (
 	menuRoutes         = []string{"RestaurantMenuStapleComplete", "RestaurantMenuVegetableComplete", "RestaurantMenuDishesComplete", "RestaurantMenuDrinksComplete", "RestaurantMenuClickCard", "RestaurantMenuAdvanceCard", "RestaurantMenuReadCard", "RestaurantMenuInsufficient"}
 	runtimeRoutes      = []string{"RestaurantRuntimeSwitchKitchen1", "RestaurantRuntimeSwitchKitchen2", "RestaurantRuntimeSwitchKitchen3", "RestaurantRuntimeNextKitchen", "RestaurantRuntimeClickDish1", "RestaurantRuntimeClickDish2", "RestaurantRuntimeClickDish3", "RestaurantRuntimeClickDish4", "RestaurantRuntimeClickDish5", "RestaurantRuntimeClickDish6", "RestaurantRuntimeIdle"}
-	restaurantData     menuCatalog
-	restaurantDataOnce sync.Once
-	restaurantDataErr  error
+	innkeepingData     menuCatalog
+	innkeepingDataOnce sync.Once
+	innkeepingDataErr  error
 )
 
 // Run applies one decision to the current task's attach state and preset routes.
@@ -68,12 +68,12 @@ func (a *DecisionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	}
 	var param decisionParam
 	if err := json.Unmarshal([]byte(arg.CustomActionParam), &param); err != nil {
-		log.Error().Err(err).Str("component", "RestaurantDecisionAction").Msg("cannot parse restaurant decision parameters")
+		log.Error().Err(err).Str("component", "YuanyuanManorInnkeepingDecide").Msg("cannot parse innkeeping decision parameters")
 		return false
 	}
 	raw, err := ctx.GetNodeJSON("RestaurantState")
 	if err != nil {
-		log.Error().Err(err).Str("component", "RestaurantDecisionAction").Str("step", param.Step).Msg("cannot read restaurant state node")
+		log.Error().Err(err).Str("component", "YuanyuanManorInnkeepingDecide").Str("step", param.Step).Msg("cannot read innkeeping state node")
 		return false
 	}
 	var node struct {
@@ -82,7 +82,7 @@ func (a *DecisionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		} `json:"attach"`
 	}
 	if err = json.Unmarshal([]byte(raw), &node); err != nil {
-		log.Error().Err(err).Str("component", "RestaurantDecisionAction").Str("step", param.Step).Msg("cannot parse restaurant state")
+		log.Error().Err(err).Str("component", "YuanyuanManorInnkeepingDecide").Str("step", param.Step).Msg("cannot parse innkeeping state")
 		return false
 	}
 	state := &node.Attach.State
@@ -91,7 +91,7 @@ func (a *DecisionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	switch param.Step {
 	case "initialize":
 		if param.MaxRounds < 0 || param.MaxRounds > 20 {
-			err = fmt.Errorf("maximum restaurant runs must be between 0 and 20")
+			err = fmt.Errorf("maximum innkeeping runs must be between 0 and 20")
 			break
 		}
 		skipBusiness := param.MaxRounds == 0
@@ -130,25 +130,25 @@ func (a *DecisionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		return false
 	}
 	if err != nil {
-		log.Error().Err(err).Str("component", "RestaurantDecisionAction").Str("step", param.Step).Msg("restaurant decision failed")
+		log.Error().Err(err).Str("component", "YuanyuanManorInnkeepingDecide").Str("step", param.Step).Msg("innkeeping decision failed")
 		return false
 	}
 	patch["RestaurantState"] = map[string]any{"attach": map[string]any{"state": state}}
 	if err := ctx.OverridePipeline(patch); err != nil {
-		log.Error().Err(err).Str("component", "RestaurantDecisionAction").Msg("cannot store restaurant decision")
+		log.Error().Err(err).Str("component", "YuanyuanManorInnkeepingDecide").Msg("cannot store innkeeping decision")
 		return false
 	}
 	return true
 }
 
-func loadRestaurantData() (menuCatalog, error) {
-	restaurantDataOnce.Do(func() {
-		restaurantDataErr = resource.ReadJsonResource("data/Restaurant/restaurant.json", &restaurantData)
-		if restaurantDataErr == nil && (len(restaurantData.Dishes) == 0 || len(restaurantData.Drinks) == 0) {
-			restaurantDataErr = fmt.Errorf("restaurant data is missing dishes or drinks")
+func loadInnkeepingData() (menuCatalog, error) {
+	innkeepingDataOnce.Do(func() {
+		innkeepingDataErr = resource.ReadJsonResource("data/YuanyuanManor/inn_items.json", &innkeepingData)
+		if innkeepingDataErr == nil && (len(innkeepingData.Dishes) == 0 || len(innkeepingData.Drinks) == 0) {
+			innkeepingDataErr = fmt.Errorf("innkeeping data is missing dishes or drinks")
 		}
 	})
-	return restaurantData, restaurantDataErr
+	return innkeepingData, innkeepingDataErr
 }
 
 type observations map[string]*maa.RecognitionDetail
@@ -172,7 +172,7 @@ func indexObservations(detail *maa.RecognitionDetail) observations {
 	return indexed
 }
 
-// CombinedResult children omit Hit in maa-framework-go beta.19. The restaurant
+// CombinedResult children omit Hit in maa-framework-go beta.19. The innkeeping
 // nodes queried here return nonempty boxes on a hit; failed matches have no box.
 // Read that result locally instead of fetching their Raw and Draws images again.
 func (o observations) hit(name string) bool {
@@ -215,7 +215,7 @@ func iconCandidates(patch map[string]any, name string, ids []string, options ...
 	filters := iconrecognition.StorageFilter()
 	options = append([]iconrecognition.Option{
 		iconrecognition.WithGridType(iconrecognition.GridTypeSingleROI),
-		iconrecognition.WithItemFilters(filters.Restaurant.Any, filters.Normal.Usable),
+		iconrecognition.WithItemFilters(filters.YuanyuanManor.Any, filters.Normal.Usable),
 		iconrecognition.WithItemIDs(ids...),
 	}, options...)
 	patch[name] = map[string]any{"custom_recognition_param": iconrecognition.NewParams(
@@ -343,7 +343,7 @@ func nextMenuCard(state *session, patch map[string]any) error {
 		route(patch, menuRoutes, "RestaurantMenuInsufficient")
 		return nil
 	}
-	data, err := loadRestaurantData()
+	data, err := loadInnkeepingData()
 	if err != nil {
 		return err
 	}

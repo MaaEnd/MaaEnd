@@ -110,8 +110,8 @@ CATEGORY_MAPPING = {
         "Producer": "生产工具",
         "PortableDevice": "随身装置",
     },
-    # zmdmap 的餐厅专属物品；普通可用饮品仍沿用 Normal:Usable。
-    "Restaurant": {
+    # zmdmap 的缘缘庄专属物品；普通可用饮品仍沿用 Normal:Usable。
+    "YuanyuanManor": {
         "Dish": "客栈菜品",
         "Drink": "客栈饮品",
     },

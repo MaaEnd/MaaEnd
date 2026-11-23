@@ -93,7 +93,6 @@
                 "RealTimeTaskAction",
                 "RepeatUntilFoundAction",
                 "RepeatUntilNotFoundAction",
-                "RestaurantDecisionAction",
                 "SceneManagerMenuListClickItemAction",
                 "SeizeDeliveryJobsResetScanStateAction",
                 "SeizeDeliveryJobsScanTargetAction",
@@ -110,6 +109,7 @@
                 "VisitFriendsBtwSellSlidingAction",
                 "WebEvent202605Action",
                 "WorldToolSprayScanAction",
+                "YuanyuanManorInnkeepingDecide",
                 "ZiplineImport",
                 "autoEcoFarmInterruptibleSleep",
                 "autoEcoFarmOverrideTargetTemplate",
@@ -543,7 +543,7 @@
                 ],
                 "properties": {
                     "custom_action": {
-                        "const": "RestaurantDecisionAction"
+                        "const": "YuanyuanManorInnkeepingDecide"
                     }
                 }
             },

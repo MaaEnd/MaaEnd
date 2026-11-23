@@ -1,6 +1,6 @@
-"""物品 mini table（``item_mini_table.json``）：背包和餐厅物品 → 分类的轻量映射。
+"""物品 mini table（``item_mini_table.json``）：背包和缘缘庄物品 → 分类的轻量映射。
 
-以「会出现在背包里的物品」为基础，排掉其他仓库页签物品，再补入指定仓库页签及餐厅表中的菜品 / 饮品：
+以「会出现在背包里的物品」为基础，排掉其他仓库页签物品，再补入指定仓库页签及缘缘庄表中的菜品 / 饮品：
 
 - 珍贵物品（``ValuableDepot.type == "CommercialItem"``）：抽卡券、理智/食物补给这类真正的获得物；
 - 培养素材（``SpecialItem``）：种子与养成材料；
@@ -13,7 +13,7 @@
   ``lang_*.json``（每份约 950 KB）还原名字。按「名字 + 图标」去重时用 ``nameId`` —— 上游那套去重哈希就是
   文本 id 的函数，只按名字去重会把「同一句文案挂在两个文本 id 上」的条目误并。
 - ``category`` / ``storageKind`` / ``categoryType``：展示用的分类名，这条来自背包（``Normal``）、仓库页签
-  （``ValuableDepot``）还是餐厅（``Restaurant``），以及对应的分类 key。
+  （``ValuableDepot``）还是缘缘庄（``YuanyuanManor``），以及对应的分类 key。
 - ``type``：物品类型，取 ``ItemTable.type``（如 ``TacticalItem`` / ``ConsumableItem`` / ``Material``）。它和
   ``categoryType`` 不是同一层东西：``categoryType`` 是背包页签 key，战术物品与消耗品都挂在 ``Usable``
   页签下、这一项完全一样，要按游戏自己的类型区分两者只能看 ``type``。
@@ -52,7 +52,7 @@ class ItemMiniTable(Dataset):
 
     @classmethod
     def build(cls, table_cfg: TableCfg) -> dict[str, dict[str, Any]]:
-        """背包及餐厅物品的类型、分类、图标、稀有度、排序和五语名字。"""
+        """背包及缘缘庄物品的类型、分类、图标、稀有度、排序和五语名字。"""
         items = table_cfg.table("ItemTable", ItemRow)
         showing_types = table_cfg.table("ItemShowingTypeTable", ItemShowingTypeRow)
         depots = table_cfg.table("ValuableDepot", ValuableDepotRow)
@@ -114,12 +114,12 @@ class ItemMiniTable(Dataset):
             if item_id in region_restricted_items:
                 output[item_id]["regionRestricted"] = True
 
-        output.update(_restaurant_items(table_cfg, items, output))
+        output.update(_yuanyuan_manor_items(table_cfg, items, output))
         logger.info(f"物品 mini table {len(output)} 条")
         return output
 
 
-def _restaurant_items(
+def _yuanyuan_manor_items(
     table_cfg: TableCfg,
     items: dict[str, ItemRow],
     normal_items: dict[str, dict[str, Any]],
@@ -153,7 +153,7 @@ def _restaurant_items(
             "nameId": name_id,
             "names": table_cfg.ref_texts(item.name),
             "category": "客栈菜品" if category_type == "Dish" else "客栈饮品",
-            "storageKind": "Restaurant",
+            "storageKind": "YuanyuanManor",
             "categoryType": category_type,
             "type": item.type,
             "iconId": item.icon_id,

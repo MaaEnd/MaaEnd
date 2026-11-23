@@ -11,7 +11,7 @@
             "RestaurantShopApproachAfterBusiness"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "$task.RestaurantDaily.focus.shop_started"
+            "Node.Recognition.Succeeded": "$task.YuanyuanManor.focus.shop_started"
         }
     },
     "RestaurantShopApproach": {
@@ -66,7 +66,7 @@
             "FailedNode"
         ],
         "focus": {
-            "Node.Action.Starting": "$task.RestaurantDaily.focus.shop_approach"
+            "Node.Action.Starting": "$task.YuanyuanManor.focus.shop_approach"
         }
     },
     "RestaurantShopApproachAfterBusiness": {
@@ -121,7 +121,7 @@
             "FailedNode"
         ],
         "focus": {
-            "Node.Action.Starting": "$task.RestaurantDaily.focus.shop_approach"
+            "Node.Action.Starting": "$task.YuanyuanManor.focus.shop_approach"
         }
     },
     "RestaurantShopInteract": {
@@ -312,7 +312,7 @@
             233,
             63
         ],
-        "template": "Restaurant/Shop/StoreInRegionChecked.png",
+        "template": "YuanyuanManor/PantryShop/StoreInRegionChecked.png",
         "threshold": 0.85,
         "pre_delay": 0,
         "post_delay": 0,
@@ -321,7 +321,7 @@
             "RestaurantShopScan"
         ],
         "focus": {
-            "Node.Action.Starting": "$task.RestaurantDaily.focus.priority_storage_enabled"
+            "Node.Action.Starting": "$task.YuanyuanManor.focus.priority_storage_enabled"
         }
     },
     "RestaurantShopPriorityStorageUnchecked": {
@@ -332,7 +332,7 @@
             233,
             63
         ],
-        "template": "Restaurant/Shop/StoreInRegionUnchecked.png",
+        "template": "YuanyuanManor/PantryShop/StoreInRegionUnchecked.png",
         "threshold": 0.85,
         "pre_delay": 0,
         "action": "Custom",
@@ -1220,7 +1220,7 @@
             "FailedNode"
         ],
         "focus": {
-            "Node.Action.Starting": "$task.RestaurantDaily.focus.shop_refreshing"
+            "Node.Action.Starting": "$task.YuanyuanManor.focus.shop_refreshing"
         }
     },
     "RestaurantShopRefreshConfirm": {

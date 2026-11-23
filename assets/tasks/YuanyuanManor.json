@@ -1,10 +1,10 @@
 {
     "task": [
         {
-            "name": "RestaurantDaily",
-            "label": "$task.RestaurantDaily.label",
+            "name": "YuanyuanManor",
+            "label": "$task.YuanyuanManor.label",
             "entry": "RestaurantSchedule",
-            "description": "$task.RestaurantDaily.description",
+            "description": "$task.YuanyuanManor.description",
             "group": [
                 "other_menu"
             ],
@@ -17,19 +17,19 @@
                 "Linux-Wlroots"
             ],
             "option": [
-                "RestaurantSchedule",
-                "RestaurantMaxRounds",
-                "RestaurantBuyShopDiscountedItems"
+                "YuanyuanManorSchedule",
+                "InnkeepingMaxRounds",
+                "PantryShopDiscountedItems"
             ]
         }
     ],
     "option": {
-        "RestaurantSchedule": {
+        "YuanyuanManorSchedule": {
             "type": "checkbox",
             "label": "$option.TaskSchedule.label",
             "cases": [
                 {
-                    "name": "RestaurantScheduleMonday",
+                    "name": "YuanyuanManorScheduleMonday",
                     "label": "$option.TaskScheduleMonday.label",
                     "pipeline_override": {
                         "RestaurantScheduleEnabled": {
@@ -40,7 +40,7 @@
                     }
                 },
                 {
-                    "name": "RestaurantScheduleTuesday",
+                    "name": "YuanyuanManorScheduleTuesday",
                     "label": "$option.TaskScheduleTuesday.label",
                     "pipeline_override": {
                         "RestaurantScheduleEnabled": {
@@ -51,7 +51,7 @@
                     }
                 },
                 {
-                    "name": "RestaurantScheduleWednesday",
+                    "name": "YuanyuanManorScheduleWednesday",
                     "label": "$option.TaskScheduleWednesday.label",
                     "pipeline_override": {
                         "RestaurantScheduleEnabled": {
@@ -62,7 +62,7 @@
                     }
                 },
                 {
-                    "name": "RestaurantScheduleThursday",
+                    "name": "YuanyuanManorScheduleThursday",
                     "label": "$option.TaskScheduleThursday.label",
                     "pipeline_override": {
                         "RestaurantScheduleEnabled": {
@@ -73,7 +73,7 @@
                     }
                 },
                 {
-                    "name": "RestaurantScheduleFriday",
+                    "name": "YuanyuanManorScheduleFriday",
                     "label": "$option.TaskScheduleFriday.label",
                     "pipeline_override": {
                         "RestaurantScheduleEnabled": {
@@ -84,7 +84,7 @@
                     }
                 },
                 {
-                    "name": "RestaurantScheduleSaturday",
+                    "name": "YuanyuanManorScheduleSaturday",
                     "label": "$option.TaskScheduleSaturday.label",
                     "pipeline_override": {
                         "RestaurantScheduleEnabled": {
@@ -95,7 +95,7 @@
                     }
                 },
                 {
-                    "name": "RestaurantScheduleSunday",
+                    "name": "YuanyuanManorScheduleSunday",
                     "label": "$option.TaskScheduleSunday.label",
                     "pipeline_override": {
                         "RestaurantScheduleEnabled": {
@@ -107,26 +107,26 @@
                 }
             ],
             "default_case": [
-                "RestaurantScheduleMonday",
-                "RestaurantScheduleTuesday",
-                "RestaurantScheduleWednesday",
-                "RestaurantScheduleThursday",
-                "RestaurantScheduleFriday",
-                "RestaurantScheduleSaturday",
-                "RestaurantScheduleSunday"
+                "YuanyuanManorScheduleMonday",
+                "YuanyuanManorScheduleTuesday",
+                "YuanyuanManorScheduleWednesday",
+                "YuanyuanManorScheduleThursday",
+                "YuanyuanManorScheduleFriday",
+                "YuanyuanManorScheduleSaturday",
+                "YuanyuanManorScheduleSunday"
             ]
         },
-        "RestaurantMaxRounds": {
+        "InnkeepingMaxRounds": {
             "type": "input",
-            "label": "$task.RestaurantDaily.option.MaxRounds.label",
+            "label": "$task.YuanyuanManor.option.MaxRounds.label",
             "inputs": [
                 {
                     "name": "MaxRounds",
-                    "label": "$task.RestaurantDaily.option.MaxRounds.input_label",
+                    "label": "$task.YuanyuanManor.option.MaxRounds.input_label",
                     "default": "5",
                     "pipeline_type": "int",
                     "verify": "^(?:0|[1-9]|1[0-9]|20)$",
-                    "pattern_msg": "$task.RestaurantDaily.option.MaxRounds.pattern_msg"
+                    "pattern_msg": "$task.YuanyuanManor.option.MaxRounds.pattern_msg"
                 }
             ],
             "pipeline_override": {
@@ -138,14 +138,14 @@
                 }
             }
         },
-        "RestaurantBuyShopDiscountedItems": {
+        "PantryShopDiscountedItems": {
             "type": "switch",
-            "label": "$task.RestaurantDaily.option.BuyShopDiscountedItems.label",
+            "label": "$task.YuanyuanManor.option.BuyShopDiscountedItems.label",
             "cases": [
                 {
                     "name": "Yes",
                     "option": [
-                        "RestaurantUseDailyRefresh"
+                        "PantryShopUseDailyRefresh"
                     ],
                     "pipeline_override": {
                         "RestaurantShopAfterRounds": {
@@ -170,9 +170,9 @@
             ],
             "default_case": "No"
         },
-        "RestaurantUseDailyRefresh": {
+        "PantryShopUseDailyRefresh": {
             "type": "switch",
-            "label": "$task.RestaurantDaily.option.UseDailyRefresh.label",
+            "label": "$task.YuanyuanManor.option.UseDailyRefresh.label",
             "cases": [
                 {
                     "name": "Yes",

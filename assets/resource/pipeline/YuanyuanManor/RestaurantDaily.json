@@ -45,7 +45,7 @@
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "RestaurantDecisionAction",
+        "custom_action": "YuanyuanManorInnkeepingDecide",
         "custom_action_param": {
             "step": "initialize",
             "max_rounds": 1
@@ -99,7 +99,7 @@
             "StopNode"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "$task.RestaurantDaily.focus.no_tasks_configured"
+            "Node.Recognition.Succeeded": "$task.YuanyuanManor.focus.no_tasks_configured"
         }
     },
     "RestaurantRoundGate": {
@@ -419,7 +419,7 @@
             "RestaurantCounterPromptApproach"
         ],
         "focus": {
-            "Node.Action.Starting": "$task.RestaurantDaily.focus.navigate_counter"
+            "Node.Action.Starting": "$task.YuanyuanManor.focus.navigate_counter"
         }
     },
     // 每次前进前先检查柜台提示；最多短按前进 5 次。
@@ -461,7 +461,7 @@
             210,
             62
         ],
-        "template": "Restaurant/StartBusiness.png",
+        "template": "YuanyuanManor/Innkeeping/OpenTheInn.png",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "RepeatUntilNotFoundAction",
@@ -772,7 +772,7 @@
             "RestaurantFormalStart"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "$task.RestaurantDaily.focus.theme_selected"
+            "Node.Recognition.Succeeded": "$task.YuanyuanManor.focus.theme_selected"
         }
     },
     "RestaurantPatronageInsufficient": {
@@ -789,7 +789,7 @@
             "RestaurantCloseTheme"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "$task.RestaurantDaily.focus.theme_selected"
+            "Node.Recognition.Succeeded": "$task.YuanyuanManor.focus.theme_selected"
         }
     },
     "RestaurantCloseTheme": {
@@ -801,7 +801,7 @@
             81,
             62
         ],
-        "template": "Restaurant/CloseTheme.png",
+        "template": "YuanyuanManor/Innkeeping/CloseTheme.png",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "RepeatUntilNotFoundAction",
@@ -857,7 +857,7 @@
             "FailedNode"
         ],
         "focus": {
-            "Node.Action.Starting": "$task.RestaurantDaily.focus.patronage_available"
+            "Node.Action.Starting": "$task.YuanyuanManor.focus.patronage_available"
         }
     },
     "RestaurantManagementReady": {
@@ -884,7 +884,7 @@
             "RestaurantClearPreviousSetup"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "$task.RestaurantDaily.focus.management_ready"
+            "Node.Recognition.Succeeded": "$task.YuanyuanManor.focus.management_ready"
         }
     },
     "RestaurantClearPreviousSetup": {
@@ -1601,7 +1601,7 @@
             97,
             55
         ],
-        "template": "Restaurant/MenuFilter.png",
+        "template": "YuanyuanManor/Innkeeping/MenuFilter.png",
         "method": 5,
         "threshold": 0.9,
         "pre_delay": 0,
@@ -1775,7 +1775,7 @@
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "RestaurantDecisionAction",
+        "custom_action": "YuanyuanManorInnkeepingDecide",
         "custom_action_param": {
             "step": "menu_page",
             "kind": "dish",
@@ -1846,7 +1846,7 @@
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "RestaurantDecisionAction",
+        "custom_action": "YuanyuanManorInnkeepingDecide",
         "custom_action_param": {
             "step": "menu_page",
             "kind": "dish",
@@ -1916,7 +1916,7 @@
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "RestaurantDecisionAction",
+        "custom_action": "YuanyuanManorInnkeepingDecide",
         "custom_action_param": {
             "step": "menu_page",
             "kind": "dish",
@@ -1979,7 +1979,7 @@
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "RestaurantDecisionAction",
+        "custom_action": "YuanyuanManorInnkeepingDecide",
         "custom_action_param": {
             "step": "menu_page",
             "kind": "drink"
@@ -2045,7 +2045,7 @@
             258,
             105
         ],
-        "template": "Restaurant/EmphaticMark.png",
+        "template": "YuanyuanManor/Innkeeping/EmphaticMark.png",
         "action": "Custom",
         "custom_action": "RepeatUntilNotFoundAction",
         "custom_action_param": {
@@ -2060,7 +2060,7 @@
             "FailedNode"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "$task.RestaurantDaily.focus.menu_requirements_unmet"
+            "Node.Recognition.Succeeded": "$task.YuanyuanManor.focus.menu_requirements_unmet"
         }
     },
     "RestaurantWaitForBusinessState": {
@@ -2155,7 +2155,7 @@
             "FailedNode"
         ],
         "focus": {
-            "Node.Action.Starting": "$task.RestaurantDaily.focus.business_started"
+            "Node.Action.Starting": "$task.YuanyuanManor.focus.business_started"
         }
     },
     "RestaurantKitchenPanelReady": {
@@ -2257,7 +2257,7 @@
             "RestaurantSettlementComplete"
         ],
         "focus": {
-            "Node.Action.Starting": "$task.RestaurantDaily.focus.business_ended"
+            "Node.Action.Starting": "$task.YuanyuanManor.focus.business_ended"
         }
     },
     "RestaurantSettlementComplete": {
@@ -2324,7 +2324,7 @@
             "StopNode"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "$task.RestaurantDaily.focus.returned_world"
+            "Node.Recognition.Succeeded": "$task.YuanyuanManor.focus.returned_world"
         }
     },
     "RestaurantMenuDishesComplete": {
@@ -2359,7 +2359,7 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "RestaurantDecisionAction",
+        "custom_action": "YuanyuanManorInnkeepingDecide",
         "custom_action_param": {
             "step": "menu_card"
         },
@@ -2410,7 +2410,7 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "RestaurantDecisionAction",
+        "custom_action": "YuanyuanManorInnkeepingDecide",
         "custom_action_param": {
             "step": "menu_advance"
         },
@@ -2440,7 +2440,7 @@
             "FailedNode"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "$task.RestaurantDaily.focus.menu_items_insufficient"
+            "Node.Recognition.Succeeded": "$task.YuanyuanManor.focus.menu_items_insufficient"
         }
     },
     "RestaurantRuntimeObserve": {
@@ -2451,7 +2451,7 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "RestaurantDecisionAction",
+        "custom_action": "YuanyuanManorInnkeepingDecide",
         "custom_action_param": {
             "step": "runtime"
         },
@@ -2760,7 +2760,7 @@
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "RestaurantDecisionAction",
+        "custom_action": "YuanyuanManorInnkeepingDecide",
         "custom_action_param": {
             "step": "dispatched"
         },
