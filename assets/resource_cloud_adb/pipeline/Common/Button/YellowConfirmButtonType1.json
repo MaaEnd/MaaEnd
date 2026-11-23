@@ -1,0 +1,9 @@
+{
+    "__YellowConfigmButtonType1IconStable": {
+        "recognition": {
+            "param": {
+                "threshold": 0.8
+            }
+        }
+    }
+}
