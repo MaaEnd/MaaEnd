@@ -604,7 +604,7 @@
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
-        "rate_limit": 0,
+        "rate_limit": 100,
         "next": [
             "__ScenePrivateMenuRegionalDevelopmentValleyIVEnterOverviewSuccess"
         ]
@@ -621,8 +621,7 @@
             "target": "__ScenePrivateMenuRegionalOverviewFullRegion"
         },
         "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
+        "post_delay": 0
     },
     "__ScenePrivateMenuRegionalDevelopmentWulingEnterOverview": {
         "desc": "在武陵地区建设界面，进入事务总览界面",
@@ -634,7 +633,7 @@
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
-        "rate_limit": 0,
+        "rate_limit": 100,
         "next": [
             "__ScenePrivateMenuRegionalDevelopmentWulingEnterOverviewSuccess"
         ]
@@ -651,7 +650,6 @@
             "target": "__ScenePrivateMenuRegionalOverviewFullRegion"
         },
         "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
+        "post_delay": 0
     }
 }

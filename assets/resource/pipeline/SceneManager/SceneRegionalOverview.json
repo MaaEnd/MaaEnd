@@ -54,7 +54,7 @@
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
-        "rate_limit": 0,
+        "rate_limit": 100,
         "next": [
             "__ScenePrivateMenuRegionalOverviewAnyCollapseAnySuccess"
         ]
@@ -76,8 +76,7 @@
             "target": "__ScenePrivateMenuRegionalOverviewFullRegion"
         },
         "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
+        "post_delay": 0
     },
     "__ScenePrivateMenuRegionalOverviewAnyListComplete": {
         "desc": "在事务总览界面，列表滚动已至尽头",
@@ -87,12 +86,15 @@
             "threshold": 0.95
         },
         "roi": "__ScenePrivateMenuRegionalOverviewFullRegion",
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
             "FailedNode"
         ]
     },
     "__ScenePrivateMenuRegionalOverviewAnyResetListComplete": {
         "desc": "重置 ListComplete 识别的 ready 状态",
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "PipelineOverride",
         "custom_action_param": {
@@ -103,7 +105,8 @@
                     }
                 }
             }
-        }
+        },
+        "post_delay": 0
     },
     "__ScenePrivateMenuRegionalOverviewAnyListScroll": {
         "desc": "在事务总览界面，向下滚动",
@@ -112,6 +115,7 @@
             "InRegionalOverview",
             "__ScenePrivateMenuRegionalOverviewFullRegion"
         ],
+        "pre_delay": 0,
         "action": "Scroll",
         "target": [
             -120,
@@ -125,7 +129,8 @@
             "time": 80,
             "target": "__ScenePrivateMenuRegionalOverviewFullRegion",
             "threshold": 0.95
-        }
+        },
+        "post_delay": 0
     },
     "__ScenePrivateMenuRegionalOverviewAnyRecyclingStation": {
         "desc": "在事务总览界面，找到资源回收站，但不保证展开后有空间显示内容",
@@ -144,10 +149,7 @@
                 "threshold": 0.85
             }
         ],
-        "box_index": 2,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
+        "box_index": 2
     },
     "__ScenePrivateMenuRegionalOverviewWulingTrialOfSwordmancy": {
         "desc": "在武陵事务总览界面，找到选剑演武，但不保证展开后有空间显示内容",
@@ -165,10 +167,24 @@
                 "threshold": 0.85
             }
         ],
-        "box_index": 2,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
+        "box_index": 2
+    },
+    "__ScenePrivateMenuRegionalOverviewWulingYuanyuanManorInn": {
+        "desc": "在武陵事务总览界面，找到缘缘庄客栈，但不保证展开后有空间显示内容",
+        "recognition": "And",
+        "all_of": [
+            "InRegionalOverviewWuling",
+            "__ScenePrivateMenuRegionalOverviewIconRegion",
+            {
+                "recognition": "TemplateMatch",
+                "roi": "__ScenePrivateMenuRegionalOverviewIconRegion",
+                "template": [
+                    "SceneManager/RegionalOverview/YuanyuanManorInnWuling.png"
+                ],
+                "threshold": 0.85
+            }
+        ],
+        "box_index": 2
     },
     "__ScenePrivateMenuRegionalOverviewAnyExpandRecyclingStation": {
         "desc": "在事务总览界面，展开资源回收站",
@@ -192,7 +208,7 @@
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
-        "rate_limit": 0,
+        "rate_limit": 100,
         "next": [
             "__ScenePrivateMenuRegionalOverviewAnyRecyclingStationExpanded"
         ]
@@ -229,7 +245,6 @@
             ]
         },
         "post_delay": 0,
-        "rate_limit": 0,
         "next": [
             "SceneMenuRegionalOverviewAnyRecyclingStation",
             // 若展开后空间不足以显示内容
@@ -259,7 +274,7 @@
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
-        "rate_limit": 0,
+        "rate_limit": 100,
         "next": [
             "__ScenePrivateMenuRegionalOverviewWulingTrialOfSwordmancyExpanded"
         ]
@@ -296,9 +311,74 @@
             ]
         },
         "post_delay": 0,
-        "rate_limit": 0,
         "next": [
             "SceneMenuRegionalOverviewWulingTrialOfSwordmancy",
+            // 若展开后空间不足以显示内容
+            "__ScenePrivateMenuRegionalOverviewAnyListComplete",
+            "[JumpBack]__ScenePrivateMenuRegionalOverviewAnyListScroll"
+        ]
+    },
+    "__ScenePrivateMenuRegionalOverviewWulingExpandYuanyuanManorInn": {
+        "desc": "在武陵事务总览界面，展开缘缘庄客栈",
+        "recognition": "And",
+        "all_of": [
+            "__ScenePrivateMenuRegionalOverviewWulingYuanyuanManorInn",
+            {
+                "recognition": "TemplateMatch",
+                "roi": "__ScenePrivateMenuRegionalOverviewWulingYuanyuanManorInn",
+                "roi_offset": [
+                    864,
+                    7,
+                    -12,
+                    -11
+                ],
+                "template": "SceneManager/RegionalOverview/ExpandButton.png",
+                "threshold": 0.85
+            }
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 100,
+        "next": [
+            "__ScenePrivateMenuRegionalOverviewWulingYuanyuanManorInnExpanded"
+        ]
+    },
+    "__ScenePrivateMenuRegionalOverviewWulingYuanyuanManorInnExpanded": {
+        "desc": "在武陵事务总览界面，且缘缘庄客栈已展开",
+        "recognition": "And",
+        "all_of": [
+            "__ScenePrivateMenuRegionalOverviewWulingYuanyuanManorInn",
+            "__ScenePrivateMenuRegionalOverviewFullRegion",
+            {
+                "recognition": "TemplateMatch",
+                "roi": "__ScenePrivateMenuRegionalOverviewWulingYuanyuanManorInn",
+                "roi_offset": [
+                    864,
+                    7,
+                    -12,
+                    -11
+                ],
+                "template": "SceneManager/RegionalOverview/CollapseButton.png",
+                "threshold": 0.85
+            }
+        ],
+        "pre_wait_freezes": {
+            "time": 80,
+            "target": "__ScenePrivateMenuRegionalOverviewFullRegion"
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "__ScenePrivateMenuRegionalOverviewAnyResetListComplete"
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "SceneMenuRegionalOverviewWulingYuanyuanManorInn",
             // 若展开后空间不足以显示内容
             "__ScenePrivateMenuRegionalOverviewAnyListComplete",
             "[JumpBack]__ScenePrivateMenuRegionalOverviewAnyListScroll"

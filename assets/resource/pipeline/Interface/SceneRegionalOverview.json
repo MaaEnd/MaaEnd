@@ -18,8 +18,7 @@
         ],
         "box_index": 2,
         "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
+        "post_delay": 0
     },
     "SceneMenuRegionalOverviewWulingTrialOfSwordmancy": {
         "desc": "在武陵事务总览界面，找到选剑演武",
@@ -39,8 +38,26 @@
         ],
         "box_index": 2,
         "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
+        "post_delay": 0
+    },
+    "SceneMenuRegionalOverviewWulingYuanyuanManorInn": {
+        "desc": "在武陵事务总览界面，找到缘缘庄客栈",
+        "recognition": "And",
+        "all_of": [
+            "InRegionalOverviewWuling",
+            "__ScenePrivateMenuRegionalOverviewUpperIconRegion",
+            {
+                "recognition": "TemplateMatch",
+                "roi": "__ScenePrivateMenuRegionalOverviewUpperIconRegion",
+                "template": [
+                    "SceneManager/RegionalOverview/YuanyuanManorInnWuling.png"
+                ],
+                "threshold": 0.85
+            }
+        ],
+        "box_index": 2,
+        "pre_delay": 0,
+        "post_delay": 0
     },
     "SceneEnterMenuRegionalOverviewValleyIVRecyclingStation": {
         "desc": "进入事务总览-四号谷地-展开资源回收站",
@@ -54,7 +71,6 @@
             ]
         },
         "post_delay": 0,
-        "rate_limit": 0,
         "next": [
             "__ScenePrivateMenuRegionalOverviewAnyRecyclingStationExpanded",
             "__ScenePrivateMenuRegionalOverviewAnyExpandRecyclingStation",
@@ -75,7 +91,6 @@
             ]
         },
         "post_delay": 0,
-        "rate_limit": 0,
         "next": [
             "__ScenePrivateMenuRegionalOverviewAnyRecyclingStationExpanded",
             "__ScenePrivateMenuRegionalOverviewAnyExpandRecyclingStation",
@@ -96,10 +111,29 @@
             ]
         },
         "post_delay": 0,
-        "rate_limit": 0,
         "next": [
             "__ScenePrivateMenuRegionalOverviewWulingTrialOfSwordmancyExpanded",
             "__ScenePrivateMenuRegionalOverviewWulingExpandTrialOfSwordmancy",
+            "[JumpBack]__ScenePrivateMenuRegionalOverviewAnyCollapseAny",
+            "__ScenePrivateMenuRegionalOverviewAnyListComplete",
+            "[JumpBack]__ScenePrivateMenuRegionalOverviewAnyListScroll"
+        ]
+    },
+    "SceneEnterMenuRegionalOverviewWulingYuanyuanManorInn": {
+        "desc": "进入事务总览-武陵-展开缘缘庄客栈",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuRegionalOverviewWuling",
+                "__ScenePrivateMenuRegionalOverviewAnyResetListComplete"
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMenuRegionalOverviewWulingYuanyuanManorInnExpanded",
+            "__ScenePrivateMenuRegionalOverviewWulingExpandYuanyuanManorInn",
             "[JumpBack]__ScenePrivateMenuRegionalOverviewAnyCollapseAny",
             "__ScenePrivateMenuRegionalOverviewAnyListComplete",
             "[JumpBack]__ScenePrivateMenuRegionalOverviewAnyListScroll"
