@@ -51,7 +51,7 @@
                 "WhiteConfirmButtonType1",
                 "OutpostTradingInfraStationConfirmTargetOperator",
                 "OutpostTradingInfraStationConfirmRestoreOperator",
-                "OutpostTradingOperatorAlreadyAssignedPrompt"
+                "OutpostTradingCheckOperatorAlreadyAssignedDialogText"
             ]
         }
     ]

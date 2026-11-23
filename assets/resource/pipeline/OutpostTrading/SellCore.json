@@ -17,7 +17,7 @@
             "[Anchor]OutpostTradingBeforeSellOperatorTarget"
         ]
     },
-    "OutpostTradingOutpostProsperityAvailable": {
+    "OutpostTradingCheckOutpostProsperityIcon": {
         "desc": "识别交易可获得的据点发展值图标",
         "recognition": "TemplateMatch",
         "roi": [
@@ -59,12 +59,12 @@
         "rate_limit": 0,
         "next": [
             "[Anchor]OutpostTradingZeroMoneyHandler",
-            "OutpostTradingZeroProductAfterChangeStillEmpty",
+            "OutpostTradingLowStockAfterChange",
             "OutpostTradingNeedSelectGoodsTryChangeGoods",
             "[Anchor]OutpostTradingBetterSliding"
         ]
     },
-    "OutpostTradingZeroProduct": {
+    "OutpostTradingCheckLowStockText": {
         "desc": "货物数量不足（库存 0～999 视为不足）",
         "recognition": "OCR",
         "roi": [
@@ -85,11 +85,11 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "OutpostTradingZeroProductAfterChangeStillEmpty": {
+    "OutpostTradingLowStockAfterChange": {
         "desc": "换货后货物仍不足，继续选择下一个优先物品",
         "recognition": "And",
         "all_of": [
-            "OutpostTradingZeroProduct"
+            "OutpostTradingCheckLowStockText"
         ],
         "pre_delay": 0,
         "post_delay": 0,
@@ -247,7 +247,7 @@
             "Node.Recognition.Succeeded": "$task.OutpostTrading.aid_quota_exceeded"
         }
     },
-    "OutpostTradingCheckHeader": {
+    "OutpostTradingCheckResultHeader": {
         "desc": "交易完成后的获得物品界面页头",
         "recognition": "TemplateMatch",
         "roi": [
@@ -257,7 +257,7 @@
             479
         ],
         "template": [
-            "OutpostTrading/OutpostTradingCheckHeader.png"
+            "OutpostTrading/ResultHeader.png"
         ],
         "pre_delay": 0,
         "action": "DoNothing",
@@ -268,14 +268,14 @@
         "desc": "交易后确认",
         "recognition": "And",
         "all_of": [
-            "OutpostTradingCheckHeader"
+            "OutpostTradingCheckResultHeader"
         ],
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "RepeatUntilNotFoundAction",
         "custom_action_param": {
             "action": "Click",
-            "wait_node": "OutpostTradingCheckHeader",
+            "wait_node": "OutpostTradingCheckResultHeader",
             "repeat_count": 10,
             "interval_ms": 200
         },
@@ -326,14 +326,14 @@
         "desc": "交易后确认，继续应用当前物品的保留规则",
         "recognition": "And",
         "all_of": [
-            "OutpostTradingCheckHeader"
+            "OutpostTradingCheckResultHeader"
         ],
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "RepeatUntilNotFoundAction",
         "custom_action_param": {
             "action": "Click",
-            "wait_node": "OutpostTradingCheckHeader",
+            "wait_node": "OutpostTradingCheckResultHeader",
             "repeat_count": 10,
             "interval_ms": 200
         },

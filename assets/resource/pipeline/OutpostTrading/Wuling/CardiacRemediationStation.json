@@ -44,7 +44,7 @@
         "recognition": "And",
         "all_of": [
             "OutpostTradingInCardiacRemediationStation",
-            "OutpostTradingOutpostProsperityAvailable"
+            "OutpostTradingCheckOutpostProsperityIcon"
         ],
         "pre_delay": 0,
         "action": "Custom",
@@ -281,7 +281,7 @@
         "desc": "心脏修缮站售卖用干员来自本次启用据点，确认调至当前据点",
         "recognition": "And",
         "all_of": [
-            "OutpostTradingOperatorAlreadyAssignedPrompt",
+            "OutpostTradingCheckOperatorAlreadyAssignedDialogText",
             {
                 "recognition": "Custom",
                 "custom_recognition": "OutpostTradingOperatorConflict",
@@ -321,7 +321,7 @@
         "desc": "心脏修缮站售卖用干员来自未启用据点，临时排除并重新规划",
         "recognition": "And",
         "all_of": [
-            "OutpostTradingOperatorAlreadyAssignedPrompt",
+            "OutpostTradingCheckOperatorAlreadyAssignedDialogText",
             {
                 "recognition": "Custom",
                 "custom_recognition": "OutpostTradingOperatorConflict",
@@ -357,7 +357,7 @@
         "desc": "心脏修缮站取消抢占其他据点的售卖用干员",
         "recognition": "And",
         "all_of": [
-            "OutpostTradingOperatorAlreadyAssignedPrompt",
+            "OutpostTradingCheckOperatorAlreadyAssignedDialogText",
             "GrayCancelButton"
         ],
         "box_index": 1,
@@ -732,7 +732,7 @@
         "desc": "心脏修缮站恢复干员来自本次启用据点，确认调至当前据点",
         "recognition": "And",
         "all_of": [
-            "OutpostTradingOperatorAlreadyAssignedPrompt",
+            "OutpostTradingCheckOperatorAlreadyAssignedDialogText",
             {
                 "recognition": "Custom",
                 "custom_recognition": "OutpostTradingOperatorConflict",
@@ -772,7 +772,7 @@
         "desc": "心脏修缮站恢复干员来自未启用据点，临时排除并重新规划",
         "recognition": "And",
         "all_of": [
-            "OutpostTradingOperatorAlreadyAssignedPrompt",
+            "OutpostTradingCheckOperatorAlreadyAssignedDialogText",
             {
                 "recognition": "Custom",
                 "custom_recognition": "OutpostTradingOperatorConflict",
@@ -808,7 +808,7 @@
         "desc": "心脏修缮站取消抢占其他据点的恢复干员",
         "recognition": "And",
         "all_of": [
-            "OutpostTradingOperatorAlreadyAssignedPrompt",
+            "OutpostTradingCheckOperatorAlreadyAssignedDialogText",
             "GrayCancelButton"
         ],
         "box_index": 1,
