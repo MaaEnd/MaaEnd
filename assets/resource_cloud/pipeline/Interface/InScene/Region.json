@@ -1,6 +1,6 @@
 {
-    // 云终末地：串流画面存在色彩压缩，左上角颜色不可靠，菜单列表只靠文字判定
-    "CheckMenuListColor": {
+    // 云终末地没有退出登陆按钮
+    "CheckMenuListExitButtonColor": {
         "recognition": "DirectHit"
     }
 }
