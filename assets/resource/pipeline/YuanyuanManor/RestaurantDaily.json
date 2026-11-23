@@ -794,14 +794,10 @@
     },
     "RestaurantCloseTheme": {
         "desc": "关闭主题界面，然后进入购物流程或结束任务。",
-        "recognition": "TemplateMatch",
-        "roi": [
-            1196,
-            3,
-            81,
-            62
+        "recognition": "And",
+        "all_of": [
+            "CloseButtonType1"
         ],
-        "template": "YuanyuanManor/Innkeeping/CloseTheme.png",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "RepeatUntilNotFoundAction",
