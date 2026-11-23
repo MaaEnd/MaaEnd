@@ -54,10 +54,6 @@
                             }
                         }
                     ]
-                },
-                "imageRoot": {
-                    "type": "string",
-                    "description": "资源服目录下的可选截图子目录"
                 }
             }
         },
