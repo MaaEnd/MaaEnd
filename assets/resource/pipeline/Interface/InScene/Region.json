@@ -484,8 +484,8 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "CheckMenuListColor": {
-        "desc": "检查菜单列表界面左上角颜色",
+    "CheckMenuListExitButtonColor": {
+        "desc": "检查菜单列表界面左下角退出登陆按钮",
         "recognition": "ColorMatch",
         "roi": [
             0,
@@ -514,7 +514,7 @@
         "all_of": [
             "CheckMenuListText",
             "CheckMenuListText2",
-            "CheckMenuListColor"
+            "CheckMenuListExitButtonColor"
         ]
     },
     "InNoticeRewards": {
