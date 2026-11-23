@@ -11,8 +11,8 @@
         {
             "image": "四号谷地_地区建设_仓储节点_货物装箱_调度申请_快速转交.png",
             "hits": [
-                "DeliveryJobsSelectedBidLocationIcon",
-                "DeliveryJobsSelectedBidPriceOCR",
+                "DeliveryJobsCheckSelectedBidLocationIcon",
+                "DeliveryJobsCheckSelectedBidPriceText",
                 "DeliveryJobsSelectedBidPrice"
             ]
         }

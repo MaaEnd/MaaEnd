@@ -83,7 +83,7 @@
             "[Anchor]DeliveryJobsRedistributionBidAction"
         ]
     },
-    "DeliveryJobsSelectedBidLocationIcon": {
+    "DeliveryJobsCheckSelectedBidLocationIcon": {
         "desc": "识别当前选中的运送委托报价的地点图标",
         "recognition": "TemplateMatch",
         "roi": [
@@ -97,10 +97,10 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "DeliveryJobsSelectedBidPriceOCR": {
+    "DeliveryJobsCheckSelectedBidPriceText": {
         "desc": "识别当前选中的运送委托报价",
         "recognition": "OCR",
-        "roi": "DeliveryJobsSelectedBidLocationIcon",
+        "roi": "DeliveryJobsCheckSelectedBidLocationIcon",
         "roi_offset": [
             137,
             16,
@@ -126,8 +126,8 @@
         "desc": "获取当前选中的运送委托报价",
         "recognition": "And",
         "all_of": [
-            "DeliveryJobsSelectedBidLocationIcon",
-            "DeliveryJobsSelectedBidPriceOCR"
+            "DeliveryJobsCheckSelectedBidLocationIcon",
+            "DeliveryJobsCheckSelectedBidPriceText"
         ],
         "box_index": 1,
         "pre_delay": 0,

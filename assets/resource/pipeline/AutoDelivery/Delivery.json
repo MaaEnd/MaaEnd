@@ -116,7 +116,7 @@
             "화물 제출"
         ]
     },
-    "AutoDeliveryCheckSubmitGoodsName": {
+    "AutoDeliveryCheckSubmitGoodsNameText": {
         "desc": "[运行时覆盖] 识别送货目标交互提示中的文本",
         "recognition": "OCR",
         "roi": [
@@ -137,7 +137,7 @@
         "desc": "[运行时覆盖] 确认已站在送货目标前：交货图标命中，需要名称复核时交互提示中的名称也要命中",
         "recognition": "And",
         // all_of 运行时由 AutoDeliveryResolveDestinationAction 整体重写：
-        // 恒含 AutoDeliveryCheckSubmitGoodsButton，终点开启名称复核时追加 AutoDeliveryCheckSubmitGoodsName。
+        // 恒含 AutoDeliveryCheckSubmitGoodsButton，终点开启名称复核时追加 AutoDeliveryCheckSubmitGoodsNameText。
         // 静态这份就是「不做名称复核」的形态。
         "all_of": [
             "AutoDeliveryCheckSubmitGoodsButton"

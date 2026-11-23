@@ -1,5 +1,5 @@
 {
-    "DeliveryJobsCheckTestAreaDeliveryJob": {
+    "DeliveryJobsCheckTestAreaDeliveryJobText": {
         "desc": "检查试验园区的送货任务按钮",
         "recognition": "OCR",
         "roi": "DeliveryJobsCheckLocalDepotNodeTestAreaText",
@@ -26,7 +26,7 @@
         "recognition": "And",
         "all_of": [
             "DeliveryJobsCheckLocalDepotNodeTestAreaText",
-            "DeliveryJobsCheckTestAreaDeliveryJob"
+            "DeliveryJobsCheckTestAreaDeliveryJobText"
         ],
         "box_index": 1,
         "pre_delay": 0,
@@ -62,7 +62,7 @@
         "recognition": "And",
         "all_of": [
             "DeliveryJobsCheckLocalDepotNodeTestAreaText",
-            "DeliveryJobsCheckTestAreaDeliveryJob"
+            "DeliveryJobsCheckTestAreaDeliveryJobText"
         ],
         "box_index": 1,
         "pre_delay": 0,
@@ -141,7 +141,7 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "DeliveryJobsCheckTestAreaCargo": {
+    "DeliveryJobsCheckTestAreaCargoText": {
         "desc": "检查试验园区的货物是否准备好",
         "recognition": "OCR",
         "roi": "DeliveryJobsCheckLocalDepotNodeTestAreaText",
@@ -173,7 +173,7 @@
         "recognition": "And",
         "all_of": [
             "DeliveryJobsCheckLocalDepotNodeTestAreaText",
-            "DeliveryJobsCheckTestAreaCargo"
+            "DeliveryJobsCheckTestAreaCargoText"
         ],
         "box_index": 1,
         "pre_delay": 0,

@@ -1,5 +1,5 @@
 {
-    "DeliveryJobsCheckPowerPlateauDeliveryJob": {
+    "DeliveryJobsCheckPowerPlateauDeliveryJobText": {
         "desc": "检查供能高地的送货任务按钮",
         "recognition": "OCR",
         "roi": "DeliveryJobsCheckLocalDepotNodePowerPlateauText",
@@ -26,7 +26,7 @@
         "recognition": "And",
         "all_of": [
             "DeliveryJobsCheckLocalDepotNodePowerPlateauText",
-            "DeliveryJobsCheckPowerPlateauDeliveryJob"
+            "DeliveryJobsCheckPowerPlateauDeliveryJobText"
         ],
         "box_index": 1,
         "pre_delay": 0,
@@ -62,7 +62,7 @@
         "recognition": "And",
         "all_of": [
             "DeliveryJobsCheckLocalDepotNodePowerPlateauText",
-            "DeliveryJobsCheckPowerPlateauDeliveryJob"
+            "DeliveryJobsCheckPowerPlateauDeliveryJobText"
         ],
         "box_index": 1,
         "pre_delay": 0,
@@ -140,7 +140,7 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "DeliveryJobsCheckPowerPlateauCargo": {
+    "DeliveryJobsCheckPowerPlateauCargoText": {
         "desc": "检查供能高地的货物是否准备好",
         "recognition": "OCR",
         "roi": "DeliveryJobsCheckLocalDepotNodePowerPlateauText",
@@ -172,7 +172,7 @@
         "recognition": "And",
         "all_of": [
             "DeliveryJobsCheckLocalDepotNodePowerPlateauText",
-            "DeliveryJobsCheckPowerPlateauCargo"
+            "DeliveryJobsCheckPowerPlateauCargoText"
         ],
         "box_index": 1,
         "pre_delay": 0,

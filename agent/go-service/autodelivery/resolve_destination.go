@@ -20,7 +20,7 @@ const (
 	submitGoodsNode              = "AutoDeliverySubmitGoods"
 	submitGoodsTargetNode        = "AutoDeliveryCheckSubmitGoodsTarget"
 	submitGoodsButtonNode        = "AutoDeliveryCheckSubmitGoodsButton"
-	submitGoodsNameNode          = "AutoDeliveryCheckSubmitGoodsName"
+	submitGoodsNameNode          = "AutoDeliveryCheckSubmitGoodsNameText"
 	checkSkipChatReadyNode       = "AutoDeliveryCheckSkipChatReady"
 	closeRewardDialogNode        = "AutoDeliveryCloseRewardDialog"
 	// destinationZiplineRequiredFocusKey 是「只能坐滑索抵达、但用户选择步行」时讲给用户的原因。
