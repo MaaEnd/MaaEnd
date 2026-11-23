@@ -68,6 +68,30 @@ std::optional<ZiplineNodeRef> previous_wrong_tower(const std::vector<ZiplineLaun
     return std::nullopt;
 }
 
+const ZiplineHopRecord* rerouted_attempt(const ZiplineRide& ride)
+{
+    for (auto it = ride.ledger.rbegin(); it != ride.ledger.rend(); ++it) {
+        const bool never_launched = it->outcome == HopOutcome::NotMounted && it->launches.empty();
+        if (!never_launched && SameTower(it->plan.mount, ride.plan.mount) && SameTower(it->plan.landing, ride.plan.landing)) {
+            return it->outcome == HopOutcome::Rerouted ? &*it : nullptr;
+        }
+    }
+    return nullptr;
+}
+
+std::optional<ZiplineNodeRef> previous_wrong_tower_in_hop(const ZiplineRide& ride)
+{
+    const std::optional<ZiplineNodeRef> previous = previous_wrong_tower(ride.record.launches);
+    if (previous) {
+        return previous;
+    }
+    const ZiplineHopRecord* rerouted = rerouted_attempt(ride);
+    if (rerouted == nullptr || rerouted->launches.empty()) {
+        return std::nullopt;
+    }
+    return rerouted->launches.back().reached;
+}
+
 const char* stage_name(ZiplineStage stage)
 {
     switch (stage) {
@@ -189,6 +213,13 @@ std::vector<ZiplineNodeRef> known_nodes(const ZiplineRide& ride)
     return known;
 }
 
+std::vector<ZiplineNodeRef> landing_candidates(const ZiplineRide& ride)
+{
+    std::vector<ZiplineNodeRef> candidates = known_nodes(ride);
+    candidates.insert(candidates.end(), ride.plan.bystanders.begin(), ride.plan.bystanders.end());
+    return candidates;
+}
+
 std::vector<double> neighbor_offsets_deg(const ZiplineRide& ride)
 {
     std::vector<ZiplineNodeRef> nodes = ride.plan.siblings;
@@ -230,6 +261,24 @@ double escalated_aim_bias_deg(const ZiplineRide& ride, double wrong_bearing_deg)
     const double away = overshot ? std::copysign(1.0, ride.aim_bias_deg) : std::copysign(1.0, -offset);
     const double magnitude = overshot ? std::abs(ride.aim_bias_deg) / 2.0 : std::abs(ride.aim_bias_deg) + kZiplineAimBiasStepDeg;
     return away * std::min(magnitude, away_side_cap_deg(neighbor_offsets_deg(ride), away));
+}
+
+void replay_rerouted_attempt(ZiplineRide* ride)
+{
+    const ZiplineHopRecord* rerouted = rerouted_attempt(*ride);
+    if (rerouted == nullptr) {
+        return;
+    }
+    for (const ZiplineLaunch& launch : rerouted->launches) {
+        if (launch.reached) {
+            ride->discovered_towers.push_back(*launch.reached);
+        }
+    }
+    for (const double wrong_bearing : rerouted->wrong_rope_bearings_deg) {
+        ride->record.wrong_rope_bearings_deg.push_back(wrong_bearing);
+        ++ride->hop_retry_count;
+        ride->aim_bias_deg = escalated_aim_bias_deg(*ride, wrong_bearing);
+    }
 }
 
 double residual_to_exit_aim(const ZiplineRide& ride)
@@ -362,17 +411,18 @@ StageResult
         if (landing == LandingClass::AtStrayTower) {
             ride->discovered_towers.push_back(reached);
         }
-        const std::optional<ZiplineNodeRef> previous = previous_wrong_tower(ride->record.launches);
+        const std::optional<ZiplineNodeRef> previous = previous_wrong_tower_in_hop(*ride);
         if (previous && SameTower(*previous, reached)) {
             ride->hop_retry_count = kZiplineHopRetryBudget;
             LogInfo << "zipline/aim/same_wrong_tower" << VAR(reached.x) << VAR(reached.y)
                     << VAR_AS(record_.launches.size(), ride->record.launches.size());
         }
-        if (ride->hop_retry_count >= kZiplineHopRetryBudget) {
+        if (landing == LandingClass::AtOther || ride->hop_retry_count >= kZiplineHopRetryBudget) {
+            const HopOutcome outcome = ride->hop_retry_count >= kZiplineHopRetryBudget ? HopOutcome::WrongRope : HopOutcome::Rerouted;
             ride->record.wrong_rope_bearings_deg.push_back(bearing_deg(ride->plan.mount, reached));
             LogInfo << "zipline/aim/park_on_wrong_tower" << VAR(reached.x) << VAR(reached.y)
                     << VAR_AS(hop_retry_count_, ride->hop_retry_count);
-            commit_record(ride, HopOutcome::WrongRope, now);
+            commit_record(ride, outcome, now);
             return park_for_replan(ride, reached, now);
         }
         ride->origin = reached;
@@ -433,7 +483,7 @@ StageResult classify(ZiplineRide* ride, ZiplineIo* io, std::chrono::steady_clock
     enter_stage(ride, ZiplineStage::Classified, now);
     ZiplineNodeRef reached;
     const LandingClass landing =
-        ClassifyLanding(ride->last_fix, ride->origin, ride->target, known_nodes(*ride), ride->landing.riding_entered, &reached);
+        ClassifyLanding(ride->last_fix, ride->origin, ride->target, landing_candidates(*ride), ride->landing.riding_entered, &reached);
     stamp_launch(ride, reached, landing);
     LogInfo << "zipline/classified" << VAR(static_cast<int>(landing)) << VAR_AS(returning_, ride->returning)
             << VAR_AS(riding_entered_, ride->landing.riding_entered) << VAR_AS(pitch_tier_, ride->pitch_tier)
@@ -987,6 +1037,7 @@ void BeginZiplineHop(ZiplineRide* ride, const ZiplineHopPlan& plan, std::chrono:
         ride->record.began_at = now;
         ride->hop_open = true;
         ride->aim_bias_deg = first_shot_aim_bias_deg(*ride);
+        replay_rerouted_attempt(ride);
     }
     ride->parked_on.reset();
     ride->origin = ride->plan.mount;

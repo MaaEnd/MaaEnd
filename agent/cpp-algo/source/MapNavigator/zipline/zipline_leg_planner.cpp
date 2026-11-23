@@ -773,6 +773,11 @@ void walk_bounds(TowerSites* sites, const PlanInputs& in)
     }
 }
 
+bool linked(const std::vector<std::vector<size_t>>& links, size_t a, size_t b)
+{
+    return std::ranges::find(links[a], b) != links[a].end();
+}
+
 ZipLinkGraph build_rope_graph(const PlanInputs& in, const TowerSites& sites)
 {
     // 未登记的架子类型索长上限为 0, 不参与配对
@@ -1123,6 +1128,13 @@ ZiplineRoute assemble_route(const PlanInputs& in, const TowerSites& sites, const
                 }
             }
             route.hop_alternates.push_back(std::move(alternates));
+            std::vector<zipline::ZiplineNode> bystanders;
+            for (const size_t other : graph.all[chain[hop]]) {
+                if (other != chain[hop + 1] && !linked(links, chain[hop], other)) {
+                    bystanders.push_back(sites.nodes[other]);
+                }
+            }
+            route.hop_bystanders.push_back(std::move(bystanders));
         }
     }
     if (in.request.capture_diagnostics) {

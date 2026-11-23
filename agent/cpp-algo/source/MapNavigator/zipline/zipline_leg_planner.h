@@ -36,6 +36,8 @@ struct ZiplineRoute
     std::vector<zipline::ZiplineNode> towers;
     // 与 towers 逐跳对应(最后一根没有), 列出这根架子上下一跳以外的索通向的架子
     std::vector<std::vector<zipline::ZiplineNode>> hop_alternates;
+    // 与 hop_alternates 逐跳对应, 列出 hop_alternates 以外可能落到的架子
+    std::vector<std::vector<zipline::ZiplineNode>> hop_bystanders;
     // 折算成等效走路距离
     double cost = 0.0;
     // 链首依次试的上索站位, 为空表示只能按架子坐标走
