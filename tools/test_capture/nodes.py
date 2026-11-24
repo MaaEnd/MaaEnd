@@ -1,4 +1,4 @@
-"""列一遍「这次运行到底会跑哪些 pipeline 节点」，跑之前先对清单。"""
+"""读流程文件：每一步调用了哪些 pipeline 节点，以及各段在哪台平台上跑。"""
 
 from __future__ import annotations
 
@@ -7,24 +7,14 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, cast
 
-from .flow import Flow, Step, as_list, load_jsonc
-from .runner import ENTER_WORLD_NODE, OPEN_GAME_NODE, OPEN_GAME_TASK, PROBE_NODE, Segment, split_segments
+from .flow import Step, as_list, load_jsonc
+from .runner import Segment
 
 # 流程函数里这些调用会碰 pipeline 节点；shot 只是截图，不跑节点。
 NODE_METHODS = {"run", "click", "wait", "hit", "sub_task"}
 
 # 展开 next 链时最多列这么多节点，免得某个万能转跳把整份 pipeline 都拖出来。
 CHAIN_LIMIT = 24
-
-# 转跳函数再往下展开几层（回快速转交确认 → 回调度申请）。
-ROUTE_DEPTH = 3
-
-KIND_TEXT = {
-    "run": "只跑它自己（next 已清空）",
-    "click": "用它定位后点一下（不跑它的 action）",
-    "wait": "等它命中（不点不动）",
-    "hit": "看一眼在不在",
-}
 
 
 @dataclass
@@ -152,100 +142,3 @@ def chain(next_map: dict[str, list[str]], start: str) -> list[str]:
         following = next_map.get(name) or []
         current = following[0] if following else ""
     return seen
-
-
-def render(flow: Flow, repo: Path) -> str:
-    """生成清单文本：开场固定跑的节点 + 每步调用的节点 + 转跳时连带跑的节点。"""
-    next_map = load_next_map(repo)
-    prepared = prepare(flow.source, flow.steps) if flow.source is not None else Prepared()
-    segments = split_segments(flow)
-
-    touched: set[str] = set()
-    for step in flow.steps:
-        if step.enter:
-            touched.add(step.enter)
-        if isinstance(step.route, str):
-            touched.add(step.route)
-        for entry in prepared.entries.get(step.name, []):
-            if entry.kind != "shot":
-                touched.add(entry.name)
-            if entry.route and entry.route not in prepared.entries:
-                touched.add(entry.route)
-    lines: list[str] = [
-        f"流程「{flow.name}」{len(flow.steps)} 步、{len(segments)} 段",
-        f"直接点到的 pipeline 节点 {len(touched)} 个（转跳、sub_task 沿 next 连带跑的还没算）",
-        "",
-    ]
-    lines.append("每个平台开场都会跑的：")
-    lines.append("  预任务（go-service 跑，不是 pipeline 节点）：拉游戏 / 拉起云外壳")
-    lines.append(f"  {OPEN_GAME_NODE}（安卓端才跑，对应任务 {OPEN_GAME_TASK}）")
-    lines.append(f"  {ENTER_WORLD_NODE}  把游戏带回大世界")
-    lines.append(f"  {PROBE_NODE}  每次「看界面 / 点一下」都用它包一层，本身不算业务节点")
-    lines.append("")
-
-    for segment in segments:
-        lines.append(f"—— 第 {segment.index} 段 ——")
-        for index, step in segment.steps:
-            marks: list[str] = []
-            if step.once:
-                marks.append("只能做一次")
-            if not step.stop:
-                marks.append("连着下一段")
-            head = f"第 {index} 步 {step.name}"
-            if marks:
-                head += "（" + "、".join(marks) + "）"
-            lines.append(head)
-            if step.enter:
-                lines.append(f"  进界面    {step.enter}")
-            if step.route is not None:
-                lines.extend(_route_lines(step.route, prepared, next_map, indent="  "))
-            entries = prepared.entries.get(step.name, [])
-            if not entries:
-                lines.append("  这一步不调用节点，只截图")
-            lines.extend(_entry_lines(entries, prepared, next_map, indent="  "))
-            lines.append("")
-    return "\n".join(lines).rstrip() + "\n"
-
-
-def _route_lines(route: object, prepared: Prepared, next_map: dict[str, list[str]], indent: str) -> list[str]:
-    if isinstance(route, str):
-        joined = " → ".join(chain(next_map, route))
-        return [f"{indent}不在就转  {route}，会连带跑：{joined}"]
-    name = getattr(route, "__name__", "")
-    lines = [f"{indent}不在就转  {name}（流程函数，跑这些）："]
-    return lines + _entry_lines_raw(name, prepared, next_map, indent + "  ", ROUTE_DEPTH)
-
-
-def _entry_lines(entries: list[Entry], prepared: Prepared, next_map: dict[str, list[str]], indent: str) -> list[str]:
-    return _render_entries(entries, prepared, next_map, indent, ROUTE_DEPTH)
-
-
-def _entry_lines_raw(
-    function: str, prepared: Prepared, next_map: dict[str, list[str]], indent: str, depth: int
-) -> list[str]:
-    if depth <= 0 or function not in prepared.entries:
-        return [indent + "（流程函数不在这个文件里，看不到）"]
-    return _render_entries(prepared.entries[function], prepared, next_map, indent, depth - 1)
-
-
-def _render_entries(
-    entries: list[Entry], prepared: Prepared, next_map: dict[str, list[str]], indent: str, depth: int
-) -> list[str]:
-    lines: list[str] = []
-    for entry in entries:
-        if entry.kind == "shot":
-            lines.append(f"{indent}shot      {entry.name}")
-        elif entry.kind == "sub_task":
-            joined = " → ".join(chain(next_map, entry.name))
-            lines.append(f"{indent}sub_task  {entry.name}  —— 整条 next 一起跑：{joined}")
-        elif entry.kind == "goto":
-            lines.append(f"{indent}goto      先看 {entry.name} 在不在")
-            if entry.route:
-                if entry.route in prepared.entries:
-                    lines.append(f"{indent}          不在就跑 {entry.route}：")
-                    lines.extend(_entry_lines_raw(entry.route, prepared, next_map, indent + "            ", depth))
-                else:
-                    lines.append(f"{indent}          不在就转 {entry.route}")
-        else:
-            lines.append(f"{indent}{entry.kind:<9} {entry.name}  —— {KIND_TEXT[entry.kind]}")
-    return lines

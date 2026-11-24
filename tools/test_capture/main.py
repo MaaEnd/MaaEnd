@@ -37,7 +37,6 @@ import click
 from . import cancel
 from .diagram import render as render_diagram
 from .flow import FlowError, load_flow
-from .nodes import render as render_nodes
 from .output import DEFAULT_KEEP, new_run_dir, prune_runs
 from .runner import DEFAULT_WAIT, RunSettings, run_flow, split_segments
 from .runtime import ROOT, load_interface, prepare_framework
@@ -218,12 +217,6 @@ def _export(run_dir: Path, resource: str, folder: str | None) -> None:
     help="assets/interface.json 里的控制器名（Adb / Win32，含 CloudWeb 云网页版），可重复以依次跑多个平台",
 )
 @click.option(
-    "--nodes",
-    "show_nodes",
-    is_flag=True,
-    help="列一遍这次运行会碰到哪些 pipeline 节点，不连设备（跑之前对一遍清单）",
-)
-@click.option(
     "--diagram",
     "diagram_path",
     type=click.Path(dir_okay=False, path_type=Path),
@@ -295,7 +288,6 @@ def _export(run_dir: Path, resource: str, folder: str | None) -> None:
 def _command(
     flow_path: Path | None,
     controllers: tuple[str, ...],
-    show_nodes: bool,
     diagram_path: Path | None,
     resume: Path | None,
     from_run: Path | None,
@@ -316,11 +308,7 @@ def _command(
         if from_run is not None:
             _export(from_run, testset_resource, testset_dir)
             return
-        if show_nodes:
-            if flow_path is None:
-                raise click.UsageError("列节点清单要给 --flow")
-            click.echo(render_nodes(load_flow(flow_path.resolve()), ROOT))
-            return
+
         if diagram_path is not None:
             # 只画图：装流程、出 HTML，不连设备也不动游戏。
             if flow_path is None:

@@ -142,17 +142,6 @@ uv run test-capture --flow tests/DeliveryJobs/capture_flow.py --diagram 流程.h
 
 它只读流程文件，不连设备、不动游戏，随便画。
 
-### 跑之前先看会碰到哪些节点
-
-`--nodes` 把这次运行要用的 pipeline 节点列成清单，不连设备：
-
-```bash
-uv run test-capture --flow tests/DeliveryJobs/capture_flow.py --nodes
-```
-
-内容包括开场固定跑的那几个、每一步直接调用的节点（`run` / `click` / `wait` / `sub_task` / `goto`），
-转跳时沿 `next` 连带跑的那一串，以及每步截了哪些图。看清单能提前发现「这步其实点不到那个按钮」这类问题。
-
 ### 中途停下与接着跑
 
 按 `Ctrl+C` 会马上停：当前那一步的 maa 任务会被打断，不会干等它自己跑完；连按两次直接硬退。
