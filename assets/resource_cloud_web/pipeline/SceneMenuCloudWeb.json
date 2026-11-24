@@ -1,0 +1,431 @@
+{
+    "InMenuList": {
+        "desc": "CloudWeb：菜单总列表（模板检测 + 右侧 OCR 兜底）",
+        "recognition": "Or",
+        "any_of": [
+            {
+                "recognition": "And",
+                "all_of": [
+                    "CheckMenuListText",
+                    "CheckMenuListText2",
+                    "CheckMenuListExitButtonColor"
+                ]
+            },
+            {
+                "recognition": "OCR",
+                "roi": [
+                    1000,
+                    120,
+                    280,
+                    200
+                ],
+                // 完整文本：Regional Development / Operational Manual / Protocol Pass / Friends /
+                // 行动手册 / 行動手冊 / 地区建设 / 地區建設 / 地域建設 / 지역 건설。
+                // 云画面 OCR 可能只返回单词片段；片段匹配跳过自动 i18n 展开。
+                "expected": [
+                    // @i18n-skip
+                    "Regional Development",
+                    "Regional",
+                    "Development",
+                    "Operational Manual",
+                    "Operational",
+                    "Protocol Pass",
+                    "Protocol",
+                    "Friends",
+                    "行动手册",
+                    "行動手冊",
+                    "地区建设",
+                    "地區建設",
+                    "地域建設",
+                    "지역 건설"
+                ]
+            },
+            {
+                "recognition": "OCR",
+                "roi": [
+                    0,
+                    120,
+                    320,
+                    400
+                ],
+                // 完整文本：Operators / Events / Headhunt / Acquisition Center / 干员 / 活动 / 寻访。
+                // 云画面 OCR 可能只返回单词片段；片段匹配跳过自动 i18n 展开。
+                "expected": [
+                    // @i18n-skip
+                    "Operators",
+                    "Events",
+                    "Headhunt",
+                    "Acquisition",
+                    "Center",
+                    "干员",
+                    "活动",
+                    "寻访"
+                ]
+            }
+        ]
+    },
+    "__ScenePrivateWorldEnterMenuRegionalDevelopment": {
+        "desc": "CloudWeb：大世界或已打开的菜单列表都可进入地区建设（Escape 打开列表后原地识别）",
+        "recognition": "Or",
+        "any_of": [
+            "InWorld",
+            "InMenuList"
+        ]
+    },
+    "__ScenePrivateWorldEnterMenuList": {
+        "desc": "CloudWeb：用 Escape 打开菜单总列表（网页不接收 Alt+click）",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -200,
+                    0,
+                    200,
+                    200
+                ],
+                "template": [
+                    "SceneManager/WorldMenu.png"
+                ],
+                "green_mask": true,
+                "threshold": 0.65
+            }
+        },
+        "action": "ClickKey",
+        "key": 27
+    },
+    "__ScenePrivateMenuListEnterWorld": {
+        "desc": "CloudWeb：用 Escape 关闭菜单总列表；帝江号总控中枢也按 Escape 返回",
+        "recognition": "Or",
+        "any_of": [
+            "InMenuList",
+            "InDijiangControlNexus"
+        ],
+        "pre_wait_freezes": {
+            "time": 100,
+            "timeout": 1000
+        },
+        "action": "ClickKey",
+        "key": 27
+    },
+    "__ScenePrivateMenuListEnterMenuOperationalManual": {
+        "desc": "CloudWeb：菜单列表进入行动手册（相对 InMenuList 或固定右侧按钮 ROI）",
+        "recognition": "Or",
+        "any_of": [
+            {
+                "recognition": "And",
+                "all_of": [
+                    "InMenuList",
+                    {
+                        "recognition": "OCR",
+                        "roi": [
+                            -400,
+                            0,
+                            400,
+                            720
+                        ],
+                        // 完整文本：行动手册 / 行動手冊 / Operational Manual / 案内所 / 작전 매뉴얼。
+                        // 云画面 OCR 可能只返回单词片段；片段匹配跳过自动 i18n 展开。
+                        "expected": [
+                            // @i18n-skip
+                            "Operational Manual",
+                            "Operational",
+                            "Manual",
+                            "行动手册",
+                            "行動手冊",
+                            "案内所",
+                            "작전 매뉴얼"
+                        ]
+                    }
+                ],
+                "box_index": 1
+            },
+            {
+                "recognition": "OCR",
+                "roi": [
+                    980,
+                    140,
+                    300,
+                    100
+                ],
+                // 完整文本：行动手册 / 行動手冊 / Operational Manual / 案内所 / 작전 매뉴얼。
+                // 云画面 OCR 可能只返回单词片段；片段匹配跳过自动 i18n 展开。
+                "expected": [
+                    // @i18n-skip
+                    "行动手册",
+                    "行動手冊",
+                    "Operational Manual",
+                    "Operational",
+                    "Manual",
+                    "案内所",
+                    "작전 매뉴얼"
+                ]
+            }
+        ],
+        "action": "Click"
+    },
+    "__ScenePrivateMenuOperationalManualEnterUmbralMonument": {
+        "desc": "CloudWeb：行动手册进入影拓丰碑（英文标签可能分两行）",
+        "all_of": [
+            "InOperationalManual",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    160,
+                    200,
+                    960,
+                    80
+                ],
+                // 完整文本：影拓丰碑 / 影拓豐碑 / Umbral Monument / 映像の記念碑 / 그림자 이정표。
+                // 云画面 OCR 可能只返回单词片段；片段匹配跳过自动 i18n 展开。
+                "expected": [
+                    // @i18n-skip
+                    "Umbral Monument",
+                    "Umbral",
+                    "Monument",
+                    "影拓丰碑",
+                    "影拓豐碑",
+                    "映像の記念碑",
+                    "그림자 이정표"
+                ]
+            }
+        ],
+        "action": "Click"
+    },
+    "__ScenePrivateMenuListEnterMenuRegionalDevelopment": {
+        "desc": "CloudWeb：从菜单列表进入地区建设",
+        "all_of": [
+            "InMenuList",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    -400,
+                    0,
+                    400,
+                    720
+                ],
+                // 完整文本：地区建设 / 地區建設 / Regional Development / 地域建設 / 지역 건설。
+                // 云画面 OCR 可能只返回单词片段；片段匹配跳过自动 i18n 展开。
+                "expected": [
+                    // @i18n-skip
+                    "地区建设",
+                    "地區建設",
+                    "(?i)Regional\\s*Development",
+                    "地域建設",
+                    "지역 건설"
+                ]
+            }
+        ],
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "InRegionalDevelopment"
+                    ],
+                    "repeat_count": 2,
+                    "interval_ms": 3500
+                },
+                // 注意：共享的 RepeatUntilFoundAction 目前不会把 target_offset 转发给内部 Click，
+                // 这里保留偏移意图并保证 schema 合法；若要真正生效需扩展该共享 Action。
+                "target_offset": [
+                    -22,
+                    -17,
+                    0,
+                    0
+                ]
+            }
+        }
+    },
+    "__ScenePrivateMenuRegionalDevelopmentWulingEnterOverview": {
+        "desc": "CloudWeb：武陵地区建设界面点击事务总览（模板未命中时的 OCR 兜底）",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            226,
+            258,
+            136
+        ],
+        "roi_offset": [
+            0,
+            0,
+            258,
+            0
+        ],
+        // 完整文本：事务总览 / 事務總覽 / Regional Overview / 業務一覧；交给 i18n 脚本展开。
+        "expected": [
+            "事务总览",
+            "事務總覽",
+            "(?i)Regional\\s*Overview",
+            "業務一覧"
+        ]
+    },
+    "__YellowConfigmButtonType1IconStable": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "YellowButtonBackground",
+                "template": ["Common/Button/YellowConfirmButtonType1.png"],
+                "threshold": 0.85
+            }
+        }
+    },
+    "__YellowConfigmButtonType1IconHover": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "YellowButtonBackground",
+                "template": ["Common/Button/YellowConfirmButtonType1Hover.png"],
+                "threshold": 0.85
+            }
+        }
+    },
+    "__YellowConfirmButtonType2IconStable": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "YellowButtonBackground",
+                "template": ["Common/Button/YellowConfirmButtonType2.png"],
+                "threshold": 0.85
+            }
+        }
+    },
+    "__YellowConfirmButtonType2IconHover": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "YellowButtonBackground",
+                "template": ["Common/Button/YellowConfirmButtonType2Hover.png"],
+                "threshold": 0.85
+            }
+        }
+    },
+    "GrayCancelButton": {
+        "desc": "CloudWeb：灰色取消按钮改为按文字识别，云端灰底与图标模板不匹配时仍可取消",
+        "recognition": "Or",
+        "any_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    0,
+                    360,
+                    1280,
+                    360
+                ],
+                "expected": [
+                    "取消",
+                    "Cancel",
+                    "cancel"
+                ],
+                "threshold": 0.8
+            },
+            {
+                "recognition": "And",
+                "all_of": [
+                    "GrayButtonBackground",
+                    "__GrayCancelButtonIcon"
+                ],
+                "box_index": 1
+            }
+        ]
+    },
+    // 队列里紧接 IntelArchive 等全屏菜单时，好友列表会挡住地区总览链；
+    // 快速传送前先走通用入世界复位，再进事务总览。
+    // 拍照模式/画面设置可能残留到下一个终端；切换终端前先回大世界再进菜单链
+    "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal": {
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {"sub": ["SceneAnyEnterWorld"]}
+    },
+    "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal": {
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {"sub": ["SceneAnyEnterWorld"]}
+    },
+    "__QuickTeleportButton": {
+        "desc": "CloudWeb：前往传送按钮（文字 OCR，避免模板命中追踪图标）",
+        "recognition": "OCR",
+        "roi": [
+            960,
+            630,
+            180,
+            60
+        ],
+        // 完整文本：前往传送 / 前往傳送 / Quick Teleport / 転送（JP/KR 译名在语言表中不一致，保持人工维护）。
+        // 云画面 OCR 可能只返回单词片段；片段匹配跳过自动 i18n 展开。
+        "expected": [
+            // @i18n-skip
+            "前往传送",
+            "前往傳送",
+            "(?i)Quick\\s*Teleport",
+            "転送"
+        ]
+    },
+    // 云上地图切换/传送转场明显慢于本地；默认 20s 会在“其他地图跳转中”时超时
+    "__ScenePrivateMapAnyEnterMapWulingMarkerStone": {"timeout": 60000},
+    "__ScenePrivateMapOverviewEnterMapWulingMarkerStone": {"timeout": 60000},
+    "__ScenePrivateMapOverviewSwitchMapOverviewWuling": {"timeout": 60000},
+    "__ScenePrivateMapWulingMarkerStoneEnterWorldAnchorWithPick": {"timeout": 60000},
+    "__ScenePrivateMapWulingMarkerStoneEnterWorldWulingMarkerStoneCloudrestGrotto": {"timeout": 60000},
+    "__ScenePrivateMapTeleportSuccess": {"timeout": 60000},
+    "SceneMapLayerSwitchToMain": {"timeout": 60000},
+    "__ScenePrivateMapZoomOut": {"timeout": 60000},
+    // CloudWeb 地图底部的“地区总览”按钮；基座按帝江/其他区域模板进入总览，云画面不匹配
+    "__ScenePrivateMapAnyEnterMapOverview": {
+        "next": [
+            "CloudWebMapEnterOverview",
+            "__ScenePrivateMapDijiangEnterMapOverview",
+            "__ScenePrivateMapOtherAreaEnterMapOverview"
+        ]
+    },
+    "CloudWebMapEnterOverview": {
+        "recognition": "OCR",
+        "roi": [
+            1020,
+            630,
+            240,
+            70
+        ],
+        "roi_offset": [
+            0,
+            0,
+            20,
+            0
+        ],
+        // 完整文本：地区总览 / 地區總覽 / Region Overview / エリア一覧；交给 i18n 脚本展开。
+        "expected": [
+            "地区总览",
+            "地區總覽",
+            "(?i)Region\\s*Overview",
+            "エリア一覧"
+        ],
+        "action": "Click",
+        "next": ["CloudWebMapOverviewEntered"]
+    },
+    "CloudWebMapOverviewEntered": {
+        "desc": "CloudWeb：地区总览已打开（按钮消失即成功）",
+        "recognition": "OCR",
+        "roi": [
+            1020,
+            630,
+            240,
+            70
+        ],
+        "roi_offset": [
+            0,
+            0,
+            20,
+            0
+        ],
+        "expected": [
+            "地区总览",
+            "地區總覽",
+            "(?i)Region\\s*Overview",
+            "エリア一覧"
+        ],
+        "inverse": true,
+        "action": "DoNothing",
+        "next": []
+    }
+}
