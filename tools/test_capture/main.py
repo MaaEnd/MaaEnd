@@ -1,10 +1,7 @@
 """uv run test-capture 的入口：按流程文件逐屏截图。
 
-不写子命令直接跑（或加 -h）就是这份帮助，末尾列出可用的流程和控制器：
-
-    uv run test-capture
-
-跑流程（--flow 指流程文件，--controller 可以写多个，依次跑）：
+跑流程（--flow 指流程文件，--controller 可以写多个，依次跑）；只写 run 不给参数时，
+会列出有哪些流程和控制器可选：
 
     uv run test-capture run --flow tests/OutpostTrading/capture_flow.py --controller ADB
     uv run test-capture run --flow tests/OutpostTrading/capture_flow.py --controller Win32-Front --controller ADB
@@ -82,8 +79,8 @@ def _pad(text: str, width: int) -> str:
     return text + " " * (width - _display_width(text))
 
 
-def _usage_lists() -> str:
-    """帮助末尾附上「有哪些流程、哪些控制器」，省得再单独敲一次命令去查。"""
+def _flow_block() -> str:
+    """tests/ 下有哪些流程：文件、流程名、步数。"""
     flows = _find_flows()
     lines = ["可用的流程（--flow）："]
     if not flows:
@@ -96,14 +93,17 @@ def _usage_lists() -> str:
         except FlowError as error:
             about = f"加载失败：{error}"
         lines.append(f"  {_pad(_rel(path), width)}  {about}")
+    return "\n".join(lines)
 
+
+def _controller_block() -> str:
+    """interface.json 里能用的控制器，以及暂不支持的那几个。"""
     interface = load_interface()
     labels = load_jsonc(ROOT / "assets/locales/interface/zh_cn.json")
     entries = [as_dict(item) for item in as_list(interface.get("controller"))]
     supported = [entry for entry in entries if entry.get("type") in SUPPORTED_KINDS]
     unsupported = [str(entry.get("name")) for entry in entries if entry.get("type") not in SUPPORTED_KINDS]
-    lines.append("")
-    lines.append("可用的控制器（--controller，可以写多个依次跑）：")
+    lines = ["可用的控制器（--controller，可以写多个依次跑）："]
     width = max((len(str(entry.get("name"))) for entry in supported), default=0)
     for entry in supported:
         name = str(entry.get("name"))
@@ -328,11 +328,7 @@ def _errors(func: Callable[..., None]) -> Callable[..., None]:
 
 
 class _Group(click.Group):
-    """帮助末尾带上可用流程和控制器；子命令写错时列出有哪些子命令。"""
-
-    def format_epilog(self, ctx: click.Context, formatter: click.HelpFormatter) -> None:
-        formatter.write_paragraph()
-        formatter.write(_usage_lists())
+    """子命令写错时，列出有哪些子命令。"""
 
     def resolve_command(
         self, ctx: click.Context, args: list[str]
@@ -346,10 +342,7 @@ class _Group(click.Group):
 
 @click.group(cls=_Group, context_settings=HELP)
 def _command() -> None:
-    """按预先写好的步骤流程逐屏截图。
-
-    不带子命令直接跑就是这份帮助，末尾列出可用的流程和控制器。
-    """
+    """按预先写好的步骤流程逐屏截图。"""
 
 
 @_command.command("run", context_settings=HELP)
@@ -440,9 +433,13 @@ def _run_command(
 ) -> None:
     """按流程文件逐屏截图。"""
     if flow_path is None and resume is None:
-        raise click.UsageError("跑流程要给 --flow；接着跑用 --resume <运行目录>。不带子命令运行可以看有哪些流程")
+        click.echo(_flow_block())
+        click.echo("")
+        click.echo(_controller_block())
+        raise click.UsageError("跑流程要给 --flow；接着跑用 --resume <运行目录>")
     if flow_path is not None and resume is None and not controllers:
-        raise click.UsageError("跑流程要给 --controller。不带子命令运行可以看有哪些控制器")
+        click.echo(_controller_block())
+        raise click.UsageError("跑流程要给 --controller")
     _refresh_node_names(always_report=False)
     _run(
         flow_path,
