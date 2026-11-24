@@ -52,6 +52,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/restaurant"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/scenemanager"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/seizedeliveryjobs"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/stashbackpack"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/taskersink/aspectratio"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/taskersink/cursormove"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/taskersink/hdrcheck"
@@ -65,6 +66,7 @@ import (
 )
 
 func registerAll() {
+	stashbackpack.Register()
 	// Resource Sink
 	resource.EnsureResourcePathSink()
 

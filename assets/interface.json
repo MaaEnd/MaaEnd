@@ -30,6 +30,9 @@
             "description": "$controller.Win32-Front.description",
             "type": "Win32",
             "permission_required": true,
+            "attach_resource_path": [
+                "./resource_win32"
+            ],
             "win32": {
                 "class_regex": "UnityWndClass",
                 "window_regex": "Endfield",

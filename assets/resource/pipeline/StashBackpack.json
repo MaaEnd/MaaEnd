@@ -161,9 +161,7 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "StashBackpackUsableItemsLimitedDrag": {
-        "desc": "按住 Shift 准备快速移动物品",
-        "max_hit": 10, //防止重复拖动物品导致卡住
+    "StashBackpackUsableItemsLimitedTarget": {
         "recognition": "And",
         "all_of": [
             {
@@ -194,7 +192,16 @@
                 "only_rec": true
             }
         ],
-        "box_index": 1,
+        "box_index": 1
+    },
+    "StashBackpackUsableItemsLimitedDrag": {
+        "desc": "按住 Shift 准备快速移动物品",
+        "max_hit": 10, //防止重复拖动物品导致卡住
+        "recognition": "And",
+        "all_of": [
+            "StashBackpackUsableItemsLimitedTarget"
+        ],
+        "box_index": 0,
         "pre_delay": 0,
         "action": {
             "type": "KeyDown",

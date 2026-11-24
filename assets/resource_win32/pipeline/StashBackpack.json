@@ -1,0 +1,28 @@
+{
+    "StashBackpackUsableItemsLimited": {
+        "custom_action_param": {
+            "sub": [
+                "StashBackpackSortBeforeQuickMove"
+            ]
+        },
+        "next": [
+            "[JumpBack]StashBackpackUsableItemsLimitedDrag",
+            "StashBackpackSort"
+        ]
+    },
+    "StashBackpackSortBeforeQuickMove": {
+        "recognition": "And",
+        "all_of": [
+            "StashBackpackSort"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 3000,
+        "rate_limit": 0
+    },
+    "StashBackpackUsableItemsLimitedDrag": {
+        "max_hit": 4294967295,
+        "recognition": "Custom",
+        "custom_recognition": "StashBackpackNextItem"
+    }
+}

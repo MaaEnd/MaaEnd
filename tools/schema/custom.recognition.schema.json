@@ -54,6 +54,7 @@
                 "ScrollbarRecognition",
                 "SeizeDeliveryJobsFindTargetRecognition",
                 "SeizeDeliveryJobsScanTargetRecognition",
+                "StashBackpackNextItem",
                 "TextInputExhaustedRecognition",
                 "TrialOfSwordmancy.RecognizeBoard",
                 "TrialOfSwordmancy.RecognizeDeck",
