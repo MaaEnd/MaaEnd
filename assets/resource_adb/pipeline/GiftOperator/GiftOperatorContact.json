@@ -102,5 +102,17 @@
                 "duration": 50
             }
         }
+    },
+    "GiftOperatorCheckSelectedLabelColor": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    38,
+                    -110,
+                    15,
+                    13
+                ]
+            }
+        }
     }
 }
