@@ -809,13 +809,13 @@ void append_departure(
     }
 }
 
-// walking_path 非空时滑索只在严格更省时顶替走路, 为空时用来桥接步行不连通的两侧
-bool try_append_zipline_leg(
+// baseline_cost 有值时滑索只在严格更省时顶替走路, 为空时用来桥接步行不连通的两侧
+std::optional<double> try_append_zipline_leg(
     ExpansionContext* ctx,
     LegState* state,
     std::vector<Waypoint>* out_path,
     const ProjectedTarget& target,
-    const navmesh::WorldPath* walking_path)
+    std::optional<double> baseline_cost)
 {
     auto route = PlanZiplineRoute(
         ctx->zipline_outcome,
@@ -825,7 +825,7 @@ bool try_append_zipline_leg(
             .navmesh_zone = state->navmesh_zone,
             .start = state->route_start,
             .goal = target.point,
-            .walking_path = walking_path,
+            .baseline_cost = baseline_cost,
             .goal_floor_y = target.floor_y,
             .goal_deck_y = target.deck_y,
             .start_floor_y = state->route_start_floor_y,
@@ -837,7 +837,7 @@ bool try_append_zipline_leg(
             .no_go = ctx->no_go,
         });
     if (!route || route->approach.points.empty() || route->departure.points.empty() || route->towers.size() < 2) {
-        return false;
+        return std::nullopt;
     }
 
     const size_t insert_index = out_path->size();
@@ -856,12 +856,12 @@ bool try_append_zipline_leg(
             std::make_move_iterator(route->diagnostics.begin()),
             std::make_move_iterator(route->diagnostics.end()));
     }
-    const bool walking_baseline_available = walking_path != nullptr;
+    const bool walking_baseline_available = baseline_cost.has_value();
     LogInfo << "Expanded NAVMESH waypoint via zipline." << VAR(state->navmesh_zone) << VAR(state->current_zone)
             << VAR(walking_baseline_available) << VAR(route->cost) << VAR(insert_index) << VAR(out_path->size() - insert_index)
             << VAR(route->towers.size()) << VAR(mount_spot.x) << VAR(mount_spot.y) << VAR(route->mount_spots.size())
             << VAR(route->towers.back().x) << VAR(route->towers.back().y);
-    return true;
+    return route->cost;
 }
 
 struct NavmeshLegPlan
@@ -920,7 +920,7 @@ bool handle_unreachable_leg(
         return false;
     }
     // 滑索能桥接步行不连通的两侧, 优先于盲走和作者提示回退
-    if (try_append_zipline_leg(ctx, state, out_path, leg.target, nullptr)) {
+    if (try_append_zipline_leg(ctx, state, out_path, leg.target, std::nullopt)) {
         return true;
     }
     if (cancel_if_stopped(ctx, *state)) {
@@ -1088,16 +1088,17 @@ std::optional<size_t> last_positioned_index(const std::vector<Waypoint>& path, s
     return std::nullopt;
 }
 
-navmesh::WorldPath baseline_walk_path(const navmesh::WorldPoint& start, const std::vector<Waypoint>& out_path, size_t output_begin)
+double baseline_walk_length(const navmesh::WorldPoint& start, const std::vector<Waypoint>& out_path, size_t output_begin)
 {
-    navmesh::WorldPath walk;
-    walk.points.push_back(start);
+    double length = 0.0;
+    navmesh::WorldPoint from = start;
     for (size_t index = output_begin; index < out_path.size(); ++index) {
         if (out_path[index].has_position) {
-            walk.points.push_back({ .x = out_path[index].x, .y = out_path[index].y });
+            length += std::hypot(out_path[index].x - from.x, out_path[index].y - from.y);
+            from = { .x = out_path[index].x, .y = out_path[index].y };
         }
     }
-    return walk;
+    return length;
 }
 
 // 整段都没经过规划时为空
@@ -1122,26 +1123,68 @@ bool rides_zipline(const std::vector<Waypoint>& out_path, size_t output_begin)
     });
 }
 
+std::vector<size_t> jump_pad_piece_bounds(const std::vector<Waypoint>& path, size_t begin, size_t end)
+{
+    std::vector<size_t> bounds { begin };
+    for (size_t index = begin; index + 1 < end; ++index) {
+        if (path[index].action == ActionType::JUMP_PAD) {
+            bounds.push_back(index + 1);
+        }
+    }
+    bounds.push_back(end);
+    return bounds;
+}
+
+std::optional<double>
+    append_replaceable_span(ExpansionContext* ctx, LegState* state, std::vector<Waypoint>* out_path, size_t begin, size_t end);
+
+std::optional<double>
+    append_split_baseline(ExpansionContext* ctx, LegState* state, std::vector<Waypoint>* out_path, const std::vector<size_t>& bounds)
+{
+    double cost = 0.0;
+    for (size_t piece = 0; piece + 1 < bounds.size(); ++piece) {
+        const std::optional<double> piece_cost = append_replaceable_span(ctx, state, out_path, bounds[piece], bounds[piece + 1]);
+        if (!piece_cost) {
+            return std::nullopt;
+        }
+        cost += *piece_cost;
+    }
+    return cost;
+}
+
 // 先照作者路线展开当基线, 滑索比基线省够了才把这段走路整段换掉, 段尾的动作照常保留
-bool append_replaceable_span(ExpansionContext* ctx, LegState* state, std::vector<Waypoint>* out_path, size_t begin, size_t end)
+std::optional<double>
+    append_replaceable_span(ExpansionContext* ctx, LegState* state, std::vector<Waypoint>* out_path, size_t begin, size_t end)
 {
     const std::vector<Waypoint>& path = ctx->param->path;
     const LegState span_start = *state;
     const size_t output_begin = out_path->size();
     const size_t diagnostics_begin = ctx->diagnostics == nullptr ? 0 : ctx->diagnostics->size();
-    for (size_t index = begin; index < end; ++index) {
-        if (cancel_if_stopped(ctx, *state)) {
-            return false;
+    const std::vector<size_t> bounds = jump_pad_piece_bounds(path, begin, end);
+    const bool split_at_jump_pads = bounds.size() > 2;
+    std::optional<double> baseline_cost;
+    if (split_at_jump_pads) {
+        baseline_cost = append_split_baseline(ctx, state, out_path, bounds);
+    }
+    else {
+        for (size_t index = begin; index < end; ++index) {
+            if (cancel_if_stopped(ctx, *state)) {
+                return std::nullopt;
+            }
+            if (!append_stamped_authored_waypoint(ctx, state, out_path, index)) {
+                return std::nullopt;
+            }
         }
-        if (!append_stamped_authored_waypoint(ctx, state, out_path, index)) {
-            return false;
-        }
+        baseline_cost = baseline_walk_length(span_start.route_start, *out_path, output_begin);
+    }
+    if (!baseline_cost) {
+        return std::nullopt;
     }
 
     const std::optional<size_t> target_index = last_positioned_index(path, begin, end);
     // 基线里已有的滑索是步行不通时的桥, 不再拿别的滑索去比
-    if (!target_index || rides_zipline(*out_path, output_begin)) {
-        return true;
+    if (!target_index || (!split_at_jump_pads && rides_zipline(*out_path, output_begin))) {
+        return baseline_cost;
     }
 
     // 叠层处按基线到达的那层落地, 只是偏好, 那层到不了时照常落最近的面
@@ -1151,12 +1194,12 @@ bool append_replaceable_span(ExpansionContext* ctx, LegState* state, std::vector
             target.floor_y = static_cast<float>(*height);
         }
     }
-    const navmesh::WorldPath baseline = baseline_walk_path(span_start.route_start, *out_path, output_begin);
     const size_t diagnostics_end = ctx->diagnostics == nullptr ? 0 : ctx->diagnostics->size();
     LegState shortcut_state = span_start;
     std::vector<Waypoint> shortcut;
-    if (!try_append_zipline_leg(ctx, &shortcut_state, &shortcut, target, &baseline)) {
-        return true;
+    const std::optional<double> zipline_cost = try_append_zipline_leg(ctx, &shortcut_state, &shortcut, target, baseline_cost);
+    if (!zipline_cost) {
+        return baseline_cost;
     }
 
     out_path->resize(output_begin);
@@ -1176,10 +1219,10 @@ bool append_replaceable_span(ExpansionContext* ctx, LegState* state, std::vector
             continue;
         }
         if (!append_stamped_authored_waypoint(ctx, state, out_path, index)) {
-            return false;
+            return std::nullopt;
         }
     }
-    return true;
+    return zipline_cost;
 }
 
 void append_zone_declaration(LegState* state, std::vector<Waypoint>* out_path, const Waypoint& waypoint)

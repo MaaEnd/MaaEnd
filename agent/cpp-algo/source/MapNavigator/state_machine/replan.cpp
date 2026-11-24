@@ -175,6 +175,60 @@ std::optional<size_t> find_authored_slice_begin(const Navigator* nav, const std:
     return slice_begin;
 }
 
+bool shares_region(const std::vector<uint32_t>& a, const std::vector<uint32_t>& b)
+{
+    return std::ranges::find_first_of(a, b) != a.end();
+}
+
+std::optional<navmesh::WorldPoint> authored_point_on_base(const NaviParam& param, const Waypoint& waypoint)
+{
+    if (waypoint.target_tier.empty()) {
+        return navmesh::WorldPoint { .x = waypoint.x, .y = waypoint.y };
+    }
+    return ProjectToMapBase(param, waypoint.target_tier, waypoint.x, waypoint.y);
+}
+
+size_t skip_crossed_jump_pads(const Navigator* nav, const std::vector<Waypoint>& authored, size_t slice_begin, const char* reason)
+{
+    std::vector<size_t> side_begins { slice_begin };
+    std::vector<navmesh::WorldPoint> probes { navmesh::WorldPoint { .x = nav->position->x, .y = nav->position->y } };
+    bool side_probed = false;
+    for (size_t index = slice_begin; index < authored.size() && !IsZoneDeclaration(authored[index]); ++index) {
+        const Waypoint& waypoint = authored[index];
+        if (waypoint.has_position && !side_probed) {
+            const std::optional<navmesh::WorldPoint> probe = authored_point_on_base(*nav->param, waypoint);
+            if (!probe || ZonesDiffer(waypoint.zone_id, nav->position->zone_id)) {
+                return slice_begin;
+            }
+            probes.push_back(*probe);
+            side_probed = true;
+        }
+        if (waypoint.action == ActionType::JUMP_PAD) {
+            side_begins.push_back(index + 1);
+            side_probed = false;
+        }
+        else if (EndsReplaceableSpan(waypoint)) {
+            break;
+        }
+    }
+    if (probes.size() < 3) {
+        return slice_begin;
+    }
+
+    const std::vector<std::vector<uint32_t>> regions = NavmeshRegionsNear(*nav->param, nav->position->zone_id, probes);
+    if (regions[0].empty() || regions[1].empty() || shares_region(regions[0], regions[1])) {
+        return slice_begin;
+    }
+    for (size_t side = 1; side + 1 < probes.size(); ++side) {
+        if (shares_region(regions[0], regions[side + 1])) {
+            LogInfo << "Authored route replan resumes after a jump pad already crossed." << VAR(reason) << VAR(slice_begin)
+                    << VAR_AS(resume_begin, side_begins[side]);
+            return side_begins[side];
+        }
+    }
+    return slice_begin;
+}
+
 NaviParam make_replan_param(const Navigator* nav, const std::vector<Waypoint>& authored, size_t slice_begin)
 {
     NaviParam replan_param = *nav->param;
@@ -204,7 +258,7 @@ bool try_replan_remaining_authored_route(Navigator* nav, const char* reason)
     if (!found_slice_begin) {
         return false;
     }
-    const size_t slice_begin = *found_slice_begin;
+    const size_t slice_begin = skip_crossed_jump_pads(nav, authored, *found_slice_begin, reason);
 
     const NaviParam replan_param = make_replan_param(nav, authored, slice_begin);
     std::vector<Waypoint> replanned;

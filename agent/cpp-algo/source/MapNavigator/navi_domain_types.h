@@ -160,7 +160,7 @@ bool IsTriggerPoint(const Waypoint& waypoint);
 
 bool IsMovementPoint(const Waypoint& waypoint);
 
-// 滑索只顶替两个边界之间的走路, 动作点和 required 点都是边界
+// 滑索只顶替两个边界之间的走路, 跳板以外的动作点和 required 点都是边界
 bool EndsReplaceableSpan(const Waypoint& waypoint);
 
 bool IsZoneDeclaration(const Waypoint& waypoint);

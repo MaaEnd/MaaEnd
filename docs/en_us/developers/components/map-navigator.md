@@ -360,10 +360,12 @@ A zipline is a local replacement on the author route. During expansion the route
 The following nodes are segment boundaries; ziplines never cross them, and their actions are executed as usual:
 
 - `ZONE`: declares the area context;
-- every action point other than `RUN` and `NAVMESH`, such as `INTERACT`, `JUMP_PAD`, `PORTAL`, `COLLECT`, `DIG`, `FIND`, `TRIGGER`, and `HEADING`;
+- every action point other than `RUN`, `NAVMESH`, and `JUMP_PAD`, such as `INTERACT`, `PORTAL`, `COLLECT`, `DIG`, `FIND`, `TRIGGER`, and `HEADING`;
 - a `RUN` or `NAVMESH` point with `"required": true`.
 
-Only the `RUN` and `NAVMESH` points between two boundaries can be replaced by a zipline. When the route must pass a particular `RUN` or `NAVMESH` point, add `"required": true`. The array form has no slot for this field, so required points must use the object form:
+When a segment contains a `JUMP_PAD`, it is first split at the pads into pieces; each piece is compared against ziplines by the rules above, and the pieces together form the baseline of the whole segment. A zipline chain that crosses the pads over the whole segment then replaces it only when it costs at least `min_gain` less than this baseline, and the pad is then skipped. When a zipline hop fails and the route is re-expanded, it starts after the pad if the player has already landed on the far side (not walkable to the point before the pad), and from the start of the segment if the player is still on the near side.
+
+Only the `RUN`, `NAVMESH`, and `JUMP_PAD` points between two boundaries can be replaced by a zipline. When the route must pass a particular `RUN` or `NAVMESH` point, add `"required": true`. The array form has no slot for this field, so required points must use the object form:
 
 ```json
 {
@@ -543,7 +545,7 @@ Paste the `path` exported by the recording tool into it and you have a complete 
 
 > [!WARNING]
 >
-> Adjacent path points should be reachable from one another in one continuous walk. The navigator cannot pass through models or understand business mechanisms; jump pads use `JUMP_PAD`, and segments such as map transitions, falls, and ascent mechanisms can be split into `PORTAL` / `TRANSFER` / business nodes as an author-path fallback. Action points are always executed; only `RUN` / `NAVMESH` points that must be passed need `required`.
+> Adjacent path points should be reachable from one another in one continuous walk. The navigator cannot pass through models or understand business mechanisms; jump pads use `JUMP_PAD`, and segments such as map transitions, falls, and ascent mechanisms can be split into `PORTAL` / `TRANSFER` / business nodes as an author-path fallback. Action points are always executed, except a `JUMP_PAD` that a zipline crosses over the whole segment; only `RUN` / `NAVMESH` points that must be passed need `required`.
 
 ---
 
@@ -1061,6 +1063,8 @@ There are two kinds of jump pads: ones that launch the character as soon as it s
 3. Still on the pad once within range, it jumps. If the character is still on the pad 1.2 seconds after the jump, that jump did not launch: the range tightens to 0.25, it steps again and jumps again;
 4. Moving more than 3 from the center counts as launched; two consecutive unchanged fixes after that count as landed, and the route continues with the following points from the landing spot. The landing spot is set by the pad and does not depend on the facing at the jump.
 
+When ziplines are considered, the pad is skipped if a zipline chain crossing it over the whole segment is cheaper; see [Execution Order and `required`](#execution-order-and-required).
+
 ### Writing Tips
 
 - `target` must be the pad center. A pad that needs a jump only reacts within about 0.8 of its center; off-center, the jump is just a regular jump in place.
@@ -1091,5 +1095,5 @@ There are two kinds of jump pads: ones that launch the character as soon as it s
 1. **Prefer `NAVMESH`; record only when semantics are needed.** For plain-movement routes, place the points by hand in the path editor, confirm them with planning, and copy; adjust a target the preview cannot reach on the spot instead of waiting for it to fail at runtime. Only routes with semantics such as interactions and map transitions need recording.
 2. **Record rather than hand-write.** Walking through once in reality is usually more accurate than filling coordinates by feeling; if the precision of the recorded points is insufficient, move more slowly.
 3. **Keep the starting state stable.** Before recording, tidy up the character's position and viewpoint, which significantly reduces later point correction.
-4. **Keep special action points few and precise.** Add `INTERACT`, `JUMP_PAD`, `TRANSFER`, and `PORTAL` only where an interaction, a jump pad, or an area switch is needed. Action points are always executed; only `RUN` / `NAVMESH` points that must be passed need `required`.
+4. **Keep special action points few and precise.** Add `INTERACT`, `JUMP_PAD`, `TRANSFER`, and `PORTAL` only where an interaction, a jump pad, or an area switch is needed. Action points are always executed, except a `JUMP_PAD` that a zipline crosses over the whole segment; only `RUN` / `NAVMESH` points that must be passed need `required`.
 5. **Always check map transition points on cross-area routes.** Automatic addition of `PORTAL` is only a semantic annotation and does not mean every cross-area boundary is inherently reasonable.

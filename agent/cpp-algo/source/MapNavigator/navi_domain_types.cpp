@@ -175,7 +175,7 @@ bool IsMovementPoint(const Waypoint& waypoint)
 
 bool EndsReplaceableSpan(const Waypoint& waypoint)
 {
-    return waypoint.route_required || !IsMovementPoint(waypoint);
+    return waypoint.route_required || (!IsMovementPoint(waypoint) && waypoint.action != ActionType::JUMP_PAD);
 }
 
 bool IsZoneDeclaration(const Waypoint& waypoint)

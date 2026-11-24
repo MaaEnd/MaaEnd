@@ -1260,7 +1260,7 @@ std::optional<ZiplineRoute> PlanZiplineRoute(ZiplineOutcome* outcome, const Navi
         return std::nullopt;
     }
 
-    const bool walking_baseline_available = request.walking_path != nullptr && !request.walking_path->points.empty();
+    const bool walking_baseline_available = request.baseline_cost.has_value();
 
     const std::shared_ptr<const ZiplineData> data = shared_data();
     if (!data->ok || data->frames.empty()) {
@@ -1274,7 +1274,7 @@ std::optional<ZiplineRoute> PlanZiplineRoute(ZiplineOutcome* outcome, const Navi
 
     // 每段路都会来问一次, 短路先挡掉, 缺账号和缺坐标只在值得坐滑索的路上才算数
     const zipline::ZiplineCostModel& cost = data->frames.cost();
-    const double baseline_length = walking_baseline_available ? polyline_length(*request.walking_path) : 0.0;
+    const double baseline_length = request.baseline_cost.value_or(0.0);
     const double gain_threshold = walking_baseline_available ? baseline_length - cost.min_gain : std::numeric_limits<double>::infinity();
     if (walking_baseline_available && gain_threshold <= cost.mount_penalty) {
         return no_zipline(
