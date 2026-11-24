@@ -142,15 +142,15 @@ Example file: [`CharacterController.json`](../../../assets/resource/pipeline/Int
 
 ### CameraScanAction
 
-`CameraScanAction` lives in `agent/go-service/common/camerascan`. It moves the camera in discrete steps while recognizing targets in photo mode. The action scans the forward area in a center-out nine-grid spiral; if nothing hits, it resets the camera and performs discrete yaw rings at middle, upper, and lower pitch levels. It recognizes once before and once after each scan step (a step may move the camera several times, with no recognition in between), except the reset step; it succeeds when any target hits, and fails after the complete scan misses.
+`CameraScanAction` lives in `agent/go-service/common/camerascan`. It moves the camera in discrete steps while recognizing targets in photo mode. The action scans the forward area in a center-out 5 × 5 spiral, where adjacent positions differ by one direction-node step (half a cell, about 22.5°); if nothing hits, it swings back to the center and performs yaw rings at middle, upper, and lower pitch levels (8 turns per ring, 2 steps each, about one full turn). It recognizes once after moving to each position (a step may move the camera several times, with no recognition in between), and not at all on the reset step; it succeeds when any target hits, and fails after the complete scan misses.
 
-- `wait_nodes: string[]`: Pipeline recognition nodes checked before and after each scan step. Required; any hit succeeds. The reset step is not checked.
+- `wait_nodes: string[]`: Pipeline recognition nodes checked after moving to each camera position. Required; any hit succeeds. The reset step is not checked.
 - `aim_target?: bool`: Whether to swipe from the screen center to the hit recognition result's `Box` center before returning. Defaults to `false`.
 - `move_up?: string`: Node for one upward camera step. Defaults to `__CameraScanMoveUp`.
 - `move_down?: string`: Node for one downward camera step. Defaults to `__CameraScanMoveDown`.
 - `move_left?: string`: Node for one leftward camera step. Defaults to `__CameraScanMoveLeft`.
 - `move_right?: string`: Node for one rightward camera step. Defaults to `__CameraScanMoveRight`.
-- `fallback_yaw_steps?: int`: Discrete yaw movements in each fallback ring. Defaults to `8`; range `[4, 72]`.
+- `fallback_yaw_steps?: int`: Discrete yaw movements in each fallback ring. Defaults to `8` (2 direction-node steps each, so 8 makes about one full turn); range `[4, 72]`.
 
 Camera movement runs through `ctx.RunTask` on the corresponding direction nodes (defaults in `Common/Private/CameraScan/Action.json`). Configure `post_wait_freezes` on caller-provided direction nodes when the screen must settle after each move. Aiming still uses the private node `__CameraScanAimSwipe`.
 
