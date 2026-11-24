@@ -56,6 +56,13 @@ class Capture(Protocol):
         """读 roi 里的数字，只留数字字符；读不出来当 0。"""
         ...
 
+    def shot_when(self, node: str, name: str, *, settle: float | None = ...) -> None:
+        """等这个节点命中，再截当前画面存成 name。
+
+        绝大多数图都是「某个界面出来了才拍」，写成一行比 wait 加 shot 短。
+        """
+        ...
+
     def shot(self, name: str, *, settle: float | None = ...) -> None:
         """截当前画面存进输出目录，文件名带 name；截之前先等画面稳定。
 

@@ -11,7 +11,16 @@ from .flow import Flow, RouteFunc, Step
 from .nodes import Entry, Prepared, Run, chain, load_next_map, plan, prepare
 from .runner import Segment, split_segments
 
-KIND_LABEL = {"run": "跑", "click": "点", "wait": "等", "hit": "看", "sub_task": "整串", "goto": "转", "shot": "截图"}
+KIND_LABEL = {
+    "run": "跑",
+    "click": "点",
+    "wait": "等",
+    "hit": "看",
+    "sub_task": "整串",
+    "goto": "转",
+    "shot": "截图",
+    "shot_when": "等+截图",
+}
 
 KIND_TEXT = {
     "run": "只跑它自己，next 已清空",
@@ -26,30 +35,29 @@ PALETTE = ["#2f6feb", "#1f9d55", "#b7791f", "#9333ea", "#0e7490", "#c2410c", "#4
 
 @dataclass
 class Card:
-    """一步要展示的东西。"""
+    """一步要展示的东西：按代码顺序排好的动作和截图，注释挂在对应那行。"""
 
     index: int
     step: Step
-    calls: list[str]
-    chains: dict[str, list[str]]
+    rows: list[str]
     shots: list[str]
-    comments: list[str]
+    loose_comments: list[str]
 
 
-def read_comments(source: Path, name: str) -> list[str]:
+def read_comments(source: Path, name: str) -> dict[int, str]:
+    """读这一步的注释，返回「行号 → 注释」。"""
     text = source.read_text(encoding="utf-8")
     tree = ast.parse(text, filename=str(source))
     for node in tree.body:
         if isinstance(node, ast.FunctionDef) and node.name == name and node.end_lineno is not None:
-            lines = text.splitlines()[node.lineno - 1 : node.end_lineno]
-            found: list[str] = []
-            for line in lines:
+            found: dict[int, str] = {}
+            for offset, line in enumerate(text.splitlines()[node.lineno - 1 : node.end_lineno]):
                 if "#" in line:
                     comment = line.split("#", 1)[1].strip()
                     if comment:
-                        found.append(comment)
+                        found[node.lineno + offset] = comment
             return found
-    return []
+    return {}
 
 
 def route_text(route: str | RouteFunc | None) -> str:
@@ -60,18 +68,26 @@ def route_text(route: str | RouteFunc | None) -> str:
     return getattr(route, "__name__", "流程函数") + "（自己一步步点过去）"
 
 
-def call_lines(entry: Entry, chains: dict[str, list[str]]) -> str:
+def row_html(order: int, entry: Entry, chains: dict[str, list[str]], comment: str = "") -> str:
+    """一行：第几步、干了什么、顺带说明，注释挂在下面。"""
     label = KIND_LABEL.get(entry.kind, entry.kind)
-    extra = ""
-    if entry.kind == "goto" and entry.route:
-        extra = f'<span class="note">不在就跑 {escape(entry.route)}</span>'
-    elif entry.name in chains:
-        extra = f'<span class="note">连带跑 {escape(" → ".join(chains[entry.name]))}</span>'
-    text = KIND_TEXT.get(entry.kind, "")
-    note = f'<span class="note">{escape(text)}</span>' if text else ""
-    return (
-        f'<li><span class="kind {entry.kind}">{escape(label)}</span><code>{escape(entry.name)}</code>{note}{extra}</li>'
-    )
+    parts = [f'<span class="kind {entry.kind}">{escape(label)}</span>', f"<code>{escape(entry.name)}</code>"]
+    if entry.kind == "shot":
+        parts.append('<span class="note">这时候截一张</span>')
+    elif entry.kind == "shot_when":
+        parts.append(f'<span class="note">等它命中再截，存成 {escape(entry.shot)}</span>')
+    else:
+        text = KIND_TEXT.get(entry.kind, "")
+        if text:
+            parts.append(f'<span class="note">{escape(text)}</span>')
+        if entry.kind == "goto" and entry.route:
+            parts.append(f'<span class="note">不在就跑 {escape(entry.route)}</span>')
+        elif entry.name in chains:
+            parts.append(f'<span class="note">连带跑 {escape(" → ".join(chains[entry.name]))}</span>')
+    body = f'<li><span class="seq">{order}</span><div class="row">{"".join(parts)}</div>'
+    if comment:
+        body += f'<div class="cline">{escape(comment)}</div>'
+    return body + "</li>"
 
 
 def build_cards(flow: Flow, next_map: dict[str, list[str]], prepared: Prepared) -> dict[str, Card]:
@@ -87,16 +103,22 @@ def build_cards(flow: Flow, next_map: dict[str, list[str]], prepared: Prepared) 
                 chains[entry.name] = chain(next_map, entry.name)
             if entry.route and entry.route not in prepared.entries:
                 chains[entry.route] = chain(next_map, entry.route)
-        calls = [call_lines(entry, chains) for entry in entries if entry.kind != "shot"]
-        if not calls:
-            calls = ['<li class="none">这一步不调用 pipeline 节点，只截图</li>']
+        step_comments = comments.get(step.name, {})
+        rows: list[str] = []
+        used: set[int] = set()
+        for order, entry in enumerate(entries, start=1):
+            comment = step_comments.get(entry.line, "")
+            if comment:
+                used.add(entry.line)
+            rows.append(row_html(order, entry, chains, comment))
+        if not rows:
+            rows = ['<li class="none">这一步什么也没做</li>']
         cards[step.name] = Card(
             index=index,
             step=step,
-            calls=calls,
-            chains=chains,
-            shots=[entry.name for entry in entries if entry.kind == "shot"],
-            comments=comments.get(step.name, []),
+            rows=rows,
+            shots=[entry.shot or entry.name for entry in entries if entry.kind in ("shot", "shot_when")],
+            loose_comments=[text for line, text in sorted(step_comments.items()) if line not in used],
         )
     return cards
 
@@ -108,19 +130,19 @@ def card_html(card: Card) -> str:
         badges.append('<span class="badge once">只能做一次</span>')
     if not step.stop:
         badges.append('<span class="badge join">和下一段连着</span>')
-    shots = "".join(f"<li>{escape(name)}</li>" for name in card.shots) or '<li class="none">不截图</li>'
+    shots_hint = f"截 {len(card.shots)} 张图" if card.shots else "不截图"
     comments = ""
-    if card.comments:
-        items = "".join(f"<li>{escape(text)}</li>" for text in card.comments)
+    if card.loose_comments:
+        items = "".join(f"<li>{escape(text)}</li>" for text in card.loose_comments)
         comments = f'<ul class="comments">{items}</ul>'
     enter = escape(step.enter) if step.enter else "<i>没写，不检查界面</i>"
     return (
         f'<li class="step" data-once="{1 if step.once else 0}">'
         f'<div class="no">{card.index}</div><div class="body">'
-        f"<h3>{escape(step.name)} {''.join(badges)}</h3>"
+        f"<h3>{escape(step.name)} {''.join(badges)}<span class='shots-hint'>{shots_hint}</span></h3>"
         f'<p class="nodes"><b>进这个界面</b> {enter}<br><b>不在就过去</b> {escape(route_text(step.route))}</p>'
-        f'<ul class="calls">{"".join(card.calls)}</ul>'
-        f'<p class="label">截图</p><ul class="shots">{shots}</ul>{comments}'
+        f'<p class="label">按这个顺序做，截图就夹在中间</p><ul class="calls">{"".join(card.rows)}</ul>'
+        f"{comments}"
         "</div></li>"
     )
 
@@ -273,13 +295,19 @@ h1 { margin: 0 0 4px; font-size: 22px; }
 .nodes { margin: 0 0 8px; font-size: 12px; color: #4b5563; }
 .nodes b { color: #1c1f23; font-weight: 600; }
 .calls { list-style: none; margin: 0 0 10px; padding: 0; font-size: 12px; }
-.calls li { padding: 2px 0; display: flex; flex-wrap: wrap; gap: 6px; align-items: baseline; }
+.calls li { padding: 3px 0; display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline; }
+.calls .seq { flex: 0 0 16px; text-align: right; font-size: 11px; color: #a3aab2; }
+.calls .row { flex: 1; min-width: 0; display: flex; flex-wrap: wrap; gap: 6px; align-items: baseline; }
+.calls .cline { flex-basis: 100%; margin-left: 24px; color: #6b7280; }
 .calls code { font-size: 12px; background: #f2f4f7; border-radius: 4px; padding: 0 5px; }
+.shots-hint { float: right; font-size: 11px; font-weight: normal; color: #7c848d; }
 .kind { font-size: 11px; padding: 0 6px; border-radius: 4px; background: #eef1f4; color: #33415c; }
 .kind.run { background: #e6f4ea; color: #17693a; }
 .kind.click { background: #e8f1fd; color: #1f4e8c; }
 .kind.wait { background: #fdf1e0; color: #8a5a12; }
 .kind.sub_task, .kind.goto { background: #f3e8fd; color: #6b3fa0; }
+.kind.shot { background: #fdf2f8; color: #9d174d; }
+.kind.shot_when { background: #fdeef7; color: #9d174d; }
 .note { color: #7c848d; }
 .label { margin: 0 0 4px; font-size: 11px; color: #7c848d; }
 .shots { margin: 0 0 8px; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 6px; }
@@ -297,6 +325,7 @@ h1 { margin: 0 0 4px; font-size: 22px; }
   .meta, .order-line, .who, .nodes, .comments, .note, .hint, .label, .off, .pass-head { color: #9aa1a9; }
   .no, .badge, .kind { background: #262b31; color: #c9d1d9; }
   .calls code, .shots li { background: #22272c; border-color: #2a2f35; }
+  .calls .seq, .calls .cline, .shots-hint { color: #8d949c; }
   .step { border-color: #2a2f35; }
 }
 </style>

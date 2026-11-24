@@ -13,7 +13,7 @@ from .flow import FlowError
 from .types import Resource
 
 # 这些 Capture 方法的前几个参数是节点名；其余方法收截图名、坐标、文字，不在这里核对。
-NODE_ARG_METHODS = {"hit": 1, "text": 1, "wait": 1, "click": 1, "run": 1, "sub_task": 1, "goto": 2}
+NODE_ARG_METHODS = {"hit": 1, "text": 1, "wait": 1, "click": 1, "run": 1, "sub_task": 1, "shot_when": 1, "goto": 2}
 
 # 步骤声明里的关键字，值也是节点名。
 STEP_KEYWORDS = frozenset({"enter", "route"})

@@ -62,6 +62,7 @@ class Entry:
     name: str
     line: int
     route: str = ""
+    shot: str = ""
 
 
 @dataclass
@@ -94,6 +95,13 @@ def _entries_of(function: ast.FunctionDef) -> list[Entry]:
             continue
         if method == "shot":
             entries.append(Entry("shot", first.value, first.lineno))
+        elif method == "shot_when":
+            shot = ""
+            if len(call.args) > 1:
+                second = call.args[1]
+                if isinstance(second, ast.Constant) and isinstance(second.value, str):
+                    shot = second.value
+            entries.append(Entry("shot_when", first.value, first.lineno, shot=shot))
         elif method in NODE_METHODS:
             entries.append(Entry(method, first.value, first.lineno))
         elif method == "goto":

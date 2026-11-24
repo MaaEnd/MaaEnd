@@ -247,6 +247,11 @@ class Session:
         self._fallback_image = detail.raw_image
         return detail.box if detail.box is not None else (0, 0, 0, 0)
 
+    def shot_when(self, node: str, name: str, *, settle: float | None = None) -> None:
+        """等这个节点命中，再截当前画面存成 name。"""
+        self.wait(node)
+        self.shot(name, settle=settle)
+
     def shot(self, name: str, *, settle: float | None = None) -> None:
         """截当前画面存进输出目录；截之前先等画面稳定（默认 --wait 秒，可传 settle 改）。
 

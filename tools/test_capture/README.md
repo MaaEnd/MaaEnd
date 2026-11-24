@@ -175,6 +175,7 @@ uv run test-capture --flow tests/DeliveryJobs/capture_flow.py --diagram 流程.h
 | --- | --- |
 | `wait(node)` | 等节点命中，返回它的识别框；不额外等待 |
 | `shot(name, settle=2)` | 先等画面稳定（默认 `--wait` 秒）再截当前画面，文件名用 `name` |
+| `shot_when(node, name, settle=2)` | 等这个节点命中再截一张存成 `name`，比 `wait` 加 `shot` 少写一行 |
 | `click(node)` | 等节点命中，点它的识别框中心 |
 | `click_at((x, y), offset=(0, 0))` | 点固定坐标（1280x720 基准），`offset` 微调 |
 | `swipe((x1, y1), (x2, y2), duration=500)` | 划过一段距离，用来拖滑条、翻列表 |
@@ -193,8 +194,14 @@ c.click("OutpostTradingOpenOperatorLiaisonButton")  # 点进去
 
 界面已经在 `enter` 里声明过，函数里不用再写一遍 `wait`。
 
+大部分图都是「某个界面出来了才拍」，这种直接写 `shot_when`，等和拍一步到位：
+
+```python
+c.shot_when("DeliveryJobsCheckCargoFilledToMax", "货物装箱完成")  # 装满的图标出来了才拍
+```
+
 只有截图前才等画面稳定：`wait` / `click` 这类操作命中就往下走，不截图的时候不会白等。
-某个界面动画动得慢，就单独给这张图写 `c.shot("名字", settle=3)`。
+某个界面动画动得慢，就单独给这张图写 `c.shot("名字", settle=3)`，`shot_when` 一样能加。
 
 `click` / `wait` 里的节点名可以填任意有识别的节点，模板匹配、OCR、颜色匹配、自定义识别都行；
 `click_at` 的坐标按 1280x720 写，脚本不换算分辨率，换了平台自己核对。
