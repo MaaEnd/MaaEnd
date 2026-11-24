@@ -18,6 +18,7 @@
             ],
             "option": [
                 "YuanyuanManorSchedule",
+                "InnkeepingMaxRounds",
                 "PantryShop"
             ]
         }
@@ -114,6 +115,25 @@
                 "YuanyuanManorScheduleSaturday",
                 "YuanyuanManorScheduleSunday"
             ]
+        },
+        "InnkeepingMaxRounds": {
+            "type": "input",
+            "label": "$task.YuanyuanManor.option.MaxRounds.label",
+            "inputs": [
+                {
+                    "name": "MaxRounds",
+                    "label": "$task.YuanyuanManor.option.MaxRounds.input_label",
+                    "default": "5",
+                    "pipeline_type": "int",
+                    "verify": "^(?:0|[1-9]|1[0-9]|20)$",
+                    "pattern_msg": "$task.YuanyuanManor.option.MaxRounds.pattern_msg"
+                }
+            ],
+            "pipeline_override": {
+                "InnkeepingMain": {
+                    "max_hit": "{MaxRounds}"
+                }
+            }
         },
         "PantryShop": {
             "type": "switch",
