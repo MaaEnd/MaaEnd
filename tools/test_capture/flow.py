@@ -15,6 +15,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, cast, overload
 
+from .node_names import NodeName
 from .types import Capture
 
 BASE_WIDTH, BASE_HEIGHT = 1280, 720
@@ -61,8 +62,8 @@ class Step:
 
     name: str
     func: StepFunc
-    enter: str | None = None
-    route: str | RouteFunc | None = None
+    enter: NodeName | None = None
+    route: NodeName | RouteFunc | None = None
     stop: bool = True
     once: bool = False
 
@@ -82,8 +83,8 @@ class Flow:
         func: StepFunc,
         /,
         *,
-        enter: str | None = ...,
-        route: str | RouteFunc | None = ...,
+        enter: NodeName | None = ...,
+        route: NodeName | RouteFunc | None = ...,
         stop: bool = ...,
         once: bool = ...,
     ) -> StepFunc: ...
@@ -94,8 +95,8 @@ class Flow:
         func: None = ...,
         /,
         *,
-        enter: str,
-        route: str | RouteFunc | None = ...,
+        enter: NodeName,
+        route: NodeName | RouteFunc | None = ...,
         stop: bool = ...,
         once: bool = ...,
     ) -> Callable[[StepFunc], StepFunc]: ...
@@ -105,8 +106,8 @@ class Flow:
         func: StepFunc | None = None,
         /,
         *,
-        enter: str | None = None,
-        route: str | RouteFunc | None = None,
+        enter: NodeName | None = None,
+        route: NodeName | RouteFunc | None = None,
         stop: bool = True,
         once: bool = False,
     ) -> StepFunc | Callable[[StepFunc], StepFunc]:
@@ -131,8 +132,8 @@ class Flow:
         self,
         name: str,
         *,
-        enter: str | None = None,
-        route: str | RouteFunc | None = None,
+        enter: NodeName | None = None,
+        route: NodeName | RouteFunc | None = None,
         stop: bool = True,
         once: bool = False,
     ) -> Callable[[StepFunc], StepFunc]:

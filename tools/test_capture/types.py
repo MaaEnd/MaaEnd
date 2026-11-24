@@ -12,6 +12,8 @@ from typing import Any, Protocol
 import numpy as np
 from numpy.typing import NDArray
 
+from .node_names import NodeName
+
 Image = NDArray[np.uint8]
 NodeData = dict[str, Any]
 Recognition = str | NodeData
@@ -24,23 +26,24 @@ Point = tuple[int, int]
 class Capture(Protocol):
     """流程函数拿到的操作对象：等界面、截图、点击、转跳。
 
-    节点名都填 MaaEnd Pipeline 里现成的节点，模板匹配、OCR、自定义识别都行。
+    节点名都填 MaaEnd Pipeline 里现成的节点，模板匹配、OCR、自定义识别都行；
+    参数类型是 NodeName，生成过 node_names.pyi 的话编辑器会补全节点名、标出写错的。
     坐标和识别框都按 1280x720 写，脚本不做分辨率换算，换平台要自己核对。
     开了 --dry-run 时点击和滑动会跳过，识别和截图照常做。
     """
 
-    def wait(self, node: str, *, timeout: float = ..., interval: float = ...) -> Box:
+    def wait(self, node: NodeName, *, timeout: float = ..., interval: float = ...) -> Box:
         """等节点命中，返回它的识别框 (x, y, w, h)；只等命中，不额外等画面稳定。
 
         每隔 interval 秒看一次，超过 timeout 秒还没命中就报错。
         """
         ...
 
-    def hit(self, node: str) -> bool:
+    def hit(self, node: NodeName) -> bool:
         """看一眼现在命不命中，不等待、不重试。用来写 if 判断界面状态。"""
         ...
 
-    def text(self, node: str, *, timeout: float = ..., interval: float = ...) -> str:
+    def text(self, node: NodeName, *, timeout: float = ..., interval: float = ...) -> str:
         """等节点命中，返回它 OCR 认出来的文字。"""
         ...
 
@@ -56,7 +59,7 @@ class Capture(Protocol):
         """读 roi 里的数字，只留数字字符；读不出来当 0。"""
         ...
 
-    def shot_when(self, node: str, name: str, *, settle: float | None = ...) -> None:
+    def shot_when(self, node: NodeName, name: str, *, settle: float | None = ...) -> None:
         """等这个节点命中，再截当前画面存成 name。
 
         绝大多数图都是「某个界面出来了才拍」，写成一行比 wait 加 shot 短。
@@ -71,7 +74,7 @@ class Capture(Protocol):
         """
         ...
 
-    def click(self, node: str, *, timeout: float = ..., interval: float = ...) -> None:
+    def click(self, node: NodeName, *, timeout: float = ..., interval: float = ...) -> None:
         """等节点命中，点它识别框的中心；命中了但没有能点的区域会报错。"""
         ...
 
@@ -83,18 +86,18 @@ class Capture(Protocol):
         """从 begin 滑到 end，duration 是毫秒；用来拖滑条、翻列表。"""
         ...
 
-    def sub_task(self, node: str) -> None:
+    def sub_task(self, node: NodeName) -> None:
         """跑一个现成节点的整条流程（会跟 next），让它自己把界面转跳到目标。"""
         ...
 
-    def goto(self, enter: str, route: str | Callable[[Capture], None] | None = ...) -> None:
+    def goto(self, enter: NodeName, route: NodeName | Callable[[Capture], None] | None = ...) -> None:
         """先确认在 enter 这个界面；不在就 sub_task(route) 转过去，到了再往下走。
 
         route 不写就退回 SceneAnyEnterWorld 回大世界。每个步骤开跑前会自动调一次。
         """
         ...
 
-    def run(self, node: str) -> None:
+    def run(self, node: NodeName) -> None:
         """按节点自己的识别和动作执行一次，不跟它的 next。"""
         ...
 

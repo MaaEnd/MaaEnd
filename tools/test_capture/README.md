@@ -131,8 +131,12 @@ uv run test-capture --resume .cache/test-capture/20261124-090000
 
 ### 先画一张流程图再跑
 
-流程文件本身就能画成一张 HTML：每段、每步、进哪个界面、不在时怎么过去、截哪些图、
-代码里写的注释，还有哪台平台跑、哪台跳过，都在一张纸上，看一眼就知道顺序对不对。
+流程文件本身就能画成一张 HTML，看一眼就知道顺序对不对：
+
+- 最上面是「运行顺序」表格：一行一台平台、一列一段，格子里的数字是第几个上场，斜线格是整段跳过；下面一条箭头串标出在哪里换平台（顶号）。
+- 往下每一步只画一次：要在的界面、不在时怎么过去（写的是流程函数就能点开看它一步步做了什么）、按代码顺序排的调用、步骤的文档字符串和代码注释；截图单独一行橙色高亮，粗体是图片名。
+- 每步右上角是这一步在哪些平台上跑，划掉的是「只做一次」被别的平台做过、这台跳过。
+- 顶部按钮可以只看某一台平台跑的步骤，或只看「只做一次」的步骤；亮色、暗色跟着系统走。
 
 ```bash
 uv run test-capture --flow tests/DeliveryJobs/capture_flow.py --diagram 流程.html
@@ -206,9 +210,27 @@ c.shot_when("DeliveryJobsCheckCargoFilledToMax", "货物装箱完成")  # 装满
 `click` / `wait` 里的节点名可以填任意有识别的节点，模板匹配、OCR、颜色匹配、自定义识别都行；
 `click_at` 的坐标按 1280x720 写，脚本不换算分辨率，换了平台自己核对。
 
+### 编辑器里补全节点名
+
+节点名参数的类型是 `NodeName`。先生成一次节点名类型存根：
+
+```bash
+uv run test-capture --node-names
+```
+
+它把所有资源包（`assets/resource*/pipeline`）里的节点名写进 `tools/test_capture/node_names.pyi`。VS Code（Pylance）或 pyright 读到它之后，在 `c.click("` 的引号里就会弹出节点名补全，写错的名字当场标红，`enter` / `route` 也一样。这个文件不进仓库；之后每次跑 `test-capture`（包括画流程图）都会按当时的 pipeline 顺手刷新，改了节点也不用手动再生成。没生成时 `NodeName` 就是普通字符串，不补全也不报错。
+
+节点名先放进变量再传，要把变量标成 `NodeName`，不然编辑器会说普通字符串对不上：
+
+```python
+from tools.test_capture import NodeName
+
+tabs: list[NodeName] = ["OutpostTradingCheckInfraStationTabText", "OutpostTradingCheckReconstructionHQTabText"]
+```
+
 ### 节点名写错会当场停下
 
-节点名是直接写的字符串，容易打错。开跑前工具会扫一遍流程文件，把 `hit` / `wait` / `text` / `click` /
+编辑器标红只是提醒，开跑前工具还会再核对一遍：扫流程文件，把 `hit` / `wait` / `text` / `click` /
 `run` / `sub_task` 的参数、`goto` 的两个参数、以及每个步骤的 `enter` / `route`，拿去跟资源里的节点对；
 对不上就一次全列出来，还给出像的候选，然后直接退出：
 

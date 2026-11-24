@@ -3,15 +3,16 @@
 from __future__ import annotations
 
 import ast
+import json
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, cast
 
-from .flow import Step, as_list, load_jsonc
+from .flow import Step, as_dict, as_list, load_jsonc
 from .runner import Segment
 
 # 流程函数里这些调用会碰 pipeline 节点；shot 只是截图，不跑节点。
-NODE_METHODS = {"run", "click", "wait", "hit", "sub_task"}
+NODE_METHODS = {"run", "click", "wait", "hit", "text", "sub_task"}
 
 # 展开 next 链时最多列这么多节点，免得某个万能转跳把整份 pipeline 都拖出来。
 CHAIN_LIMIT = 24
@@ -56,13 +57,18 @@ def plan(segments: list[Segment], controllers: tuple[str, ...]) -> dict[int, lis
 
 @dataclass
 class Entry:
-    """流程里的一次调用：跑节点、看节点、截图，或者 goto 转跳。"""
+    """流程里的一次调用：跑节点、看节点、截图、点坐标，或者 goto 转跳。
+
+    name 对节点类调用是节点名，对 click_at / swipe / sleep 是参数原文；
+    where 说明这次调用写在哪种代码块里（循环里、条件里……），平铺直叙的写法留空。
+    """
 
     kind: str
     name: str
     line: int
     route: str = ""
     shot: str = ""
+    where: str = ""
 
 
 @dataclass
@@ -82,57 +88,162 @@ def prepare(source: Path, steps: list[Step]) -> Prepared:
     return result
 
 
+# 不碰节点、但流程图里也想看到的调用：参数原样展示。
+LITERAL_METHODS = {"click_at", "swipe", "sleep"}
+
+
+def _text_arg(call: ast.Call, index: int) -> str:
+    """第 index 个位置参数是字符串常量就返回它，否则返回空串。"""
+    if len(call.args) > index:
+        arg = call.args[index]
+        if isinstance(arg, ast.Constant) and isinstance(arg.value, str):
+            return arg.value
+    return ""
+
+
+def _entry_of(call: ast.Call, where: str) -> Entry | None:
+    if not isinstance(call.func, ast.Attribute):
+        return None
+    method = call.func.attr
+    if method in LITERAL_METHODS:
+        shown = ", ".join(ast.unparse(arg) for arg in [*call.args, *call.keywords])
+        return Entry(method, shown, call.lineno, where=where)
+    first = _text_arg(call, 0)
+    if not first:
+        return None
+    if method == "shot":
+        return Entry("shot", first, call.lineno, where=where)
+    if method == "shot_when":
+        return Entry("shot_when", first, call.lineno, shot=_text_arg(call, 1), where=where)
+    if method in NODE_METHODS:
+        return Entry(method, first, call.lineno, where=where)
+    if method == "goto":
+        route = _text_arg(call, 1)
+        if not route and len(call.args) > 1 and isinstance(call.args[1], ast.Name):
+            route = call.args[1].id
+        return Entry("goto", first, call.lineno, route, where=where)
+    return None
+
+
 def _entries_of(function: ast.FunctionDef) -> list[Entry]:
     entries: list[Entry] = []
-    for call in ast.walk(function):
-        if not isinstance(call, ast.Call) or not isinstance(call.func, ast.Attribute):
-            continue
-        method = call.func.attr
-        if not call.args:
-            continue
-        first = call.args[0]
-        if not (isinstance(first, ast.Constant) and isinstance(first.value, str)):
-            continue
-        if method == "shot":
-            entries.append(Entry("shot", first.value, first.lineno))
-        elif method == "shot_when":
-            shot = ""
-            if len(call.args) > 1:
-                second = call.args[1]
-                if isinstance(second, ast.Constant) and isinstance(second.value, str):
-                    shot = second.value
-            entries.append(Entry("shot_when", first.value, first.lineno, shot=shot))
-        elif method in NODE_METHODS:
-            entries.append(Entry(method, first.value, first.lineno))
-        elif method == "goto":
-            route = ""
-            if len(call.args) > 1:
-                second = call.args[1]
-                if isinstance(second, ast.Constant) and isinstance(second.value, str):
-                    route = second.value
-                elif isinstance(second, ast.Name):
-                    route = second.id
-            entries.append(Entry("goto", first.value, first.lineno, route))
+
+    def visit(node: ast.AST, where: str) -> None:
+        if isinstance(node, ast.Call):
+            entry = _entry_of(node, where)
+            if entry is not None:
+                entries.append(entry)
+        for name, value in ast.iter_fields(node):
+            inner = where
+            if isinstance(node, (ast.For, ast.While)) and name in ("body", "orelse"):
+                inner = "循环里"
+            elif isinstance(node, (ast.If, ast.While)) and name == "test":
+                inner = "判断条件"
+            elif isinstance(node, ast.If) and name in ("body", "orelse"):
+                inner = "条件成立时" if name == "body" else "条件不成立时"
+            elif isinstance(node, ast.ExceptHandler) and name == "body":
+                inner = "出错时"
+            children: list[Any] = cast("list[Any]", value) if isinstance(value, list) else [value]
+            for child in children:
+                if isinstance(child, ast.AST):
+                    visit(child, inner)
+
+    for statement in function.body:
+        visit(statement, "")
     entries.sort(key=lambda entry: entry.line)
     return entries
 
 
+def strip_comments(text: str) -> str:
+    """去掉 JSONC 里的 // 和 /* */ 注释，字符串里的不动。
+
+    整份 pipeline 七千多个节点，用 json5 逐个文件解析要十几秒；
+    去掉注释后交给标准库 json 不到一秒。
+    """
+    out: list[str] = []
+    index, length = 0, len(text)
+    while index < length:
+        char = text[index]
+        if char == '"':
+            end = index + 1
+            while end < length and text[end] != '"':
+                end += 2 if text[end] == "\\" else 1
+            out.append(text[index : end + 1])
+            index = end + 1
+        elif text.startswith("//", index):
+            newline = text.find("\n", index)
+            index = length if newline < 0 else newline
+        elif text.startswith("/*", index):
+            close = text.find("*/", index + 2)
+            index = length if close < 0 else close + 2
+        else:
+            out.append(char)
+            index += 1
+    return "".join(out)
+
+
+def read_pipeline(path: Path) -> dict[str, Any]:
+    """读一个 pipeline 文件；标准 json 读不了（尾逗号之类）再退回 json5。"""
+    text = path.read_text(encoding="utf-8")
+    try:
+        data = json.loads(strip_comments(text))
+    except ValueError:
+        data = load_jsonc(path)
+    return cast("dict[str, Any]", data) if isinstance(data, dict) else {}
+
+
+def pipeline_files(repo: Path) -> list[Path]:
+    """所有资源包（resource、resource_adb、resource_cloud_web……）里的 pipeline 文件。"""
+    files: list[Path] = []
+    for root in sorted((repo / "assets").glob("resource*/pipeline")):
+        files.extend(path for path in sorted(root.rglob("*")) if path.suffix in (".json", ".jsonc"))
+    return files
+
+
+def load_pipeline(repo: Path) -> dict[str, dict[str, Any]]:
+    """把各资源包的 pipeline 合成一张「节点名 → 节点内容」表；同名节点后读的覆盖先读的。"""
+    result: dict[str, dict[str, Any]] = {}
+    for path in pipeline_files(repo):
+        try:
+            data = read_pipeline(path)
+        except Exception:
+            continue
+        for name, raw in data.items():
+            if not name.startswith("$"):
+                result[name] = as_dict(raw)
+    return result
+
+
 def load_next_map(repo: Path) -> dict[str, list[str]]:
     """把各资源包的 pipeline 合成一张「节点 → next」表。"""
-    result: dict[str, list[str]] = {}
-    for bundle in ("resource", "resource_adb", "resource_cloud", "resource_cloud_web"):
-        root = repo / "assets" / bundle / "pipeline"
-        if not root.is_dir():
-            continue
-        for path in sorted(root.rglob("*.json")):
-            try:
-                data = load_jsonc(path)
-            except Exception:
-                continue
-            for name, raw in data.items():
-                node = cast("dict[str, Any]", raw)
-                result[name] = [str(item) for item in as_list(node.get("next"))]
-    return result
+    return {name: [str(item) for item in as_list(node.get("next"))] for name, node in load_pipeline(repo).items()}
+
+
+# 节点名的类型存根：编辑器靠它给节点名补全、标出写错的名字。不进仓库，按需生成。
+NODE_NAMES_STUB = Path(__file__).with_name("node_names.pyi")
+
+
+def write_node_names(repo: Path, target: Path = NODE_NAMES_STUB) -> tuple[int, bool]:
+    """把资源里所有节点名写成 Literal 类型存根，返回（节点数，这次有没有改动）。
+
+    内容没变就不写，免得编辑器反复重新分析。
+    """
+    names = sorted(load_pipeline(repo))
+    lines = [
+        "# 由 uv run test-capture --node-names 生成，别手改；改了 pipeline 再跑一次就会更新。",
+        "# 运行时 NodeName 就是 str（见 node_names.py），这里只给编辑器做补全和拼写检查。",
+        "from typing import Literal",
+        "",
+        "type NodeName = Literal[",
+        *(f"    {json.dumps(name, ensure_ascii=False)}," for name in names),
+        "]",
+        "",
+    ]
+    content = "\n".join(lines)
+    if target.is_file() and target.read_text(encoding="utf-8") == content:
+        return len(names), False
+    target.write_text(content, encoding="utf-8")
+    return len(names), True
 
 
 def strip_prefix(name: str) -> str:

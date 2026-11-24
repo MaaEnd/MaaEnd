@@ -19,6 +19,10 @@
 
     uv run test-capture --flow tests/DeliveryJobs/capture_flow.py --diagram 流程.html
 
+写流程时想让编辑器补全节点名，先生成一次节点名类型存根（之后每次运行会顺手刷新）：
+
+    uv run test-capture --node-names
+
 流程文件的写法、输出目录和已知限制见 tools/test_capture/README.md。
 """
 
@@ -37,6 +41,7 @@ import click
 from . import cancel
 from .diagram import render as render_diagram
 from .flow import FlowError, load_flow
+from .nodes import NODE_NAMES_STUB, write_node_names
 from .output import DEFAULT_KEEP, new_run_dir, prune_runs
 from .runner import DEFAULT_WAIT, RunSettings, run_flow, split_segments
 from .runtime import ROOT, load_interface, prepare_framework
@@ -182,6 +187,15 @@ def _run(
     return run_dir
 
 
+def _refresh_node_names(always_report: bool) -> None:
+    """按当前 pipeline 刷新节点名类型存根，编辑器靠它补全节点名、标出写错的。"""
+    count, changed = write_node_names(ROOT)
+    if changed or always_report:
+        where = NODE_NAMES_STUB.relative_to(ROOT).as_posix()
+        state = "已更新" if changed else "没有变化"
+        click.echo(f"节点名类型存根{state}：{where}，共 {count} 个节点")
+
+
 def _export(run_dir: Path, resource: str, folder: str | None) -> None:
     """把一次运行目录里的截图重新脱敏导出到测试集，不连设备。"""
     run_dir = run_dir.resolve()
@@ -245,6 +259,12 @@ def _export(run_dir: Path, resource: str, folder: str | None) -> None:
     show_default=False,
     help="输出根目录，默认 .cache/test-capture",
 )
+@click.option(
+    "--node-names",
+    "node_names",
+    is_flag=True,
+    help="只刷新节点名类型存根（编辑器补全节点名用），不跑流程；平时每次运行也会顺手刷新",
+)
 @click.option("--adb-path", default=None, help="adb 可执行文件路径，默认自动查找")
 @click.option("--adb-serial", default=None, help="设备地址，例如 127.0.0.1:5555")
 @click.option("--maafw", default=None, help="MaaFramework 动态库目录，默认 install/maafw")
@@ -292,6 +312,7 @@ def _command(
     resume: Path | None,
     from_run: Path | None,
     out_dir: Path,
+    node_names: bool,
     adb_path: str | None,
     adb_serial: str | None,
     maafw: str | None,
@@ -305,6 +326,11 @@ def _command(
 ) -> None:
     """按预先写好的步骤流程逐屏截图。"""
     try:
+        if node_names:
+            _refresh_node_names(always_report=True)
+            return
+        if from_run is None:
+            _refresh_node_names(always_report=False)
         if from_run is not None:
             _export(from_run, testset_resource, testset_dir)
             return
