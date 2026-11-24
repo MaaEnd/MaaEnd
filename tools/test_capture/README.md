@@ -103,6 +103,12 @@ def 清空调度券(c: Capture) -> None:
 
 ## 怎么跑
 
+不知道有哪些流程、控制器时，什么参数都不给直接跑，它会列出 `tests/` 下所有流程文件（带流程名和步数）、`assets/interface.json` 里能用的控制器，以及常用命令：
+
+```bash
+uv run test-capture
+```
+
 ```bash
 # 单个平台
 uv run test-capture --flow tests/OutpostTrading/capture_flow.py --controller ADB
@@ -139,9 +145,12 @@ uv run test-capture --resume .cache/test-capture/20261124-090000
 - 顶部按钮可以只看某一台平台跑的步骤，或只看「只做一次」的步骤；亮色、暗色跟着系统走。
 
 ```bash
-uv run test-capture --flow tests/DeliveryJobs/capture_flow.py --diagram 流程.html
+# 所有流程各画一张，存到 .cache/test-capture/diagrams/<任务目录>.html
+uv run test-capture --diagram
 # 带上 --controller 还能把平台顺序和跳过关系标出来
-uv run test-capture --flow tests/DeliveryJobs/capture_flow.py --diagram 流程.html --controller ADB --controller Win32-Front
+uv run test-capture --diagram --controller ADB --controller Win32-Front
+# 只画一个流程；后面不跟路径也存到默认目录
+uv run test-capture --flow tests/DeliveryJobs/capture_flow.py --diagram 流程.html
 ```
 
 它只读流程文件，不连设备、不动游戏，随便画。

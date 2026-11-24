@@ -15,8 +15,13 @@
 
     uv run test-capture --resume .cache/test-capture/20261124-090000
 
-跑之前想看流程长什么样，可以画成一张 HTML 流程图（不连设备）：
+什么参数都不给，会列出有哪些流程、哪些控制器能用：
 
+    uv run test-capture
+
+跑之前想看流程长什么样，可以画成 HTML 流程图（不连设备），默认存到 .cache/test-capture/diagrams/：
+
+    uv run test-capture --diagram
     uv run test-capture --flow tests/DeliveryJobs/capture_flow.py --diagram 流程.html
 
 写流程时想让编辑器补全节点名，先生成一次节点名类型存根（之后每次运行会顺手刷新）：
@@ -32,6 +37,7 @@ import io
 import json
 import signal
 import sys
+import unicodedata
 from datetime import datetime
 from pathlib import Path
 from typing import Any, cast
@@ -40,7 +46,7 @@ import click
 
 from . import cancel
 from .diagram import render as render_diagram
-from .flow import FlowError, load_flow
+from .flow import FlowError, as_dict, as_list, load_flow, load_jsonc
 from .nodes import NODE_NAMES_STUB, write_node_names
 from .output import DEFAULT_KEEP, new_run_dir, prune_runs
 from .runner import DEFAULT_WAIT, RunSettings, run_flow, split_segments
@@ -48,6 +54,103 @@ from .runtime import ROOT, load_interface, prepare_framework
 from .testset import TestSetError, TestSetWriter, export_run
 
 DEFAULT_OUT = ROOT / ".cache/test-capture"
+DEFAULT_DIAGRAM_DIR = DEFAULT_OUT / "diagrams"
+# 这个脚本能连的控制器类型；interface.json 里其余类型（PlayCover、Linux、MacOS）暂时没接。
+SUPPORTED_KINDS = {"Adb": "安卓 ADB", "Win32": "Windows 窗口"}
+
+
+def _find_flows() -> list[Path]:
+    """仓库里所有流程文件：tests/<任务>/capture_flow.py。"""
+    return sorted((ROOT / "tests").glob("*/capture_flow.py"))
+
+
+def _rel(path: Path) -> str:
+    try:
+        return path.resolve().relative_to(ROOT).as_posix()
+    except ValueError:
+        return str(path)
+
+
+def _display_width(text: str) -> int:
+    """终端里占几列：中文等全角字符占两列。"""
+    return sum(2 if unicodedata.east_asian_width(char) in ("W", "F") else 1 for char in text)
+
+
+def _pad(text: str, width: int) -> str:
+    return text + " " * (width - _display_width(text))
+
+
+def _overview() -> None:
+    """什么参数都没给：列出有哪些流程、哪些控制器，再给几条常用命令。"""
+    flows = _find_flows()
+    click.echo("可用的流程（--flow）：")
+    if not flows:
+        click.echo("  （tests/<任务>/capture_flow.py 一个都没有）")
+    width = max((_display_width(_rel(path)) for path in flows), default=0)
+    for path in flows:
+        try:
+            flow = load_flow(path)
+            about = f"{flow.name}，{len(flow.steps)} 步"
+        except FlowError as error:
+            about = f"加载失败：{error}"
+        click.echo(f"  {_pad(_rel(path), width)}  {about}")
+
+    interface = load_interface()
+    labels = load_jsonc(ROOT / "assets/locales/interface/zh_cn.json")
+    entries = [as_dict(item) for item in as_list(interface.get("controller"))]
+    supported = [entry for entry in entries if entry.get("type") in SUPPORTED_KINDS]
+    unsupported = [str(entry.get("name")) for entry in entries if entry.get("type") not in SUPPORTED_KINDS]
+    click.echo("")
+    click.echo("可用的控制器（--controller，可以写多个依次跑）：")
+    width = max((len(str(entry.get("name"))) for entry in supported), default=0)
+    for entry in supported:
+        name = str(entry.get("name"))
+        label = str(labels.get(f"controller.{name}.label") or "")
+        kind = SUPPORTED_KINDS[str(entry.get("type"))]
+        click.echo(f"  {name.ljust(width)}  {label}（{kind}）" if label else f"  {name.ljust(width)}  {kind}")
+    if unsupported:
+        click.echo(f"  暂不支持：{'、'.join(unsupported)}")
+
+    example = _rel(flows[0]) if flows else "tests/<任务>/capture_flow.py"
+    click.echo("")
+    commands = [
+        (f"--flow {example} --controller ADB", "跑一遍流程"),
+        (f"--flow {example} --controller ADB --dry-run", "只看界面不点击，先对流程"),
+        ("--diagram", f"给所有流程画流程图，存到 {_rel(DEFAULT_DIAGRAM_DIR)}/"),
+        ("--resume <运行目录>", "接着上次中断的运行跑"),
+        ("--node-names", "刷新编辑器里的节点名补全"),
+        ("-h", "全部参数"),
+    ]
+    width = max(_display_width(command) for command, _ in commands)
+    click.echo("常用命令：")
+    for command, about in commands:
+        click.echo(f"  uv run test-capture {_pad(command, width)}  {about}")
+
+
+def _diagrams(flow_path: Path | None, target: str, controllers: tuple[str, ...]) -> None:
+    """画流程图，不连设备也不动游戏。
+
+    给了 --flow：target 是 HTML 文件路径，空着就存到默认目录；
+    没给 --flow：把所有流程都画一遍，target 是输出目录，空着就是默认目录。
+    每张图按流程所在的任务目录命名，例如 DeliveryJobs.html。
+    """
+    if flow_path is not None:
+        flows = [flow_path.resolve()]
+        out = Path(target) if target else DEFAULT_DIAGRAM_DIR / f"{flow_path.resolve().parent.name}.html"
+        outputs = [out]
+    else:
+        flows = _find_flows()
+        if not flows:
+            raise FlowError("tests/ 下没有 capture_flow.py，没有流程可画")
+        folder = Path(target) if target else DEFAULT_DIAGRAM_DIR
+        outputs = [folder / f"{path.parent.name}.html" for path in flows]
+    for path, out in zip(flows, outputs, strict=True):
+        flow = load_flow(path)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(render_diagram(flow, controllers), encoding="utf-8")
+        click.echo(f"流程图：{_rel(out)}（{flow.name}）")
+    if not controllers:
+        click.echo("带上 --controller 能把每段谁先跑、谁跳过、在哪换平台也画出来")
 
 
 def _read_manifest(run_dir: Path) -> dict[str, Any]:
@@ -232,10 +335,15 @@ def _export(run_dir: Path, resource: str, folder: str | None) -> None:
 )
 @click.option(
     "--diagram",
-    "diagram_path",
-    type=click.Path(dir_okay=False, path_type=Path),
+    "diagram_target",
+    is_flag=False,
+    flag_value="",
     default=None,
-    help="把这个流程画成一张 HTML 流程图存到这个路径，不连设备（跑之前先看一眼）",
+    metavar="[路径]",
+    help=(
+        "画 HTML 流程图，不连设备。不带 --flow 时画所有流程，默认存到 .cache/test-capture/diagrams/；"
+        "带 --flow 时只画这一个，后面可以跟 HTML 文件路径"
+    ),
 )
 @click.option(
     "--resume",
@@ -308,7 +416,7 @@ def _export(run_dir: Path, resource: str, folder: str | None) -> None:
 def _command(
     flow_path: Path | None,
     controllers: tuple[str, ...],
-    diagram_path: Path | None,
+    diagram_target: str | None,
     resume: Path | None,
     from_run: Path | None,
     out_dir: Path,
@@ -335,19 +443,17 @@ def _command(
             _export(from_run, testset_resource, testset_dir)
             return
 
-        if diagram_path is not None:
-            # 只画图：装流程、出 HTML，不连设备也不动游戏。
-            if flow_path is None:
-                raise click.UsageError("画流程图要给 --flow")
-            flow = load_flow(flow_path.resolve())
-            diagram_path.parent.mkdir(parents=True, exist_ok=True)
-            diagram_path.write_text(render_diagram(flow, controllers), encoding="utf-8")
-            click.echo(f"流程图：{diagram_path}")
+        if diagram_target is not None:
+            _diagrams(flow_path, diagram_target, controllers)
             return
-        if from_run is None and flow_path is None and resume is None:
-            raise click.UsageError("跑流程要给 --flow 和 --controller；接着跑用 --resume；只导测试集用 --from-run")
-        if from_run is None and resume is None and not controllers:
-            raise click.UsageError("跑流程要给 --controller")
+        if flow_path is None and resume is None:
+            if controllers:
+                raise click.UsageError("跑流程还要给 --flow；不带参数运行可以看有哪些流程")
+            # 什么都没给：列出能用的流程和控制器，而不是报错。
+            _overview()
+            return
+        if resume is None and not controllers:
+            raise click.UsageError("跑流程要给 --controller；不带参数运行可以看有哪些控制器")
         _run(
             flow_path,
             controllers,
