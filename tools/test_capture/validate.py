@@ -1,0 +1,91 @@
+"""开跑前核对流程里写的节点名，写错了当场停下，不用等连上设备、跑到那一步才发现。"""
+
+from __future__ import annotations
+
+import ast
+import difflib
+from dataclasses import dataclass, field
+from pathlib import Path
+
+import click
+
+from .flow import FlowError
+from .types import Resource
+
+# 这些 Capture 方法的前几个参数是节点名；其余方法收截图名、坐标、文字，不在这里核对。
+NODE_ARG_METHODS = {"hit": 1, "text": 1, "wait": 1, "click": 1, "run": 1, "sub_task": 1, "goto": 2}
+
+# 步骤声明里的关键字，值也是节点名。
+STEP_KEYWORDS = frozenset({"enter", "route"})
+
+# 节点名写错时最多给几个候选。
+SUGGESTIONS = 3
+
+
+class NodeNameError(FlowError):
+    """流程里的节点名跟资源对不上；跟哪台平台无关，一台报出来就够了。"""
+
+
+@dataclass(frozen=True)
+class NodeRef:
+    """流程里当成节点名用的一个字符串。"""
+
+    name: str
+    line: int
+
+
+@dataclass
+class NodeRefs:
+    """一份流程收集到的节点引用。
+
+    nodes 是静态能认出来的节点名；unchecked 是参数写成变量、跑之前没法核对的行号。
+    where 是流程文件，报错时一起打出来。
+    """
+
+    where: str = ""
+    nodes: list[NodeRef] = field(default_factory=list[NodeRef])
+    unchecked: list[int] = field(default_factory=list[int])
+
+
+def collect(path: Path) -> NodeRefs:
+    """扫流程文件，把当成节点名用的字符串都收出来。"""
+    tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+    refs = NodeRefs(where=str(path))
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Call):
+            continue
+        count = NODE_ARG_METHODS.get(node.func.attr, 0) if isinstance(node.func, ast.Attribute) else 0
+        for arg in node.args[:count]:
+            if isinstance(arg, ast.Constant) and isinstance(arg.value, str):
+                refs.nodes.append(NodeRef(arg.value, arg.lineno))
+            elif not (isinstance(arg, ast.Constant) and arg.value is None):
+                refs.unchecked.append(arg.lineno)
+        for keyword in node.keywords:
+            if keyword.arg not in STEP_KEYWORDS:
+                continue
+            value = keyword.value
+            if isinstance(value, ast.Constant) and isinstance(value.value, str):
+                refs.nodes.append(NodeRef(value.value, value.lineno))
+            elif not (isinstance(value, ast.Constant) and value.value is None):
+                refs.unchecked.append(value.lineno)
+    return refs
+
+
+def check(refs: NodeRefs, resource: Resource) -> None:
+    """节点名跟资源对不上就抛错，一次把所有写错的都列出来。"""
+    known = set(resource.node_list or [])
+    problems: list[str] = []
+    reported: set[str] = set()
+    for ref in refs.nodes:
+        if ref.name in known or ref.name in reported:
+            continue
+        reported.add(ref.name)
+        close = difflib.get_close_matches(ref.name, known, n=SUGGESTIONS, cutoff=0.6)
+        options = "、".join(close)
+        hint = f"，是不是「{options}」" if close else ""
+        problems.append(f"  {refs.where}:{ref.line}「{ref.name}」资源里没有{hint}")
+    if problems:
+        raise NodeNameError("流程里的节点名对不上资源，先改好再跑：\n" + "\n".join(problems))
+    if refs.unchecked:
+        lines = "、".join(str(line) for line in refs.unchecked)
+        click.echo(f"节点名核对：第 {lines} 行写的是变量，没法在跑之前核对，只能跑到那一步才知道")

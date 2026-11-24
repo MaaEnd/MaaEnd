@@ -120,6 +120,9 @@ class RecognitionDetail(Protocol):
 
 
 class Resource(Protocol):
+    @property
+    def node_list(self) -> list[str]: ...
+
     def post_bundle(self, path: Path) -> Job: ...
 
     def get_node_data(self, name: str) -> NodeData | None: ...

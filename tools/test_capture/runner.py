@@ -15,13 +15,14 @@ import click
 import numpy as np
 from PIL import Image as PILImage
 
-from . import pretasks
+from . import pretasks, validate
 from .agents import Agents, pi_environment
 from .controllers import create_controller
 from .flow import BASE_HEIGHT, BASE_WIDTH, Flow, FlowError, Step, as_dict, as_list
 from .runtime import AGENT_DIR, LOG_DIR, controller_entry, load_task, maafw_dir, resource_bundles
 from .testset import TestSetError, TestSetWriter
 from .types import Box, Controller, Image, Point, Recognition, RecognitionDetail, Resource, Tasker
+from .validate import NodeRefs
 
 PROBE_NODE = "TestCaptureProbe"
 ENTER_WORLD_NODE = "SceneAnyEnterWorld"
@@ -395,7 +396,7 @@ def enter_world(tasker: Tasker, resource: Resource, controller_name: str) -> Non
 
 @dataclass
 class Segment:
-    """流程里的一段：两个 stop 标记之间（含结尾那个 stop）的那几步。"""
+    """流程里的一段：从上一段结尾之后，到这一段结尾的那几步；默认每一步自己就是一段。"""
 
     index: int
     steps: list[tuple[int, Step]]
@@ -404,7 +405,8 @@ class Segment:
 def split_segments(flow: Flow) -> list[Segment]:
     """按 stop 标记把流程切成几段。
 
-    每段都在所有平台上各跑一遍：stop 只负责切段，不负责结束整场运行。
+    stop 默认就是 True，所以默认每一步各自成一段；写 stop=False 的步骤会并到下一段里。
+    每段都在所有平台上各跑一遍：切段只决定先跑谁，不负责结束整场运行。
     """
     segments: list[Segment] = []
     current: list[tuple[int, Step]] = []
@@ -442,9 +444,13 @@ class Platform:
         self.agents = agents
         self.session = session
 
-    def run_segment(self, segment: Segment, result: dict[str, Any]) -> None:
-        """跑这一段，把每步的记录追加到 result["steps"]。"""
+    def run_segment(self, segment: Segment, result: dict[str, Any], skip: set[str] | None = None) -> None:
+        """跑这一段，把每步的记录追加到 result["steps"]；skip 里的步骤不跑，只记一笔跳过。"""
+        skipped = skip or set()
         for index, step in segment.steps:
+            if step.name in skipped:
+                result["steps"].append({"step": index, "name": step.name, "skipped": "只能做一次，已经由别的平台做完"})
+                continue
             try:
                 record = self.session.run_step(index, step)
             except FlowError as error:
@@ -474,6 +480,7 @@ def open_platform(
     out_dir: Path,
     settings: RunSettings,
     testset: TestSetWriter | None,
+    refs: NodeRefs,
 ) -> Platform:
     """连上这台平台、装好资源与 Agent，并把它带回大世界。"""
     from maa.resource import Resource as MaaResource
@@ -481,6 +488,15 @@ def open_platform(
 
     kind = str(controller_entry(interface, controller_name).get("type") or "")
     env_extra = pi_environment(interface, controller_name, LOG_DIR)
+
+    resource = cast(Resource, MaaResource())
+    for bundle in resource_bundles(interface, controller_name):
+        if not resource.post_bundle(bundle).wait().succeeded:
+            raise FlowError(f"加载资源失败: {bundle}")
+    # 资源装好就先把流程里写的节点名对一遍：写错了就别去拉游戏、连设备了。
+    validate.check(refs, resource)
+    click.echo(f"[{controller_name}] 节点名核对通过（{len(refs.nodes)} 个）")
+
     if settings.open_game:
         # 云网页版的外壳、桌面版客户端都由控制器自己的预任务拉起；已经在跑就直接过。
         pretasks.run(controller_name, env_extra)
@@ -489,10 +505,6 @@ def open_platform(
     if not controller.post_connection().wait().succeeded:
         raise FlowError(f"控制器 {controller_name} 连接失败")
 
-    resource = cast(Resource, MaaResource())
-    for bundle in resource_bundles(interface, controller_name):
-        if not resource.post_bundle(bundle).wait().succeeded:
-            raise FlowError(f"加载资源失败: {bundle}")
     tasker = cast(Tasker, MaaTasker())
     if not tasker.bind(resource, controller) or not tasker.inited:
         raise FlowError("Tasker 初始化失败")
@@ -548,20 +560,25 @@ def run_flow(
     接着跑下一段，少一次重新登录；只有换平台那一次才需要顶号。
     """
     segments = split_segments(flow)
+    # 流程文件扫一遍节点名，每台平台装好资源后都会拿它对一次，写错了连设备都不连。
+    refs = validate.collect(flow.source) if flow.source is not None else NodeRefs()
     results: dict[str, dict[str, Any]] = {
         name: {
             "controller": name,
             "dir": str(run_dir / name),
             "steps": [],
             "segments": [],
+            "skippedSegments": [],
             "error": None,
         }
         for name in controllers
     }
     if len(segments) > 1:
-        click.echo(f"流程按 stop 切成 {len(segments)} 段，每段在 {len(controllers)} 个平台上各跑一遍")
+        click.echo(f"流程切成 {len(segments)} 段（默认每一步一段），每段在 {len(controllers)} 个平台上各跑一遍")
 
     failed: set[str] = set()
+    # 标了 once 的步骤做完之后记在这儿：步骤名 → 做完它的平台。
+    done_once: dict[str, str] = {}
     platform: Platform | None = None
     try:
         for segment in segments:
@@ -570,15 +587,32 @@ def run_flow(
                 if name in failed:
                     click.echo(f"[{name}] 前面失败了，第 {segment.index} 段跳过", err=True)
                     continue
+                skip = {
+                    step.name
+                    for _, step in segment.steps
+                    if step.once and step.name in done_once and done_once[step.name] != name
+                }
+                if len(skip) == len(segment.steps):
+                    owner = done_once[segment.steps[0][1].name]
+                    for index, step in segment.steps:
+                        results[name]["steps"].append(
+                            {"step": index, "name": step.name, "skipped": f"只能做一次，已经由 {owner} 做完"}
+                        )
+                    results[name]["skippedSegments"].append(segment.index)
+                    click.echo(f"[{name}] 第 {segment.index} 段只能做一次，{owner} 已经做过，跳过")
+                    continue
                 if platform is not None and platform.name != name:
                     platform.close()
                     platform = None
                 try:
                     if platform is None:
-                        platform = open_platform(interface, name, run_dir / name, settings, testset)
+                        platform = open_platform(interface, name, run_dir / name, settings, testset, refs)
                     if testset is not None:
                         testset.start_controller(name)
-                    platform.run_segment(segment, results[name])
+                    platform.run_segment(segment, results[name], skip)
+                    for _, step in segment.steps:
+                        if step.once and step.name not in skip:
+                            done_once[step.name] = name
                 except (FlowError, TestSetError) as error:
                     failed.add(name)
                     results[name]["error"] = results[name]["error"] or {"message": str(error)}
@@ -586,6 +620,9 @@ def run_flow(
                     if platform is not None and platform.name == name:
                         platform.close()
                         platform = None
+                    if isinstance(error, validate.NodeNameError):
+                        # 节点名写错跟平台无关，一台报出来就够了，不用接着试别的平台。
+                        raise
     finally:
         if platform is not None:
             platform.close()

@@ -85,7 +85,14 @@ def _run(
     skipped = [
         item["controller"]
         for item in results
-        if not item.get("error") and len(item.get("segments") or []) < len(segments)
+        if not item.get("error")
+        and len(item.get("segments") or []) + len(item.get("skippedSegments") or []) < len(segments)
+    ]
+    # 只能做一次的步骤：第一个跑到的平台做完，后面到的平台跳过，这几段它们本来就没有图。
+    once_skipped = [
+        (str(item["controller"]), len(item.get("skippedSegments") or []))
+        for item in results
+        if item.get("skippedSegments")
     ]
 
     (run_dir / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=4) + "\n", encoding="utf-8")
@@ -99,6 +106,9 @@ def _run(
             click.echo(f"测试图：{where}（用例里 imageRoot 写 {writer.folder} 才对得上）")
     if len(segments) > 1:
         click.echo(f"共 {len(segments)} 段，每段在 {len(controllers)} 个平台上各跑一遍")
+    if once_skipped:
+        detail = "、".join(f"{name} 跳过 {count} 段" for name, count in once_skipped)
+        click.echo(f"有的步骤只能做一次，别的平台跳过了（{detail}），那几段没有图")
     if failed:
         click.echo(f"失败的平台：{'、'.join(failed)}", err=True)
     click.echo(f"{'结束（有失败）' if failed else '完成'}：{run_dir}")

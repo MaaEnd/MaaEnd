@@ -51,15 +51,17 @@ class Step:
     enter 是这个步骤要求的界面：开跑前先看一眼在不在，不在就转跳过去；
     route 是转跳用的现成节点，一般是 SceneEnter... 这种「从任意界面进入某菜单」，
     不写就退回 SceneAnyEnterWorld 回大世界。
-    stop 只是切段用的：从开头到这一步算一段，之后到下一个 stop 算下一段；
-    每段都在所有平台上各跑一遍，一段跑完才进下一段。
+    stop 默认就是 True：每一步都是本段的结尾，所有平台跑完这一步才进下一步；
+    想连着跑几步再切段，给后面的步骤写 stop=False。
+    once 表示这一步只有第一次能做：第一个跑到的平台做完，后面到的平台跳过它。
     """
 
     name: str
     func: StepFunc
     enter: str | None = None
     route: str | None = None
-    stop: bool = False
+    stop: bool = True
+    once: bool = False
 
 
 class Flow:
@@ -68,6 +70,8 @@ class Flow:
     def __init__(self, name: str) -> None:
         self.name = name
         self.steps: list[Step] = []
+        # 流程文件路径，由 load_flow 填；开跑前照着它扫一遍节点名。
+        self.source: Path | None = None
 
     @overload
     def step(
@@ -78,6 +82,7 @@ class Flow:
         enter: str | None = ...,
         route: str | None = ...,
         stop: bool = ...,
+        once: bool = ...,
     ) -> StepFunc: ...
 
     @overload
@@ -89,6 +94,7 @@ class Flow:
         enter: str,
         route: str | None = ...,
         stop: bool = ...,
+        once: bool = ...,
     ) -> Callable[[StepFunc], StepFunc]: ...
 
     def step(
@@ -98,18 +104,20 @@ class Flow:
         *,
         enter: str | None = None,
         route: str | None = None,
-        stop: bool = False,
+        stop: bool = True,
+        once: bool = False,
     ) -> StepFunc | Callable[[StepFunc], StepFunc]:
         """登记一步。
 
-        光写 @flow.step 也行；写 @flow.step(enter="InWorld") 就声明这步要求的界面，
-        写 stop=True 则这里是本段的结尾，后面属于下一段。
+        光写 @flow.step 也行；写 @flow.step(enter="InWorld") 就声明这步要求的界面。
+        默认每步各自成段；写 stop=False 把这一步接到上一段里。
+        只能做一次的步骤写 once=True。
         """
 
         def register(target: StepFunc) -> StepFunc:
             if any(item.name == target.__name__ for item in self.steps):
                 raise FlowError(f"步骤名重复了：{target.__name__}")
-            self.steps.append(Step(name=target.__name__, func=target, enter=enter, route=route, stop=stop))
+            self.steps.append(Step(name=target.__name__, func=target, enter=enter, route=route, stop=stop, once=once))
             return target
 
         if func is None:
@@ -122,14 +130,15 @@ class Flow:
         *,
         enter: str | None = None,
         route: str | None = None,
-        stop: bool = False,
+        stop: bool = True,
+        once: bool = False,
     ) -> Callable[[StepFunc], StepFunc]:
         """名字里不能写下的字符（空格之类）可以用这个指定步骤名。"""
 
         def register(func: StepFunc) -> StepFunc:
             if any(item.name == name for item in self.steps):
                 raise FlowError(f"步骤名重复了：{name}")
-            self.steps.append(Step(name=name, func=func, enter=enter, route=route, stop=stop))
+            self.steps.append(Step(name=name, func=func, enter=enter, route=route, stop=stop, once=once))
             return func
 
         return register
@@ -156,4 +165,5 @@ def load_flow(path: Path) -> Flow:
         raise FlowError(f'{path.name} 里没有 flow 对象，写成 flow = Flow("流程名") 再往上挂步骤')
     if not flow.steps:
         raise FlowError(f"{path.name} 里一步都没登记，用 @flow.step 标出步骤")
+    flow.source = path
     return flow
