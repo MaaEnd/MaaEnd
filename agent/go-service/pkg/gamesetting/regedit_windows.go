@@ -21,8 +21,12 @@ const (
 	userGpuPreferencesPath    = `Software\Microsoft\DirectX\UserGpuPreferences`
 	directXUserGlobalSettings = "DirectXUserGlobalSettings"
 	autoHDREnableKey          = "AutoHDREnable"
-	autoHDRDisabledValue      = "2096"
-	autoHDREnabledValue       = "2097"
+	// 按应用写入时必须带 0x1000 用户覆盖位，Windows 才会按应用覆盖全局设置：
+	// 6193=0x1831 是 Windows 设置页手动开启时写入的值（#6594 实测），6192=0x1830 为其对称的手动关闭值。
+	// 不带覆盖位的 2096=0x0830 / 2097=0x0831 语义为「跟随全局」，
+	// 全局开启时写 2096 压不住自动 HDR，还会覆盖用户在设置页里单独关闭的值（#7513）。
+	autoHDRDisabledValue      = "6192"
+	autoHDREnabledValue       = "6193"
 	autoHDRGlobalEnabledValue = "1"
 	autoHDRUserOverrideFlag   = 0x1000
 	autoHDREnabledFlag        = 0x1
@@ -613,7 +617,8 @@ func IsAutoHDREnabled() (bool, error) {
 	return result, nil
 }
 
-// ApplyAutoHDR 按 mode 写入按应用自动 HDR：Unchanged 不改；Disable=2096；Enable=2097。
+// ApplyAutoHDR 按 mode 写入按应用自动 HDR：Unchanged 不改；Disable=6192；Enable=6193。
+// 两个值都带 0x1000 用户覆盖位，才能在全局开启时真正关闭、全局关闭时真正开启。
 func ApplyAutoHDR(mode string) error {
 	var value string
 	switch strings.TrimSpace(mode) {
@@ -719,7 +724,8 @@ func parseAutoHDRValue(raw string) (string, bool) {
 
 // parsePerAppAutoHDRFlags 解析按应用 AutoHDREnable 位标志：
 // 0x1000 表示用户在该应用上手动设置过（覆盖全局），0x1 表示开启。
-// 如 2097(0x0831) 跟随全局，6193(0x1831) 手动开启；无法解析时视为跟随全局。
+// 如 2096(0x0830)/2097(0x0831) 跟随全局，6192(0x1830) 手动关闭、6193(0x1831) 手动开启；
+// 无法解析时视为跟随全局。
 func parsePerAppAutoHDRFlags(value string) (override, on bool) {
 	n, err := strconv.ParseUint(strings.TrimSpace(value), 10, 32)
 	if err != nil {
