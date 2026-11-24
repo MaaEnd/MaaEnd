@@ -103,7 +103,7 @@ def 清空调度券(c: Capture) -> None:
 
 ## 怎么跑
 
-不知道有哪些流程、控制器时，什么参数都不给直接跑，它会列出 `tests/` 下所有流程文件（带流程名和步数）、`assets/interface.json` 里能用的控制器，以及常用命令：
+命令分成四个子命令：`run` 跑流程、`diagram` 画流程图、`export` 补导测试图、`nodes` 刷新节点名补全。不写子命令直接跑，会列出 `tests/` 下所有流程文件（带流程名和步数）、`assets/interface.json` 里能用的控制器，以及常用命令：
 
 ```bash
 uv run test-capture
@@ -111,28 +111,28 @@ uv run test-capture
 
 ```bash
 # 单个平台
-uv run test-capture --flow tests/OutpostTrading/capture_flow.py --controller ADB
+uv run test-capture run --flow tests/OutpostTrading/capture_flow.py --controller ADB
 
 # 多个平台依次跑
-uv run test-capture --flow tests/OutpostTrading/capture_flow.py --controller Win32-Front --controller ADB
+uv run test-capture run --flow tests/OutpostTrading/capture_flow.py --controller Win32-Front --controller ADB
 
 # 只等界面、不点击不滑动，先把流程对一遍
-uv run test-capture --flow tests/OutpostTrading/capture_flow.py --controller ADB --dry-run
+uv run test-capture run --flow tests/OutpostTrading/capture_flow.py --controller ADB --dry-run
 
 # 游戏已经停在要截的界面上，别动它
-uv run test-capture --flow tests/OutpostTrading/capture_flow.py --controller ADB --no-open-game
+uv run test-capture run --flow tests/OutpostTrading/capture_flow.py --controller ADB --no-open-game
 
 # 截图前不等画面稳定，截到什么就存什么
-uv run test-capture --flow tests/OutpostTrading/capture_flow.py --controller ADB --wait 0
+uv run test-capture run --flow tests/OutpostTrading/capture_flow.py --controller ADB --wait 0
 
 # 顺手把截图脱敏后导进测试集
-uv run test-capture --flow tests/OutpostTrading/capture_flow.py --controller ADB --testset
+uv run test-capture run --flow tests/OutpostTrading/capture_flow.py --controller ADB --testset
 
 # 忘了加 --testset：直接把那次运行目录里的截图脱敏补导一遍，不用重跑
-uv run test-capture --from-run .cache/test-capture/20261122-075434
+uv run test-capture export .cache/test-capture/20261122-075434
 
 # 上次跑一半停了：接着那个运行目录继续，跑过的步骤不再跑
-uv run test-capture --resume .cache/test-capture/20261124-090000
+uv run test-capture run --resume .cache/test-capture/20261124-090000
 ```
 
 ### 先画一张流程图再跑
@@ -146,11 +146,11 @@ uv run test-capture --resume .cache/test-capture/20261124-090000
 
 ```bash
 # 所有流程各画一张，存到 .cache/test-capture/diagrams/<任务目录>.html
-uv run test-capture --diagram
+uv run test-capture diagram
 # 带上 --controller 还能把平台顺序和跳过关系标出来
-uv run test-capture --diagram --controller ADB --controller Win32-Front
-# 只画一个流程；后面不跟路径也存到默认目录
-uv run test-capture --flow tests/DeliveryJobs/capture_flow.py --diagram 流程.html
+uv run test-capture diagram --controller ADB --controller Win32-Front
+# 只画一个流程；后面跟路径就存到那里，不跟就存默认目录
+uv run test-capture diagram --flow tests/DeliveryJobs/capture_flow.py 流程.html
 ```
 
 它只读流程文件，不连设备、不动游戏，随便画。
@@ -224,7 +224,7 @@ c.shot_when("DeliveryJobsCheckCargoFilledToMax", "货物装箱完成")  # 装满
 节点名参数的类型是 `NodeName`。先生成一次节点名类型存根：
 
 ```bash
-uv run test-capture --node-names
+uv run test-capture nodes
 ```
 
 它把所有资源包（`assets/resource*/pipeline`）里的节点名写进 `tools/test_capture/node_names.pyi`。VS Code（Pylance）或 pyright 读到它之后，在 `c.click("` 的引号里就会弹出节点名补全，写错的名字当场标红，`enter` / `route` 也一样。这个文件不进仓库；之后每次跑 `test-capture`（包括画流程图）都会按当时的 pipeline 顺手刷新，改了节点也不用手动再生成。没生成时 `NodeName` 就是普通字符串，不补全也不报错。
@@ -279,7 +279,7 @@ for round_index in range(1, 13):
 按左下角 UID 文字判定平台，用纯绿色盖住该平台的固定 ROI，再按 OCR 兜住其它 `UID` / `#` 文字。
 截图本身还是先落在 `.cache/test-capture/`（不提交），进仓库的只有脱敏后的图。
 
-忘了加 `--testset` 也不用重跑：`--from-run <运行目录>` 会读里面的 `manifest.json`，
+忘了加 `--testset` 也不用重跑：`uv run test-capture export <运行目录>` 会读里面的 `manifest.json`，
 把那次截的图逐张脱敏补导到测试集，和当场导出走的是同一套脚本；任务目录默认取 `manifest.json` 里记的流程文件所在文件夹，也可以用 `--testset-dir` 改。
 
 用例文件不自动生成，图导进去之后自己加到 `tests/<任务>/test_*.json`：`imageRoot` 写任务目录名，`hits` 填这一步用的节点。

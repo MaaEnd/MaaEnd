@@ -2,7 +2,7 @@
 
 用法见 tools/test_capture/README.md：
 
-    uv run test-capture --flow tests/OutpostTrading/capture_flow.py --controller ADB --testset
+    uv run test-capture run --flow tests/OutpostTrading/capture_flow.py --controller ADB --testset
 
 跑完会把四号谷地、武陵两个地区各三个据点的界面，以及联络干员、更换货品、
 交易完成、调度券见底这些界面截图存进 tests/MaaEndTestset/<控制器>/<资源>/OutpostTrading/。

@@ -19,7 +19,7 @@
 
 用法见 tools/test_capture/README.md：
 
-    uv run test-capture --flow tests/DeliveryJobs/capture_flow.py --controller Win32-Front --testset
+    uv run test-capture run --flow tests/DeliveryJobs/capture_flow.py --controller Win32-Front --testset
 """
 
 from tools.test_capture import Capture, Flow, FlowError

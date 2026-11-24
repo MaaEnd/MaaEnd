@@ -1,32 +1,32 @@
 """uv run test-capture 的入口：按流程文件逐屏截图。
 
-用法::
-
-    uv run test-capture --flow tests/OutpostTrading/capture_flow.py --controller ADB
-    uv run test-capture --flow tests/OutpostTrading/capture_flow.py --controller Win32-Front --controller ADB
-    uv run test-capture --flow tests/OutpostTrading/capture_flow.py --controller CloudWeb
-    uv run test-capture --flow tests/OutpostTrading/capture_flow.py --controller ADB --dry-run
-
-忘了加 --testset 可以用 --from-run 补导：走到运行目录，不连设备再看一遍流程：
-
-    uv run test-capture --from-run .cache/test-capture/20261122-075434
-
-跑到一半按 Ctrl+C 停下，之后用 --resume 接着那个目录继续跑，跑过的步骤不再跑：
-
-    uv run test-capture --resume .cache/test-capture/20261124-090000
-
-什么参数都不给，会列出有哪些流程、哪些控制器能用：
+不写子命令直接跑，会列出有哪些流程、哪些控制器能用：
 
     uv run test-capture
 
+跑流程（--flow 指流程文件，--controller 可以写多个，依次跑）：
+
+    uv run test-capture run --flow tests/OutpostTrading/capture_flow.py --controller ADB
+    uv run test-capture run --flow tests/OutpostTrading/capture_flow.py --controller Win32-Front --controller ADB
+    uv run test-capture run --flow tests/OutpostTrading/capture_flow.py --controller CloudWeb
+    uv run test-capture run --flow tests/OutpostTrading/capture_flow.py --controller ADB --dry-run
+
+跑到一半按 Ctrl+C 停下，之后用 --resume 接着那个目录继续跑，跑过的步骤不再跑：
+
+    uv run test-capture run --resume .cache/test-capture/20261124-090000
+
 跑之前想看流程长什么样，可以画成 HTML 流程图（不连设备），默认存到 .cache/test-capture/diagrams/：
 
-    uv run test-capture --diagram
-    uv run test-capture --flow tests/DeliveryJobs/capture_flow.py --diagram 流程.html
+    uv run test-capture diagram
+    uv run test-capture diagram --flow tests/DeliveryJobs/capture_flow.py 流程.html
 
-写流程时想让编辑器补全节点名，先生成一次节点名类型存根（之后每次运行会顺手刷新）：
+忘了加 --testset，可以直接把那次运行目录里的截图补导进测试集，不连设备：
 
-    uv run test-capture --node-names
+    uv run test-capture export .cache/test-capture/20261122-075434
+
+写流程时想让编辑器补全节点名，先用这个生成一次节点名类型存根（跑流程、画流程图也会顺手刷新）：
+
+    uv run test-capture nodes
 
 流程文件的写法、输出目录和已知限制见 tools/test_capture/README.md。
 """
@@ -38,7 +38,9 @@ import json
 import signal
 import sys
 import unicodedata
+from collections.abc import Callable
 from datetime import datetime
+from functools import wraps
 from pathlib import Path
 from typing import Any, cast
 
@@ -114,11 +116,12 @@ def _overview() -> None:
     example = _rel(flows[0]) if flows else "tests/<任务>/capture_flow.py"
     click.echo("")
     commands = [
-        (f"--flow {example} --controller ADB", "跑一遍流程"),
-        (f"--flow {example} --controller ADB --dry-run", "只看界面不点击，先对流程"),
-        ("--diagram", f"给所有流程画流程图，存到 {_rel(DEFAULT_DIAGRAM_DIR)}/"),
-        ("--resume <运行目录>", "接着上次中断的运行跑"),
-        ("--node-names", "刷新编辑器里的节点名补全"),
+        (f"run --flow {example} --controller ADB", "跑一遍流程"),
+        (f"run --flow {example} --controller ADB --dry-run", "只看界面不点击，先对流程"),
+        ("diagram", f"给所有流程画流程图，存到 {_rel(DEFAULT_DIAGRAM_DIR)}/"),
+        ("run --resume <运行目录>", "接着上次中断的运行跑"),
+        ("export <运行目录>", "把那次运行的截图脱敏补导进测试集"),
+        ("nodes", "刷新编辑器里的节点名补全"),
         ("-h", "全部参数"),
     ]
     width = max(_display_width(command) for command, _ in commands)
@@ -319,7 +322,51 @@ def _export(run_dir: Path, resource: str, folder: str | None) -> None:
     click.echo("用例文件不会自动生成：把这些图片名和 imageRoot 补到 tests/<任务>/test_*.json 里")
 
 
-@click.command(context_settings={"help_option_names": ["-h", "--help"]})
+# 每个子命令的 -h 和 --help 通用。
+HELP = {"help_option_names": ["-h", "--help"]}
+
+
+def _errors(func: Callable[..., None]) -> Callable[..., None]:
+    """子命令统一收尾：流程自己的报错直接给一句话，硬中断不多打堆栈。"""
+
+    @wraps(func)
+    def wrapper(*args: Any, **kwargs: Any) -> None:
+        try:
+            func(*args, **kwargs)
+        except (FlowError, TestSetError) as error:
+            raise click.ClickException(str(error)) from error
+        except KeyboardInterrupt:
+            # 连按两次 Ctrl+C 之类的硬中断，别打一屏堆栈出来。
+            raise click.exceptions.Exit(130) from None
+
+    return wrapper
+
+
+class _Group(click.Group):
+    """子命令写错时，直接列出有哪些子命令。"""
+
+    def resolve_command(
+        self, ctx: click.Context, args: list[str]
+    ) -> tuple[str | None, click.Command | None, list[str]]:
+        try:
+            return super().resolve_command(ctx, args)
+        except click.UsageError:
+            commands = "、".join(self.list_commands(ctx))
+            raise click.UsageError(f"没有 {args[0]!r} 这个子命令，可选的：{commands}") from None
+
+
+@click.group(cls=_Group, context_settings=HELP, invoke_without_command=True)
+@click.pass_context
+def _command(ctx: click.Context) -> None:
+    """按预先写好的步骤流程逐屏截图。
+
+    不带子命令直接跑，会列出有哪些流程、哪些控制器能用。
+    """
+    if ctx.invoked_subcommand is None:
+        _overview()
+
+
+@_command.command("run", context_settings=HELP)
 @click.option(
     "--flow",
     "flow_path",
@@ -331,19 +378,7 @@ def _export(run_dir: Path, resource: str, folder: str | None) -> None:
     "--controller",
     "controllers",
     multiple=True,
-    help="assets/interface.json 里的控制器名（Adb / Win32，含 CloudWeb 云网页版），可重复以依次跑多个平台",
-)
-@click.option(
-    "--diagram",
-    "diagram_target",
-    is_flag=False,
-    flag_value="",
-    default=None,
-    metavar="[路径]",
-    help=(
-        "画 HTML 流程图，不连设备。不带 --flow 时画所有流程，默认存到 .cache/test-capture/diagrams/；"
-        "带 --flow 时只画这一个，后面可以跟 HTML 文件路径"
-    ),
+    help="assets/interface.json 里的控制器名（ADB / Win32-Front / CloudWeb 等），可重复以依次跑多个平台",
 )
 @click.option(
     "--resume",
@@ -353,25 +388,12 @@ def _export(run_dir: Path, resource: str, folder: str | None) -> None:
     help="接着上一次中断的运行继续跑：给个运行目录，跑过的步骤不会再跑",
 )
 @click.option(
-    "--from-run",
-    "from_run",
-    type=click.Path(exists=True, file_okay=False, path_type=Path),
-    default=None,
-    help="已有运行目录：只把里面的截图脱敏导出到测试集，不再连设备（忘了 --testset 时补导用）",
-)
-@click.option(
     "--out",
     "out_dir",
     type=click.Path(path_type=Path),
     default=DEFAULT_OUT,
     show_default=False,
     help="输出根目录，默认 .cache/test-capture",
-)
-@click.option(
-    "--node-names",
-    "node_names",
-    is_flag=True,
-    help="只刷新节点名类型存根（编辑器补全节点名用），不跑流程；平时每次运行也会顺手刷新",
 )
 @click.option("--adb-path", default=None, help="adb 可执行文件路径，默认自动查找")
 @click.option("--adb-serial", default=None, help="设备地址，例如 127.0.0.1:5555")
@@ -413,14 +435,12 @@ def _export(run_dir: Path, resource: str, folder: str | None) -> None:
     default=None,
     help="资源服目录下的任务子目录，默认用流程文件所在的文件夹名",
 )
-def _command(
+@_errors
+def _run_command(
     flow_path: Path | None,
     controllers: tuple[str, ...],
-    diagram_target: str | None,
     resume: Path | None,
-    from_run: Path | None,
     out_dir: Path,
-    node_names: bool,
     adb_path: str | None,
     adb_serial: str | None,
     maafw: str | None,
@@ -432,49 +452,85 @@ def _command(
     testset_resource: str,
     testset_dir: str | None,
 ) -> None:
-    """按预先写好的步骤流程逐屏截图。"""
-    try:
-        if node_names:
-            _refresh_node_names(always_report=True)
-            return
-        if from_run is None:
-            _refresh_node_names(always_report=False)
-        if from_run is not None:
-            _export(from_run, testset_resource, testset_dir)
-            return
+    """按流程文件逐屏截图。"""
+    if flow_path is None and resume is None:
+        raise click.UsageError("跑流程要给 --flow；接着跑用 --resume <运行目录>。不带子命令运行可以看有哪些流程")
+    if flow_path is not None and resume is None and not controllers:
+        raise click.UsageError("跑流程要给 --controller。不带子命令运行可以看有哪些控制器")
+    _refresh_node_names(always_report=False)
+    _run(
+        flow_path,
+        controllers,
+        resume,
+        out_dir,
+        adb_path,
+        adb_serial,
+        maafw,
+        dry_run,
+        open_game,
+        keep,
+        wait,
+        testset,
+        testset_resource,
+        testset_dir,
+    )
 
-        if diagram_target is not None:
-            _diagrams(flow_path, diagram_target, controllers)
-            return
-        if flow_path is None and resume is None:
-            if controllers:
-                raise click.UsageError("跑流程还要给 --flow；不带参数运行可以看有哪些流程")
-            # 什么都没给：列出能用的流程和控制器，而不是报错。
-            _overview()
-            return
-        if resume is None and not controllers:
-            raise click.UsageError("跑流程要给 --controller；不带参数运行可以看有哪些控制器")
-        _run(
-            flow_path,
-            controllers,
-            resume,
-            out_dir,
-            adb_path,
-            adb_serial,
-            maafw,
-            dry_run,
-            open_game,
-            keep,
-            wait,
-            testset,
-            testset_resource,
-            testset_dir,
-        )
-    except (FlowError, TestSetError) as error:
-        raise click.ClickException(str(error)) from error
-    except KeyboardInterrupt:
-        # 连按两次 Ctrl+C 之类的硬中断，别打一屏堆栈出来。
-        raise click.exceptions.Exit(130) from None
+
+@_command.command("diagram", context_settings=HELP)
+@click.option(
+    "--flow",
+    "flow_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+    help="只画这一个流程；不写就画 tests/ 下所有流程",
+)
+@click.option(
+    "--controller",
+    "controllers",
+    multiple=True,
+    help="带上平台名，图里会标出每段谁先跑、谁跳过、在哪换平台",
+)
+@click.argument("target", required=False, default=None)
+@_errors
+def _diagram_command(flow_path: Path | None, controllers: tuple[str, ...], target: str | None) -> None:
+    """画 HTML 流程图，不连设备也不动游戏。
+
+    TARGET 不给就存到 .cache/test-capture/diagrams/；带 --flow 时 TARGET 是这一个流程的 HTML 文件，不带 --flow 时是这个目录，里面每个流程一张。
+    """
+    _refresh_node_names(always_report=False)
+    _diagrams(flow_path, target or "", controllers)
+
+
+@_command.command("export", context_settings=HELP)
+@click.argument("run_dir", type=click.Path(exists=True, file_okay=False, path_type=Path))
+@click.option(
+    "--testset-resource",
+    default="官服",
+    show_default=True,
+    help="测试集的 configs.resource，对应 tests/MaaEndTestset/<控制器>/<资源目录>",
+)
+@click.option(
+    "--testset-dir",
+    default=None,
+    help="资源服目录下的任务子目录，默认用运行目录里记的流程文件所在文件夹名",
+)
+@_errors
+def _export_command(run_dir: Path, testset_resource: str, testset_dir: str | None) -> None:
+    """把一次运行目录里的截图脱敏补导进测试集，不连设备。
+
+    忘了加 --testset 时用它补导，不用重跑。
+    """
+    _export(run_dir, testset_resource, testset_dir)
+
+
+@_command.command("nodes", context_settings=HELP)
+@_errors
+def _nodes_command() -> None:
+    """刷新节点名类型存根，编辑器靠它补全节点名、标出写错的。
+
+    跑流程和画流程图时也会自动刷新，内容没变就不写。
+    """
+    _refresh_node_names(always_report=True)
 
 
 def _on_sigint(signum: int, frame: object) -> None:

@@ -230,7 +230,7 @@ def write_node_names(repo: Path, target: Path = NODE_NAMES_STUB) -> tuple[int, b
     """
     names = sorted(load_pipeline(repo))
     lines = [
-        "# 由 uv run test-capture --node-names 生成，别手改；改了 pipeline 再跑一次就会更新。",
+        "# 由 uv run test-capture nodes 生成，别手改；改了 pipeline 再跑一次就会更新。",
         "# 运行时 NodeName 就是 str（见 node_names.py），这里只给编辑器做补全和拼写检查。",
         "from typing import Literal",
         "",
