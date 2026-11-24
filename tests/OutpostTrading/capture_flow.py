@@ -11,30 +11,19 @@
 到了才开跑，所以中途哪一步被打断，下一步也能自己接上。
 """
 
-from tools.test_capture import Box, Capture, Flow, FlowError
+from tools.test_capture import Capture, Flow, FlowError
 
 flow = Flow("据点交易")
 
-
-# 现成的节点名。
-SELL = "OutpostTradingSell"
-SWIPE_OPERATOR_LIST = "OutpostTradingSwipeOperatorListForScan"
-BETTER_SLIDING = "OutpostTradingSkyKingFlatsConstructionSiteBetterSliding"
-ZERO_MONEY = "OutpostTradingZeroMoney"
-
-# 步骤要求的界面：每一步开跑前先看一眼在不在，不在就先转跳过去。
-IN_REFUGEE_CAMP = "OutpostTradingInRefugeeCamp"
-IN_SKY_KING_FLATS = "OutpostTradingInSkyKingFlatsConstructionSite"
-# 转跳用的现成节点：从任意界面进入对应地区的据点管理（节点自己也带万能转跳兜底）。
-OUTPOST_VALLEY_IV = "SceneEnterMenuRegionalDevelopmentValleyIVOutpostManagement"
-OUTPOST_WULING = "SceneEnterMenuRegionalDevelopmentWulingOutpostManagement"
-
-# 联络干员列表区域，只在按「其他据点」标记找干员时用。
-LIST_ROI: Box = (60, 110, 800, 560)
+# 「其他据点」标记：派驻在别的据点的干员卡片上有这一行，各语言写法都列上。
 OTHER_OUTPOST = ["其他据点", "其他據點", "Other outpost", "他の拠点", "다른 거점"]
 
 
-@flow.step(enter=IN_REFUGEE_CAMP, route=OUTPOST_VALLEY_IV)
+@flow.step(
+    enter="OutpostTradingInRefugeeCamp",
+    route="SceneEnterMenuRegionalDevelopmentValleyIVOutpostManagement",
+    stop=False,
+)
 def 四号谷地据点(c: Capture) -> None:
     c.shot("据点_难民暂居处")
     c.click("OutpostTradingCheckInfraStationTabText")
@@ -48,7 +37,11 @@ def 四号谷地据点(c: Capture) -> None:
     c.click("CloseButtonType1")
 
 
-@flow.step(enter=IN_SKY_KING_FLATS, route=OUTPOST_WULING)
+@flow.step(
+    enter="OutpostTradingInSkyKingFlatsConstructionSite",
+    route="SceneEnterMenuRegionalDevelopmentWulingOutpostManagement",
+    stop=False,
+)
 def 武陵据点(c: Capture) -> None:
     c.shot("据点_天王坪援建点")
     c.click("OutpostTradingCheckCardiacRemediationStationTabText")
@@ -62,7 +55,11 @@ def 武陵据点(c: Capture) -> None:
     c.click("OutpostTradingCheckSkyKingFlatsConstructionSiteTabText")
 
 
-@flow.step(enter=IN_SKY_KING_FLATS, route=OUTPOST_WULING)
+@flow.step(
+    enter="OutpostTradingInSkyKingFlatsConstructionSite",
+    route="SceneEnterMenuRegionalDevelopmentWulingOutpostManagement",
+    stop=False,
+)
 def 联络干员(c: Capture) -> None:
     c.click("OutpostTradingOpenOperatorLiaisonButton")
 
@@ -77,9 +74,9 @@ def 联络干员(c: Capture) -> None:
     # 只有这种干员，点派驻才会弹出「是否确认更改派驻」的确认框。
     badge = None
     for _ in range(6):
-        c.run(SWIPE_OPERATOR_LIST)  # 现成的「向下滑列表」动作
+        c.run("OutpostTradingSwipeOperatorListForScan")  # 现成的「向下滑列表」动作
         c.sleep(0.5)
-        badge = c.find_text(OTHER_OUTPOST, roi=LIST_ROI)
+        badge = c.find_text(OTHER_OUTPOST, roi=(60, 110, 800, 560))
         if badge is not None:
             break
     if badge is None:
@@ -106,7 +103,11 @@ def 联络干员(c: Capture) -> None:
     c.click("CloseButtonType1")
 
 
-@flow.step(enter=IN_SKY_KING_FLATS, route=OUTPOST_WULING)
+@flow.step(
+    enter="OutpostTradingInSkyKingFlatsConstructionSite",
+    route="SceneEnterMenuRegionalDevelopmentWulingOutpostManagement",
+    stop=False,
+)
 def 更换货品(c: Capture) -> None:
     c.click("OutpostTradingChangeGoods")
 
@@ -115,26 +116,36 @@ def 更换货品(c: Capture) -> None:
     c.click("CloseButtonType1")
 
 
-@flow.step(enter=IN_SKY_KING_FLATS, route=OUTPOST_WULING)
+@flow.step(
+    enter="OutpostTradingInSkyKingFlatsConstructionSite",
+    route="SceneEnterMenuRegionalDevelopmentWulingOutpostManagement",
+    stop=False,
+    once=True,
+)
 def 交易(c: Capture) -> None:
-    if c.hit(ZERO_MONEY):
+    if c.hit("OutpostTradingZeroMoney"):
         raise FlowError("据点调度券储量不足，一份都卖不了；等据点攒出一些券再跑")
-    c.run(SELL)  # 现成的「交易」节点，自己会点交易按钮
+    c.run("OutpostTradingSell")  # 现成的「交易」节点，自己会点交易按钮
     c.wait("OutpostTradingCheckResultHeader")
     c.shot("交易完成_获得物品", settle=1.0)
     c.run("OutpostTradingSellCheck")  # 现成的「交易后确认」节点，自己点 ✓
 
 
-@flow.step(enter=IN_SKY_KING_FLATS, route=OUTPOST_WULING)
+@flow.step(
+    enter="OutpostTradingInSkyKingFlatsConstructionSite",
+    route="SceneEnterMenuRegionalDevelopmentWulingOutpostManagement",
+    stop=False,
+    once=True,
+)
 def 清空调度券(c: Capture) -> None:
     """跑现成的 BetterSliding 流程：份数拉满，然后一路卖到券见底。"""
     try:
-        c.sub_task(BETTER_SLIDING)
+        c.sub_task("OutpostTradingSkyKingFlatsConstructionSiteBetterSliding")
     except FlowError:
         # 卖到券见底时这条链会以失败收尾，是不是真卖完了下面按界面确认
         print("  BetterSliding 任务以失败结束，按界面判断是否已经卖完")
-    if not c.hit(ZERO_MONEY):
+    if not c.hit("OutpostTradingZeroMoney"):
         raise FlowError("跑完 BetterSliding 也没把券卖到见底，可能仓库货物不够")
-    c.wait(ZERO_MONEY)
+    c.wait("OutpostTradingZeroMoney")
     c.shot("据点_调度券不足", settle=1.0)
     c.click("CloseButtonType1")
