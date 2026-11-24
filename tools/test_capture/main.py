@@ -34,7 +34,6 @@ import io
 import json
 import signal
 import sys
-import unicodedata
 from collections.abc import Callable
 from datetime import datetime
 from functools import wraps
@@ -45,7 +44,7 @@ import click
 
 from . import cancel
 from .diagram import render as render_diagram
-from .flow import FlowError, as_dict, as_list, load_flow, load_jsonc
+from .flow import FlowError, as_dict, as_list, load_flow
 from .nodes import NODE_NAMES_STUB, write_node_names
 from .output import DEFAULT_KEEP, new_run_dir, prune_runs
 from .runner import DEFAULT_WAIT, RunSettings, run_flow, split_segments
@@ -70,49 +69,36 @@ def _rel(path: Path) -> str:
         return str(path)
 
 
-def _display_width(text: str) -> int:
-    """终端里占几列：中文等全角字符占两列。"""
-    return sum(2 if unicodedata.east_asian_width(char) in ("W", "F") else 1 for char in text)
+def _param(ctx: click.Context, name: str) -> click.Parameter:
+    """按名字取当前子命令的某个参数对象，用来让 click 自己拼「缺少参数」的提示。"""
+    return next(param for param in ctx.command.params if param.name == name)
 
 
-def _pad(text: str, width: int) -> str:
-    return text + " " * (width - _display_width(text))
+def _supported_controllers() -> list[str]:
+    """interface.json 里这个脚本能连的控制器名。"""
+    entries = [as_dict(item) for item in as_list(load_interface().get("controller"))]
+    return [str(entry.get("name")) for entry in entries if entry.get("type") in SUPPORTED_KINDS]
 
 
-def _flow_block() -> str:
-    """tests/ 下有哪些流程：文件、流程名、步数。"""
-    flows = _find_flows()
-    lines = ["可用的流程（--flow）："]
-    if not flows:
-        lines.append("  （tests/<任务>/capture_flow.py 一个都没有）")
-    width = max((_display_width(_rel(path)) for path in flows), default=0)
-    for path in flows:
-        try:
-            flow = load_flow(path)
-            about = f"{flow.name}，{len(flow.steps)} 步"
-        except FlowError as error:
-            about = f"加载失败：{error}"
-        lines.append(f"  {_pad(_rel(path), width)}  {about}")
-    return "\n".join(lines)
+class _FlowPath(click.Path):
+    """--flow 的取值：照常按文件路径校验，缺参数时用 click 的格式列出有哪些流程。"""
+
+    def __init__(self) -> None:
+        super().__init__(exists=True, dir_okay=False, path_type=Path)
+
+    def get_missing_message(self, param: click.Parameter, ctx: click.Context | None) -> str | None:
+        flows = [_rel(path) for path in _find_flows()]
+        return f"可选：{'、'.join(flows)}" if flows else None
 
 
-def _controller_block() -> str:
-    """interface.json 里能用的控制器，以及暂不支持的那几个。"""
-    interface = load_interface()
-    labels = load_jsonc(ROOT / "assets/locales/interface/zh_cn.json")
-    entries = [as_dict(item) for item in as_list(interface.get("controller"))]
-    supported = [entry for entry in entries if entry.get("type") in SUPPORTED_KINDS]
-    unsupported = [str(entry.get("name")) for entry in entries if entry.get("type") not in SUPPORTED_KINDS]
-    lines = ["可用的控制器（--controller，可以写多个依次跑）："]
-    width = max((len(str(entry.get("name"))) for entry in supported), default=0)
-    for entry in supported:
-        name = str(entry.get("name"))
-        label = str(labels.get(f"controller.{name}.label") or "")
-        kind = SUPPORTED_KINDS[str(entry.get("type"))]
-        lines.append(f"  {name.ljust(width)}  {label}（{kind}）" if label else f"  {name.ljust(width)}  {kind}")
-    if unsupported:
-        lines.append(f"  暂不支持：{'、'.join(unsupported)}")
-    return "\n".join(lines)
+class _ControllerName(click.ParamType[str]):
+    """--controller 的取值：控制器名，缺参数时用 click 的格式列出有哪些可选。"""
+
+    name = "controller"
+
+    def get_missing_message(self, param: click.Parameter, ctx: click.Context | None) -> str | None:
+        names = _supported_controllers()
+        return f"可选：{'、'.join(names)}" if names else None
 
 
 def _diagrams(flow_path: Path | None, target: str, controllers: tuple[str, ...]) -> None:
@@ -349,13 +335,14 @@ def _command() -> None:
 @click.option(
     "--flow",
     "flow_path",
-    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    type=_FlowPath(),
     default=None,
     help="流程文件，一般放 tests/<任务>/capture_flow.py",
 )
 @click.option(
     "--controller",
     "controllers",
+    type=_ControllerName(),
     multiple=True,
     help="assets/interface.json 里的控制器名（ADB / Win32-Front / CloudWeb 等），可重复以依次跑多个平台",
 )
@@ -415,7 +402,9 @@ def _command() -> None:
     help="资源服目录下的任务子目录，默认用流程文件所在的文件夹名",
 )
 @_errors
+@click.pass_context
 def _run_command(
+    ctx: click.Context,
     flow_path: Path | None,
     controllers: tuple[str, ...],
     resume: Path | None,
@@ -433,13 +422,10 @@ def _run_command(
 ) -> None:
     """按流程文件逐屏截图。"""
     if flow_path is None and resume is None:
-        click.echo(_flow_block())
-        click.echo("")
-        click.echo(_controller_block())
-        raise click.UsageError("跑流程要给 --flow；接着跑用 --resume <运行目录>")
+        # 没给流程，也没说接着哪次运行：让 click 报「缺少 --flow」，并带上可选的流程。
+        raise click.MissingParameter(ctx=ctx, param=_param(ctx, "flow_path"))
     if flow_path is not None and resume is None and not controllers:
-        click.echo(_controller_block())
-        raise click.UsageError("跑流程要给 --controller")
+        raise click.MissingParameter(ctx=ctx, param=_param(ctx, "controllers"))
     _refresh_node_names(always_report=False)
     _run(
         flow_path,
