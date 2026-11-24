@@ -69,6 +69,20 @@ bool capture_fix_after_device_move(Navigator* nav)
     return captured && !nav->position_provider->last_capture_was_black_screen && nav->position->valid;
 }
 
+bool minimap_covered_by_screen(const PositionSensor& sensor)
+{
+    return sensor.last_capture_minimap_absent && !sensor.last_capture_was_black_screen;
+}
+
+bool recapture_finds_minimap_covered(Navigator* nav)
+{
+    if (!minimap_covered_by_screen(*nav->position_provider)) {
+        return false;
+    }
+    SleepFor(kTargetTickMs);
+    return !capture_fix_after_device_move(nav) && minimap_covered_by_screen(*nav->position_provider);
+}
+
 DeviceRemovalOutcome classify_device_move(
     const NaviPosition& move_start,
     const NaviPosition& position,
@@ -111,6 +125,10 @@ DeviceRemovalOutcome TryRemoveDevice(Navigator* nav, const RouteMeasurement& rou
     }
 
     if (!capture_fix_after_device_move(nav)) {
+        if (recapture_finds_minimap_covered(nav)) {
+            LogWarn << "Blocking-device handling left a screen over the minimap.";
+            return DeviceRemovalOutcome::UnknownUi;
+        }
         // 旧定位会让随后的跳跃从旧点量位移, 误报已脱困
         LogWarn << "Dynamic recovery waiting for a local tracking fix after the device move.";
         SleepFor(kTargetTickMs);
