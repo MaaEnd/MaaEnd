@@ -229,8 +229,7 @@ TickStep HandlePrompts(Navigator* nav, const NavigateTick& tick)
 
     if (waypoint.action == ActionType::ZIPLINE && !IsZiplineMounted(nav->runtime_state) && waypoint.zipline_hop) {
         FollowMountTower(&nav->runtime_state.zipline_approach, waypoint.zipline_hop->mount);
-        const size_t cursor = nav->runtime_state.zipline_approach.spot_index;
-        if (cursor + 1 < waypoint.zipline_hop->mount_spots.size() && route.waypoint_distance <= kZiplineWalkEnterBandWu
+        if (waypoint.zipline_hop->mount_spots.size() > 1 && route.waypoint_distance <= kZiplineWalkEnterBandWu
             && HardStalledMs(*nav->session, tick.now) >= kZiplineMountSpotStallMs) {
             const semantic_nodes::Result advanced = semantic_nodes::AdvanceMountSpot(nav, waypoint, "zipline_mount_spot_stalled");
             if (advanced.consumed) {
