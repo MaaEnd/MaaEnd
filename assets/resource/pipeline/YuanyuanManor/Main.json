@@ -1,0 +1,39 @@
+{
+    "YuanyuanManorSchedule": {
+        "desc": "缘缘庄经营执行周期",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "YuanyuanManorScheduleEnabled",
+            "YuanyuanManorScheduleSkip"
+        ]
+    },
+    "YuanyuanManorScheduleEnabled": {
+        "desc": "缘缘庄经营执行周期命中",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ScheduleRecognition"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "RestaurantResetThemeScrollHitCount"
+        ],
+        "attach": {
+            "monday": false,
+            "tuesday": false,
+            "wednesday": false,
+            "thursday": false,
+            "friday": false,
+            "saturday": false,
+            "sunday": false
+        }
+    },
+    "YuanyuanManorScheduleSkip": {
+        "desc": "缘缘庄经营执行周期跳过",
+        "pre_delay": 0,
+        "post_delay": 0
+    }
+}
