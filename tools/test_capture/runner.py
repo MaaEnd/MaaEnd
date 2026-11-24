@@ -19,7 +19,7 @@ from PIL import Image as PILImage
 from . import cancel, pretasks, validate
 from .agents import Agents, pi_environment
 from .controllers import create_controller
-from .flow import BASE_HEIGHT, BASE_WIDTH, Flow, FlowError, Step, as_dict, as_list
+from .flow import BASE_HEIGHT, BASE_WIDTH, Flow, FlowError, RouteFunc, Step, as_dict, as_list
 from .runtime import AGENT_DIR, LOG_DIR, controller_entry, load_task, maafw_dir, resource_bundles
 from .testset import TestSetError, TestSetWriter
 from .types import Box, Controller, Image, Point, Recognition, RecognitionDetail, Resource, Tasker
@@ -336,15 +336,23 @@ class Session:
         if not self.wait_job(self.tasker.post_task(node)).succeeded:
             raise FlowError(f"节点 {node} 没跑成功，转跳可能被弹窗挡住了")
 
-    def goto(self, enter: str, route: str | None = None) -> None:
-        """先确认在这个界面，不在就转跳过去，到了再往下走。"""
+    def goto(self, enter: str, route: str | RouteFunc | None = None) -> None:
+        """先确认在这个界面，不在就转跳过去，到了再往下走。
+
+        route 写节点名就用现成节点转过去；写一段流程函数就自己一步步点过去——
+        有的界面没有现成节点能一步到位（比如装箱界面只能从仓储节点点进去再选类型）。
+        """
         if self.hit(enter):
             return
-        target = route or ENTER_WORLD_NODE
         if self.dry_run:
             raise FlowError(f"现在不在 {enter}，dry-run 不点击、转跳不了；先把游戏切到这个界面再跑")
-        click.echo(f"[{self.name}] 不在 {enter}，转跳 {target}")
-        self.sub_task(target)
+        if callable(route):
+            click.echo(f"[{self.name}] 不在 {enter}，按流程里的转法过去")
+            route(self)
+        else:
+            target = route or ENTER_WORLD_NODE
+            click.echo(f"[{self.name}] 不在 {enter}，转跳 {target}")
+            self.sub_task(target)
         self.wait(enter)
 
     def run_step(self, index: int, step: Step) -> dict[str, Any]:

@@ -18,6 +18,9 @@ NODE_ARG_METHODS = {"hit": 1, "text": 1, "wait": 1, "click": 1, "run": 1, "sub_t
 # 步骤声明里的关键字，值也是节点名。
 STEP_KEYWORDS = frozenset({"enter", "route"})
 
+# 这些位置上的参数是「怎么过去」，可以写一段转跳动作，那样没法静态核对。
+ROUTE_POSITIONS = frozenset({("goto", 1)})
+
 # 节点名写错时最多给几个候选。
 SUGGESTIONS = 3
 
@@ -54,10 +57,12 @@ def collect(path: Path) -> NodeRefs:
     for node in ast.walk(tree):
         if not isinstance(node, ast.Call):
             continue
-        count = NODE_ARG_METHODS.get(node.func.attr, 0) if isinstance(node.func, ast.Attribute) else 0
-        for arg in node.args[:count]:
+        method = node.func.attr if isinstance(node.func, ast.Attribute) else ""
+        for position, arg in enumerate(node.args[: NODE_ARG_METHODS.get(method, 0)]):
             if isinstance(arg, ast.Constant) and isinstance(arg.value, str):
                 refs.nodes.append(NodeRef(arg.value, arg.lineno))
+            elif (method, position) in ROUTE_POSITIONS:
+                continue
             elif not (isinstance(arg, ast.Constant) and arg.value is None):
                 refs.unchecked.append(arg.lineno)
         for keyword in node.keywords:
@@ -66,7 +71,8 @@ def collect(path: Path) -> NodeRefs:
             value = keyword.value
             if isinstance(value, ast.Constant) and isinstance(value.value, str):
                 refs.nodes.append(NodeRef(value.value, value.lineno))
-            elif not (isinstance(value, ast.Constant) and value.value is None):
+            elif keyword.arg == "enter" and not (isinstance(value, ast.Constant) and value.value is None):
+                # enter 必须是节点名；route 还可以写成一段转跳动作，那样静态核对不了。
                 refs.unchecked.append(value.lineno)
     return refs
 

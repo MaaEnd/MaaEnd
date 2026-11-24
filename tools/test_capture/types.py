@@ -5,6 +5,7 @@ maa 包没有类型存根，框架对象在这里统一收敛成 Protocol，其�
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any, Protocol
 
@@ -79,7 +80,7 @@ class Capture(Protocol):
         """跑一个现成节点的整条流程（会跟 next），让它自己把界面转跳到目标。"""
         ...
 
-    def goto(self, enter: str, route: str | None = ...) -> None:
+    def goto(self, enter: str, route: str | Callable[[Capture], None] | None = ...) -> None:
         """先确认在 enter 这个界面；不在就 sub_task(route) 转过去，到了再往下走。
 
         route 不写就退回 SceneAnyEnterWorld 回大世界。每个步骤开跑前会自动调一次。

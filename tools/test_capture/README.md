@@ -49,6 +49,24 @@ def 四号谷地据点(c: Capture) -> None:
 （`route` 不写时退回 `SceneAnyEnterWorld` 回大世界），等 `enter` 命中才开始。
 这样中途被弹窗打断、上一步没走完，下一步会自己先回到该在的界面。
 
+有些界面没有现成节点能一步跳进去（比如装箱界面只能从仓储节点点进去、再选一次货物类型），
+这时 `route` 可以写一段流程函数，自己一步步点过去，最常用的是「先回仓储节点、再点进去」：
+
+```python
+def 回装箱界面(c: Capture) -> None:
+    c.goto("DeliveryJobsInWulingLocalDepotNode", "SceneEnterMenuRegionalDevelopmentWulingDepotNode")
+    c.run("DeliveryJobsEnterWulingCityCargo")
+    c.wait("DeliveryJobsInCargoPackGoods")
+
+
+@flow.step(enter="DeliveryJobsInCargoPackGoods", route=回装箱界面, once=True)
+def 装满货物(c: Capture) -> None:
+    c.run("DeliveryJobsCargoFillToMax")
+```
+
+实在回不去的界面（比如委托已经转出去、只在某一瞬间存在的奖励页），`route` 写个直接抛错的函数，
+让人一眼看出是状态不对，而不是傻等超时。
+
 函数名里的字符不够用时，用 `@flow.named("据点 难民暂居处", enter=..., route=...)` 指定步骤名。
 
 ### 每一步默认都是一段
@@ -110,6 +128,30 @@ uv run test-capture --from-run .cache/test-capture/20261122-075434
 # 上次跑一半停了：接着那个运行目录继续，跑过的步骤不再跑
 uv run test-capture --resume .cache/test-capture/20261124-090000
 ```
+
+### 先画一张流程图再跑
+
+流程文件本身就能画成一张 HTML：每段、每步、进哪个界面、不在时怎么过去、截哪些图、
+代码里写的注释，还有哪台平台跑、哪台跳过，都在一张纸上，看一眼就知道顺序对不对。
+
+```bash
+uv run test-capture --flow tests/DeliveryJobs/capture_flow.py --diagram 流程.html
+# 带上 --controller 还能把平台顺序和跳过关系标出来
+uv run test-capture --flow tests/DeliveryJobs/capture_flow.py --diagram 流程.html --controller ADB --controller Win32-Front
+```
+
+它只读流程文件，不连设备、不动游戏，随便画。
+
+### 跑之前先看会碰到哪些节点
+
+`--nodes` 把这次运行要用的 pipeline 节点列成清单，不连设备：
+
+```bash
+uv run test-capture --flow tests/DeliveryJobs/capture_flow.py --nodes
+```
+
+内容包括开场固定跑的那几个、每一步直接调用的节点（`run` / `click` / `wait` / `sub_task` / `goto`），
+转跳时沿 `next` 连带跑的那一串，以及每步截了哪些图。看清单能提前发现「这步其实点不到那个按钮」这类问题。
 
 ### 中途停下与接着跑
 

@@ -42,6 +42,8 @@ class FlowError(RuntimeError):
 
 
 StepFunc = Callable[[Capture], None]
+# 转跳也可以是一段动作：有些界面没有现成节点能一步到位，只能自己一步步点进去。
+RouteFunc = Callable[[Capture], None]
 
 
 @dataclass
@@ -49,7 +51,8 @@ class Step:
     """流程里的一步。
 
     enter 是这个步骤要求的界面：开跑前先看一眼在不在，不在就转跳过去；
-    route 是转跳用的现成节点，一般是 SceneEnter... 这种「从任意界面进入某菜单」，
+    route 是「不在这个界面时怎么过去」：一般写现成节点名（SceneEnter... 这类从任意界面
+    进某个菜单的节点），也可以写一段流程函数，自己一步步点过去；
     不写就退回 SceneAnyEnterWorld 回大世界。
     stop 默认就是 True：每一步都是本段的结尾，所有平台跑完这一步才进下一步；
     想连着跑几步再切段，给后面的步骤写 stop=False。
@@ -59,7 +62,7 @@ class Step:
     name: str
     func: StepFunc
     enter: str | None = None
-    route: str | None = None
+    route: str | RouteFunc | None = None
     stop: bool = True
     once: bool = False
 
@@ -80,7 +83,7 @@ class Flow:
         /,
         *,
         enter: str | None = ...,
-        route: str | None = ...,
+        route: str | RouteFunc | None = ...,
         stop: bool = ...,
         once: bool = ...,
     ) -> StepFunc: ...
@@ -92,7 +95,7 @@ class Flow:
         /,
         *,
         enter: str,
-        route: str | None = ...,
+        route: str | RouteFunc | None = ...,
         stop: bool = ...,
         once: bool = ...,
     ) -> Callable[[StepFunc], StepFunc]: ...
@@ -103,7 +106,7 @@ class Flow:
         /,
         *,
         enter: str | None = None,
-        route: str | None = None,
+        route: str | RouteFunc | None = None,
         stop: bool = True,
         once: bool = False,
     ) -> StepFunc | Callable[[StepFunc], StepFunc]:
@@ -129,7 +132,7 @@ class Flow:
         name: str,
         *,
         enter: str | None = None,
-        route: str | None = None,
+        route: str | RouteFunc | None = None,
         stop: bool = True,
         once: bool = False,
     ) -> Callable[[StepFunc], StepFunc]:
