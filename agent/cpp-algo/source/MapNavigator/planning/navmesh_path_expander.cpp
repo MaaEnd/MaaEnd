@@ -778,6 +778,9 @@ void append_hop_waypoints(std::vector<Waypoint>* out_path, const ZiplineRoute& r
             for (const zipline::ZiplineNode& other : route.hop_alternates[hop]) {
                 hop_plan.siblings.push_back(ToNodeRef(other));
             }
+            for (const zipline::ZiplineNode& other : route.hop_bystanders[hop]) {
+                hop_plan.bystanders.push_back(ToNodeRef(other));
+            }
         }
         hop_plan.chain_continues = hop + 2 < route.towers.size();
         out_path->back().zipline_hop = hop_plan;

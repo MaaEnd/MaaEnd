@@ -41,6 +41,8 @@ struct ZiplineHopPlan
     ZiplineNodeRef landing;
     // 同一上索架上其它索通向的架子, 挂错索时靠它们认出落在哪
     std::vector<ZiplineNodeRef> siblings;
+    // siblings 以外滑这一跳可能落到的架子
+    std::vector<ZiplineNodeRef> bystanders;
     // 正数往上滑, 按两端世界坐标算好
     double planned_elevation_deg = 0.0;
     // 第一个就是航点本身的落脚点, 只有链首那一跳有
@@ -81,6 +83,7 @@ enum class HopOutcome
     Lost,        // 落地定位一直对不上
     Dismounted,  // 主动下索交给恢复
     AimFailed,   // 在架上瞄不准放弃
+    Rerouted,    // 落到认得的别的架子且还能重试, 就地重规划
 };
 
 struct ZiplineHopRecord
