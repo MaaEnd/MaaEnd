@@ -28,12 +28,10 @@ def 四号谷地据点(c: Capture) -> None:
     c.shot("据点_难民暂居处")
     c.click("OutpostTradingCheckInfraStationTabText")
 
-    c.wait("OutpostTradingInInfraStation")
-    c.shot("据点_基建前站")
+    c.shot_when("OutpostTradingInInfraStation", "据点_基建前站")
     c.click("OutpostTradingCheckReconstructionHQTabText")
 
-    c.wait("OutpostTradingInReconstructionHQ")
-    c.shot("据点_重建指挥部")
+    c.shot_when("OutpostTradingInReconstructionHQ", "据点_重建指挥部")
     c.click("CloseButtonType1")
 
 
@@ -46,12 +44,10 @@ def 武陵据点(c: Capture) -> None:
     c.shot("据点_天王坪援建点")
     c.click("OutpostTradingCheckCardiacRemediationStationTabText")
 
-    c.wait("OutpostTradingInCardiacRemediationStation")
-    c.shot("据点_心脏修缮站")
+    c.shot_when("OutpostTradingInCardiacRemediationStation", "据点_心脏修缮站")
     c.click("OutpostTradingCheckXiranflowCloudseederStationTabText")
 
-    c.wait("OutpostTradingInXiranflowCloudseederStation")
-    c.shot("据点_盈天台建设站")
+    c.shot_when("OutpostTradingInXiranflowCloudseederStation", "据点_盈天台建设站")
     c.click("OutpostTradingCheckSkyKingFlatsConstructionSiteTabText")
 
 
@@ -63,12 +59,10 @@ def 武陵据点(c: Capture) -> None:
 def 联络干员(c: Capture) -> None:
     c.click("OutpostTradingOpenOperatorLiaisonButton")
 
-    c.wait("OutpostTradingInOperatorLiaison")
-    c.shot("联络干员_当前派驻")
+    c.shot_when("OutpostTradingInOperatorLiaison", "联络干员_当前派驻")
     c.click_at((660, 210))  # 第二张干员卡
 
-    c.wait("OutpostTradingCheckAssignText")
-    c.shot("联络干员_派驻按钮")
+    c.shot_when("OutpostTradingCheckAssignText", "联络干员_派驻按钮")
 
     # 派驻在别的据点的干员排在列表最下面：滑到底，挑一张带「其他据点」标记的卡片。
     # 只有这种干员，点派驻才会弹出「是否确认更改派驻」的确认框。
@@ -111,8 +105,7 @@ def 联络干员(c: Capture) -> None:
 def 更换货品(c: Capture) -> None:
     c.click("OutpostTradingChangeGoods")
 
-    c.wait("OutpostTradingCheckSelectGoodsText")
-    c.shot("选择交易货品")
+    c.shot_when("OutpostTradingCheckSelectGoodsText", "选择交易货品")
     c.click("CloseButtonType1")
 
 
@@ -126,8 +119,7 @@ def 交易(c: Capture) -> None:
     if c.hit("OutpostTradingZeroMoney"):
         raise FlowError("据点调度券储量不足，一份都卖不了；等据点攒出一些券再跑")
     c.run("OutpostTradingSell")  # 现成的「交易」节点，自己会点交易按钮
-    c.wait("OutpostTradingCheckResultHeader")
-    c.shot("交易完成_获得物品", settle=1.0)
+    c.shot_when("OutpostTradingCheckResultHeader", "交易完成_获得物品", settle=1.0)
     c.run("OutpostTradingSellCheck")  # 现成的「交易后确认」节点，自己点 ✓
 
 
@@ -146,6 +138,5 @@ def 清空调度券(c: Capture) -> None:
         print("  BetterSliding 任务以失败结束，按界面判断是否已经卖完")
     if not c.hit("OutpostTradingZeroMoney"):
         raise FlowError("跑完 BetterSliding 也没把券卖到见底，可能仓库货物不够")
-    c.wait("OutpostTradingZeroMoney")
-    c.shot("据点_调度券不足", settle=1.0)
+    c.shot_when("OutpostTradingZeroMoney", "据点_调度券不足", settle=1.0)
     c.click("CloseButtonType1")
