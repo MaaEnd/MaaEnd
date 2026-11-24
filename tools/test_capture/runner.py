@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import threading
 import time
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -15,7 +16,7 @@ import click
 import numpy as np
 from PIL import Image as PILImage
 
-from . import pretasks, validate
+from . import cancel, pretasks, validate
 from .agents import Agents, pi_environment
 from .controllers import create_controller
 from .flow import BASE_HEIGHT, BASE_WIDTH, Flow, FlowError, Step, as_dict, as_list
@@ -147,9 +148,13 @@ class Session:
                 "post_delay": 0,
             }
         }
-        self.tasker.post_task(PROBE_NODE, harness).wait()
+        self.wait_job(self.tasker.post_task(PROBE_NODE, harness))
         with self.lock:
             return self.details.get(PROBE_NODE)
+
+    def wait_job[JobT: cancel.JobLike](self, job: JobT) -> JobT:
+        """等作业完成；中途按 Ctrl+C 会先停掉当前任务，再抛 Cancelled。"""
+        return cancel.wait_job(job, stop=self.tasker.post_stop)
 
     def wait_for(self, node: str, timeout: float, interval: float) -> tuple[RecognitionDetail, int]:
         deadline = time.monotonic() + timeout
@@ -164,7 +169,7 @@ class Session:
             time.sleep(interval)
 
     def capture(self) -> Image:
-        return self.controller.post_screencap().wait().get()
+        return self.wait_job(self.controller.post_screencap()).get()
 
     # ---- 流程里能用的接口 -------------------------------------------------
 
@@ -197,7 +202,7 @@ class Session:
         }
         with self.lock:
             self.details.pop(PROBE_NODE, None)
-        self.tasker.post_task(PROBE_NODE, {PROBE_NODE: node}).wait()
+        self.wait_job(self.tasker.post_task(PROBE_NODE, {PROBE_NODE: node}))
         with self.lock:
             detail = self.details.get(PROBE_NODE)
         return recognition_text(detail)
@@ -216,7 +221,7 @@ class Session:
         }
         with self.lock:
             self.details.pop(PROBE_NODE, None)
-        self.tasker.post_task(PROBE_NODE, {PROBE_NODE: node}).wait()
+        self.wait_job(self.tasker.post_task(PROBE_NODE, {PROBE_NODE: node}))
         with self.lock:
             detail = self.details.get(PROBE_NODE)
         if detail is None:
@@ -287,7 +292,7 @@ class Session:
         if self.dry_run:
             click.echo(f"[{self.name}] 跳过点击 ({x}, {y})（dry-run）")
             return
-        if not self.controller.post_click(x, y).wait().succeeded:
+        if not self.wait_job(self.controller.post_click(x, y)).succeeded:
             raise FlowError(f"点击 ({x}, {y}) 失败")
         self.clicked.append((x, y))
         click.echo(f"[{self.name}] 点击 ({x}, {y})")
@@ -308,7 +313,7 @@ class Session:
             "post_delay": 0,
         }
         click.echo(f"[{self.name}] 滑动 {begin} -> {end}")
-        if not self.tasker.post_task(PROBE_NODE, {PROBE_NODE: node}).wait().succeeded:
+        if not self.wait_job(self.tasker.post_task(PROBE_NODE, {PROBE_NODE: node})).succeeded:
             raise FlowError(f"滑动 {begin} -> {end} 没成功")
 
     def run(self, node: str) -> None:
@@ -318,7 +323,7 @@ class Session:
         click.echo(f"[{self.name}] 执行 {node}")
         if self.dry_run:
             return
-        if not self.tasker.post_task(node, {node: {"next": []}}).wait().succeeded:
+        if not self.wait_job(self.tasker.post_task(node, {node: {"next": []}})).succeeded:
             raise FlowError(f"节点 {node} 没执行成功")
 
     def sub_task(self, node: str) -> None:
@@ -328,7 +333,7 @@ class Session:
         click.echo(f"[{self.name}] 转跳 {node}")
         if self.dry_run:
             return
-        if not self.tasker.post_task(node).wait().succeeded:
+        if not self.wait_job(self.tasker.post_task(node)).succeeded:
             raise FlowError(f"节点 {node} 没跑成功，转跳可能被弹窗挡住了")
 
     def goto(self, enter: str, route: str | None = None) -> None:
@@ -379,7 +384,7 @@ def open_game(tasker: Tasker, resource: Resource, interface: dict[str, Any], con
         raise FlowError(f"资源里没有节点 {OPEN_GAME_NODE}")
     override = start_app_override(controller_name)
     click.echo(f"[{controller_name}] 执行 {OPEN_GAME_NODE} 打开游戏")
-    if not tasker.post_task(OPEN_GAME_NODE, override).wait().succeeded:
+    if not cancel.wait_job(tasker.post_task(OPEN_GAME_NODE, override), stop=tasker.post_stop).succeeded:
         raise FlowError(f"{OPEN_GAME_NODE} 没跑成功；Agent 日志在 {LOG_DIR}/agent-*.log")
 
 
@@ -388,7 +393,7 @@ def enter_world(tasker: Tasker, resource: Resource, controller_name: str) -> Non
     if resource.get_node_data(ENTER_WORLD_NODE) is None:
         raise FlowError(f"资源里没有节点 {ENTER_WORLD_NODE}，没法先回大世界")
     click.echo(f"[{controller_name}] 执行 {ENTER_WORLD_NODE} 回到大世界")
-    job = tasker.post_task(ENTER_WORLD_NODE).wait()
+    job = cancel.wait_job(tasker.post_task(ENTER_WORLD_NODE), stop=tasker.post_stop)
     if not job.succeeded:
         raise FlowError(f"{ENTER_WORLD_NODE} 没跑成功，游戏可能停在弹窗或登录界面；Agent 日志在 {LOG_DIR}/agent-*.log")
     click.echo(f"[{controller_name}] 已回到大世界")
@@ -444,12 +449,26 @@ class Platform:
         self.agents = agents
         self.session = session
 
-    def run_segment(self, segment: Segment, result: dict[str, Any], skip: set[str] | None = None) -> None:
-        """跑这一段，把每步的记录追加到 result["steps"]；skip 里的步骤不跑，只记一笔跳过。"""
-        skipped = skip or set()
+    def run_segment(
+        self,
+        segment: Segment,
+        result: dict[str, Any],
+        skip: dict[str, str | None] | None = None,
+        notify: Callable[[], None] | None = None,
+    ) -> None:
+        """跑这一段，把每步的记录追加到 result["steps"]。
+
+        skip 里的步骤不跑：值是这次跳过的原因、要记一笔；值是 None 表示上次已经跑过，
+        这次不用再记。notify 在每次进度变化后调用，用来随时把进度写到磁盘。
+        """
+        skipped = skip or {}
         for index, step in segment.steps:
             if step.name in skipped:
-                result["steps"].append({"step": index, "name": step.name, "skipped": "只能做一次，已经由别的平台做完"})
+                reason = skipped[step.name]
+                if reason is not None:
+                    result["steps"].append({"step": index, "name": step.name, "skipped": reason})
+                if notify is not None:
+                    notify()
                 continue
             try:
                 record = self.session.run_step(index, step)
@@ -467,7 +486,11 @@ class Platform:
                     f"[{self.name}] 第 {index} 步「{step.name}」失败：{error}；现场截图已存到 {failure_path}"
                 ) from error
             result["steps"].append(record)
+            if notify is not None:
+                notify()
         result.setdefault("segments", []).append(segment.index)
+        if notify is not None:
+            notify()
 
     def close(self) -> None:
         self.session.close()
@@ -491,7 +514,7 @@ def open_platform(
 
     resource = cast(Resource, MaaResource())
     for bundle in resource_bundles(interface, controller_name):
-        if not resource.post_bundle(bundle).wait().succeeded:
+        if not cancel.wait_job(resource.post_bundle(bundle)).succeeded:
             raise FlowError(f"加载资源失败: {bundle}")
     # 资源装好就先把流程里写的节点名对一遍：写错了就别去拉游戏、连设备了。
     validate.check(refs, resource)
@@ -502,7 +525,7 @@ def open_platform(
         pretasks.run(controller_name, env_extra)
     controller, description = create_controller(interface, controller_name, settings.adb_path, settings.adb_serial)
     click.echo(f"[{controller_name}] 连接 {description}")
-    if not controller.post_connection().wait().succeeded:
+    if not cancel.wait_job(controller.post_connection()).succeeded:
         raise FlowError(f"控制器 {controller_name} 连接失败")
 
     tasker = cast(Tasker, MaaTasker())
@@ -552,12 +575,17 @@ def run_flow(
     run_dir: Path,
     settings: RunSettings,
     testset: TestSetWriter | None = None,
+    previous: list[dict[str, Any]] | None = None,
+    on_progress: Callable[[list[dict[str, Any]], dict[str, str]], None] | None = None,
 ) -> list[dict[str, Any]]:
     """按「段」和「平台」两层循环跑，返回每个平台汇总后的结果。
 
     外层是段、内层是平台：一段在所有平台上各跑一遍才进下一段，这样同一段里各平台的
     前置状态一致。平台顺序一段正、一段反（A B → B A → A B），让上一段的最后一台直接
     接着跑下一段，少一次重新登录；只有换平台那一次才需要顶号。
+
+    previous 是上次中断那场已经记下的进度，传进来就跳过已经跑完的步骤接着跑；
+    on_progress 在每次进度变化后调用，用来随时把 manifest 写到磁盘。
     """
     segments = split_segments(flow)
     # 流程文件扫一遍节点名，每台平台装好资源后都会拿它对一次，写错了连设备都不连。
@@ -573,12 +601,37 @@ def run_flow(
         }
         for name in controllers
     }
+    steps_by_name = {step.name: step for step in flow.steps}
+    # 每个平台已经处理完的步骤（跑过或记过跳过），以及标了 once 的步骤归谁做的。
+    finished: dict[str, set[str]] = {name: set() for name in controllers}
+    done_once: dict[str, str] = {}
+    for item in previous or []:
+        name = str(item.get("controller") or "")
+        if name not in results:
+            continue
+        results[name]["steps"] = list(item.get("steps") or [])
+        results[name]["segments"] = list(item.get("segments") or [])
+        results[name]["skippedSegments"] = list(item.get("skippedSegments") or [])
+        results[name]["error"] = item.get("error")
+        for record in results[name]["steps"]:
+            step_name = str(record.get("name") or "")
+            finished[name].add(step_name)
+            step = steps_by_name.get(step_name)
+            if step is not None and step.once and not record.get("skipped"):
+                done_once[step_name] = name
+    if previous:
+        done_steps = sum(len(names) for names in finished.values())
+        click.echo(f"接着上次的进度跑：已经记下 {done_steps} 步，跑过的不再跑")
+
+    def save() -> None:
+        if on_progress is not None:
+            on_progress([results[name] for name in controllers], dict(done_once))
+
+    save()
     if len(segments) > 1:
         click.echo(f"流程切成 {len(segments)} 段（默认每一步一段），每段在 {len(controllers)} 个平台上各跑一遍")
 
     failed: set[str] = set()
-    # 标了 once 的步骤做完之后记在这儿：步骤名 → 做完它的平台。
-    done_once: dict[str, str] = {}
     platform: Platform | None = None
     try:
         for segment in segments:
@@ -587,19 +640,25 @@ def run_flow(
                 if name in failed:
                     click.echo(f"[{name}] 前面失败了，第 {segment.index} 段跳过", err=True)
                     continue
-                skip = {
-                    step.name
-                    for _, step in segment.steps
-                    if step.once and step.name in done_once and done_once[step.name] != name
-                }
+                skip: dict[str, str | None] = {}
+                for _, step in segment.steps:
+                    if step.name in finished[name]:
+                        # 上次中断前已经跑过，这次不再跑，也不用再记一笔。
+                        skip[step.name] = None
+                    elif step.once and step.name in done_once and done_once[step.name] != name:
+                        skip[step.name] = f"只能做一次，已经由 {done_once[step.name]} 做完"
                 if len(skip) == len(segment.steps):
-                    owner = done_once[segment.steps[0][1].name]
+                    noted = False
                     for index, step in segment.steps:
-                        results[name]["steps"].append(
-                            {"step": index, "name": step.name, "skipped": f"只能做一次，已经由 {owner} 做完"}
-                        )
-                    results[name]["skippedSegments"].append(segment.index)
-                    click.echo(f"[{name}] 第 {segment.index} 段只能做一次，{owner} 已经做过，跳过")
+                        reason = skip[step.name]
+                        if reason is not None:
+                            results[name]["steps"].append({"step": index, "name": step.name, "skipped": reason})
+                            noted = True
+                    if noted:
+                        if segment.index not in results[name]["skippedSegments"]:
+                            results[name]["skippedSegments"].append(segment.index)
+                        click.echo(f"[{name}] 第 {segment.index} 段不用跑（上次跑过，或者只能做一次），跳过")
+                    save()
                     continue
                 if platform is not None and platform.name != name:
                     platform.close()
@@ -609,14 +668,19 @@ def run_flow(
                         platform = open_platform(interface, name, run_dir / name, settings, testset, refs)
                     if testset is not None:
                         testset.start_controller(name)
-                    platform.run_segment(segment, results[name], skip)
+                    platform.run_segment(segment, results[name], skip, save)
                     for _, step in segment.steps:
-                        if step.once and step.name not in skip:
+                        if step.name in skip:
+                            continue
+                        finished[name].add(step.name)
+                        if step.once:
                             done_once[step.name] = name
+                    save()
                 except (FlowError, TestSetError) as error:
                     failed.add(name)
                     results[name]["error"] = results[name]["error"] or {"message": str(error)}
                     click.echo(str(error), err=True)
+                    save()
                     if platform is not None and platform.name == name:
                         platform.close()
                         platform = None

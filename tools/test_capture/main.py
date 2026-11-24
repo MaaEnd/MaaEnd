@@ -11,6 +11,10 @@
 
     uv run test-capture --from-run .cache/test-capture/20261122-075434
 
+跑到一半按 Ctrl+C 停下，之后用 --resume 接着那个目录继续跑，跑过的步骤不再跑：
+
+    uv run test-capture --resume .cache/test-capture/20261124-090000
+
 流程文件的写法、输出目录和已知限制见 tools/test_capture/README.md。
 """
 
@@ -18,6 +22,7 @@ from __future__ import annotations
 
 import io
 import json
+import signal
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -25,6 +30,7 @@ from typing import Any, cast
 
 import click
 
+from . import cancel
 from .flow import FlowError, load_flow
 from .output import DEFAULT_KEEP, new_run_dir, prune_runs
 from .runner import DEFAULT_WAIT, RunSettings, run_flow, split_segments
@@ -34,9 +40,27 @@ from .testset import TestSetError, TestSetWriter, export_run
 DEFAULT_OUT = ROOT / ".cache/test-capture"
 
 
+def _read_manifest(run_dir: Path) -> dict[str, Any]:
+    """读一个运行目录的 manifest；不是运行目录就报错。"""
+    manifest_path = run_dir / "manifest.json"
+    if not manifest_path.is_file():
+        raise FlowError(f"{run_dir} 里没有 manifest.json，不是 test-capture 的运行目录")
+    return cast("dict[str, Any]", json.loads(manifest_path.read_text(encoding="utf-8")))
+
+
+def _write_manifest(run_dir: Path, manifest: dict[str, Any]) -> None:
+    """把进度写进 manifest.json：先写临时文件再换名，中断也不会留下半个文件。"""
+    manifest["updatedAt"] = datetime.now().isoformat(timespec="seconds")
+    path = run_dir / "manifest.json"
+    tmp = run_dir / "manifest.json.tmp"
+    tmp.write_text(json.dumps(manifest, ensure_ascii=False, indent=4) + "\n", encoding="utf-8")
+    tmp.replace(path)
+
+
 def _run(
-    flow_path: Path,
+    flow_path: Path | None,
     controllers: tuple[str, ...],
+    resume: Path | None,
     out_dir: Path,
     adb_path: str | None,
     adb_serial: str | None,
@@ -49,21 +73,45 @@ def _run(
     testset_resource: str,
     testset_dir: str | None,
 ) -> Path:
+    previous: list[dict[str, Any]] = []
+    manifest: dict[str, Any] = {}
+    if resume is not None:
+        # 接着上一次中断的运行继续跑：目录、流程文件、平台都沿用那边的记录。
+        run_dir = resume.resolve()
+        manifest = _read_manifest(run_dir)
+        previous = cast("list[dict[str, Any]]", manifest.get("controllers") or [])
+        if flow_path is None:
+            recorded = str(manifest.get("flowFile") or "")
+            if not recorded:
+                raise FlowError("运行目录里没记流程文件，接着跑要自己给 --flow")
+            flow_path = Path(recorded)
+        if not controllers:
+            controllers = tuple(str(item.get("controller") or "") for item in previous)
+    else:
+        run_dir = new_run_dir(out_dir.resolve())
+    if flow_path is None:
+        raise click.UsageError("跑流程要给 --flow，或者用 --resume 接着上一次运行")
+    if not controllers:
+        raise click.UsageError("跑流程要给 --controller，或者用 --resume 接着上一次运行")
+
     flow = load_flow(flow_path.resolve())
     interface = load_interface()
     prepare_framework(Path(maafw) if maafw else None)
 
-    root = out_dir.resolve()
-    run_dir = new_run_dir(root)
-    for stale in prune_runs(root, keep):
-        click.echo(f"清掉旧截图：{stale.name}")
-    manifest: dict[str, Any] = {
-        "flow": flow.name or flow_path.name,
-        "flowFile": str(flow_path.resolve()),
-        "dryRun": dry_run,
-        "startedAt": datetime.now().isoformat(timespec="seconds"),
-        "controllers": [],
-    }
+    if resume is None:
+        for stale in prune_runs(out_dir.resolve(), keep):
+            click.echo(f"清掉旧截图：{stale.name}")
+        manifest = {
+            "flow": flow.name or flow_path.name,
+            "flowFile": str(flow_path.resolve()),
+            "dryRun": dry_run,
+            "startedAt": datetime.now().isoformat(timespec="seconds"),
+            "controllers": [],
+        }
+    else:
+        manifest["flow"] = flow.name or flow_path.name
+        manifest["flowFile"] = str(flow_path.resolve())
+        manifest["dryRun"] = dry_run
     click.echo(f"流程「{manifest['flow']}」共 {len(flow.steps)} 步，输出到 {run_dir}")
 
     settings = RunSettings(
@@ -78,7 +126,19 @@ def _run(
         folder = testset_dir or flow_path.resolve().parent.name
         writer = TestSetWriter(ROOT, testset_resource, folder)
 
-    results = run_flow(interface, flow, controllers, run_dir, settings, writer)
+    def on_progress(items: list[dict[str, Any]], once: dict[str, str]) -> None:
+        manifest["controllers"] = items
+        manifest["once"] = once
+        _write_manifest(run_dir, manifest)
+
+    _write_manifest(run_dir, manifest)
+    try:
+        results = run_flow(interface, flow, controllers, run_dir, settings, writer, previous, on_progress)
+    except cancel.Cancelled:
+        cancel.reset()
+        _write_manifest(run_dir, manifest)
+        click.echo(f"已中断；进度已经存下，用 --resume {run_dir} 接着跑，跑过的步骤不会再跑", err=True)
+        raise click.exceptions.Exit(130) from None
     manifest["controllers"] = results
     failed = [item["controller"] for item in results if item.get("error")]
     segments = split_segments(flow)
@@ -95,7 +155,7 @@ def _run(
         if item.get("skippedSegments")
     ]
 
-    (run_dir / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=4) + "\n", encoding="utf-8")
+    _write_manifest(run_dir, manifest)
     if writer is not None:
         where = "tests/MaaEndTestset/<控制器>/<资源>/" + writer.folder
         if failed:
@@ -150,6 +210,13 @@ def _export(run_dir: Path, resource: str, folder: str | None) -> None:
     "controllers",
     multiple=True,
     help="assets/interface.json 里的控制器名（Adb / Win32，含 CloudWeb 云网页版），可重复以依次跑多个平台",
+)
+@click.option(
+    "--resume",
+    "resume",
+    type=click.Path(exists=True, file_okay=False, path_type=Path),
+    default=None,
+    help="接着上一次中断的运行继续跑：给个运行目录，跑过的步骤不会再跑",
 )
 @click.option(
     "--from-run",
@@ -209,6 +276,7 @@ def _export(run_dir: Path, resource: str, folder: str | None) -> None:
 def _command(
     flow_path: Path | None,
     controllers: tuple[str, ...],
+    resume: Path | None,
     from_run: Path | None,
     out_dir: Path,
     adb_path: str | None,
@@ -227,11 +295,14 @@ def _command(
         if from_run is not None:
             _export(from_run, testset_resource, testset_dir)
             return
-        if flow_path is None or not controllers:
-            raise click.UsageError("跑流程要同时给 --flow 和 --controller；只导测试集用 --from-run")
+        if from_run is None and flow_path is None and resume is None:
+            raise click.UsageError("跑流程要给 --flow 和 --controller；接着跑用 --resume；只导测试集用 --from-run")
+        if from_run is None and resume is None and not controllers:
+            raise click.UsageError("跑流程要给 --controller")
         _run(
             flow_path,
             controllers,
+            resume,
             out_dir,
             adb_path,
             adb_serial,
@@ -246,12 +317,24 @@ def _command(
         )
     except (FlowError, TestSetError) as error:
         raise click.ClickException(str(error)) from error
+    except KeyboardInterrupt:
+        # 连按两次 Ctrl+C 之类的硬中断，别打一屏堆栈出来。
+        raise click.exceptions.Exit(130) from None
+
+
+def _on_sigint(signum: int, frame: object) -> None:
+    """Ctrl+C：只记一笔，等当前这一步的等待循环看到标记再停。"""
+    if cancel.requested():
+        # 第二次再按就别等了，直接抛出去，由上层收尾。
+        raise KeyboardInterrupt
+    cancel.request()
 
 
 def main() -> None:
     # 报错也走 stderr，不一起改成 UTF-8 的话中文在 GBK 控制台上是乱码。
     cast("io.TextIOWrapper", sys.stdout).reconfigure(encoding="utf-8")
     cast("io.TextIOWrapper", sys.stderr).reconfigure(encoding="utf-8")
+    signal.signal(signal.SIGINT, _on_sigint)
     _command()
 
 

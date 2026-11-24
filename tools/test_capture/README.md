@@ -106,7 +106,19 @@ uv run test-capture --flow tests/OutpostTrading/capture_flow.py --controller ADB
 
 # 忘了加 --testset：直接把那次运行目录里的截图脱敏补导一遍，不用重跑
 uv run test-capture --from-run .cache/test-capture/20261122-075434
+
+# 上次跑一半停了：接着那个运行目录继续，跑过的步骤不再跑
+uv run test-capture --resume .cache/test-capture/20261124-090000
 ```
+
+### 中途停下与接着跑
+
+按 `Ctrl+C` 会马上停：当前那一步的 maa 任务会被打断，不会干等它自己跑完；连按两次直接硬退。
+
+进度随时写在运行目录的 `manifest.json` 里，每跑完一步就更新一次，所以停在哪一步都记得住。
+用 `--resume <运行目录>` 接着跑：已经跑过的步骤不再跑，`once` 的步骤也照旧只做一次，
+流程文件和平台都从那份 manifest 里取，不用再给 `--flow` / `--controller`。
+因为 manifest 是边跑边写的，中断的运行目录也能用 `--from-run` 补导测试图。
 
 `SceneAnyEnterWorld` 和自定义识别都依赖 go-service、cpp-algo 注册的组件，
 所以第一次跑之前要先 `uv run build-and-install`。
