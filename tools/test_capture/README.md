@@ -103,10 +103,11 @@ def 清空调度券(c: Capture) -> None:
 
 ## 怎么跑
 
-命令分成四个子命令：`run` 跑流程、`diagram` 画流程图、`export` 补导测试图、`nodes` 刷新节点名补全。不写子命令直接跑，会列出 `tests/` 下所有流程文件（带流程名和步数）、`assets/interface.json` 里能用的控制器，以及常用命令：
+命令分成四个子命令：`run` 跑流程、`diagram` 画流程图、`export` 补导测试图、`nodes` 刷新节点名补全。不写子命令直接跑，就是这份帮助，末尾会附上 `tests/` 下所有流程文件（带流程名和步数）和 `assets/interface.json` 里能用的控制器：
 
 ```bash
 uv run test-capture
+uv run test-capture run -h  # 每个子命令只看自己的参数
 ```
 
 ```bash
