@@ -147,6 +147,7 @@ def _write_manifest(run_dir: Path, manifest: dict[str, Any]) -> None:
 def _run(
     flow_path: Path | None,
     controllers: tuple[str, ...],
+    only: str | None,
     resume: Path | None,
     out_dir: Path,
     adb_path: str | None,
@@ -164,17 +165,25 @@ def _run(
     manifest: dict[str, Any] = {}
     if resume is not None:
         # 接着上一次中断的运行继续跑：目录、流程文件、平台都沿用那边的记录。
+        # 再给 --controller 只会跑其中一部分平台、把别的平台的记录覆盖掉，所以直接拦下；
+        # 只想补跑一台用 --only，那台之外平台的记录原样留着。
+        if controllers:
+            raise click.UsageError("--resume 不能配 --controller：接着跑整场，平台从运行目录的 manifest.json 里取")
         run_dir = resume.resolve()
         manifest = _read_manifest(run_dir)
         previous = cast("list[dict[str, Any]]", manifest.get("controllers") or [])
+        recorded_controllers = tuple(str(item.get("controller") or "") for item in previous)
+        if only is not None and only not in recorded_controllers:
+            raise click.UsageError(f"运行目录里没有平台 {only}，记录的是：{'、'.join(recorded_controllers)}")
         if flow_path is None:
-            recorded = str(manifest.get("flowFile") or "")
-            if not recorded:
+            recorded_flow = str(manifest.get("flowFile") or "")
+            if not recorded_flow:
                 raise FlowError("运行目录里没记流程文件，接着跑要自己给 --flow")
-            flow_path = Path(recorded)
-        if not controllers:
-            controllers = tuple(str(item.get("controller") or "") for item in previous)
+            flow_path = Path(recorded_flow)
+        controllers = recorded_controllers
     else:
+        if only is not None:
+            raise click.UsageError("--only 要跟 --resume 一起用：它是在上次的记录上只补跑一台，新跑一场用 --controller")
         run_dir = new_run_dir(out_dir.resolve())
     if flow_path is None:
         raise click.UsageError("跑流程要给 --flow，或者用 --resume 接着上一次运行")
@@ -201,6 +210,8 @@ def _run(
         manifest["flowFile"] = str(flow_path.resolve())
         manifest["dryRun"] = dry_run
     click.echo(f"流程「{manifest['flow']}」共 {len(flow.steps)} 步，输出到 {run_dir}")
+    if only is not None:
+        click.echo(f"只补跑 {only}，其余 {len(controllers) - 1} 台平台保持上次的记录")
 
     settings = RunSettings(
         adb_path=adb_path,
@@ -221,26 +232,30 @@ def _run(
 
     _write_manifest(run_dir, manifest)
     try:
-        results = run_flow(interface, flow, controllers, run_dir, settings, writer, previous, on_progress)
+        results = run_flow(interface, flow, controllers, run_dir, settings, writer, previous, on_progress, only=only)
     except cancel.Cancelled:
         cancel.reset()
         _write_manifest(run_dir, manifest)
         click.echo(f"已中断；进度已经存下，用 --resume {run_dir} 接着跑，跑过的步骤不会再跑", err=True)
         raise click.exceptions.Exit(130) from None
     manifest["controllers"] = results
-    failed = [item["controller"] for item in results if item.get("error")]
+    # --only 只补跑一台：别的平台的记录是上次留下的，不能算进这次的结论，也不该被这次改写。
+    touched = [only] if only is not None else [item["controller"] for item in results]
+    failed = [item["controller"] for item in results if item.get("error") and item["controller"] in touched]
+    stale = [item["controller"] for item in results if item.get("error") and item["controller"] not in touched]
     segments = split_segments(flow)
     skipped = [
         item["controller"]
         for item in results
-        if not item.get("error")
+        if item["controller"] in touched
+        and not item.get("error")
         and len(item.get("segments") or []) + len(item.get("skippedSegments") or []) < len(segments)
     ]
     # 只能做一次的步骤：第一个跑到的平台做完，后面到的平台跳过，这几段它们本来就没有图。
     once_skipped = [
         (str(item["controller"]), len(item.get("skippedSegments") or []))
         for item in results
-        if item.get("skippedSegments")
+        if item["controller"] in touched and item.get("skippedSegments")
     ]
 
     _write_manifest(run_dir, manifest)
@@ -257,10 +272,14 @@ def _run(
     if once_skipped:
         detail = "、".join(f"{name} 跳过 {count} 段" for name, count in once_skipped)
         click.echo(f"有的步骤只能做一次，别的平台跳过了（{detail}），那几段没有图")
+    if stale:
+        click.echo(f"这次没动的平台还带着上次的失败：{'、'.join(stale)}（想补跑其中一台就加 --only <平台>）", err=True)
     if failed:
         click.echo(f"失败的平台：{'、'.join(failed)}", err=True)
         # 进度已经写进 manifest.json：设备连上、游戏能进大世界之后再续，跑过的步骤不会重跑。
         click.echo(f"接着跑：uv run test-capture run --resume {run_dir}", err=True)
+        if len(controllers) > 1:
+            click.echo("只想补跑其中一台就加 --only <平台>，其余平台的记录原样保留", err=True)
     click.echo(f"{'结束（有失败）' if failed else '完成'}：{run_dir}")
     if failed:
         raise click.exceptions.Exit(1)
@@ -357,6 +376,13 @@ def _command() -> None:
     help="接着上一次中断的运行继续跑：给个运行目录，跑过的步骤不会再跑",
 )
 @click.option(
+    "--only",
+    "only",
+    type=_ControllerName(),
+    default=None,
+    help="接着跑时只补跑这一台平台，其余平台的记录原样保留；要和 --resume 一起用",
+)
+@click.option(
     "--out",
     "out_dir",
     type=click.Path(path_type=Path),
@@ -410,6 +436,7 @@ def _run_command(
     ctx: click.Context,
     flow_path: Path | None,
     controllers: tuple[str, ...],
+    only: str | None,
     resume: Path | None,
     out_dir: Path,
     adb_path: str | None,
@@ -427,12 +454,14 @@ def _run_command(
     if flow_path is None and resume is None:
         # 没给流程，也没说接着哪次运行：让 click 报「缺少 --flow」，并带上可选的流程。
         raise click.MissingParameter(ctx=ctx, param=_param(ctx, "flow_path"))
-    if flow_path is not None and resume is None and not controllers:
+    if flow_path is not None and resume is None and not controllers and only is None:
+        # 给了 --only 却没说接着哪次运行，交给 _run 报「--only 要跟 --resume 一起用」，比缺 --controller 更贴切。
         raise click.MissingParameter(ctx=ctx, param=_param(ctx, "controllers"))
     _refresh_node_names(always_report=False)
     _run(
         flow_path,
         controllers,
+        only,
         resume,
         out_dir,
         adb_path,

@@ -158,8 +158,10 @@ uv run test-capture diagram --flow tests/DeliveryJobs/capture_flow.py 流程.htm
 
 进度随时写在运行目录的 `manifest.json` 里，每跑完一步就更新一次，所以停在哪一步都记得住。
 用 `--resume <运行目录>` 接着跑：已经跑过的步骤不再跑，`once` 的步骤也照旧只做一次，
-流程文件和平台都从那份 manifest 里取，不用再给 `--flow` / `--controller`。
+流程文件和平台都从那份 manifest 里取：`--controller` 不能再给（只跑其中一部分平台会把别的平台的记录覆盖掉，直接报错），`--flow` 可以不给。
 因为 manifest 是边跑边写的，中断的运行目录也能用 `--from-run` 补导测试图。
+
+只想补跑其中一台平台就加 `--only <平台>`：那台之外平台的记录、截图原样保留，结尾还会列出哪些平台带着上次的失败。`--only` 只能跟 `--resume` 一起用，新跑一场还是用 `--controller`。
 
 日志跟着运行目录走，都在 `<运行目录>/logs/` 下：`maafw.log`、`debug/on_error/` 里的失败截图、`agent-*.log`、`pretask-*.log`。续跑沿用同一个目录，日志接着往里写；`--keep`（默认留 10 次运行）删旧运行目录时，里面的日志一起删。
 

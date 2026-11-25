@@ -596,6 +596,7 @@ def run_flow(
     testset: TestSetWriter | None = None,
     previous: list[dict[str, Any]] | None = None,
     on_progress: Callable[[list[dict[str, Any]], dict[str, str]], None] | None = None,
+    only: str | None = None,
 ) -> list[dict[str, Any]]:
     """按「段」和「平台」两层循环跑，返回每个平台汇总后的结果。
 
@@ -606,6 +607,7 @@ def run_flow(
     任何一台平台报错就整场停下：后面的段、别的平台都不再跑，免得在状态不对的游戏上接着点。
     previous 是上次中断那场已经记下的进度，传进来就跳过已经跑完的步骤接着跑；
     on_progress 在每次进度变化后调用，用来随时把 manifest 写到磁盘。
+    only 只在这台平台上跑，别的平台沿用 previous 里的记录、这次不连也不动它们。
     """
     segments = split_segments(flow)
     # 流程文件扫一遍节点名，每台平台装好资源后都会拿它对一次，写错了连设备都不连。
@@ -661,6 +663,8 @@ def run_flow(
                 break
             order = controllers if segment.index % 2 == 1 else tuple(reversed(controllers))
             for name in order:
+                if only is not None and name != only:
+                    continue
                 skip: dict[str, str | None] = {}
                 for _, step in segment.steps:
                     if step.name in finished[name]:
