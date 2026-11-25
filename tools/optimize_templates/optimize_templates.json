@@ -2693,5 +2693,6 @@
     "resource/image/EssenceFilter/ThumbEquipped": "cca66e3e3db6441c985cf46463c54fb2ac3359289eaf1e460dc3cf72d926dbe8",
     "resource/image/EssenceFilter/EssenceRewardHighPurity": "30859cf544292669dd21365a9a27722d61c035bf555cff046c51e772ecb05151",
     "resource/image/OperatorGrowth/Operators/Mimino": "81ce7b6e853485b89ab8668b9ba74374108548de255f45844e0ac0a48a85e857",
-    "resource/image/OperatorGrowth/Operators/Kay": "d79da5245b27f89fd22f4e97454dc17564dd53a63b43ec3612d3f7fb32ee2b3e"
+    "resource/image/OperatorGrowth/Operators/Kay": "d79da5245b27f89fd22f4e97454dc17564dd53a63b43ec3612d3f7fb32ee2b3e",
+    "resource/image/GiftOperator/Operators/Kay": "be665780c38b3410562cec0a4a60aca87f5fb31a0b122bc96cf836da1af06d5b"
 }
