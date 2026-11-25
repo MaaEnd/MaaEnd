@@ -113,7 +113,6 @@ def 更换货品(c: Capture) -> None:
     enter=Nodes.OutpostTradingInSkyKingFlatsConstructionSite,
     route=Nodes.SceneEnterMenuRegionalDevelopmentWulingOutpostManagement,
     stop=False,
-    once=True,
 )
 def 交易(c: Capture) -> None:
     if c.hit(Nodes.OutpostTradingZeroMoney):
@@ -127,7 +126,6 @@ def 交易(c: Capture) -> None:
     enter=Nodes.OutpostTradingInSkyKingFlatsConstructionSite,
     route=Nodes.SceneEnterMenuRegionalDevelopmentWulingOutpostManagement,
     stop=False,
-    once=True,
 )
 def 清空调度券(c: Capture) -> None:
     """跑现成的 BetterSliding 流程：份数拉满，然后一路卖到券见底。"""
