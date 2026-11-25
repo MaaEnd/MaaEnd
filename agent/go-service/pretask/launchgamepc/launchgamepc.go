@@ -535,16 +535,7 @@ func runPipeline(hWnd unsafe.Pointer) error {
 		Uint32("window_dpi", windowDPI).
 		Uint32("monitor_dpi", monitorDPI).
 		Msg("launcher DPI differs from monitor, using FramePool")
-	err = runPipelinePhase(hWnd, res, win32.ScreencapFramePool, win32.InputSendMessage, pipelineEntry)
-	if err != nil && isProcessRunning(gameProcessName) {
-		// FramePool can retain the last frame when the launcher minimizes.
-		// Run still requires the actual game window before reporting success.
-		log.Warn().Err(err).
-			Str("component", component).
-			Msg("game process started, waiting for its window")
-		return nil
-	}
-	return err
+	return runPipelinePhase(hWnd, res, win32.ScreencapFramePool, win32.InputSendMessage, pipelineEntry)
 }
 
 func runPipelinePhase(hWnd unsafe.Pointer, res *maa.Resource, screencap win32.ScreencapMethod, input win32.InputMethod, entry string) error {
