@@ -243,6 +243,8 @@ export default [
         entry: "StashBackpackEntry",
         description: "$task.StashBackpack.description",
         group: ["backpack"],
+        // TODO: CloudWeb 尚未实机验证，验证通过后加进下面的列表。任务文件由这里生成，注释带不进 JSON，
+        // 说明留在模板里，免得生成一遍就被抹掉。
         controller: [
             "ADB",
             "CloudADB",
