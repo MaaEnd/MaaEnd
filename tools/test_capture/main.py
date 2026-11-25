@@ -248,7 +248,7 @@ def _run(
         if failed:
             click.echo(f"有平台没跑完，这次的测试图不全，没写完的步骤没有新图；目录：{where}", err=True)
         elif skipped:
-            click.echo(f"有平台因为前面失败，后面几段没跑，图不全；目录：{where}", err=True)
+            click.echo(f"有平台因为别的平台失败、整场停下，后面几段没跑，图不全；目录：{where}", err=True)
         else:
             click.echo(f"测试图：{where}（用例里 imageRoot 写 {writer.folder} 才对得上）")
     if len(segments) > 1:

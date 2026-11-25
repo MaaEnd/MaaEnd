@@ -603,6 +603,7 @@ def run_flow(
     前置状态一致。平台顺序一段正、一段反（A B → B A → A B），让上一段的最后一台直接
     接着跑下一段，少一次重新登录；只有换平台那一次才需要顶号。
 
+    任何一台平台报错就整场停下：后面的段、别的平台都不再跑，免得在状态不对的游戏上接着点。
     previous 是上次中断那场已经记下的进度，传进来就跳过已经跑完的步骤接着跑；
     on_progress 在每次进度变化后调用，用来随时把 manifest 写到磁盘。
     """
@@ -650,15 +651,14 @@ def run_flow(
     if len(segments) > 1:
         click.echo(f"流程切成 {len(segments)} 段（默认每一步一段），每段在 {len(controllers)} 个平台上各跑一遍")
 
-    failed: set[str] = set()
     platform: Platform | None = None
+    stopped = False
     try:
         for segment in segments:
+            if stopped:
+                break
             order = controllers if segment.index % 2 == 1 else tuple(reversed(controllers))
             for name in order:
-                if name in failed:
-                    click.echo(f"[{name}] 前面失败了，第 {segment.index} 段跳过", err=True)
-                    continue
                 skip: dict[str, str | None] = {}
                 for _, step in segment.steps:
                     if step.name in finished[name]:
@@ -696,7 +696,6 @@ def run_flow(
                             done_once[step.name] = name
                     save()
                 except (FlowError, TestSetError) as error:
-                    failed.add(name)
                     results[name]["error"] = results[name]["error"] or {"message": str(error)}
                     click.echo(str(error), err=True)
                     save()
@@ -706,6 +705,9 @@ def run_flow(
                     if isinstance(error, validate.NodeNameError):
                         # 节点名写错跟平台无关，一台报出来就够了，不用接着试别的平台。
                         raise
+                    click.echo(f"[{name}] 失败，整场停下，后面的段和别的平台都不再跑", err=True)
+                    stopped = True
+                    break
     finally:
         if platform is not None:
             platform.close()
