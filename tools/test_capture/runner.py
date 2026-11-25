@@ -29,6 +29,9 @@ PROBE_NODE = "TestCaptureProbe"
 ENTER_WORLD_NODE = "SceneAnyEnterWorld"
 OPEN_GAME_NODE = "OpenGame"
 OPEN_GAME_TASK = "AndroidOpenGame"
+# 临时识别任务只认一次：MaaFramework 默认认不到就每秒重试、最多 20 秒，
+# 那样 hit() 在节点不在时要白等 20 秒；要等就由 wait_for 自己按 interval 重试。
+PROBE_TIMEOUT = 0
 # 界面刚出来时可能有动画，截图前默认等 2 秒让画面稳定；只是等界面命中时不额外等待。
 DEFAULT_WAIT = 2.0
 
@@ -146,6 +149,7 @@ class Session:
                 "next": [],
                 "pre_delay": 0,
                 "post_delay": 0,
+                "timeout": PROBE_TIMEOUT,
             }
         }
         self.wait_job(self.tasker.post_task(PROBE_NODE, harness))
@@ -199,6 +203,7 @@ class Session:
             "next": [],
             "pre_delay": 0,
             "post_delay": 0,
+            "timeout": PROBE_TIMEOUT,
         }
         with self.lock:
             self.details.pop(PROBE_NODE, None)
@@ -218,6 +223,7 @@ class Session:
             "next": [],
             "pre_delay": 0,
             "post_delay": 0,
+            "timeout": PROBE_TIMEOUT,
         }
         with self.lock:
             self.details.pop(PROBE_NODE, None)
