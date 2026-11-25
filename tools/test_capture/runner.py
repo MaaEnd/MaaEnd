@@ -375,8 +375,8 @@ class Session:
         self.clicked.clear()
         step.func(self)
         return {
-            "index": index,
-            "step": step.name,
+            "step": index,
+            "name": step.name,
             "shots": list(self.records),
             "clicked": [list(point) for point in self.clicked],
             "stopped": step.stop,
@@ -634,7 +634,9 @@ def run_flow(
         results[name]["skippedSegments"] = list(item.get("skippedSegments") or [])
         results[name]["error"] = item.get("error")
         for record in results[name]["steps"]:
-            step_name = str(record.get("name") or "")
+            # 早先的运行记录把步骤名写在 step 里、序号写在 index 里，读旧目录时两种都认。
+            old_name = record.get("step") if isinstance(record.get("step"), str) else ""
+            step_name = str(record.get("name") or old_name or "")
             finished[name].add(step_name)
             step = steps_by_name.get(step_name)
             if step is not None and step.once and not record.get("skipped"):
