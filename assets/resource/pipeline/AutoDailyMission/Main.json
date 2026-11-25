@@ -334,6 +334,77 @@
             "AutoDailyMissionCheckFinished"
         ]
     },
+    "AutoDailyMissionWaitSnsPopup": {
+        "desc": "回到大世界后等待安德烈通讯弹出",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        // 通讯在回到大世界后才异步弹出，大世界画面一直在动，无法用 pre_wait_freezes 等待
+        "post_delay": 5000,
+        "next": [
+            "AutoDailyMissionSnsPopup",
+            "AutoDailyMissionSnsPopupDone"
+        ]
+    },
+    "AutoDailyMissionSnsPopup": {
+        "desc": "弹出了安德烈通讯",
+        "recognition": "OCR",
+        "roi": [
+            680,
+            70,
+            300,
+            90
+        ],
+        "expected": [
+            "^安德烈$",
+            "(?i)^Andre$",
+            "^アンドレイ$",
+            "^안드레$"
+        ],
+        "next": [
+            "AutoDailyMissionSnsPopupDone",
+            "AutoDailyMissionSnsPopupReply"
+        ]
+    },
+    "AutoDailyMissionSnsPopupReply": {
+        "desc": "点击通讯底部的白色回复按钮",
+        "max_hit": 5,
+        "recognition": "ColorMatch",
+        "roi": [
+            690,
+            420,
+            450,
+            230
+        ],
+        "lower": [
+            235,
+            235,
+            235
+        ],
+        "upper": [
+            255,
+            255,
+            255
+        ],
+        "connected": true,
+        "count": 3000,
+        "action": "Click",
+        "next": [
+            "AutoDailyMissionSnsPopupDone",
+            "AutoDailyMissionSnsPopupReply"
+        ]
+    },
+    "AutoDailyMissionSnsPopupDone": {
+        "desc": "通讯结束回到大世界",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "next": [
+            "AutoDailyMissionCheckFinished"
+        ]
+    },
     "AutoDailyMissionArrived": {
         "desc": "已在大世界，执行判定出的日常任务路线",
         "recognition": "And",
