@@ -291,18 +291,12 @@ jobs:
           token: ${{ steps.app-token.outputs.token }}
           committer: "maaendbotapp[bot] <305547419+maaendbotapp[bot]@users.noreply.github.com>"
           author: "maaendbotapp[bot] <305547419+maaendbotapp[bot]@users.noreply.github.com>"
+          # 按目录提，不逐条列文件：这个作业的产物都在 assets/ 与 tools/（图标、目录数据、essence 数据、
+          # 两个任务），逐条列既没必要，写错一个路径（目录写成文件、文件写成目录）还会让 git add 直接 fatal，
+          # 提交变空、action 抛一个消息为空的 Unexpected error。
           add-paths: |
-            tools/zmdmap
-            assets/data/IconRecognition
-            assets/data/EssenceFilter
-            assets/resource/image/IconRecognition
-            assets/resource/image/UI/Item
-            assets/tasks/AutoEssence
-            assets/tasks/StashBackpack.json
-            assets/interface.json
-            assets/resource/pipeline/AutoEssence
-            assets/resource/pipeline/StashBackpack
-            assets/locales/interface
+            assets
+            tools
           commit-message: "chore(sync-zmdmap): sync icon resources, EssenceFilter data and dependent tasks"
           branch: chore/sync-zmdmap-icons-and-tasks
           title: "chore(sync-zmdmap): sync icon resources, EssenceFilter data and dependent tasks"
