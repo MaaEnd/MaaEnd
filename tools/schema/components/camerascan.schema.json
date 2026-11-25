@@ -12,7 +12,7 @@
             "properties": {
                 "wait_nodes": {
                     "title": "Wait Nodes",
-                    "description": "Recognition nodes checked before and after every camera movement except reset; success if any hits.",
+                    "description": "Recognition nodes checked after moving to each camera position; success if any hits. The reset step is not checked.",
                     "type": "array",
                     "minItems": 1,
                     "items": {
@@ -52,7 +52,7 @@
                 },
                 "fallback_yaw_steps": {
                     "title": "Fallback Yaw Steps",
-                    "description": "Discrete horizontal movements in each fallback ring. Defaults to 8.",
+                    "description": "Discrete horizontal movements in each fallback ring. Each movement is two direction-node steps, so 8 makes about one full circle. Defaults to 8.",
                     "type": "integer",
                     "minimum": 4,
                     "maximum": 72
