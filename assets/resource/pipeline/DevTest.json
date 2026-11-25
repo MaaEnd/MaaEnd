@@ -6,16 +6,16 @@
     },
     // 环境监测拍照用的镜头扫描（5 × 5 网格 + 中/上/下三圈回退）。
     // next 为空，所以就算扫描命中也不会按快门，只把镜头走一遍。
-    // 想顺带验证命中判定：把 wait_nodes 改成 __TakePhotoShutter，扫描会在拍照目标达成时停下（仍不拍照）。
+    // 停止条件用拍照目标（__TakePhotoShutter）；想跑完整条不停车，换回 DevTestCameraScanNeverHit。
     "DevTestEnvironmentMonitoringCameraScan": {
-        "desc": "环境监测镜头扫描：只移动镜头，不点拍照",
+        "desc": "环境监测镜头扫描：找到拍照目标就停，不点拍照",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "CameraScanAction",
         "custom_action_param": {
             "wait_nodes": [
-                "DevTestCameraScanNeverHit"
+                "__TakePhotoShutter"
             ]
         },
         "post_delay": 0,

@@ -4,17 +4,17 @@
             "CameraScanTestScan"
         ]
     },
-    // 镜头扫描测试：只把镜头走一遍，不按快门。
-    // 想顺带验证命中判定，把 wait_nodes 改成 __TakePhotoShutter —— 命中后仍然不会拍照。
+    // 镜头扫描测试：移动镜头，命中拍照目标（快门可点 + 目标达成）就停，但不会按快门。
+    // 想跑完整条路径、不看命中，把 wait_nodes 换回 CameraScanTestNeverHit。
     "CameraScanTestScan": {
-        "desc": "镜头扫描测试：只移动镜头，不点拍照",
+        "desc": "镜头扫描测试：移动镜头找拍照目标，不点拍照",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "CameraScanAction",
         "custom_action_param": {
             "wait_nodes": [
-                "CameraScanTestNeverHit"
+                "__TakePhotoShutter"
             ]
         },
         "post_delay": 0,
