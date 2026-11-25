@@ -125,7 +125,6 @@ struct SupplyPoint
     double x = 0.0;
     double z = 0.0;
     double radius = 0.0;
-    std::array<int, 2> footprint { 1, 1 };
     std::array<int, 2> coverage_size { 0, 0 };
 };
 
@@ -139,32 +138,24 @@ constexpr double grid_half_span(int size)
     return static_cast<double>((size - 1) / 2);
 }
 
-constexpr bool grid_areas_may_overlap(
-    double delta_x,
-    double delta_z,
-    const std::array<int, 2>& coverage_size,
-    const std::array<int, 2>& supply_footprint,
-    const std::array<int, 2>& tower_footprint)
+constexpr bool
+    grid_areas_overlap(double delta_x, double delta_z, const std::array<int, 2>& coverage_size, const std::array<int, 2>& tower_footprint)
 {
-    const double center_reach_x = grid_half_span(coverage_size[0]) + grid_half_span(tower_footprint[0]);
-    const double center_reach_z = grid_half_span(coverage_size[1]) + grid_half_span(tower_footprint[1]);
-    const double anchor_uncertainty_x = grid_half_span(supply_footprint[0]) + grid_half_span(tower_footprint[0]);
-    const double anchor_uncertainty_z = grid_half_span(supply_footprint[1]) + grid_half_span(tower_footprint[1]);
-    const double reach_x = center_reach_x + anchor_uncertainty_x;
-    const double reach_z = center_reach_z + anchor_uncertainty_z;
+    const double reach_x = grid_half_span(coverage_size[0]) + grid_half_span(tower_footprint[0]);
+    const double reach_z = grid_half_span(coverage_size[1]) + grid_half_span(tower_footprint[1]);
     return absolute_value(delta_x) <= reach_x && absolute_value(delta_z) <= reach_z;
 }
 
-static_assert(grid_areas_may_overlap(5.0, 2.0, { 7, 7 }, { 3, 3 }, { 3, 3 }));
-static_assert(grid_areas_may_overlap(6.0, 6.0, { 7, 7 }, { 3, 3 }, { 3, 3 }));
-static_assert(!grid_areas_may_overlap(0.0, 7.0, { 7, 7 }, { 3, 3 }, { 3, 3 }));
+static_assert(grid_areas_overlap(4.0, -4.0, { 7, 7 }, { 3, 3 }));
+static_assert(!grid_areas_overlap(5.0, 0.0, { 7, 7 }, { 3, 3 }));
+static_assert(!grid_areas_overlap(0.0, -5.0, { 7, 7 }, { 3, 3 }));
 
 // 只量原始世界坐标的水平 x/z, 高低差不进判据
 bool is_powered(const zipline::ZiplineMark& tower, const std::array<int, 2>& tower_footprint, const std::vector<SupplyPoint>& supplies)
 {
     return std::any_of(supplies.begin(), supplies.end(), [&](const SupplyPoint& supply) {
         if (supply.coverage_size[0] > 0 && supply.coverage_size[1] > 0) {
-            return grid_areas_may_overlap(supply.x - tower.x, supply.z - tower.z, supply.coverage_size, supply.footprint, tower_footprint);
+            return grid_areas_overlap(supply.x - tower.x, supply.z - tower.z, supply.coverage_size, tower_footprint);
         }
         return std::hypot(supply.x - tower.x, supply.z - tower.z) <= supply.radius;
     });
@@ -535,7 +526,6 @@ TowerSites collect_powered_towers(const NaviParam& param, const ZiplineData& dat
                         .x = mark.x,
                         .z = mark.z,
                         .radius = source->radius,
-                        .footprint = source->footprint,
                         .coverage_size = source->coverage_size,
                     });
                 supply_points.push_back(to_world(frame.project(mark)));
