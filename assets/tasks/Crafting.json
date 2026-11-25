@@ -20,7 +20,1779 @@
                 "MacOS-Front",
                 "PlayCover",
                 "Win32-Front"
+            ],
+            "option": [
+                "CraftingCategory",
+                "CraftingRounds"
             ]
         }
-    ]
+    ],
+    "option": {
+        "CraftingCategory": {
+            "type": "select",
+            "label": "$option.CraftingCategory.label",
+            "cases": [
+                {
+                    "name": "Emergency",
+                    "label": "$option.CraftingCategory.cases.Emergency.label",
+                    "option": [
+                        "CraftingEmergencyItem"
+                    ],
+                    "pipeline_override": {
+                        "CraftingSelectCategory": {
+                            "expected": [
+                                "应急食药",
+                                "緊急食藥",
+                                "(?i)EMS\\s*F&M",
+                                "(?i)Emergency\\s*Food",
+                                "応急食品・薬",
+                                "응급\\s*식품\\s*및\\s*약품"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Fine",
+                    "label": "$option.CraftingCategory.cases.Fine.label",
+                    "option": [
+                        "CraftingFineItem"
+                    ],
+                    "pipeline_override": {
+                        "CraftingSelectCategory": {
+                            "expected": [
+                                "精制食药",
+                                "精製食藥",
+                                "(?i)Fine\\s*F&M",
+                                "(?i)Fine\\s*Food",
+                                "精製食品・薬",
+                                "정제된\\s*식품\\s*및\\s*약품"
+                            ]
+                        }
+                    }
+                }
+            ],
+            "default_case": "Emergency"
+        },
+        "CraftingEmergencyItem": {
+            "type": "select",
+            "label": "$option.CraftingEmergencyItem.label",
+            "cases": [
+                {
+                    "name": "YazhenPowder",
+                    "label": "$option.CraftingEmergencyItem.cases.YazhenPowder.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^芽针粉末$",
+                                "^芽針粉末$",
+                                "(?i)^Yazhen\\s*Powder$",
+                                "^야침\\s*가루$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^芽针粉末$",
+                                "^芽針粉末$",
+                                "(?i)^Yazhen\\s*Powder$",
+                                "^야침\\s*가루$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "JincaoPowder",
+                    "label": "$option.CraftingEmergencyItem.cases.JincaoPowder.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^锦草粉末$",
+                                "^錦草粉末$",
+                                "(?i)^Jincao\\s*Powder$",
+                                "^금초\\s*가루$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^锦草粉末$",
+                                "^錦草粉末$",
+                                "(?i)^Jincao\\s*Powder$",
+                                "^금초\\s*가루$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "CitromePowder",
+                    "label": "$option.CraftingEmergencyItem.cases.CitromePowder.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^柑实粉末$",
+                                "^柑實粉末$",
+                                "(?i)^Citrome\\s*Powder$",
+                                "^シトローム粉末$",
+                                "^시트론\\s*가루$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^柑实粉末$",
+                                "^柑實粉末$",
+                                "(?i)^Citrome\\s*Powder$",
+                                "^シトローム粉末$",
+                                "^시트론\\s*가루$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "BuckflowerPowder",
+                    "label": "$option.CraftingEmergencyItem.cases.BuckflowerPowder.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^荞花粉末$",
+                                "^蕎花粉末$",
+                                "(?i)^Buckflower\\s*Powder$",
+                                "^메밀꽃\\s*가루$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^荞花粉末$",
+                                "^蕎花粉末$",
+                                "(?i)^Buckflower\\s*Powder$",
+                                "^메밀꽃\\s*가루$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Citromix",
+                    "label": "$option.CraftingEmergencyItem.cases.Citromix.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^柑实冲剂$",
+                                "^柑實沖泡劑$",
+                                "(?i)^Citromix$",
+                                "^黒銀シトローム粉薬$",
+                                "^다크\\s*시트론\\s*가루$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^柑实冲剂$",
+                                "^柑實沖泡劑$",
+                                "(?i)^Citromix$",
+                                "^黒銀シトローム粉薬$",
+                                "^다크\\s*시트론\\s*가루$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "FirebucklePowder",
+                    "label": "$option.CraftingEmergencyItem.cases.FirebucklePowder.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^荞愈药粉$",
+                                "^蕎癒藥粉$",
+                                "(?i)^Firebuckle\\s*Powder$",
+                                "^火映蕎花粉薬$",
+                                "^화염\\s*메밀꽃\\s*가루$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^荞愈药粉$",
+                                "^蕎癒藥粉$",
+                                "(?i)^Firebuckle\\s*Powder$",
+                                "^火映蕎花粉薬$",
+                                "^화염\\s*메밀꽃\\s*가루$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "CannedCitromeB",
+                    "label": "$option.CraftingEmergencyItem.cases.CannedCitromeB.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^优质柑实罐头$",
+                                "^優質柑實罐頭$",
+                                "(?i)^Canned\\s*Citrome\\s*\\[B\\]$",
+                                "^シトロームの缶詰Ⅱ$",
+                                "^시트론\\s*통조림\\(중\\)$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^优质柑实罐头$",
+                                "^優質柑實罐頭$",
+                                "(?i)^Canned\\s*Citrome\\s*\\[B\\]$",
+                                "^シトロームの缶詰Ⅱ$",
+                                "^시트론\\s*통조림\\(중\\)$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "CannedCitromeC",
+                    "label": "$option.CraftingEmergencyItem.cases.CannedCitromeC.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^柑实罐头$",
+                                "^柑實罐頭$",
+                                "(?i)^Canned\\s*Citrome\\s*\\[C\\]$",
+                                "^シトロームの缶詰Ⅰ$",
+                                "^시트론\\s*통조림$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^柑实罐头$",
+                                "^柑實罐頭$",
+                                "(?i)^Canned\\s*Citrome\\s*\\[C\\]$",
+                                "^シトロームの缶詰Ⅰ$",
+                                "^시트론\\s*통조림$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "BuckCapsuleB",
+                    "label": "$option.CraftingEmergencyItem.cases.BuckCapsuleB.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^优质荞愈胶囊$",
+                                "^優質蕎癒膠囊$",
+                                "(?i)^Buck\\s*Capsule\\s*\\[B\\]$",
+                                "^蕎花カプセルⅡ$",
+                                "^메밀꽃\\s*치유\\s*캡슐\\(중\\)$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^优质荞愈胶囊$",
+                                "^優質蕎癒膠囊$",
+                                "(?i)^Buck\\s*Capsule\\s*\\[B\\]$",
+                                "^蕎花カプセルⅡ$",
+                                "^메밀꽃\\s*치유\\s*캡슐\\(중\\)$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "BuckCapsuleC",
+                    "label": "$option.CraftingEmergencyItem.cases.BuckCapsuleC.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^荞愈胶囊$",
+                                "^蕎癒膠囊$",
+                                "(?i)^Buck\\s*Capsule\\s*\\[C\\]$",
+                                "^蕎花カプセルⅠ$",
+                                "^메밀꽃\\s*치유\\s*캡슐$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^荞愈胶囊$",
+                                "^蕎癒膠囊$",
+                                "(?i)^Buck\\s*Capsule\\s*\\[C\\]$",
+                                "^蕎花カプセルⅠ$",
+                                "^메밀꽃\\s*치유\\s*캡슐$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "FluffedJincaoPowder",
+                    "label": "$option.CraftingEmergencyItem.cases.FluffedJincaoPowder.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^蓬茸锦草粉末$",
+                                "^蓬茸錦草粉末$",
+                                "(?i)^Fluffed\\s*Jincao\\s*Powder$",
+                                "^毛羽錦草粉薬$",
+                                "^우거진\\s*금초\\s*가루$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^蓬茸锦草粉末$",
+                                "^蓬茸錦草粉末$",
+                                "(?i)^Fluffed\\s*Jincao\\s*Powder$",
+                                "^毛羽錦草粉薬$",
+                                "^우거진\\s*금초\\s*가루$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "ThornyYazhenPowder",
+                    "label": "$option.CraftingEmergencyItem.cases.ThornyYazhenPowder.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^荆刺芽针粉末$",
+                                "^荊刺芽針粉末$",
+                                "(?i)^Thorny\\s*Yazhen\\s*Powder$",
+                                "^茨芽針粉薬$",
+                                "^가시\\s*야침\\s*가루$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^荆刺芽针粉末$",
+                                "^荊刺芽針粉末$",
+                                "(?i)^Thorny\\s*Yazhen\\s*Powder$",
+                                "^茨芽針粉薬$",
+                                "^가시\\s*야침\\s*가루$"
+                            ]
+                        }
+                    }
+                }
+            ],
+            "default_case": "YazhenPowder"
+        },
+        "CraftingFineItem": {
+            "type": "select",
+            "label": "$option.CraftingFineItem.label",
+            "cases": [
+                {
+                    "name": "MiniHoneySlugpudding",
+                    "label": "$option.CraftingFineItem.cases.MiniHoneySlugpudding.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^小蜜虫布丁$",
+                                "^小蜜蟲布丁$",
+                                "(?i)^Mini\\s*Honey\\s*Slugpudding$",
+                                "^異香プリン$",
+                                "^꿀벌레\\s*푸딩$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^小蜜虫布丁$",
+                                "^小蜜蟲布丁$",
+                                "(?i)^Mini\\s*Honey\\s*Slugpudding$",
+                                "^異香プリン$",
+                                "^꿀벌레\\s*푸딩$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "StewMeeting",
+                    "label": "$option.CraftingFineItem.cases.StewMeeting.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^炖肉会议$",
+                                "^燉肉會議$",
+                                "(?i)^Stew\\s*Meeting$",
+                                "^豪快肉煮込み$",
+                                "^고기들의\\s*회의$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^炖肉会议$",
+                                "^燉肉會議$",
+                                "(?i)^Stew\\s*Meeting$",
+                                "^豪快肉煮込み$",
+                                "^고기들의\\s*회의$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "InstantBoneSoup",
+                    "label": "$option.CraftingFineItem.cases.InstantBoneSoup.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^速食骨汤$",
+                                "^即食骨湯$",
+                                "(?i)^Instant\\s*Bone\\s*Soup$",
+                                "^即席骨だしスープ$",
+                                "^즉석\\s*곰탕$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^速食骨汤$",
+                                "^即食骨湯$",
+                                "(?i)^Instant\\s*Bone\\s*Soup$",
+                                "^即席骨だしスープ$",
+                                "^즉석\\s*곰탕$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "SesqaStyleFillet",
+                    "label": "$option.CraftingFineItem.cases.SesqaStyleFillet.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^塞什卡风肉排$",
+                                "^塞什卡風肉排$",
+                                "(?i)^Seš'qa\\s*Style\\s*Fillet$",
+                                "^セシュカ風ステーキ$",
+                                "^세쉬카풍\\s*스테이크$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^塞什卡风肉排$",
+                                "^塞什卡風肉排$",
+                                "(?i)^Seš'qa\\s*Style\\s*Fillet$",
+                                "^セシュカ風ステーキ$",
+                                "^세쉬카풍\\s*스테이크$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "HandmadeWeirdrop",
+                    "label": "$option.CraftingFineItem.cases.HandmadeWeirdrop.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^手工怪味酸糖$",
+                                "(?i)^Handmade\\s*Weirdrop$",
+                                "^手作りの酸っぱい飴$",
+                                "^이상한\\s*수제\\s*사탕$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^手工怪味酸糖$",
+                                "(?i)^Handmade\\s*Weirdrop$",
+                                "^手作りの酸っぱい飴$",
+                                "^이상한\\s*수제\\s*사탕$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "MeatyBuckflowerStew",
+                    "label": "$option.CraftingFineItem.cases.MeatyBuckflowerStew.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^仿荤烩荞花$",
+                                "^仿葷燴蕎花$",
+                                "(?i)^Meaty\\s*Buckflower\\s*Stew$",
+                                "^蕎花の精進煮込み$",
+                                "^대체육\\s*메밀꽃\\s*볶음$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^仿荤烩荞花$",
+                                "^仿葷燴蕎花$",
+                                "(?i)^Meaty\\s*Buckflower\\s*Stew$",
+                                "^蕎花の精進煮込み$",
+                                "^대체육\\s*메밀꽃\\s*볶음$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "SimplePainReliefSalve",
+                    "label": "$option.CraftingFineItem.cases.SimplePainReliefSalve.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^简易镇痛药膏$",
+                                "^簡易鎮痛藥膏$",
+                                "(?i)^Simple\\s*Pain\\s*Relief\\s*Salve$",
+                                "^即席鎮痛軟膏$",
+                                "^간편\\s*진통\\s*연고$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^简易镇痛药膏$",
+                                "^簡易鎮痛藥膏$",
+                                "(?i)^Simple\\s*Pain\\s*Relief\\s*Salve$",
+                                "^即席鎮痛軟膏$",
+                                "^간편\\s*진통\\s*연고$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "SecretStimulatingTisane",
+                    "label": "$option.CraftingFineItem.cases.SecretStimulatingTisane.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^秘方醒神茶$",
+                                "(?i)^Secret\\s*Stimulating\\s*Tisane$",
+                                "^秘伝目覚まし茶$",
+                                "^비법의\\s*성신차$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^秘方醒神茶$",
+                                "(?i)^Secret\\s*Stimulating\\s*Tisane$",
+                                "^秘伝目覚まし茶$",
+                                "^비법의\\s*성신차$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "SuperhotSlugGratin",
+                    "label": "$option.CraftingFineItem.cases.SuperhotSlugGratin.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^爆辣焗烤源石虫$",
+                                "^爆辣焗烤源石蟲$",
+                                "(?i)^Superhot\\s*Slug\\s*Gratin$",
+                                "^オリジムシの激辛オーブン焼き$",
+                                "^매운\\s*원석충\\s*구이$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^爆辣焗烤源石虫$",
+                                "^爆辣焗烤源石蟲$",
+                                "(?i)^Superhot\\s*Slug\\s*Gratin$",
+                                "^オリジムシの激辛オーブン焼き$",
+                                "^매운\\s*원석충\\s*구이$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "CosmoMeltoJelly",
+                    "label": "$option.CraftingFineItem.cases.CosmoMeltoJelly.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^星融果冻$",
+                                "^星融果凍$",
+                                "(?i)^Cosmo-Melto\\s*Jelly$",
+                                "^星解けのゼリー$",
+                                "^스타\\s*퓨전\\s*젤리$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^星融果冻$",
+                                "^星融果凍$",
+                                "(?i)^Cosmo-Melto\\s*Jelly$",
+                                "^星解けのゼリー$",
+                                "^스타\\s*퓨전\\s*젤리$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "OldManJohnsBurger",
+                    "label": "$option.CraftingFineItem.cases.OldManJohnsBurger.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^约翰老爹汉堡$",
+                                "^約翰老爹漢堡$",
+                                "(?i)^Old\\s*Man\\s*John's\\s*Burger$",
+                                "^ダディ・ジョンズバーガー$",
+                                "^빠빠존스\\s*햄버거$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^约翰老爹汉堡$",
+                                "^約翰老爹漢堡$",
+                                "(?i)^Old\\s*Man\\s*John's\\s*Burger$",
+                                "^ダディ・ジョンズバーガー$",
+                                "^빠빠존스\\s*햄버거$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "HazefyreBlossom",
+                    "label": "$option.CraftingFineItem.cases.HazefyreBlossom.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^雾火之花$",
+                                "^霧火之花$",
+                                "(?i)^Hazefyre\\s*Blossom$",
+                                "^霧火の花$",
+                                "^안갯불에\\s*물든\\s*꽃$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^雾火之花$",
+                                "^霧火之花$",
+                                "(?i)^Hazefyre\\s*Blossom$",
+                                "^霧火の花$",
+                                "^안갯불에\\s*물든\\s*꽃$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "KunstVial",
+                    "label": "$option.CraftingFineItem.cases.KunstVial.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^附术瓶$",
+                                "^附術瓶$",
+                                "(?i)^Kunst\\s*Vial$",
+                                "^付術瓶$",
+                                "^아츠가\\s*부여된\\s*병$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^附术瓶$",
+                                "^附術瓶$",
+                                "(?i)^Kunst\\s*Vial$",
+                                "^付術瓶$",
+                                "^아츠가\\s*부여된\\s*병$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "EdibleDenstack",
+                    "label": "$option.CraftingFineItem.cases.EdibleDenstack.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^可食用巢雕$",
+                                "(?i)^Edible\\s*Denstack$",
+                                "^巣彫風味ソース$",
+                                "^식용\\s*지옥의\\s*용광로$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^可食用巢雕$",
+                                "(?i)^Edible\\s*Denstack$",
+                                "^巣彫風味ソース$",
+                                "^식용\\s*지옥의\\s*용광로$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "ArtsVial",
+                    "label": "$option.CraftingFineItem.cases.ArtsVial.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^刻术瓶$",
+                                "^刻術瓶$",
+                                "(?i)^Arts\\s*Vial$",
+                                "^아츠를\\s*각인한\\s*병$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^刻术瓶$",
+                                "^刻術瓶$",
+                                "(?i)^Arts\\s*Vial$",
+                                "^아츠를\\s*각인한\\s*병$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "CartilageTack",
+                    "label": "$option.CraftingFineItem.cases.CartilageTack.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^软骨饼干$",
+                                "^軟骨餅乾$",
+                                "(?i)^Cartilage\\s*Tack$",
+                                "^軟骨入りサブレ$",
+                                "^연골\\s*과자$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^软骨饼干$",
+                                "^軟骨餅乾$",
+                                "(?i)^Cartilage\\s*Tack$",
+                                "^軟骨入りサブレ$",
+                                "^연골\\s*과자$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "SodTurningMeatSoup",
+                    "label": "$option.CraftingFineItem.cases.SodTurningMeatSoup.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^开工日肉汤$",
+                                "^開工日肉湯$",
+                                "(?i)^Sod-Turning\\s*Meat\\s*Soup$",
+                                "^着工日の肉スープ$",
+                                "^개업일\\s*고깃국$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^开工日肉汤$",
+                                "^開工日肉湯$",
+                                "(?i)^Sod-Turning\\s*Meat\\s*Soup$",
+                                "^着工日の肉スープ$",
+                                "^개업일\\s*고깃국$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "BambooSproutsAndMeat",
+                    "label": "$option.CraftingFineItem.cases.BambooSproutsAndMeat.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^竹笋炒肉$",
+                                "^竹筍炒肉$",
+                                "(?i)^Bamboo\\s*Sprouts\\s*and\\s*Meat$",
+                                "^筍と肉の炒め物$",
+                                "^죽순\\s*고기볶음$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^竹笋炒肉$",
+                                "^竹筍炒肉$",
+                                "(?i)^Bamboo\\s*Sprouts\\s*and\\s*Meat$",
+                                "^筍と肉の炒め物$",
+                                "^죽순\\s*고기볶음$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "MysterySoda",
+                    "label": "$option.CraftingFineItem.cases.MysterySoda.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^神秘气泡饮料$",
+                                "^神秘氣泡飲料$",
+                                "(?i)^Mystery\\s*Soda$",
+                                "^不思議な炭酸飲料$",
+                                "^신비한\\s*탄산음료$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^神秘气泡饮料$",
+                                "^神秘氣泡飲料$",
+                                "(?i)^Mystery\\s*Soda$",
+                                "^不思議な炭酸飲料$",
+                                "^신비한\\s*탄산음료$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "MiniSugarPainting",
+                    "label": "$option.CraftingFineItem.cases.MiniSugarPainting.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^小糖画$",
+                                "^小糖畫$",
+                                "(?i)^Mini\\s*Sugar\\s*Painting$",
+                                "^飴細工$",
+                                "^작은\\s*설탕\\s*그림$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^小糖画$",
+                                "^小糖畫$",
+                                "(?i)^Mini\\s*Sugar\\s*Painting$",
+                                "^飴細工$",
+                                "^작은\\s*설탕\\s*그림$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "EchoingRemedy",
+                    "label": "$option.CraftingFineItem.cases.EchoingRemedy.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^回响秘剂$",
+                                "^迴響秘劑$",
+                                "(?i)^Echoing\\s*Remedy$",
+                                "^回響の秘薬$",
+                                "^메아리의\\s*비약$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^回响秘剂$",
+                                "^迴響秘劑$",
+                                "(?i)^Echoing\\s*Remedy$",
+                                "^回響の秘薬$",
+                                "^메아리의\\s*비약$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "HerbalTisane",
+                    "label": "$option.CraftingFineItem.cases.HerbalTisane.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^草本清凉饮$",
+                                "^草本清涼飲$",
+                                "(?i)^Herbal\\s*Tisane$",
+                                "^薬草清涼飲料$",
+                                "^약초\\s*청량\\s*음료$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^草本清凉饮$",
+                                "^草本清涼飲$",
+                                "(?i)^Herbal\\s*Tisane$",
+                                "^薬草清涼飲料$",
+                                "^약초\\s*청량\\s*음료$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "SearToastedLiver",
+                    "label": "$option.CraftingFineItem.cases.SearToastedLiver.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^香焗兽肝$",
+                                "^香焗獸肝$",
+                                "(?i)^Sear-Toasted\\s*Liver$",
+                                "^レバーの塩蒸し焼き$",
+                                "^향신료로\\s*구운\\s*비스트의\\s*간$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^香焗兽肝$",
+                                "^香焗獸肝$",
+                                "(?i)^Sear-Toasted\\s*Liver$",
+                                "^レバーの塩蒸し焼き$",
+                                "^향신료로\\s*구운\\s*비스트의\\s*간$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "RuinPurgerRemedy",
+                    "label": "$option.CraftingFineItem.cases.RuinPurgerRemedy.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^洗灾秘剂$",
+                                "^洗災秘劑$",
+                                "(?i)^Ruin-Purger\\s*Remedy$",
+                                "^厄除の秘薬$",
+                                "^재앙\\s*정화의\\s*비약$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^洗灾秘剂$",
+                                "^洗災秘劑$",
+                                "(?i)^Ruin-Purger\\s*Remedy$",
+                                "^厄除の秘薬$",
+                                "^재앙\\s*정화의\\s*비약$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "StoneholdRemedy",
+                    "label": "$option.CraftingFineItem.cases.StoneholdRemedy.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^蓄石秘剂$",
+                                "^蓄石秘劑$",
+                                "(?i)^Stonehold\\s*Remedy$",
+                                "^蓄石の秘薬$",
+                                "^축석의\\s*비약$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^蓄石秘剂$",
+                                "^蓄石秘劑$",
+                                "(?i)^Stonehold\\s*Remedy$",
+                                "^蓄石の秘薬$",
+                                "^축석의\\s*비약$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "RindFlavoredSprouts",
+                    "label": "$option.CraftingFineItem.cases.RindFlavoredSprouts.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^陈皮拌笋$",
+                                "^陳皮拌筍$",
+                                "(?i)^Rind-Flavored\\s*Sprouts$",
+                                "^陳皮と筍の和え物$",
+                                "^진피\\s*죽순\\s*무침$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^陈皮拌笋$",
+                                "^陳皮拌筍$",
+                                "(?i)^Rind-Flavored\\s*Sprouts$",
+                                "^陳皮と筍の和え物$",
+                                "^진피\\s*죽순\\s*무침$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "PulledSlugMeat",
+                    "label": "$option.CraftingFineItem.cases.PulledSlugMeat.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^手撕虫肉$",
+                                "^手撕蟲肉$",
+                                "(?i)^Pulled\\s*Slug\\s*Meat$",
+                                "^虫肉ジャーキー$",
+                                "^손으로\\s*찢은\\s*벌레\\s*고기$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^手撕虫肉$",
+                                "^手撕蟲肉$",
+                                "(?i)^Pulled\\s*Slug\\s*Meat$",
+                                "^虫肉ジャーキー$",
+                                "^손으로\\s*찢은\\s*벌레\\s*고기$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "JakubsLegacy",
+                    "label": "$option.CraftingFineItem.cases.JakubsLegacy.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^雅各布的遗产$",
+                                "^雅各布的遺產$",
+                                "(?i)^Jakub's\\s*Legacy$",
+                                "^ヤコブの遺産$",
+                                "^제이컵의\\s*유산$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^雅各布的遗产$",
+                                "^雅各布的遺產$",
+                                "(?i)^Jakub's\\s*Legacy$",
+                                "^ヤコブの遺産$",
+                                "^제이컵의\\s*유산$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "SuperhotFruitPreserves",
+                    "label": "$option.CraftingFineItem.cases.SuperhotFruitPreserves.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^爆辣腌渍水果$",
+                                "^爆辣醃漬水果$",
+                                "(?i)^Superhot\\s*Fruit\\s*Preserves$",
+                                "^フルーツの激辛塩漬け$",
+                                "^매운\\s*절임\\s*과일$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^爆辣腌渍水果$",
+                                "^爆辣醃漬水果$",
+                                "(?i)^Superhot\\s*Fruit\\s*Preserves$",
+                                "^フルーツの激辛塩漬け$",
+                                "^매운\\s*절임\\s*과일$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "HubEmergencyRation",
+                    "label": "$option.CraftingFineItem.cases.HubEmergencyRation.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^枢纽区应急餐$",
+                                "^樞紐區緊急餐$",
+                                "(?i)^Hub\\s*Emergency\\s*Ration$",
+                                "^中枢基地の非常食$",
+                                "^거점\\s*지역의\\s*비상식량$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^枢纽区应急餐$",
+                                "^樞紐區緊急餐$",
+                                "(?i)^Hub\\s*Emergency\\s*Ration$",
+                                "^中枢基地の非常食$",
+                                "^거점\\s*지역의\\s*비상식량$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "KunstTube",
+                    "label": "$option.CraftingFineItem.cases.KunstTube.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^附术铁瓶$",
+                                "^附術鐵瓶$",
+                                "(?i)^Kunst\\s*Tube$",
+                                "^付術鉄瓶$",
+                                "^아츠가\\s*부여된\\s*금속\\s*병$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^附术铁瓶$",
+                                "^附術鐵瓶$",
+                                "(?i)^Kunst\\s*Tube$",
+                                "^付術鉄瓶$",
+                                "^아츠가\\s*부여된\\s*금속\\s*병$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "ArtsTube",
+                    "label": "$option.CraftingFineItem.cases.ArtsTube.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^刻术铁瓶$",
+                                "^刻術鐵瓶$",
+                                "(?i)^Arts\\s*Tube$",
+                                "^刻術鉄瓶$",
+                                "^아츠를\\s*각인한\\s*금속\\s*병$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^刻术铁瓶$",
+                                "^刻術鐵瓶$",
+                                "(?i)^Arts\\s*Tube$",
+                                "^刻術鉄瓶$",
+                                "^아츠를\\s*각인한\\s*금속\\s*병$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "BizarroChili",
+                    "label": "$option.CraftingFineItem.cases.BizarroChili.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^怪味肉酱$",
+                                "^怪味肉醬$",
+                                "(?i)^Bizarro\\s*Chili$",
+                                "^複雑な味のミートソース$",
+                                "^이상한\\s*고기\\s*소스$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^怪味肉酱$",
+                                "^怪味肉醬$",
+                                "(?i)^Bizarro\\s*Chili$",
+                                "^複雑な味のミートソース$",
+                                "^이상한\\s*고기\\s*소스$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "PerplexingMedication",
+                    "label": "$option.CraftingFineItem.cases.PerplexingMedication.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^意乱药剂$",
+                                "^意亂藥劑$",
+                                "(?i)^Perplexing\\s*Medication$",
+                                "^混乱の薬$",
+                                "^혼란의\\s*약제$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^意乱药剂$",
+                                "^意亂藥劑$",
+                                "(?i)^Perplexing\\s*Medication$",
+                                "^混乱の薬$",
+                                "^혼란의\\s*약제$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "CitromixL",
+                    "label": "$option.CraftingFineItem.cases.CitromixL.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^大瓶柑实冲剂$",
+                                "^大瓶柑實沖泡劑$",
+                                "(?i)^Citromix\\s*\\[L\\]$",
+                                "^黒銀シトローム粉剤Ⅱ$",
+                                "^시트론\\s*혼합제\\(대\\)$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^大瓶柑实冲剂$",
+                                "^大瓶柑實沖泡劑$",
+                                "(?i)^Citromix\\s*\\[L\\]$",
+                                "^黒銀シトローム粉剤Ⅱ$",
+                                "^시트론\\s*혼합제\\(대\\)$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "CitromixS",
+                    "label": "$option.CraftingFineItem.cases.CitromixS.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^小瓶柑实冲剂$",
+                                "^小瓶柑實沖泡劑$",
+                                "(?i)^Citromix\\s*\\[S\\]$",
+                                "^黒銀シトローム粉剤Ⅰ$",
+                                "^시트론\\s*혼합제\\(소\\)$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^小瓶柑实冲剂$",
+                                "^小瓶柑實沖泡劑$",
+                                "(?i)^Citromix\\s*\\[S\\]$",
+                                "^黒銀シトローム粉剤Ⅰ$",
+                                "^시트론\\s*혼합제\\(소\\)$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "BuckpillL",
+                    "label": "$option.CraftingFineItem.cases.BuckpillL.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^大瓶荞复锭剂$",
+                                "^大瓶蕎復錠劑$",
+                                "(?i)^Buckpill\\s*\\[L\\]$",
+                                "^火映蕎花錠剤Ⅱ$",
+                                "^메밀꽃\\s*회복제\\(대\\)$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^大瓶荞复锭剂$",
+                                "^大瓶蕎復錠劑$",
+                                "(?i)^Buckpill\\s*\\[L\\]$",
+                                "^火映蕎花錠剤Ⅱ$",
+                                "^메밀꽃\\s*회복제\\(대\\)$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "BuckpillS",
+                    "label": "$option.CraftingFineItem.cases.BuckpillS.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^小瓶荞复锭剂$",
+                                "^小瓶蕎復錠劑$",
+                                "(?i)^Buckpill\\s*\\[S\\]$",
+                                "^火映蕎花錠剤Ⅰ$",
+                                "^메밀꽃\\s*회복제\\(소\\)$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^小瓶荞复锭剂$",
+                                "^小瓶蕎復錠劑$",
+                                "(?i)^Buckpill\\s*\\[S\\]$",
+                                "^火映蕎花錠剤Ⅰ$",
+                                "^메밀꽃\\s*회복제\\(소\\)$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "JincaoTisane",
+                    "label": "$option.CraftingFineItem.cases.JincaoTisane.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^锦草凉茶$",
+                                "^錦草涼茶$",
+                                "(?i)^Jincao\\s*Tisane$",
+                                "^錦草漢方茶Ⅰ$",
+                                "^금초\\s*냉차$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^锦草凉茶$",
+                                "^錦草涼茶$",
+                                "(?i)^Jincao\\s*Tisane$",
+                                "^錦草漢方茶Ⅰ$",
+                                "^금초\\s*냉차$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "YazhenSprayS",
+                    "label": "$option.CraftingFineItem.cases.YazhenSprayS.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^芽针喷剂$",
+                                "^芽針噴劑$",
+                                "(?i)^Yazhen\\s*Spray\\s*\\[S\\]$",
+                                "^芽針スプレーⅠ$",
+                                "^야침\\s*스프레이$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^芽针喷剂$",
+                                "^芽針噴劑$",
+                                "(?i)^Yazhen\\s*Spray\\s*\\[S\\]$",
+                                "^芽針スプレーⅠ$",
+                                "^야침\\s*스프레이$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "FortifyingInfusion",
+                    "label": "$option.CraftingFineItem.cases.FortifyingInfusion.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^正本补元汤剂$",
+                                "^正本補元湯劑$",
+                                "(?i)^Fortifying\\s*Infusion$",
+                                "^滋養強壮の煎じ薬$",
+                                "^원기\\s*회복\\s*탕약$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^正本补元汤剂$",
+                                "^正本補元湯劑$",
+                                "(?i)^Fortifying\\s*Infusion$",
+                                "^滋養強壮の煎じ薬$",
+                                "^원기\\s*회복\\s*탕약$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "GardenFriedRice",
+                    "label": "$option.CraftingFineItem.cases.GardenFriedRice.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^锦素炒饭$",
+                                "^錦素炒飯$",
+                                "(?i)^Garden\\s*Fried\\s*Rice$",
+                                "^野菜たっぷりチャーハン$",
+                                "^채소\\s*볶음밥$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^锦素炒饭$",
+                                "^錦素炒飯$",
+                                "(?i)^Garden\\s*Fried\\s*Rice$",
+                                "^野菜たっぷりチャーハン$",
+                                "^채소\\s*볶음밥$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "GardenStirFry",
+                    "label": "$option.CraftingFineItem.cases.GardenStirFry.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^炝炒时蔬$",
+                                "^熗炒時蔬$",
+                                "(?i)^Garden\\s*Stir-Fry$",
+                                "^野菜炒め$",
+                                "^제철\\s*채소볶음$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^炝炒时蔬$",
+                                "^熗炒時蔬$",
+                                "(?i)^Garden\\s*Stir-Fry$",
+                                "^野菜炒め$",
+                                "^제철\\s*채소볶음$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "MasterPansEggPudding",
+                    "label": "$option.CraftingFineItem.cases.MasterPansEggPudding.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^潘师傅蛋羹$",
+                                "^潘師傅蒸蛋$",
+                                "(?i)^Master\\s*Pan's\\s*Egg\\s*Pudding$",
+                                "^ダパン師匠の茶碗蒸し$",
+                                "^판\\s*사부의\\s*계란찜$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^潘师傅蛋羹$",
+                                "^潘師傅蒸蛋$",
+                                "(?i)^Master\\s*Pan's\\s*Egg\\s*Pudding$",
+                                "^ダパン師匠の茶碗蒸し$",
+                                "^판\\s*사부의\\s*계란찜$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "ChubbyLungJelliedGreens",
+                    "label": "$option.CraftingFineItem.cases.ChubbyLungJelliedGreens.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^龙泡泡蔬菜冻$",
+                                "^龍泡泡蔬菜凍$",
+                                "(?i)^Chubby\\s*Lung\\s*Jellied\\s*Greens$",
+                                "^龍泡泡の野菜羊羹$",
+                                "^드래곤\\s*버블\\s*채소\\s*젤리$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^龙泡泡蔬菜冻$",
+                                "^龍泡泡蔬菜凍$",
+                                "(?i)^Chubby\\s*Lung\\s*Jellied\\s*Greens$",
+                                "^龍泡泡の野菜羊羹$",
+                                "^드래곤\\s*버블\\s*채소\\s*젤리$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "PanFriedDoubleCrisp",
+                    "label": "$option.CraftingFineItem.cases.PanFriedDoubleCrisp.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^油爆[“”「」\"]?双脆[“”「」\"]?$",
+                                "^油爆[“”「」\"]?雙脆[“”「」\"]?$",
+                                "(?i)^Pan-Fried\\s*Double\\s*Crisp$",
+                                "^レバーとガツの強火炒め$",
+                                "^기름\\s*폭발\\s*볶음$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^油爆[“”「」\"]?双脆[“”「」\"]?$",
+                                "^油爆[“”「」\"]?雙脆[“”「」\"]?$",
+                                "(?i)^Pan-Fried\\s*Double\\s*Crisp$",
+                                "^レバーとガツの強火炒め$",
+                                "^기름\\s*폭발\\s*볶음$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "WulingFlameBoyance",
+                    "label": "$option.CraftingFineItem.cases.WulingFlameBoyance.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^武陵乱炒$",
+                                "^武陵亂炒$",
+                                "(?i)^Wuling\\s*Flame-Boyance$",
+                                "^武陵炒め$",
+                                "^무릉\\s*볶음$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^武陵乱炒$",
+                                "^武陵亂炒$",
+                                "(?i)^Wuling\\s*Flame-Boyance$",
+                                "^武陵炒め$",
+                                "^무릉\\s*볶음$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "SimmeredXiraniteBall",
+                    "label": "$option.CraftingFineItem.cases.SimmeredXiraniteBall.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^清炖息壤球$",
+                                "^清燉息壤球$",
+                                "(?i)^Simmered\\s*Xiranite\\s*Ball$",
+                                "^息壌肉団子スープ$",
+                                "^삶은\\s*식양\\s*완자$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^清炖息壤球$",
+                                "^清燉息壤球$",
+                                "(?i)^Simmered\\s*Xiranite\\s*Ball$",
+                                "^息壌肉団子スープ$",
+                                "^삶은\\s*식양\\s*완자$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "NumbingCrispyPupae",
+                    "label": "$option.CraftingFineItem.cases.NumbingCrispyPupae.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^酥麻炸虫蛹$",
+                                "^酥麻炸蟲蛹$",
+                                "(?i)^Numbing\\s*Crispy\\s*Pupae$",
+                                "^シビカリさなぎフライ$",
+                                "^바삭한\\s*번데기\\s*튀김$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^酥麻炸虫蛹$",
+                                "^酥麻炸蟲蛹$",
+                                "(?i)^Numbing\\s*Crispy\\s*Pupae$",
+                                "^シビカリさなぎフライ$",
+                                "^바삭한\\s*번데기\\s*튀김$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "TiansBraisedMeatNoodles",
+                    "label": "$option.CraftingFineItem.cases.TiansBraisedMeatNoodles.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^田家特色烂肉面$",
+                                "^田家特色爛肉麵$",
+                                "(?i)^Tian's\\s*Braised\\s*Meat\\s*Noodles$",
+                                "^テンの名物爛肉麺$",
+                                "^전씨네\\s*특제\\s*고기국수$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^田家特色烂肉面$",
+                                "^田家特色爛肉麵$",
+                                "(?i)^Tian's\\s*Braised\\s*Meat\\s*Noodles$",
+                                "^テンの名物爛肉麺$",
+                                "^전씨네\\s*특제\\s*고기국수$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "RhodesIslandSpecialRation",
+                    "label": "$option.CraftingFineItem.cases.RhodesIslandSpecialRation.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^罗德岛特制口粮$",
+                                "^羅德島特製口糧$",
+                                "(?i)^Rhodes\\s*Island\\s*Special\\s*Ration$",
+                                "^ロドス特製レーション$",
+                                "^로도스\\s*아일랜드\\s*특별\\s*제작\\s*식량$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^罗德岛特制口粮$",
+                                "^羅德島特製口糧$",
+                                "(?i)^Rhodes\\s*Island\\s*Special\\s*Ration$",
+                                "^ロドス特製レーション$",
+                                "^로도스\\s*아일랜드\\s*특별\\s*제작\\s*식량$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "BuckpillRf",
+                    "label": "$option.CraftingFineItem.cases.BuckpillRf.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^精选荞复锭剂$",
+                                "^精選蕎復錠劑$",
+                                "(?i)^Buckpill\\s*\\[Rf\\.\\]$",
+                                "^火映蕎花錠剤Ⅲ$",
+                                "^메밀꽃\\s*회복제\\(특\\)$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^精选荞复锭剂$",
+                                "^精選蕎復錠劑$",
+                                "(?i)^Buckpill\\s*\\[Rf\\.\\]$",
+                                "^火映蕎花錠剤Ⅲ$",
+                                "^메밀꽃\\s*회복제\\(특\\)$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "CitromixRf",
+                    "label": "$option.CraftingFineItem.cases.CitromixRf.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^精选柑实冲剂$",
+                                "^精選柑實沖泡劑$",
+                                "(?i)^Citromix\\s*\\[Rf\\.\\]$",
+                                "^黒銀シトローム粉剤Ⅲ$",
+                                "^시트론\\s*혼합제\\(특\\)$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^精选柑实冲剂$",
+                                "^精選柑實沖泡劑$",
+                                "(?i)^Citromix\\s*\\[Rf\\.\\]$",
+                                "^黒銀シトローム粉剤Ⅲ$",
+                                "^시트론\\s*혼합제\\(특\\)$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "ValleyPie",
+                    "label": "$option.CraftingFineItem.cases.ValleyPie.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^谷地馅饼$",
+                                "^谷地餡餅$",
+                                "(?i)^Valley\\s*Pie$",
+                                "^谷地パイ$",
+                                "^협곡\\s*파이$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^谷地馅饼$",
+                                "^谷地餡餅$",
+                                "(?i)^Valley\\s*Pie$",
+                                "^谷地パイ$",
+                                "^협곡\\s*파이$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "MeatStirFry",
+                    "label": "$option.CraftingFineItem.cases.MeatStirFry.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^辣炒肉丁$",
+                                "(?i)^Meat\\s*Stir-Fry$",
+                                "^角切り肉の辛炒め$",
+                                "^매운\\s*볶음\\s*고기$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^辣炒肉丁$",
+                                "(?i)^Meat\\s*Stir-Fry$",
+                                "^角切り肉の辛炒め$",
+                                "^매운\\s*볶음\\s*고기$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "JincaoInfusion",
+                    "label": "$option.CraftingFineItem.cases.JincaoInfusion.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^大碗锦草凉茶$",
+                                "^大碗錦草涼茶$",
+                                "(?i)^Jincao\\s*Infusion$",
+                                "^錦草漢方茶Ⅱ$",
+                                "^금초\\s*냉차\\(대\\)$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^大碗锦草凉茶$",
+                                "^大碗錦草涼茶$",
+                                "(?i)^Jincao\\s*Infusion$",
+                                "^錦草漢方茶Ⅱ$",
+                                "^금초\\s*냉차\\(대\\)$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "YazhenSprayL",
+                    "label": "$option.CraftingFineItem.cases.YazhenSprayL.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^大瓶芽针喷剂$",
+                                "^大瓶芽針噴劑$",
+                                "(?i)^Yazhen\\s*Spray\\s*\\[L\\]$",
+                                "^芽針スプレーⅡ$",
+                                "^야침\\s*스프레이\\(대\\)$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^大瓶芽针喷剂$",
+                                "^大瓶芽針噴劑$",
+                                "(?i)^Yazhen\\s*Spray\\s*\\[L\\]$",
+                                "^芽針スプレーⅡ$",
+                                "^야침\\s*스프레이\\(대\\)$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "GinsengMeatStew",
+                    "label": "$option.CraftingFineItem.cases.GinsengMeatStew.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^清炖兽排参须汤$",
+                                "^清燉獸排蔘鬚湯$",
+                                "(?i)^Ginseng\\s*Meat\\s*Stew$",
+                                "^獣肉と玉葉人参のスープ$",
+                                "^푹\\s*삶은\\s*갈비\\s*미삼탕$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^清炖兽排参须汤$",
+                                "^清燉獸排蔘鬚湯$",
+                                "(?i)^Ginseng\\s*Meat\\s*Stew$",
+                                "^獣肉と玉葉人参のスープ$",
+                                "^푹\\s*삶은\\s*갈비\\s*미삼탕$"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "WulingFriedRice",
+                    "label": "$option.CraftingFineItem.cases.WulingFriedRice.label",
+                    "pipeline_override": {
+                        "CraftingTaskFindItem": {
+                            "expected": [
+                                "^武陵炒饭$",
+                                "^武陵炒飯$",
+                                "(?i)^Wuling\\s*Fried\\s*Rice$",
+                                "^武陵チャーハン$",
+                                "^무릉\\s*볶음밥$"
+                            ]
+                        },
+                        "CraftingTaskItemSelected": {
+                            "expected": [
+                                "^武陵炒饭$",
+                                "^武陵炒飯$",
+                                "(?i)^Wuling\\s*Fried\\s*Rice$",
+                                "^武陵チャーハン$",
+                                "^무릉\\s*볶음밥$"
+                            ]
+                        }
+                    }
+                }
+            ],
+            "default_case": "MiniHoneySlugpudding"
+        },
+        "CraftingRounds": {
+            "type": "input",
+            "label": "$option.CraftingRounds.label",
+            "inputs": [
+                {
+                    "name": "Rounds",
+                    "label": "$option.CraftingRounds.Rounds.label",
+                    "default": "1",
+                    "pipeline_type": "int",
+                    "verify": "^[1-9]\\d*$",
+                    "pattern_msg": "$option.CraftingRounds.Rounds.pattern_msg"
+                }
+            ],
+            "pipeline_override": {
+                "CraftingTaskRound": {
+                    "max_hit": "{Rounds}"
+                }
+            }
+        }
+    }
 }

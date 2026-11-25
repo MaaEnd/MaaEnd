@@ -1,11 +1,15 @@
 {
     "CraftingStart": {
         "desc": "简易制作任务入口",
-        "pre_delay": 0,
-        "post_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuBackpackWithDepot"
+            ]
+        },
         "next": [
-            "CraftingEnterMenu",
-            "[JumpBack]SceneEnterMenuBackpackWithDepot"
+            "CraftingEnterMenu"
         ]
     },
     "CraftingEnterMenu": {
@@ -31,15 +35,6 @@
         "action": {
             "type": "Click"
         },
-        "post_wait_freezes": {
-            "time": 400,
-            "target": [
-                0,
-                0,
-                200,
-                100
-            ]
-        },
         "next": [
             "CraftingEnterInMenu"
         ]
@@ -50,31 +45,17 @@
         "all_of": [
             "InCrafting"
         ],
+        "pre_wait_freezes": {
+            "time": 400,
+            "target": [
+                0,
+                0,
+                240,
+                100
+            ]
+        },
         "next": [
-            "CraftingClickProduceBtn"
-        ]
-    },
-    "CraftingClickProduceBtn": {
-        "desc": "点击制作按钮",
-        "recognition": "OCR",
-        "roi": [
-            1134,
-            614,
-            139,
-            95
-        ],
-        "expected": [
-            "制作",
-            "製作",
-            "(?i)Craft",
-            "確定"
-        ],
-        "action": "Click",
-        "post_wait_freezes": 100,
-        "next": [
-            "CraftingCheckMaterialEnough", // 进行背包满退出判断，在这里直接判断到就直接退出
-            // 检查下是不是进入成功页面
-            "CraftingCloseProductPopup"
+            "CraftingSelectCategory"
         ]
     },
     "CraftingCheckMaterialEnough": {
@@ -92,26 +73,6 @@
             "可销毁或丢弃部分",
             "可銷毀或丟棄部分"
         ],
-        "next": [
-            "CraftingCreationFinish",
-            "[JumpBack]SceneAnyEnterWorld"
-        ]
-    },
-    "CraftingCloseProductPopup": {
-        "desc": "制作成功确认，奖励界面交给 SceneAnyEnterWorld 记录后关闭",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    590,
-                    573,
-                    100,
-                    117
-                ], //扩大识图区域，避免界面微调导致识别失败
-                "template": "Common/Button/CloseRewardButton.png",
-                "threshold": 0.9
-            }
-        },
         "next": [
             "CraftingCreationFinish",
             "[JumpBack]SceneAnyEnterWorld"
@@ -135,5 +96,305 @@
         },
         "pre_delay": 0,
         "post_delay": 0
+    },
+    "CraftingSelectCategory": {
+        "desc": "点击选中的制作类别标签",
+        "recognition": "OCR",
+        "roi": [
+            34,
+            53,
+            957,
+            50
+        ],
+        "expected": [
+            "应急食药",
+            "緊急食藥",
+            "(?i)EMS\\s*F&M",
+            "(?i)Emergency\\s*Food",
+            "応急食品・薬",
+            "응급\\s*식품\\s*및\\s*약품"
+        ],
+        "action": "Click",
+        "next": [
+            "CraftingCategorySelected"
+        ]
+    },
+    "CraftingCategorySelected": {
+        "desc": "确认类别标签已选中",
+        "recognition": "And",
+        "all_of": [
+            "CraftingSelectCategory",
+            {
+                // 选中的标签底色为浅灰白，未选中为深色条纹
+                "recognition": "ColorMatch",
+                "roi": "CraftingSelectCategory",
+                "roi_offset": [
+                    0,
+                    -8,
+                    0,
+                    -16
+                ],
+                "lower": [
+                    200,
+                    200,
+                    200
+                ],
+                "upper": [
+                    255,
+                    255,
+                    255
+                ],
+                "count": 150
+            }
+        ],
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                30,
+                145,
+                250,
+                490
+            ]
+        },
+        "next": [
+            "CraftingTaskSearchItem"
+        ]
+    },
+    "CraftingTaskSearchItem": {
+        "desc": "开始在物品列表中查找目标物品",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "CraftingTaskFindItem",
+            "CraftingTaskItemListEnd",
+            "[JumpBack]CraftingTaskSwipeItemList"
+        ]
+    },
+    "CraftingTaskFindItem": {
+        "desc": "在物品列表中点击目标物品",
+        "recognition": "OCR",
+        // 只覆盖完整显示的行，避免识别并点击列表边缘只露出一部分的物品
+        "roi": [
+            85,
+            150,
+            195,
+            462
+        ],
+        // 由任务选项覆盖为对应物品
+        "expected": [
+            "^芽针粉末$",
+            "^芽針粉末$",
+            "(?i)^Yazhen\\s*Powder$",
+            "^야침\\s*가루$"
+        ],
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                30,
+                145,
+                250,
+                490
+            ]
+        },
+        "action": "Click",
+        "next": [
+            "CraftingTaskItemSelected"
+        ]
+    },
+    "CraftingTaskItemSelected": {
+        "desc": "确认右侧详情已切换到目标物品",
+        "recognition": "OCR",
+        // 同时覆盖 PC 与移动端的详情标题位置
+        "roi": [
+            975,
+            110,
+            305,
+            75
+        ],
+        // 由任务选项覆盖为对应物品
+        "expected": [
+            "^芽针粉末$",
+            "^芽針粉末$",
+            "(?i)^Yazhen\\s*Powder$",
+            "^야침\\s*가루$"
+        ],
+        // 切换物品后当前制作、右侧详情和份数区域有渐变动画
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                -590,
+                110,
+                590,
+                520
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "CraftingTaskRound",
+            "CraftingTaskFinish"
+        ]
+    },
+    "CraftingTaskItemListEnd": {
+        "desc": "物品列表已到底，未找到目标物品",
+        "recognition": "Custom",
+        "custom_recognition": "ListCompleteRecognition",
+        "custom_recognition_param": {
+            "threshold": 0.98
+        },
+        "roi": [
+            30,
+            145,
+            250,
+            490
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "CraftingTaskFinish"
+        ],
+        "attach": {
+            "ready": false
+        }
+    },
+    "CraftingTaskSwipeItemList": {
+        "desc": "下滑物品列表",
+        "recognition": "And",
+        "all_of": [
+            "InCrafting"
+        ],
+        "action": "Swipe",
+        "begin": [
+            140,
+            520,
+            20,
+            10
+        ],
+        "end": [
+            140,
+            300,
+            20,
+            10
+        ],
+        "end_hold": 1000,
+        "duration": 300,
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                30,
+                145,
+                250,
+                490
+            ]
+        }
+    },
+    "CraftingTaskRound": {
+        "desc": "开始一轮制作",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "InCrafting"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "CraftingTaskMaterialInsufficient",
+            "CraftingTaskClickMax",
+            "CraftingTaskClickProduce"
+        ]
+    },
+    "CraftingTaskMaterialInsufficient": {
+        "desc": "材料不足，结束制作",
+        "recognition": "OCR",
+        "roi": [
+            986,
+            616,
+            294,
+            104
+        ],
+        "expected": [
+            "当前材料不足",
+            "目前材料不足",
+            "(?i)Insufficient\\s*materials",
+            "素材が不足しています",
+            "재료\\s*부족",
+            "재료가\\s*부족합니다"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "CraftingTaskFinish"
+        ]
+    },
+    "CraftingTaskClickMax": {
+        "desc": "点击最大份数按钮",
+        "recognition": "TemplateMatch",
+        "roi": [
+            1192,
+            562,
+            81,
+            80
+        ],
+        "template": "Crafting/MaxProductionBtn.png",
+        "threshold": 0.95,
+        "action": "Click",
+        "next": [
+            "CraftingTaskClickProduce"
+        ]
+    },
+    "CraftingTaskClickProduce": {
+        "desc": "点击制作按钮",
+        "recognition": "OCR",
+        "roi": [
+            1134,
+            614,
+            139,
+            95
+        ],
+        "expected": [
+            "制作",
+            "製作",
+            "(?i)Craft",
+            "確定"
+        ],
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                -320,
+                -180,
+                320,
+                180
+            ]
+        },
+        "action": "Click",
+        "anchor": {
+            "SceneNoticeRewardsConfirmNextAnchor": "CraftingTaskProduceDone"
+        },
+        "next": [
+            "CraftingCheckMaterialEnough",
+            "SceneNoticeRewardsConfirmWithAnchor"
+        ]
+    },
+    "CraftingTaskProduceDone": {
+        "desc": "本轮制作完成，回到简易制作界面",
+        "recognition": "And",
+        "all_of": [
+            "InCrafting"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "CraftingTaskRound",
+            "CraftingTaskFinish"
+        ]
+    },
+    "CraftingTaskFinish": {
+        "desc": "制作结束，返回大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "CraftingCreationFinish",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
     }
 }

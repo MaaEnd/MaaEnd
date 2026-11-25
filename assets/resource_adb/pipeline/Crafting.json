@@ -1,0 +1,66 @@
+{
+    "CraftingSelectCategory": {
+        "roi": [
+            40,
+            60,
+            1200,
+            70
+        ]
+    },
+    "CraftingCategorySelected": {
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                35,
+                185,
+                310,
+                430
+            ]
+        }
+    },
+    "CraftingTaskFindItem": {
+        // 只覆盖完整显示的行，避免识别并点击列表边缘只露出一部分的物品
+        "roi": [
+            110,
+            190,
+            230,
+            395
+        ],
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                35,
+                185,
+                310,
+                430
+            ]
+        }
+    },
+    "CraftingTaskItemListEnd": {
+        "roi": [
+            35,
+            185,
+            310,
+            430
+        ]
+    },
+    "CraftingTaskSwipeItemList": {
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                35,
+                185,
+                310,
+                430
+            ]
+        }
+    },
+    "CraftingTaskClickMax": {
+        "roi": [
+            1190,
+            545,
+            80,
+            60
+        ]
+    }
+}
