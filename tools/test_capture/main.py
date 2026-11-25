@@ -259,6 +259,8 @@ def _run(
         click.echo(f"有的步骤只能做一次，别的平台跳过了（{detail}），那几段没有图")
     if failed:
         click.echo(f"失败的平台：{'、'.join(failed)}", err=True)
+        # 进度已经写进 manifest.json：设备连上、游戏能进大世界之后再续，跑过的步骤不会重跑。
+        click.echo(f"接着跑：uv run test-capture run --resume {run_dir}", err=True)
     click.echo(f"{'结束（有失败）' if failed else '完成'}：{run_dir}")
     if failed:
         raise click.exceptions.Exit(1)

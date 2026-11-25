@@ -681,6 +681,8 @@ def run_flow(
                         click.echo(f"[{name}] 第 {segment.index} 段不用跑（上次跑过，或者只能做一次），跳过")
                     save()
                     continue
+                # 这次真的要在这台平台上跑：上次留下的失败结论作废，成没成以这次的结果为准。
+                results[name]["error"] = None
                 if platform is not None and platform.name != name:
                     platform.close()
                     platform = None
