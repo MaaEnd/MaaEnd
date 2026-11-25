@@ -3,7 +3,7 @@
 MaaEnd 的几个任务要读游戏里的物品名、商店货架、采集点、传送点这些东西。它们被整理成一组 JSON，放在
 `tools/zmdmap/data/`，这个工具负责把 JSON 产出来。
 
-该文档更新于 2026 年 10 月 29 日。
+该文档更新于 2026 年 11 月 25 日。
 
 产出有两条路，最后都落到同一个地方：
 
@@ -55,7 +55,7 @@ MaaEnd 的几个任务要读游戏里的物品名、商店货架、采集点、�
    显式传进来；本地不给 `--version` 时，客户端版本看兄弟仓库的提交标题（`Client:` 那段），构建号优先看
    `.beyond/ledger`（revert 提交也骗不过它），没有 ledger 就看提交标题的 `Data:`。数据目录路径里的
    `initial_…_main_…` 只有构建号，单独用不了。
-3. **生成原始形态。** 12 份数据各自从输入里取数，结果写进 `data/raw/`，同时算好 `sha256`。
+3. **生成原始形态。** 每份数据各自从输入里取数，结果写进 `data/raw/`，同时算好 `sha256`。
    顺手写一份 `manifest.json`，说明这批数据的版本、这次发的是哪几份和每份的内容指纹 —— 就是 `fetch` 第 1 步看的那份。版本必填，`fetch` 靠它判断本地那份比上游新还是旧。
 4. **入库。** 和 `fetch` 第 5 步完全一样。
 
@@ -125,7 +125,7 @@ uv run zmdmap generate --only region3d \
 | `generate.py` | `generate` 子命令：生成原始形态、写版本与清单，再入库 |
 | `fetch.py` | `fetch` 子命令：读清单、下载、核对内容，再入库 |
 | `materialize.py` | 入库：带坐标的投影，其余原样复制 |
-| `datasets/` | 12 份数据，一个模块或一个文件夹一份；`base.py` 是它们的基类 |
+| `datasets/` | 数据集，一个模块或一个文件夹一份；`base.py` 是它们的基类 |
 | `datasets/region3d/` | 地区总览：模块多，收进同一个文件夹；说明见里面的 `README.md` |
 | `utils/` | 共用件，见下表 |
 | `data/raw/` | 原始形态，本地缓存（不进 git），删掉不影响判断 |
@@ -148,25 +148,9 @@ uv run zmdmap generate --only region3d \
 | `errors.py` | `LocalDataError`：本地数据缺失或形状不对 |
 | `shapes.py` | 少数「必须原样保留未知字段」的地方用的收窄助手 |
 
-## 有哪 13 份数据
+## 有哪些数据
 
-| 数据 | 内容 | 入库方式 |
-| --- | --- | --- |
-| `collect_points.json` | 可拾取 / 可打碎的采集物 | 投影 |
-| `delivery_destinations.json` | 送货目的地：收货 NPC、回收站、仓储节点 | 投影 |
-| `energy_points.json` | 基质刷取路线的激发点 | 投影 |
-| `teleport_anchors.json` | 营地（传送锚点） | 投影 |
-| `delivery_jobs.json` | 运送委托：地区、仓储节点、能装的物品、各节点最大基础报价；字段与算法见[数据集注释](datasets/delivery_jobs.py) | 复制 |
-| `energy_point_gems.json` | 基质筛选的能量淤积点 | 复制 |
-| `environment_monitoring.json` | 环境监测的终端与观察点 | 复制 |
-| `item_mini_table.json` | 背包物品 → 图标、分类、五语名字 | 复制 |
-| `operator_growth.json` | 干员培养到目标状态要的素材 | 复制 |
-| `region3d.json` | 地区总览：每个子区域的 720p 多边形与点击点（另需 Lua / 解包资源） | 复制 |
-| `sell_product.json` | 据点售卖物品与匹配干员 | 复制 |
-| `stock_staple.json` | 地区商店会周期补货的物资 | 复制 |
-| `weapons.json` | 武器：已上线的按图鉴收录，另含五语齐全的前瞻武器 | 复制 |
-
-`uv run zmdmap generate --list` 打印每个数据集的名字、产物文件名和入库方式（要额外输入的会注明）。
+`uv run zmdmap generate --list` 打印每个数据集的名字、产物文件名和入库方式（要额外输入的会注明）；每份数据的内容和字段见 `datasets/` 里对应模块开头的注释。
 
 `region3d` 的生成时机、输入和产物形状见 [`datasets/region3d/README.md`](datasets/region3d/README.md)。
 
