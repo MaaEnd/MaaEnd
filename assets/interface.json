@@ -314,7 +314,6 @@
         "tasks/CloseGameCloudWeb.json",
         // disabled
         // "tasks/DevTest.json", // mxu测试用
-        // "tasks/CameraScanTest.json", // 🧪镜头扫描测试，仅本地调试
         // "tasks/AdbAutoFightTest.json", // 🧪战斗测试，暂不上架
         // "tasks/WebEvent202605.json", // 该活动已关闭
         // "tasks/ArenaOfGames.json", // 该活动已关闭

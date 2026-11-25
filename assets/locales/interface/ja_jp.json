@@ -2417,8 +2417,6 @@
     "task.BatchUseDetector.option.Times.input.error": "0より大きい整数を入力してください。",
     "task.BatchUseDetector.option.Times.input.label": "回数",
     "task.BatchUseDetector.option.Times.label": "使用回数",
-    "task.CameraScanTest.description": "シャッターを押さずに環境監視の 25 マスカメラスキャンを検証します。大世界かフォトモードで実行してください。",
-    "task.CameraScanTest.label": "🧪 カメラスキャンテスト",
     "task.ClaimSimulationRewards.description": "模擬空間内の報酬を自動で受け取ります。",
     "task.ClaimSimulationRewards.error_not_found": "模擬空間が見つかりません。手動で切り替えてください。",
     "task.ClaimSimulationRewards.label": "🏆模擬空間報酬受取",

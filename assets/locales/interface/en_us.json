@@ -2417,8 +2417,6 @@
     "task.BatchUseDetector.option.Times.input.error": "Please enter an integer greater than 0.",
     "task.BatchUseDetector.option.Times.input.label": "Count",
     "task.BatchUseDetector.option.Times.label": "Use Count",
-    "task.CameraScanTest.description": "Moves the camera over the 25-cell grid used by Environment Monitoring without pressing the shutter. Start it from the open world or photo mode.",
-    "task.CameraScanTest.label": "🧪 Camera Scan Test",
     "task.ClaimSimulationRewards.description": "Automatically claim rewards in the simulation space.",
     "task.ClaimSimulationRewards.error_not_found": "Simulation UI not detected. Please switch manually.",
     "task.ClaimSimulationRewards.label": "🏆Claim Simulation Rewards",

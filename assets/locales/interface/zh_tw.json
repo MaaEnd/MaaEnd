@@ -2417,8 +2417,6 @@
     "task.BatchUseDetector.option.Times.input.error": "請輸入大於0的整數。",
     "task.BatchUseDetector.option.Times.input.label": "次數",
     "task.BatchUseDetector.option.Times.label": "使用次數",
-    "task.CameraScanTest.description": "只移動鏡頭、不按快門，用於驗證環境監測的 25 宮格鏡頭掃描；執行前請站在大世界或拍照模式裡",
-    "task.CameraScanTest.label": "🧪鏡頭掃描測試",
     "task.ClaimSimulationRewards.description": "自動領取模擬空間內的獎勵",
     "task.ClaimSimulationRewards.error_not_found": "未檢測到[模擬空間]介面，請手動切換",
     "task.ClaimSimulationRewards.label": "🏆領取模擬空間獎勵",
