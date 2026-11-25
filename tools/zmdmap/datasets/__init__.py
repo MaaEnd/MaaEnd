@@ -6,21 +6,6 @@
 手工维护的登记表。一份数据要拆成好几个模块时用文件夹（如 ``region3d/``）：文件夹本身（``__init__.py``）
 里定义子类，其余模块只是它的实现。
 
-| 模块 / 文件夹 | 数据 | 入库方式 |
-| --- | --- | --- |
-| ``collect_points`` | ``collect_points.json`` | 投影 |
-| ``delivery_destinations`` | ``delivery_destinations.json`` | 投影 |
-| ``teleport_anchors`` | ``teleport_anchors.json`` | 投影 |
-| ``delivery_jobs`` | ``delivery_jobs.json`` | 复制 |
-| ``energy_point_gems`` | ``energy_point_gems.json`` | 复制 |
-| ``environment_monitoring`` | ``environment_monitoring.json`` | 复制 |
-| ``item_mini_table`` | ``item_mini_table.json`` | 复制 |
-| ``operator_growth`` | ``operator_growth.json`` | 复制 |
-| ``region3d`` | ``region3d.json`` | 复制 |
-| ``sell_product`` | ``sell_product.json`` | 复制 |
-| ``stock_staple`` | ``stock_staple.json`` | 复制 |
-| ``weapons`` | ``weapons.json`` | 复制 |
-
 每份数据先出原始形态（只带游戏世界坐标）进 ``raw/``，再由入库步骤进 ``data/``：需要投影的按 BaseNav 的
 zone 表投影，其余原样复制。要加一份新数据，就在 ``datasets/`` 下加一个同名模块（模块多就加同名文件夹）、
 定义 ``Dataset`` 子类并实现 ``build``：参数上写要用的输入服务（``table_cfg: TableCfg``、``lua: LuaScripts``
