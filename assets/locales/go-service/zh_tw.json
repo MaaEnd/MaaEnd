@@ -13,6 +13,7 @@
     "autofight.capture_slow": "<span style=\"color: red; font-weight: bold;\">戰鬥識別平均耗時 %d ms，會導致釋放技能不及時，請在遊戲設定中降低畫質、解析度、幀率，減少裝置負載，並檢查工作管理員 GPU 佔用是否過高</span>",
     "autofight.character_count": "共 %d 名幹員參戰",
     "autofight.endaxis.no_matching_scenario": "當前終結技狀態沒有可用排軸，需添加更多方案",
+    "autofight.endaxis.no_ultimate_free_scenario": "<span style=\"color: red; font-weight: bold;\">所有排軸方案都帶有終結技，方案需等其中的終結技充滿才會執行，建議添加一個無終結技的方案用於充能</span>",
     "autofight.endaxis.retry_timeline": "嘗試新一輪排軸",
     "autofight.endaxis.scenario_cast_skipped": "方案 %s 中有 %d 個連續組技能無法計算開始時間，已跳過",
     "autofight.endaxis.scenario_selected": "選擇方案 %s",
