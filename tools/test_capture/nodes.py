@@ -4,12 +4,15 @@ from __future__ import annotations
 
 import ast
 import json
+import keyword
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, cast
 
 from .flow import Step, as_dict, as_list, load_jsonc
 from .runner import Segment
+from .validate import node_name_of
 
 # 流程函数里这些调用会碰 pipeline 节点；shot 只是截图，不跑节点。
 NODE_METHODS = {"run", "click", "wait", "hit", "text", "sub_task"}
@@ -101,6 +104,13 @@ def _text_arg(call: ast.Call, index: int) -> str:
     return ""
 
 
+def _node_arg(call: ast.Call, index: int) -> str:
+    """第 index 个位置参数写的是节点名（Nodes.XXX 或字符串）就返回它，否则返回空串。"""
+    if len(call.args) > index:
+        return node_name_of(call.args[index]) or ""
+    return ""
+
+
 def _entry_of(call: ast.Call, where: str) -> Entry | None:
     if not isinstance(call.func, ast.Attribute):
         return None
@@ -108,20 +118,21 @@ def _entry_of(call: ast.Call, where: str) -> Entry | None:
     if method in LITERAL_METHODS:
         shown = ", ".join(ast.unparse(arg) for arg in [*call.args, *call.keywords])
         return Entry(method, shown, call.lineno, where=where)
-    first = _text_arg(call, 0)
-    if not first:
-        return None
     if method == "shot":
-        return Entry("shot", first, call.lineno, where=where)
+        shot = _text_arg(call, 0)
+        return Entry("shot", shot, call.lineno, where=where) if shot else None
+    node = _node_arg(call, 0)
+    if not node:
+        return None
     if method == "shot_when":
-        return Entry("shot_when", first, call.lineno, shot=_text_arg(call, 1), where=where)
+        return Entry("shot_when", node, call.lineno, shot=_text_arg(call, 1), where=where)
     if method in NODE_METHODS:
-        return Entry(method, first, call.lineno, where=where)
+        return Entry(method, node, call.lineno, where=where)
     if method == "goto":
-        route = _text_arg(call, 1)
+        route = _node_arg(call, 1)
         if not route and len(call.args) > 1 and isinstance(call.args[1], ast.Name):
             route = call.args[1].id
-        return Entry("goto", first, call.lineno, route, where=where)
+        return Entry("goto", node, call.lineno, route, where=where)
     return None
 
 
@@ -219,26 +230,114 @@ def load_next_map(repo: Path) -> dict[str, list[str]]:
     return {name: [str(item) for item in as_list(node.get("next"))] for name, node in load_pipeline(repo).items()}
 
 
-# 节点名的类型存根：编辑器靠它给节点名补全、标出写错的名字。不进仓库，按需生成。
+# 节点名的类型存根：编辑器靠它给节点名补全、显示节点说明、标出写错的名字。不进仓库，按需生成。
 NODE_NAMES_STUB = Path(__file__).with_name("node_names.pyi")
+
+# pipeline 文件里顶层节点的那一行：prettier 排版后固定缩进 4 格。
+NODE_KEY_LINE = re.compile(r'^    "((?:[^"\\]|\\.)+)"\s*:')
+
+
+def _comments_above(path: Path) -> dict[str, list[str]]:
+    """每个节点名上方紧挨着的 // 注释行（去掉 //）。"""
+    result: dict[str, list[str]] = {}
+    pending: list[str] = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        stripped = line.strip()
+        if stripped.startswith("//"):
+            pending.append(stripped[2:].strip())
+            continue
+        match = NODE_KEY_LINE.match(line)
+        if match and pending:
+            result[match.group(1)] = [text for text in pending if text]
+        pending = []
+    return result
+
+
+def _type_name(value: Any, default: str) -> str:
+    """识别 / 动作类型：可能直接写类型名，也可能写成 {"type": ..., "param": ...}。"""
+    if isinstance(value, dict):
+        value = cast("dict[str, Any]", value).get("type")
+    return value if isinstance(value, str) and value else default
+
+
+@dataclass
+class NodeDoc:
+    """编辑器里显示的一个节点的说明。"""
+
+    desc: str = ""
+    comments: list[str] = field(default_factory=list[str])
+    kinds: str = ""
+    files: list[str] = field(default_factory=list[str])
+
+    def text(self) -> str:
+        parts = [part for part in (self.desc, "\n".join(self.comments)) if part]
+        parts.append(f"{self.kinds} · {'、'.join(self.files)}")
+        return "\n\n".join(parts)
+
+
+def node_docs(repo: Path) -> dict[str, NodeDoc]:
+    """所有节点的说明。同名节点在几个资源包里都有时，后读的说明覆盖先读的，文件都列上。"""
+    docs: dict[str, NodeDoc] = {}
+    assets = repo / "assets"
+    for path in pipeline_files(repo):
+        try:
+            data = read_pipeline(path)
+            comments = _comments_above(path)
+        except Exception:
+            continue
+        where = path.relative_to(assets).as_posix()
+        for name, raw in data.items():
+            if name.startswith("$"):
+                continue
+            node = as_dict(raw)
+            doc = docs.setdefault(name, NodeDoc())
+            desc = node.get("desc")
+            doc.desc = desc.strip() if isinstance(desc, str) else ""
+            doc.comments = comments.get(name, [])
+            recognition = _type_name(node.get("recognition"), "DirectHit")
+            action = _type_name(node.get("action"), "DoNothing")
+            doc.kinds = f"识别 {recognition}，动作 {action}"
+            doc.files.append(where)
+    return docs
+
+
+def attribute_ok(name: str) -> bool:
+    """能不能写成 Nodes.节点名。
+
+    不是合法标识符的（带 -）写不成属性；下划线开头的是 pipeline 内部用的节点，
+    写成属性 pyright 会当成私有成员报错，这两种还是用字符串写。
+    """
+    return name.isidentifier() and not keyword.iskeyword(name) and not name.startswith("_")
 
 
 def write_node_names(repo: Path, target: Path = NODE_NAMES_STUB) -> tuple[int, bool]:
-    """把资源里所有节点名写成 Literal 类型存根，返回（节点数，这次有没有改动）。
+    """把资源里所有节点写成类型存根，返回（节点数，这次有没有改动）。
 
+    NodeName 是所有节点名的 Literal，字符串写法靠它补全和核对；
+    Nodes 每个节点一个属性，属性下面一行字符串是节点说明，编辑器补全和悬停时显示。
     内容没变就不写，免得编辑器反复重新分析。
     """
-    names = sorted(load_pipeline(repo))
+    docs = node_docs(repo)
+    names = sorted(docs)
     lines = [
         "# 由 uv run test-capture nodes 生成，别手改；改了 pipeline 再跑一次就会更新。",
-        "# 运行时 NodeName 就是 str（见 node_names.py），这里只给编辑器做补全和拼写检查。",
+        "# 运行时 NodeName 就是 str、Nodes.XXX 就是字符串 XXX（见 node_names.py），这里只给编辑器做补全和拼写检查。",
         "from typing import Literal",
         "",
         "type NodeName = Literal[",
         *(f"    {json.dumps(name, ensure_ascii=False)}," for name in names),
         "]",
         "",
+        "class Nodes:",
+        '    """每个节点一个属性，值是节点名；属性下面一行是节点说明。"""',
+        "",
     ]
+    for name in names:
+        if not attribute_ok(name):
+            continue
+        lines.append(f"    {name}: Literal[{json.dumps(name, ensure_ascii=False)}]")
+        lines.append(f"    {json.dumps(docs[name].text(), ensure_ascii=False)}")
+    lines.append("")
     content = "\n".join(lines)
     if target.is_file() and target.read_text(encoding="utf-8") == content:
         return len(names), False

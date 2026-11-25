@@ -29,20 +29,21 @@ tests/DeliveryJobs/capture_flow.py
 
 文件里建一个 `flow` 对象，再用 `@flow.step` 把函数登记成步骤，步骤名就是函数名。
 每一步都要写清楚它要在哪个界面：`enter` 是界面节点，`route` 是不在这个界面时用哪个现成节点转过去。
+节点名统一写成 `Nodes.节点名`，编辑器会补全并显示节点说明，见下面「编辑器里补全节点名」。
 
 ```python
-from tools.test_capture import Capture, Flow
+from tools.test_capture import Capture, Flow, Nodes
 
 flow = Flow("据点交易")
 
 
 @flow.step(
-    enter="OutpostTradingInRefugeeCamp",
-    route="SceneEnterMenuRegionalDevelopmentValleyIVOutpostManagement",
+    enter=Nodes.OutpostTradingInRefugeeCamp,
+    route=Nodes.SceneEnterMenuRegionalDevelopmentValleyIVOutpostManagement,
 )
 def 四号谷地据点(c: Capture) -> None:
     c.shot("据点_难民暂居处")
-    c.click("OutpostTradingCheckInfraStationTabText")
+    c.click(Nodes.OutpostTradingCheckInfraStationTabText)
 ```
 
 每一步开跑前先看一眼 `enter` 命不命中：命中就直接往下做；不在就先 `sub_task(route)` 转过去
@@ -54,14 +55,14 @@ def 四号谷地据点(c: Capture) -> None:
 
 ```python
 def 回装箱界面(c: Capture) -> None:
-    c.goto("DeliveryJobsInWulingLocalDepotNode", "SceneEnterMenuRegionalDevelopmentWulingDepotNode")
-    c.run("DeliveryJobsEnterWulingCityCargo")
-    c.wait("DeliveryJobsInCargoPackGoods")
+    c.goto(Nodes.DeliveryJobsInWulingLocalDepotNode, Nodes.SceneEnterMenuRegionalDevelopmentWulingDepotNode)
+    c.run(Nodes.DeliveryJobsEnterWulingCityCargo)
+    c.wait(Nodes.DeliveryJobsInCargoPackGoods)
 
 
-@flow.step(enter="DeliveryJobsInCargoPackGoods", route=回装箱界面, once=True)
+@flow.step(enter=Nodes.DeliveryJobsInCargoPackGoods, route=回装箱界面, once=True)
 def 装满货物(c: Capture) -> None:
-    c.run("DeliveryJobsCargoFillToMax")
+    c.run(Nodes.DeliveryJobsCargoFillToMax)
 ```
 
 实在回不去的界面（比如委托已经转出去、只在某一瞬间存在的奖励页），`route` 写个直接抛错的函数，
@@ -93,9 +94,9 @@ A1  →  B1  →  B2  →  A2  →  A3  →  B3  →  B4  →  A4
 这种写 `once=True`：
 
 ```python
-@flow.step(enter="OutpostTradingInSkyKingFlatsConstructionSite", route="...", once=True)
+@flow.step(enter=Nodes.OutpostTradingInSkyKingFlatsConstructionSite, route=..., once=True)
 def 清空调度券(c: Capture) -> None:
-    c.sub_task("OutpostTradingSkyKingFlatsConstructionSiteBetterSliding")
+    c.sub_task(Nodes.OutpostTradingSkyKingFlatsConstructionSiteBetterSliding)
 ```
 
 第一个跑到的平台做完，后面到的平台直接跳过这一步，记一笔跳过、不算失败；
@@ -198,7 +199,7 @@ uv run test-capture diagram --flow tests/DeliveryJobs/capture_flow.py 流程.htm
 
 ```python
 c.shot("据点_天王坪援建点")  # 等 2 秒画面稳定，再截一张
-c.click("OutpostTradingOpenOperatorLiaisonButton")  # 点进去
+c.click(Nodes.OutpostTradingOpenOperatorLiaisonButton)  # 点进去
 ```
 
 界面已经在 `enter` 里声明过，函数里不用再写一遍 `wait`。
@@ -206,7 +207,7 @@ c.click("OutpostTradingOpenOperatorLiaisonButton")  # 点进去
 大部分图都是「某个界面出来了才拍」，这种直接写 `shot_when`，等和拍一步到位：
 
 ```python
-c.shot_when("DeliveryJobsCheckCargoFilledToMax", "货物装箱完成")  # 装满的图标出来了才拍
+c.shot_when(Nodes.DeliveryJobsCheckCargoFilledToMax, "货物装箱完成")  # 装满的图标出来了才拍
 ```
 
 只有截图前才等画面稳定：`wait` / `click` 这类操作命中就往下走，不截图的时候不会白等。
@@ -217,20 +218,34 @@ c.shot_when("DeliveryJobsCheckCargoFilledToMax", "货物装箱完成")  # 装满
 
 ### 编辑器里补全节点名
 
-节点名参数的类型是 `NodeName`。先生成一次节点名类型存根：
+节点名统一写成 `Nodes.节点名`（`from tools.test_capture import Nodes`）。先生成一次节点名类型存根：
 
 ```bash
 uv run test-capture nodes
 ```
 
-它把所有资源包（`assets/resource*/pipeline`）里的节点名写进 `tools/test_capture/node_names.pyi`。VS Code（Pylance）或 pyright 读到它之后，在 `c.click("` 的引号里就会弹出节点名补全，写错的名字当场标红，`enter` / `route` 也一样。这个文件不进仓库；之后每次跑 `test-capture`（包括画流程图）都会按当时的 pipeline 顺手刷新，改了节点也不用手动再生成。没生成时 `NodeName` 就是普通字符串，不补全也不报错。
+它把所有资源包（`assets/resource*/pipeline`）里的节点写进 `tools/test_capture/node_names.pyi`，每个节点是 `Nodes` 的一个属性。VS Code（Pylance）或 pyright 读到它之后，敲 `Nodes.` 就会弹出节点名补全，选中某一项、或者鼠标停在写好的 `Nodes.XXX` 上，能看到这个节点的说明：
 
-节点名先放进变量再传，要把变量标成 `NodeName`，不然编辑器会说普通字符串对不上：
+- 节点的 `desc` 字段；
+- 节点名上方紧挨着的 `//` 注释；
+- 识别和动作类型（比如「识别 TemplateMatch，动作 Click」）；
+- 节点定义在哪个文件（`assets/` 下的路径），几个资源包都有同名节点时都列上。
+
+写错的名字当场标红，`enter` / `route` 也一样。这个文件不进仓库；之后每次跑 `test-capture`（包括画流程图）都会按当时的 pipeline 顺手刷新，改了节点也不用手动再生成。没生成时 `Nodes.XXX` 就是普通字符串 `"XXX"`，不补全也不报错。
+
+为什么不直接在引号里补全：Pylance 给字符串补全时只列字符串本身，带不出任何说明，所以换成属性写法。
+
+有两类节点写不成属性，还是用字符串，字符串在引号里照样能补全节点名（只是没有说明）、写错照样标红：
+
+- 下划线开头的节点（pipeline 内部用的，比如 `__ScenePrivate...`）：写成属性 pyright 会当成私有成员报错；
+- 名字里带 `-` 这类字符、不是合法 Python 名字的节点（比如 `__BS-1`）。
+
+节点名先放进变量再传，变量写 `Nodes.XXX` 就行；要写字符串的话把变量标成 `NodeName`，不然编辑器会说普通字符串对不上：
 
 ```python
-from tools.test_capture import NodeName
+from tools.test_capture import Nodes
 
-tabs: list[NodeName] = ["OutpostTradingCheckInfraStationTabText", "OutpostTradingCheckReconstructionHQTabText"]
+tabs = [Nodes.OutpostTradingCheckInfraStationTabText, Nodes.OutpostTradingCheckReconstructionHQTabText]
 ```
 
 ### 节点名写错会当场停下
@@ -254,15 +269,15 @@ tabs: list[NodeName] = ["OutpostTradingCheckInfraStationTabText", "OutpostTradin
 
 ```python
 for round_index in range(1, 13):
-    if c.hit("OutpostTradingZeroMoney"):  # 已经提示储量不足
+    if c.hit(Nodes.OutpostTradingZeroMoney):  # 已经提示储量不足
         break
     c.swipe((940, 548), (1180, 548))  # 份数拉满
     tradeable = c.number((1150, 528, 100, 44))
     if tradeable < 1:
         break
-    c.click("OutpostTradingSell")
-    c.wait("OutpostTradingCheckResultHeader")  # 交易完成的提示出来了
-    c.run("OutpostTradingSellCheck")  # 现成的「交易后确认」节点，自己点 ✓
+    c.click(Nodes.OutpostTradingSell)
+    c.wait(Nodes.OutpostTradingCheckResultHeader)  # 交易完成的提示出来了
+    c.run(Nodes.OutpostTradingSellCheck)  # 现成的「交易后确认」节点，自己点 ✓
 ```
 
 ## 顺手写进测试集

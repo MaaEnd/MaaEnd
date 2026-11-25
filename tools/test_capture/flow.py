@@ -113,7 +113,7 @@ class Flow:
     ) -> StepFunc | Callable[[StepFunc], StepFunc]:
         """登记一步。
 
-        光写 @flow.step 也行；写 @flow.step(enter="InWorld") 就声明这步要求的界面。
+        光写 @flow.step 也行；写 @flow.step(enter=Nodes.InWorld) 就声明这步要求的界面。
         默认每步各自成段；写 stop=False 把这一步接到上一段里。
         只能做一次的步骤写 once=True。
         """

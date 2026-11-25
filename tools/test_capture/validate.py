@@ -25,13 +25,22 @@ ROUTE_POSITIONS = frozenset({("goto", 1)})
 SUGGESTIONS = 3
 
 
+def node_name_of(expr: ast.expr) -> str | None:
+    """参数是写死的节点名就返回它：Nodes.XXX 或者字符串常量；其它写法（变量、表达式）返回 None。"""
+    if isinstance(expr, ast.Attribute) and isinstance(expr.value, ast.Name) and expr.value.id == "Nodes":
+        return expr.attr
+    if isinstance(expr, ast.Constant) and isinstance(expr.value, str):
+        return expr.value
+    return None
+
+
 class NodeNameError(FlowError):
     """流程里的节点名跟资源对不上；跟哪台平台无关，一台报出来就够了。"""
 
 
 @dataclass(frozen=True)
 class NodeRef:
-    """流程里当成节点名用的一个字符串。"""
+    """流程里当成节点名用的一处：Nodes.XXX 或者字符串。"""
 
     name: str
     line: int
@@ -51,7 +60,7 @@ class NodeRefs:
 
 
 def collect(path: Path) -> NodeRefs:
-    """扫流程文件，把当成节点名用的字符串都收出来。"""
+    """扫流程文件，把当成节点名用的 Nodes.XXX 和字符串都收出来。"""
     tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
     refs = NodeRefs(where=str(path))
     for node in ast.walk(tree):
@@ -59,8 +68,9 @@ def collect(path: Path) -> NodeRefs:
             continue
         method = node.func.attr if isinstance(node.func, ast.Attribute) else ""
         for position, arg in enumerate(node.args[: NODE_ARG_METHODS.get(method, 0)]):
-            if isinstance(arg, ast.Constant) and isinstance(arg.value, str):
-                refs.nodes.append(NodeRef(arg.value, arg.lineno))
+            name = node_name_of(arg)
+            if name is not None:
+                refs.nodes.append(NodeRef(name, arg.lineno))
             elif (method, position) in ROUTE_POSITIONS:
                 continue
             elif not (isinstance(arg, ast.Constant) and arg.value is None):
@@ -69,8 +79,9 @@ def collect(path: Path) -> NodeRefs:
             if keyword.arg not in STEP_KEYWORDS:
                 continue
             value = keyword.value
-            if isinstance(value, ast.Constant) and isinstance(value.value, str):
-                refs.nodes.append(NodeRef(value.value, value.lineno))
+            name = node_name_of(value)
+            if name is not None:
+                refs.nodes.append(NodeRef(name, value.lineno))
             elif keyword.arg == "enter" and not (isinstance(value, ast.Constant) and value.value is None):
                 # enter 必须是节点名；route 还可以写成一段转跳动作，那样静态核对不了。
                 refs.unchecked.append(value.lineno)

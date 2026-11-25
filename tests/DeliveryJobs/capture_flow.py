@@ -22,7 +22,7 @@
     uv run test-capture run --flow tests/DeliveryJobs/capture_flow.py --controller Win32-Front --testset
 """
 
-from tools.test_capture import Capture, Flow, FlowError
+from tools.test_capture import Capture, Flow, FlowError, Nodes
 
 flow = Flow("转交委托")
 
@@ -33,42 +33,42 @@ flow = Flow("转交委托")
 def 回装箱界面(c: Capture) -> None:
     """从仓储节点点进货物、选好类型，回到「装满」的状态。"""
     c.goto(
-        "DeliveryJobsInWulingLocalDepotNode",
-        "SceneEnterMenuRegionalDevelopmentWulingDepotNode",
+        Nodes.DeliveryJobsInWulingLocalDepotNode,
+        Nodes.SceneEnterMenuRegionalDevelopmentWulingDepotNode,
     )
-    c.run("DeliveryJobsEnterWulingCityCargo")
-    c.wait("DeliveryJobsInCargoPackGoods")
-    c.run("DeliveryJobsSelectTypeOfGoodsToPackNextStep")
-    c.wait("DeliveryJobsCargoFillToMax")
-    c.run("DeliveryJobsCargoFillToMax")
-    c.wait("DeliveryJobsCheckCargoFilledToMax")
+    c.run(Nodes.DeliveryJobsEnterWulingCityCargo)
+    c.wait(Nodes.DeliveryJobsInCargoPackGoods)
+    c.run(Nodes.DeliveryJobsSelectTypeOfGoodsToPackNextStep)
+    c.wait(Nodes.DeliveryJobsCargoFillToMax)
+    c.run(Nodes.DeliveryJobsCargoFillToMax)
+    c.wait(Nodes.DeliveryJobsCheckCargoFilledToMax)
 
 
 def 回调度申请(c: Capture) -> None:
     """从仓储节点点「查看报价」进调度申请；货装满了、报价也还在的时候才到得了。"""
     c.goto(
-        "DeliveryJobsInWulingLocalDepotNode",
-        "SceneEnterMenuRegionalDevelopmentWulingDepotNode",
+        Nodes.DeliveryJobsInWulingLocalDepotNode,
+        Nodes.SceneEnterMenuRegionalDevelopmentWulingDepotNode,
     )
-    c.run("DeliveryJobsEnterWulingCityCargo")
-    c.wait("DeliveryJobsInCargoRedistributionBid")
+    c.run(Nodes.DeliveryJobsEnterWulingCityCargo)
+    c.wait(Nodes.DeliveryJobsInCargoRedistributionBid)
 
 
 def 回快速转交确认(c: Capture) -> None:
     """调度申请还在的话，重新点一次「快速转交」把确认框叫回来。"""
-    c.goto("DeliveryJobsInCargoRedistributionBid", 回调度申请)
-    c.run("DeliveryJobsQuickTransfer")
-    c.wait("DeliveryJobsCheckQuickTransferConfirmText")
+    c.goto(Nodes.DeliveryJobsInCargoRedistributionBid, 回调度申请)
+    c.run(Nodes.DeliveryJobsQuickTransfer)
+    c.wait(Nodes.DeliveryJobsCheckQuickTransferConfirmText)
 
 
 def 回我转交的委托(c: Capture) -> None:
     """从仓储节点点开「我转交的委托」标签页。"""
     c.goto(
-        "DeliveryJobsInWulingLocalDepotNode",
-        "SceneEnterMenuRegionalDevelopmentWulingDepotNode",
+        Nodes.DeliveryJobsInWulingLocalDepotNode,
+        Nodes.SceneEnterMenuRegionalDevelopmentWulingDepotNode,
     )
-    c.run("ClaimDeliveryJobsClickMyTransferredTab")
-    c.wait("InClaimDeliveryJobsNode")
+    c.run(Nodes.ClaimDeliveryJobsClickMyTransferredTab)
+    c.wait(Nodes.InClaimDeliveryJobsNode)
 
 
 def 回不去(c: Capture) -> None:
@@ -79,8 +79,8 @@ def 回不去(c: Capture) -> None:
 
 
 @flow.step(
-    enter="DeliveryJobsInValleyIVLocalDepotNode",
-    route="SceneEnterMenuRegionalDevelopmentValleyIVDepotNode",
+    enter=Nodes.DeliveryJobsInValleyIVLocalDepotNode,
+    route=Nodes.SceneEnterMenuRegionalDevelopmentValleyIVDepotNode,
     stop=False,
 )
 def 四号谷地仓储节点(c: Capture) -> None:
@@ -88,8 +88,8 @@ def 四号谷地仓储节点(c: Capture) -> None:
 
 
 @flow.step(
-    enter="DeliveryJobsInWulingLocalDepotNode",
-    route="SceneEnterMenuRegionalDevelopmentWulingDepotNode",
+    enter=Nodes.DeliveryJobsInWulingLocalDepotNode,
+    route=Nodes.SceneEnterMenuRegionalDevelopmentWulingDepotNode,
     stop=False,
 )
 def 武陵仓储节点(c: Capture) -> None:
@@ -97,72 +97,72 @@ def 武陵仓储节点(c: Capture) -> None:
 
 
 @flow.step(
-    enter="DeliveryJobsInWulingLocalDepotNode",
-    route="SceneEnterMenuRegionalDevelopmentWulingDepotNode",
+    enter=Nodes.DeliveryJobsInWulingLocalDepotNode,
+    route=Nodes.SceneEnterMenuRegionalDevelopmentWulingDepotNode,
 )
 def 武陵城货物装箱(c: Capture) -> None:
     """进装箱界面、选类型、把箱子装满。到这儿都还没交出去，退出去也不亏。"""
-    c.run("DeliveryJobsEnterWulingCityCargo")
-    c.shot_when("DeliveryJobsInCargoPackGoods", "选择货物类型")
+    c.run(Nodes.DeliveryJobsEnterWulingCityCargo)
+    c.shot_when(Nodes.DeliveryJobsInCargoPackGoods, "选择货物类型")
 
-    c.run("DeliveryJobsSelectTypeOfGoodsToPackNextStep")
-    c.shot_when("DeliveryJobsCargoFillToMax", "货物装箱")  # 填充界面出来了，右上有「装满」按钮
+    c.run(Nodes.DeliveryJobsSelectTypeOfGoodsToPackNextStep)
+    c.shot_when(Nodes.DeliveryJobsCargoFillToMax, "货物装箱")  # 填充界面出来了，右上有「装满」按钮
 
-    c.run("DeliveryJobsCargoFillToMax")  # 装满了只是货进了箱子，还没交出去
-    c.shot_when("DeliveryJobsCheckCargoFilledToMax", "货物装箱完成")
+    c.run(Nodes.DeliveryJobsCargoFillToMax)  # 装满了只是货进了箱子，还没交出去
+    c.shot_when(Nodes.DeliveryJobsCheckCargoFilledToMax, "货物装箱完成")
 
 
 @flow.step(
-    enter="DeliveryJobsInCargoPackGoods",
+    enter=Nodes.DeliveryJobsInCargoPackGoods,
     route=回装箱界面,
     stop=False,
     once=True,
 )
 def 武陵城装满货物(c: Capture) -> None:
     # 点「下一步」才算提交：货交出去、竞价游戏自己完成，到这儿就回不了头了
-    c.run("DeliveryJobsFillToMaxNextStep")
-    c.shot_when("DeliveryJobsCargoBid", "货物竞价")
-    c.run("DeliveryJobsCargoBid")
+    c.run(Nodes.DeliveryJobsFillToMaxNextStep)
+    c.shot_when(Nodes.DeliveryJobsCargoBid, "货物竞价")
+    c.run(Nodes.DeliveryJobsCargoBid)
 
 
 @flow.step(
-    enter="DeliveryJobsInCargoRedistributionBid",
+    enter=Nodes.DeliveryJobsInCargoRedistributionBid,
     route=回调度申请,
 )
 def 武陵城调度申请(c: Capture) -> None:
     """只看不确认：点开快速转交截一张确认框，然后点取消，别的平台还能再来一次。"""
     c.shot("调度申请")
 
-    c.run("DeliveryJobsQuickTransfer")
-    c.shot_when("DeliveryJobsCheckQuickTransferConfirmText", "快速转交确认")
+    c.run(Nodes.DeliveryJobsQuickTransfer)
+    c.shot_when(Nodes.DeliveryJobsCheckQuickTransferConfirmText, "快速转交确认")
 
 
 @flow.step(
-    enter="DeliveryJobsCheckQuickTransferConfirmText",
+    enter=Nodes.DeliveryJobsCheckQuickTransferConfirmText,
     route=回快速转交确认,
     stop=False,
     once=True,
 )
 def 武陵城确认转交(c: Capture) -> None:
     """真确认：到这一步委托才转出去，从这儿起都只能做一次。"""
-    c.run("DeliveryJobsQuickTransferConfirm")
-    c.shot_when("DeliveryJobsCheckRewardHeader", "获得奖励")
+    c.run(Nodes.DeliveryJobsQuickTransferConfirm)
+    c.shot_when(Nodes.DeliveryJobsCheckRewardHeader, "获得奖励")
 
 
 @flow.step(
-    enter="DeliveryJobsCheckRewardHeader",
+    enter=Nodes.DeliveryJobsCheckRewardHeader,
     route=回不去,
     stop=False,
     once=True,
 )
 def 武陵城关掉奖励(c: Capture) -> None:
     """关掉获得奖励界面，落到「我转交的委托」页。"""
-    c.run("DeliveryJobsQuickTransferReward")
-    c.wait("InClaimDeliveryJobsNode")
+    c.run(Nodes.DeliveryJobsQuickTransferReward)
+    c.wait(Nodes.InClaimDeliveryJobsNode)
 
 
 @flow.step(
-    enter="InClaimDeliveryJobsNode",
+    enter=Nodes.InClaimDeliveryJobsNode,
     route=回我转交的委托,
     stop=False,
     once=True,
@@ -172,11 +172,11 @@ def 武陵城我转交的委托(c: Capture) -> None:
 
 
 @flow.step(
-    enter="InClaimDeliveryJobsNode",
+    enter=Nodes.InClaimDeliveryJobsNode,
     route=回我转交的委托,
     once=True,
 )
 def 武陵城回仓储节点(c: Capture) -> None:
     """点回「本地仓储节点」标签页，回到仓储节点界面再截一张转交后的样子。"""
-    c.run("DeliveryJobsQuickTransferBackToLocalDepotNode")
-    c.shot_when("DeliveryJobsInWulingLocalDepotNode", "转交后仓储节点")
+    c.run(Nodes.DeliveryJobsQuickTransferBackToLocalDepotNode)
+    c.shot_when(Nodes.DeliveryJobsInWulingLocalDepotNode, "转交后仓储节点")
