@@ -518,7 +518,7 @@ func parseResolution(resolution string) (uint32, uint32, error) {
 }
 
 // IsAutoHDREnabled 判断终末地是否会实际开启自动 HDR。
-// 按应用 *Endfield.exe 的 AutoHDREnable 明确覆盖时以按应用为准；
+// 按应用 *Endfield.exe 的 AutoHDREnable 明确开启或关闭时以按应用为准；
 // 否则跟随 DirectXUserGlobalSettings（按应用覆盖全局，见 DirectX 博客「Navigating the redesigned Graphics settings page」）。
 func IsAutoHDREnabled() (bool, error) {
 	k, err := registry.OpenKey(registry.CURRENT_USER, userGpuPreferencesPath, registry.QUERY_VALUE)
@@ -717,20 +717,19 @@ func parseAutoHDRValue(raw string) (string, bool) {
 	return "", false
 }
 
-// parsePerAppAutoHDRFlags 解析按应用 AutoHDREnable 位标志：
-// 0x1000 表示用户在该应用上手动设置过（覆盖全局），0x1 表示开启。
-// Windows 手动关闭时写入的 2096 不带 0x1000，也应视为覆盖全局。
-// 如 2097(0x0831) 跟随全局，6193(0x1831) 手动开启；无法解析时视为跟随全局。
+// parsePerAppAutoHDRFlags 解析按应用 AutoHDREnable 位标志，其余位因机器而异，不参与判断：
+// 0x1 为 0 时明确关闭，如 48(0x0030)、2096(0x0830)；
+// 0x1 为 1 且带 0x1000 时明确开启，如 4147(0x1033)、6193(0x1831)；
+// 0x1 为 1 但不带 0x1000 时跟随全局，如 2097(0x0831)；无法解析时视为跟随全局。
 func parsePerAppAutoHDRFlags(value string) (override, on bool) {
-	value = strings.TrimSpace(value)
-	if value == autoHDRDisabledValue {
-		return true, false
-	}
-	n, err := strconv.ParseUint(value, 10, 32)
+	n, err := strconv.ParseUint(strings.TrimSpace(value), 10, 32)
 	if err != nil {
 		return false, false
 	}
-	return n&autoHDRUserOverrideFlag != 0, n&autoHDREnabledFlag != 0
+	if n&autoHDREnabledFlag == 0 {
+		return true, false
+	}
+	return n&autoHDRUserOverrideFlag != 0, true
 }
 
 const launcherUninstallPath = `SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\`
