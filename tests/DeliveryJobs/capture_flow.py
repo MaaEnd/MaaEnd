@@ -172,11 +172,9 @@ def 武陵城我转交的委托(c: Capture) -> None:
 
 
 @flow.step(
-    enter=Nodes.InClaimDeliveryJobsNode,
-    route=回我转交的委托,
-    once=True,
+    enter=Nodes.DeliveryJobsInWulingLocalDepotNode,
+    route=Nodes.SceneEnterMenuRegionalDevelopmentWulingDepotNode,
 )
 def 武陵城回仓储节点(c: Capture) -> None:
     """点回「本地仓储节点」标签页，回到仓储节点界面再截一张转交后的样子。"""
-    c.run(Nodes.DeliveryJobsQuickTransferBackToLocalDepotNode)
     c.shot_when(Nodes.DeliveryJobsInWulingLocalDepotNode, "转交后仓储节点")
