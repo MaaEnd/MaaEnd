@@ -462,6 +462,10 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 			timeline = tl
 			log.Info().Str("component", "AutoFight").Msg("endaxis timeline enabled")
 			maafocus.Print(ctx, i18n.T("autofight.endaxis.timeline_enabled"))
+			if !tl.HasUltimateFreeScenario() {
+				log.Warn().Str("component", "AutoFight").Msg("endaxis timeline has no scenario without ultimate")
+				maafocus.Print(ctx, i18n.T("autofight.endaxis.no_ultimate_free_scenario"))
+			}
 		} else {
 			log.Info().Str("component", "AutoFight").Msg("endaxis timeline code invalid, fallback to default skill logic")
 			maafocus.Print(ctx, i18n.T("autofight.endaxis.timeline_invalid_fallback"))
