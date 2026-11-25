@@ -2417,6 +2417,8 @@
     "task.BatchUseDetector.option.Times.input.error": "0보다 큰 정수를 입력하세요.",
     "task.BatchUseDetector.option.Times.input.label": "횟수",
     "task.BatchUseDetector.option.Times.label": "사용 횟수",
+    "task.CameraScanTest.description": "셔터를 누르지 않고 환경 모니터링의 25칸 카메라 스캔을 검증합니다. 오픈 월드나 포토 모드에서 실행하세요.",
+    "task.CameraScanTest.label": "🧪 카메라 스캔 테스트",
     "task.ClaimSimulationRewards.description": "시뮬레이션 공간 내 보상을 자동으로 수령합니다.",
     "task.ClaimSimulationRewards.error_not_found": "[시뮬레이션 공간] 화면을 찾을 수 없습니다. 수동으로 전환해 주세요.",
     "task.ClaimSimulationRewards.label": "🏆시뮬레이션 공간 보상 수령",

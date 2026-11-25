@@ -2417,6 +2417,8 @@
     "task.BatchUseDetector.option.Times.input.error": "请输入大于0的整数。",
     "task.BatchUseDetector.option.Times.input.label": "次数",
     "task.BatchUseDetector.option.Times.label": "使用次数",
+    "task.CameraScanTest.description": "只移动镜头、不按快门，用于验证环境监测的 25 宫格镜头扫描；运行前请站在大世界或拍照模式里",
+    "task.CameraScanTest.label": "🧪镜头扫描测试",
     "task.ClaimSimulationRewards.description": "自动领取模拟空间内的奖励",
     "task.ClaimSimulationRewards.error_not_found": "未检测到[模拟空间]界面，请手动切换",
     "task.ClaimSimulationRewards.label": "🏆领取模拟空间奖励",

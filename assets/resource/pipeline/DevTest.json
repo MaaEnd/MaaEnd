@@ -1,7 +1,47 @@
 {
     "DevTestMain": {
         "next": [
-            "AutoMissionNpcProxyActionExitToWorld"
+            "DevTestEnvironmentMonitoringCameraScan"
         ]
+    },
+    // 环境监测拍照用的镜头扫描（5 × 5 网格 + 中/上/下三圈回退）。
+    // next 为空，所以就算扫描命中也不会按快门，只把镜头走一遍。
+    // 想顺带验证命中判定：把 wait_nodes 改成 __TakePhotoShutter，扫描会在拍照目标达成时停下（仍不拍照）。
+    "DevTestEnvironmentMonitoringCameraScan": {
+        "desc": "环境监测镜头扫描：只移动镜头，不点拍照",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "CameraScanAction",
+        "custom_action_param": {
+            "wait_nodes": [
+                "DevTestCameraScanNeverHit"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    // 恒定不命中的占位识别：让扫描走完整条路径，方便逐格看镜头走位。
+    // 1 × 1 的 ROI 凑不满 1000000 个像素，所以永远不会命中。
+    "DevTestCameraScanNeverHit": {
+        "desc": "DevTest 用：恒定不命中的识别节点",
+        "recognition": "ColorMatch",
+        "roi": [
+            0,
+            0,
+            1,
+            1
+        ],
+        "lower": [
+            0,
+            0,
+            0
+        ],
+        "upper": [
+            255,
+            255,
+            255
+        ],
+        "count": 1000000
     }
 }

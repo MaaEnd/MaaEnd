@@ -1,0 +1,46 @@
+{
+    "CameraScanTestMain": {
+        "next": [
+            "CameraScanTestScan"
+        ]
+    },
+    // 镜头扫描测试：只把镜头走一遍，不按快门。
+    // 想顺带验证命中判定，把 wait_nodes 改成 __TakePhotoShutter —— 命中后仍然不会拍照。
+    "CameraScanTestScan": {
+        "desc": "镜头扫描测试：只移动镜头，不点拍照",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "CameraScanAction",
+        "custom_action_param": {
+            "wait_nodes": [
+                "CameraScanTestNeverHit"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    // 恒定不命中的占位识别：让扫描走完整条路径，方便逐格看镜头走位。
+    // 1 × 1 的 ROI 凑不满 1000000 个像素，所以永远不会命中。
+    "CameraScanTestNeverHit": {
+        "desc": "镜头扫描测试用：恒定不命中的识别节点",
+        "recognition": "ColorMatch",
+        "roi": [
+            0,
+            0,
+            1,
+            1
+        ],
+        "lower": [
+            0,
+            0,
+            0
+        ],
+        "upper": [
+            255,
+            255,
+            255
+        ],
+        "count": 1000000
+    }
+}
