@@ -57,6 +57,7 @@ jobs:
           pnpm generate:AutoStockStaple
           pnpm generate:GiftOperator
           pnpm generate:SceneTeleport
+          pnpm generate:MapOverview
           pnpm generate:AutoEssence
 
       - name: Get version info
@@ -94,6 +95,7 @@ jobs:
             - AutoStockStaple
             - GiftOperator
             - SceneTeleport
+            - MapOverview
             - AutoEssence
 
             **Version Information:**
