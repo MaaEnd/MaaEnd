@@ -161,6 +161,8 @@ uv run test-capture diagram --flow tests/DeliveryJobs/capture_flow.py 流程.htm
 流程文件和平台都从那份 manifest 里取，不用再给 `--flow` / `--controller`。
 因为 manifest 是边跑边写的，中断的运行目录也能用 `--from-run` 补导测试图。
 
+日志跟着运行目录走，都在 `<运行目录>/logs/` 下：`maafw.log`、`debug/on_error/` 里的失败截图、`agent-*.log`、`pretask-*.log`。续跑沿用同一个目录，日志接着往里写；`--keep`（默认留 10 次运行）删旧运行目录时，里面的日志一起删。
+
 `SceneAnyEnterWorld` 和自定义识别都依赖 go-service、cpp-algo 注册的组件，
 所以第一次跑之前要先 `uv run build-and-install`。
 

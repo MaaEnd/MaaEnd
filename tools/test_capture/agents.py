@@ -71,7 +71,8 @@ class Agents:
             client = cast(AgentClientProtocol, AgentClient(identifier))
             if not client.bind(resource):
                 raise FlowError(f"Agent {name} 绑定资源失败")
-            log_file = (self.log_dir / f"agent-{name}.log").open("wb")
+            # 追加写：--resume 复用同一个运行目录，追加才留得住上一次失败时的 Agent 输出。
+            log_file = (self.log_dir / f"agent-{name}.log").open("ab")
             creationflags = int(getattr(subprocess, "CREATE_NO_WINDOW", 0)) if os.name == "nt" else 0
             process = subprocess.Popen(
                 [str(executable), identifier],

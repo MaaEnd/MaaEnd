@@ -20,7 +20,7 @@ from . import cancel, pretasks, validate
 from .agents import Agents, pi_environment
 from .controllers import create_controller
 from .flow import BASE_HEIGHT, BASE_WIDTH, Flow, FlowError, RouteFunc, Step, as_dict, as_list
-from .runtime import AGENT_DIR, LOG_DIR, controller_entry, load_task, maafw_dir, resource_bundles
+from .runtime import AGENT_DIR, controller_entry, load_task, log_dir, maafw_dir, resource_bundles
 from .testset import TestSetError, TestSetWriter
 from .types import Box, Controller, Image, Point, Recognition, RecognitionDetail, Resource, Tasker
 from .validate import NodeRefs
@@ -404,7 +404,7 @@ def open_game(tasker: Tasker, resource: Resource, interface: dict[str, Any], con
     override = start_app_override(controller_name)
     click.echo(f"[{controller_name}] 执行 {OPEN_GAME_NODE} 打开游戏")
     if not cancel.wait_job(tasker.post_task(OPEN_GAME_NODE, override), stop=tasker.post_stop).succeeded:
-        raise FlowError(f"{OPEN_GAME_NODE} 没跑成功；Agent 日志在 {LOG_DIR}/agent-*.log")
+        raise FlowError(f"{OPEN_GAME_NODE} 没跑成功；Agent 日志在 {log_dir()}/agent-*.log")
 
 
 def enter_world(tasker: Tasker, resource: Resource, controller_name: str) -> None:
@@ -414,7 +414,7 @@ def enter_world(tasker: Tasker, resource: Resource, controller_name: str) -> Non
     click.echo(f"[{controller_name}] 执行 {ENTER_WORLD_NODE} 回到大世界")
     job = cancel.wait_job(tasker.post_task(ENTER_WORLD_NODE), stop=tasker.post_stop)
     if not job.succeeded:
-        raise FlowError(f"{ENTER_WORLD_NODE} 没跑成功，游戏可能停在弹窗或登录界面；Agent 日志在 {LOG_DIR}/agent-*.log")
+        raise FlowError(f"{ENTER_WORLD_NODE} 没跑成功，游戏可能停在弹窗或登录界面；Agent 日志在 {log_dir()}/agent-*.log")
     click.echo(f"[{controller_name}] 已回到大世界")
 
 
@@ -529,7 +529,7 @@ def open_platform(
     from maa.tasker import Tasker as MaaTasker
 
     kind = str(controller_entry(interface, controller_name).get("type") or "")
-    env_extra = pi_environment(interface, controller_name, LOG_DIR)
+    env_extra = pi_environment(interface, controller_name, log_dir())
 
     resource = cast(Resource, MaaResource())
     for bundle in resource_bundles(interface, controller_name):
@@ -553,7 +553,7 @@ def open_platform(
 
     # Agent 常驻：流程里引用的节点可能是自定义识别（MapFind 之类），也可能是内置识别，
     # 都走同一套探测逻辑，所以整场都让它们挂着。
-    agents = Agents(AGENT_DIR, maafw_dir(), LOG_DIR, env_extra)
+    agents = Agents(AGENT_DIR, maafw_dir(), log_dir(), env_extra)
     agents.start(resource)
     agents.wait_ready()
     click.echo(f"[{controller_name}] Agent 已就绪，可以用任意节点做匹配和点击")

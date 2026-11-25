@@ -183,7 +183,8 @@ def _run(
 
     flow = load_flow(flow_path.resolve())
     interface = load_interface()
-    prepare_framework(Path(maafw) if maafw else None)
+    # 日志跟着运行目录走：maafw.log、debug/on_error、Agent 和预任务的日志都在 <运行目录>/logs 下。
+    prepare_framework(Path(maafw) if maafw else None, run_dir / "logs")
 
     if resume is None:
         for stale in prune_runs(out_dir.resolve(), keep):

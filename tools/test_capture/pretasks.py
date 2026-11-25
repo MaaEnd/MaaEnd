@@ -16,7 +16,7 @@ import click
 
 from .agents import agent_env
 from .flow import FlowError, as_list
-from .runtime import AGENT_DIR, LOG_DIR, maafw_dir, pretask_for
+from .runtime import AGENT_DIR, log_dir, maafw_dir, pretask_for
 
 # 预任务自己会等窗口（外壳、启动器、游戏各最多 5 分钟），这里只兜住卡死的情况。
 PRETASK_TIMEOUT = 900.0
@@ -40,8 +40,9 @@ def run(controller_name: str, extra_env: dict[str, str]) -> bool:
     if not executable.is_file():
         raise FlowError(f"缺少 {executable}，先跑 uv run build-and-install")
     args = [str(item) for item in as_list(spec.get("args"))]
-    LOG_DIR.mkdir(parents=True, exist_ok=True)
-    log_path = LOG_DIR / f"pretask-{name}.log"
+    logs = log_dir()
+    logs.mkdir(parents=True, exist_ok=True)
+    log_path = logs / f"pretask-{name}.log"
     click.echo(f"[{controller_name}] 执行预任务 {name}：{executable.name} {' '.join(args)}")
     with log_path.open("wb") as log:
         try:

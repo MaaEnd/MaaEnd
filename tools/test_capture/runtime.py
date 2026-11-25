@@ -14,11 +14,13 @@ from .flow import FlowError, as_dict, as_list, load_jsonc
 ROOT = Path(__file__).resolve().parents[2]
 ASSETS = ROOT / "assets"
 INTERFACE_PATH = ASSETS / "interface.json"
-LOG_DIR = ROOT / ".cache/test-capture/logs"
+# 没有运行目录时（例如只画流程图）日志没处可放，兜底放到这里。
+DEFAULT_LOG_DIR = ROOT / ".cache/test-capture/logs"
 AGENT_DIR = ROOT / "install/agent"
 PRETASK_DIR = ASSETS / "tasks" / "pretasks"
 
 _maafw_dir: Path | None = None
+_log_dir: Path | None = None
 
 
 def framework_library_dir(explicit: Path | None) -> Path | None:
@@ -29,10 +31,12 @@ def framework_library_dir(explicit: Path | None) -> Path | None:
     return candidate if candidate.is_dir() else None
 
 
-def prepare_framework(explicit: Path | None) -> None:
+def prepare_framework(explicit: Path | None, logs_dir: Path | None = None) -> None:
     """加载框架动态库，并打开调试模式。
 
     只有调试模式才拿得到识别用的那一帧画面，所以这里不提供开关。
+    logs_dir 给这次运行的日志目录（一般是运行目录下的 logs/），不给就用 DEFAULT_LOG_DIR：
+    maafw 的 maafw.log、debug/on_error、Agent 与预任务的日志都写在里面。
     """
     library_dir = framework_library_dir(explicit)
     if library_dir is not None:
@@ -45,9 +49,11 @@ def prepare_framework(explicit: Path | None) -> None:
     from maa.tasker import Tasker
     from maa.toolkit import Toolkit
 
-    global _maafw_dir
+    global _maafw_dir, _log_dir
     _maafw_dir = library_dir
-    Toolkit.init_option(LOG_DIR)
+    _log_dir = logs_dir or DEFAULT_LOG_DIR
+    _log_dir.mkdir(parents=True, exist_ok=True)
+    Toolkit.init_option(_log_dir)
     Tasker.set_debug_mode(True)
     Tasker.set_save_draw(False)
     Tasker.set_reco_image_cache_limit(64)
@@ -58,6 +64,11 @@ def maafw_dir() -> Path:
     if _maafw_dir is None:
         raise FlowError("框架还没初始化，先调用 prepare_framework")
     return _maafw_dir
+
+
+def log_dir() -> Path:
+    """这次运行的日志目录，prepare_framework 时定下来；还没初始化就用兜底目录。"""
+    return _log_dir or DEFAULT_LOG_DIR
 
 
 def load_task(name: str) -> dict[str, Any]:
