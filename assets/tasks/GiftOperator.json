@@ -1127,6 +1127,36 @@
                             ]
                         }
                     }
+                },
+                {
+                    "name": "Kay",
+                    "label": "$operator.Kay",
+                    "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectOp1": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "enabled": true,
+                            "template": [
+                                "GiftOperator/Operators/Kay.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "小刻",
+                                "小刻",
+                                "Kay",
+                                "ケーちゃん",
+                                "케르"
+                            ]
+                        }
+                    }
                 }
             ],
             "default_case": "Any"
