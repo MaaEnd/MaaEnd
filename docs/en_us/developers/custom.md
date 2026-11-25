@@ -152,7 +152,7 @@ Example file: [`CharacterController.json`](../../../assets/resource/pipeline/Int
 - `move_right?: string`: Node for one rightward camera step. Defaults to `__CameraScanMoveRight`.
 - `fallback_yaw_steps?: int`: Discrete yaw movements in each fallback ring. Defaults to `8` (2 direction-node steps each, so 8 makes about one full turn); range `[4, 72]`.
 
-Camera movement runs through `ctx.RunTask` on the corresponding direction nodes (defaults in `Common/Private/CameraScan/Action.json`). Configure `post_wait_freezes` on caller-provided direction nodes when the screen must settle after each move. Aiming still uses the private node `__CameraScanAimSwipe`.
+Camera movement runs through `ctx.RunTask` on the corresponding direction nodes (defaults in `Common/Private/CameraScan/Action.json`). Those defaults carry `post_wait_freezes` (`time` 40ms, `timeout` 200ms, full screen, threshold 0.95, `rate_limit` 40ms): each swipe returns only after the screen settles, so recognition never runs on a frame captured while the camera is still turning. It waits once per cell, so lower `timeout` or narrow `target` if that is too slow. Keep the field when supplying custom direction nodes, otherwise recognition goes back to screenshotting immediately after the swipe. Aiming still uses the private node `__CameraScanAimSwipe`.
 
 ### PipelineOverride
 
