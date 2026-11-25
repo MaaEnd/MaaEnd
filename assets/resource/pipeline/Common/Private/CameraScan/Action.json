@@ -14,14 +14,18 @@
         ],
         "end_hold": 0,
         "duration": 60,
+        // 静止判定的比较区域取拍照停止节点 __TakePhotoShutter 的搜索范围并集
+        // （ShutterButton 961,465,213,183 ∪ __TakePhotoCheckTarget 0,100,150,580），
+        // 不用全屏：全屏会把界面动画一起算进去，每格都会等满 timeout。
+        // 换用别的 wait_nodes 时，把这里的 target 改成对应节点的 roi。
         "post_wait_freezes": {
             "time": 40,
             "timeout": 200,
             "target": [
                 0,
-                0,
-                0,
-                0
+                100,
+                1174,
+                580
             ],
             "threshold": 0.95,
             "rate_limit": 40
@@ -49,9 +53,9 @@
             "timeout": 200,
             "target": [
                 0,
-                0,
-                0,
-                0
+                100,
+                1174,
+                580
             ],
             "threshold": 0.95,
             "rate_limit": 40
@@ -79,9 +83,9 @@
             "timeout": 200,
             "target": [
                 0,
-                0,
-                0,
-                0
+                100,
+                1174,
+                580
             ],
             "threshold": 0.95,
             "rate_limit": 40
@@ -109,9 +113,9 @@
             "timeout": 200,
             "target": [
                 0,
-                0,
-                0,
-                0
+                100,
+                1174,
+                580
             ],
             "threshold": 0.95,
             "rate_limit": 40

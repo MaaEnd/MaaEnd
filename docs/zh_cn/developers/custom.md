@@ -152,7 +152,7 @@ Action 节点用于执行自定义动作。常见写法如下：
 - `move_right?: string`：右移镜头节点，默认 `__CameraScanMoveRight`。
 - `fallback_yaw_steps?: int`：fallback 每档俯仰绕圈的离散步数，默认 `8`（每步 2 个方向节点步，8 步约一整圈），范围 `[4, 72]`。
 
-镜头移动通过 `ctx.RunTask` 执行对应方向节点（默认节点见 `Common/Private/CameraScan/Action.json`）。方向节点默认带 `post_wait_freezes`（`time` 40ms、`timeout` 200ms、阈值 0.95、`rate_limit` 40ms）：滑屏结束后等画面静止再返回，避免拿镜头还在转的那一帧去做识别。比较区域不是全屏，而是 `wait_nodes` 的识别 ROI——多个节点取并集，`And` / `Or` 取子节点的并集；解析不到 ROI 时才退回节点自身的配置（默认全屏），并在日志里留一行 `freeze target unresolved`。每格都等一次，嫌慢可以调小 `timeout`。对准目标时仍使用私有节点 `__CameraScanAimSwipe`。
+镜头移动通过 `ctx.RunTask` 执行对应方向节点（默认节点见 `Common/Private/CameraScan/Action.json`）。方向节点默认带 `post_wait_freezes`（`time` 40ms、`timeout` 200ms、阈值 0.95、`rate_limit` 40ms）：滑屏结束后等画面静止再返回，避免拿镜头还在转的那一帧去做识别。比较区域写的是拍照停止节点 `__TakePhotoShutter` 的搜索范围并集 `[0, 100, 1174, 580]`，不是全屏——全屏会把界面动画一起算进去，导致每格都等满 `timeout`。换用别的 `wait_nodes` 时，把这几个方向节点的 `target` 改成对应节点的 `roi`，或改用自定义方向节点。每格都等一次，嫌慢可以调小 `timeout`。对准目标时仍使用私有节点 `__CameraScanAimSwipe`。
 
 ### PipelineOverride
 
