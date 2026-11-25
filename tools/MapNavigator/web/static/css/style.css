@@ -2177,8 +2177,7 @@ body:not(.mode-edit) .map-layer-panel .nav-debug-options {
   font-weight: 600;
 }
 
-.log-distance-coordinates,
-.log-distance-formula {
+.log-distance-coordinates {
   font-family: var(--font-mono);
   overflow-wrap: anywhere;
 }
