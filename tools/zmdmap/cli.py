@@ -6,7 +6,8 @@
 - ``version``：打印上游清单里这一批数据的版本号（同步作业的 PR 标题用它）。
 
 generate 与 fetch 的流程各自在文件里，选项也各写各的；version 只是读一次清单。入库（投影 / 原样复制）共用一个
-:mod:`tools.zmdmap.materialize`。``version`` 只由 ``generate`` 写进 ``data/raw/``，``fetch`` 与入库都只沿用；
+:mod:`tools.zmdmap.materialize`。``version`` 由 ``generate`` 写进 ``data/raw/``；``fetch`` 在内容没变、标签却还是
+旧的时候只改这一个字段，入库则原样沿用；
 细节见 ``tools/zmdmap/README.md``。
 
 用法::

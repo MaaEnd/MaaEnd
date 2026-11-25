@@ -18,7 +18,9 @@
 内容核一遍，文件自称的值和内容对不上时写回实际算出来的指纹，于是字段始终与内容一致 —— 下次 ``fetch`` 拿它
 跟清单比才靠得住。
 
-本地已是最新时跳过下载：逐份拿本地文件里自称的 ``sha256`` 跟清单比，一样的跳过，不一样的才下。清单本身
+本地已是最新时跳过下载：逐份拿本地文件里自称的 ``sha256`` 跟清单比，一样的跳过，不一样的才下。指纹一样、
+版本标签却不是清单这一批的，只把文件开头那个 ``version`` 改成清单的版本（本体与 ``sha256`` 不动）—— 内容没变
+的那份否则会一直挂着上一批的标签，看起来像没更新。清单本身
 每次都带时间戳取 —— 它只有几百字节，却决定了整批判断，被远端缓存住就会拿旧索引判断。无论下载与否都会跑
 一次入库。上游还没发布的数据只提示、不当失败：本地可以用 ``uv run zmdmap generate --only <名字>`` 生成。
 清单里的 ``version`` 是判断本地新旧的依据，必须有：没写就报错退出，不退回「只比指纹」。本地那份的 ``version``
@@ -47,12 +49,15 @@ from .materialize import copy_plain, report_data_changes, run_projection
 from .utils.config import DATA_BASE_URL, DEFAULT_OUT_DIR, MANIFEST_FILE, ZMDMAP_DATA_DIR
 from .utils.datafile import (
     HASH_KEY,
+    VERSION_KEY,
     dump_json,
     payload_hash,
     payload_of,
     read_hash,
+    read_json,
     read_version,
     version_of,
+    write_json,
 )
 from .utils.http import get
 from .utils.log import logger
@@ -113,10 +118,24 @@ def read_manifest() -> Manifest:
         ) from error
 
 
+def relabel_version(path: Path, version: str) -> bool:
+    """把数据文件最前面的 ``version`` 改成 ``version``，本体与 ``sha256`` 一个字不动。
+
+    只用在「清单指纹与本地一致、只有批次号变了」的那几份：内容不用重下，但版本标签该跟上这一批。文件里
+    本来没有 ``version`` 字段时不动它（不替上游编版本）。返回是否真的写了盘。
+    """
+    data = read_json(path)
+    if not is_object(data) or VERSION_KEY not in data or data[VERSION_KEY] == version:
+        return False
+    data[VERSION_KEY] = version
+    write_json(path, data)
+    return True
+
+
 def manifest_plan(
     target_dir: Path, file_names: Sequence[str], manifest: Manifest
-) -> tuple[list[str], list[str], list[str], list[str]]:
-    """按清单把这批数据分成四类，顺序同返回值：
+) -> tuple[list[str], list[str], list[str], list[str], list[str]]:
+    """按清单把这批数据分成五类，顺序同返回值：
 
     - **要下载的**：本地没有这个文件，或者本地自称的 ``sha256`` 与清单记的指纹不同。调用方下载后入库。
     - **清单里没有但本地有的**：这批没发它（``generate --only`` 只发点名的几份），保持本地原样 —— 下回来的是
@@ -126,13 +145,13 @@ def manifest_plan(
     - **本地比清单新的**：本地自称的 ``version`` 比清单的 ``version`` 新
       （:func:`tools.zmdmap.utils.version.version_order`），说明上游这份是旧的 —— 发布端回滚过，或者本地已经
       按当前代码生成过、上游还没重新发布。保持本地原样，要覆盖得用 ``--force``。
+    - **只改版本标签的**：指纹与清单一致、本地 ``version`` 又不是清单这一批的。内容不用重下，调用方
+      （:func:`download`）只把文件开头那个 ``version`` 改掉 —— 否则内容没变的那份会一直挂着上一批的标签。
 
     判断只读 ``target_dir`` 里同名文件自称的 ``version`` 与 ``sha256``
     （:func:`tools.zmdmap.utils.datafile.read_version`、:func:`tools.zmdmap.utils.datafile.read_hash`），
     不读本体。先看版本：本地更新就不下；版本相同或更旧时看指纹：不同才下。所以同一个版本号下重新发布过、
-    内容变了照样重下，只换了版本号、内容没变则不会重下。
-
-    指纹与清单一致的那几份四类都不进：本地就是这一批，不用动。
+    内容变了照样重下，只换了版本号、内容没变则不会重下（把本地那个旧标签改成清单的版本）。
 
     清单的 ``version`` 是必填项：:func:`download` 会先确认它存在，所以这里不必再判空 —— 缺版本时根本走不到
     这一步（判断不了新旧，不盲下）。
@@ -145,6 +164,7 @@ def manifest_plan(
     unlisted: list[str] = []
     absent: list[str] = []
     newer: list[str] = []
+    relabel: list[str] = []
     for file_name in file_names:
         local = read_hash(target_dir / file_name)
         expected = manifest.files.get(file_name)
@@ -156,7 +176,9 @@ def manifest_plan(
             newer.append(file_name)  # 上游这份是旧的：不拿它覆盖本地更新的数据
         elif local != expected:  # 指纹对不上，或者本地根本没有这一份：要下
             todo.append(file_name)
-    return todo, unlisted, absent, newer
+        elif local_version != manifest.version:  # 内容就是这一批，只是标签还停在上一批
+            relabel.append(file_name)
+    return todo, unlisted, absent, newer, relabel
 
 
 def _data_url(file_name: str, token: str) -> str:
@@ -350,7 +372,7 @@ def download(
                 f"{MANIFEST_FILE} 里没有 version：判断不了本地这份比上游新还是旧，不下。"
                 "等上游按发布流程重新生成清单；确认要覆盖本地就加 --force 重下"
             )
-        todo, unlisted, absent, newer = manifest_plan(target_dir, todo, manifest)
+        todo, unlisted, absent, newer, relabel = manifest_plan(target_dir, todo, manifest)
         label = f"清单 v{version}"
         if unlisted:
             logger.warning(f"这几份不在{label}里，保持本地原样：{'、'.join(unlisted)}")
@@ -366,10 +388,19 @@ def download(
                 logger.warning(f"{file_name}：{label}里没有它、本地也没有，跳过（上游还没发这一份）")
         if newer:
             logger.warning(f"本地版本比{label}新，保持本地原样（要覆盖用 --force 重下）：{'、'.join(newer)}")
+        if relabel:
+            if dry_run:
+                logger.info(f"{label}：{len(relabel)} 份内容没变，只把 version 改成 v{version}（--dry-run 未执行）")
+            else:
+                changed = [name for name in relabel if relabel_version(target_dir / name, version)]
+                if changed:
+                    logger.info(f"{label}：{len(changed)} 份内容没变，只更新了 version 标签")
         if todo:
             logger.info(f"{label}：{len(todo)} 份内容有变化")
         else:
-            if absent or unlisted or newer:
+            if relabel:
+                logger.info(f"{label}：没有要下载的，内容都是这一批")
+            elif absent or unlisted or newer:
                 logger.info(f"{label}：没有要下载的（其余几份按上面的提示处理）")
             else:
                 logger.info(f"本地内容与{label}一致，跳过下载")
