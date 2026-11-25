@@ -2,7 +2,9 @@
 
 本文件提供具体的重构示例，供修改代码时对照。
 
-## 成员变量命名：camelCase → snake_case_
+## 成员变量命名：camelCase → snake_case（struct 无尾下划线，class 有尾下划线）
+
+struct 的公开字段使用 snake_case，不加尾下划线；class 的数据成员使用 snake_case 并加尾下划线。下面三个示例均为 struct。
 
 ### MapTypes.h — `MapPosition`
 
@@ -238,8 +240,10 @@ LogDebug << VAR(score) << VAR(zone_id) << VAR(search_rect);
 
 ### 成员变量尾下划线一致性
 
-MaaFramework 中所有类成员变量无例外地使用 `trailing_underscore_`：
+MaaFramework 中所有 class 数据成员无例外地使用 `trailing_underscore_`：
 
 - `tasker_`, `entry_`, `stdout_level_`, `trace_mutex_`
 
 cpp-algo 中 `MapLocator::Impl` 的 `motionTracker`、`currentZoneId` 等应统一改为 `motion_tracker_`、`current_zone_id_`。
+
+这里的尾下划线规则仅适用于 class 数据成员；struct 公开字段不加尾下划线，见上文 `MapPosition` 示例。

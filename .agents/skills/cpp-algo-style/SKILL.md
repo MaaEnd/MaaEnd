@@ -18,7 +18,8 @@ cpp-algo 当前最严重的问题是 **命名风格不统一**，同一个项目
 | 类 / 结构体 / 枚举 | PascalCase | `MapLocator`, `MatchFeature` |
 | 成员函数 | camelCase | `initialize()`, `resetTrackingState()` |
 | 自由函数 | PascalCase（对外）/ snake_case（内部工具） | `CreateInputBackend()` |
-| 成员变量 | snake_case + 尾下划线 `_` | `locator_`, `current_zone_id_` |
+| 成员变量（struct 公开字段） | snake_case（无尾下划线） | `zone_id`, `is_valid` |
+| 成员变量（class 数据成员） | snake_case + 尾下划线 `_` | `locator_`, `current_zone_id_` |
 | 局部变量 | snake_case | `search_rect`, `fine_result` |
 | 常量（constexpr） | `k` 前缀 + PascalCase | `kDefaultMinimapRoi`, `kMaxLostFrames` |
 | 宏 | ALL_CAPS | `MAA_TRUE`, `LOG_ARGS` |
@@ -28,8 +29,8 @@ cpp-algo 当前最严重的问题是 **命名风格不统一**，同一个项目
 
 ### 已知违规（修改时顺手修复）
 
-- `MapPosition` 中 `zoneId`、`sliceIndex` 等用了 camelCase 成员，应改为 `zone_id_`、`slice_index_`
-- `TrackingConfig` 中 `maxNormalSpeed`、`screenBlockedThreshold` 同理
+- `MapPosition` 中 `zoneId`、`sliceIndex` 等用了 camelCase 成员，应改为 `zone_id`、`slice_index`（struct 公开字段不加尾下划线）
+- `TrackingConfig` 中 `maxNormalSpeed`、`screenBlockedThreshold` 同理，应改为 `max_normal_speed`、`screen_blocked_threshold`
 - `MatchStrategy` 中 `_isBase`（前导下划线）应改为 `is_base_`
 - 常量 `MinimapROIOriginX`、`MaxLostTrackingCount`、`MinMatchScore` 缺少 `k` 前缀
 
