@@ -42,7 +42,7 @@ def main() -> None:
     仍然交给 click（那是用法说明，不是日志）。
     """
     try:
-        _command(standalone_mode=False)
+        exit_code = _command(standalone_mode=False)
     except click.ClickException as error:
         logger.error(f"x {error.format_message()}")
         raise SystemExit(error.exit_code) from error
@@ -51,6 +51,10 @@ def main() -> None:
         raise SystemExit(1) from None
     except click.exceptions.Exit as stopped:
         raise SystemExit(stopped.exit_code) from None
+    # standalone_mode=False 时 click 不再自己 sys.exit：命令里的 ctx.exit(1)（生成或入库失败走的就是
+    # 这条）变成一个返回值，没人接就等于成功退出（退出码 0）。这里照它的意思退出，别让失败悄悄过。
+    if exit_code:
+        raise SystemExit(exit_code)
 
 
 if __name__ == "__main__":
