@@ -20,7 +20,6 @@
         // 换用别的 wait_nodes 时，把这里的 target 改成对应节点的 roi。
         "post_wait_freezes": {
             "time": 40,
-            "timeout": 200,
             "target": [
                 0,
                 100,
@@ -28,7 +27,8 @@
                 580
             ],
             "threshold": 0.95,
-            "rate_limit": 40
+            "rate_limit": 40,
+            "timeout": 200
         },
         "post_delay": 0,
         "rate_limit": 0
@@ -50,7 +50,6 @@
         "duration": 60,
         "post_wait_freezes": {
             "time": 40,
-            "timeout": 200,
             "target": [
                 0,
                 100,
@@ -58,7 +57,8 @@
                 580
             ],
             "threshold": 0.95,
-            "rate_limit": 40
+            "rate_limit": 40,
+            "timeout": 200
         },
         "post_delay": 0,
         "rate_limit": 0
@@ -80,7 +80,6 @@
         "duration": 60,
         "post_wait_freezes": {
             "time": 40,
-            "timeout": 200,
             "target": [
                 0,
                 100,
@@ -88,7 +87,8 @@
                 580
             ],
             "threshold": 0.95,
-            "rate_limit": 40
+            "rate_limit": 40,
+            "timeout": 200
         },
         "post_delay": 0,
         "rate_limit": 0
@@ -110,7 +110,6 @@
         "duration": 60,
         "post_wait_freezes": {
             "time": 40,
-            "timeout": 200,
             "target": [
                 0,
                 100,
@@ -118,7 +117,8 @@
                 580
             ],
             "threshold": 0.95,
-            "rate_limit": 40
+            "rate_limit": 40,
+            "timeout": 200
         },
         "post_delay": 0,
         "rate_limit": 0
@@ -140,7 +140,6 @@
         "duration": 120,
         "post_wait_freezes": {
             "time": 40,
-            "timeout": 200,
             "target": [
                 0,
                 0,
@@ -148,7 +147,8 @@
                 0
             ],
             "threshold": 0.95,
-            "rate_limit": 40
+            "rate_limit": 40,
+            "timeout": 200
         },
         "post_delay": 0,
         "rate_limit": 0
