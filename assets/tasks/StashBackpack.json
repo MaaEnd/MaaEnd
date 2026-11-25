@@ -11,8 +11,6 @@
             "controller": [
                 "ADB",
                 "CloudADB",
-                // TODO: CloudWeb 尚未实机验证，验证通过后取消注释
-                // "CloudWeb",
                 "PlayCover",
                 "Linux-Gamescope",
                 "Linux-ScreenCast",
@@ -6293,8 +6291,8 @@
                     }
                 },
                 {
-                    "name": "item_slwood_1_hshog_1_1",
-                    "label": "$iconRecognition.name.item_slwood_1_hshog_1_1",
+                    "name": "item_wgthorns_1_mushbug_spmushroom1_1",
+                    "label": "$iconRecognition.name.item_wgthorns_1_mushbug_spmushroom1_1",
                     "pipeline_override": {
                         "UseConsumableTacticalFindBackpackItem": {
                             "recognition": {
@@ -6302,7 +6300,7 @@
                                     "custom_recognition_param": {
                                         "grid_type": "transfer",
                                         "item_ids": [
-                                            "item_slwood_1_hshog_1_1"
+                                            "item_wgthorns_1_mushbug_spmushroom1_1"
                                         ],
                                         "item_recheck_filters": [
                                             "Normal:Usable"
@@ -6318,7 +6316,7 @@
                                     "custom_recognition_param": {
                                         "grid_type": "transfer",
                                         "item_ids": [
-                                            "item_slwood_1_hshog_1_1"
+                                            "item_wgthorns_1_mushbug_spmushroom1_1"
                                         ],
                                         "item_recheck_filters": [
                                             "Normal:Usable"
@@ -6357,6 +6355,44 @@
                                         "grid_type": "transfer",
                                         "item_ids": [
                                             "item_inkbiter_1_wgshoal_1_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_slwood_1_hshog_1_1",
+                    "label": "$iconRecognition.name.item_slwood_1_hshog_1_1",
+                    "pipeline_override": {
+                        "UseConsumableTacticalFindBackpackItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_slwood_1_hshog_1_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "UseConsumableTacticalFindDepotItem": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_slwood_1_hshog_1_1"
                                         ],
                                         "item_recheck_filters": [
                                             "Normal:Usable"
