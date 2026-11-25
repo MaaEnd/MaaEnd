@@ -200,13 +200,48 @@ jobs:
       - name: Fetch zmdmap data
         run: uv run zmdmap fetch --only weapons --only energy_point_gems
 
+      # AutoEssence 的武器选项会把图标写成 resource/image/UI/Item/<武器id>.png，并在生成时检查文件在不在；
+      # 图标没发布就整份生成报错（2026-11-21 那次就是缺 wpn_pistol_0013 等的图标失败的）。先查一遍，缺了就
+      # 只跳过任务生成：EssenceFilter 的数据照常更新、PR 照常提，等图标合进来下次补上。
+      - name: Check weapon UI icons
+        id: weapon-icons
+        run: |
+          python3 - > /tmp/weapon-ui-icons.txt <<'PY'
+          import json
+          import pathlib
+
+          weapons = json.load(open("tools/zmdmap/data/weapons.json", encoding="utf-8"))
+          weapon_types = {"Sword", "Claymores", "Pistol", "Wand", "Lance"}
+          ui_dir = pathlib.Path("assets/resource/image/UI/Item")
+          missing = [
+              weapon_id
+              for weapon_id, weapon in weapons.items()
+              if isinstance(weapon, dict)
+              and isinstance(weapon.get("rarity"), int)
+              and weapon["rarity"] >= 5
+              and weapon.get("weapon_type") in weapon_types
+              and not (ui_dir / f"{weapon_id}.png").is_file()
+          ]
+          print(len(missing))
+          print(", ".join(missing))
+          PY
+          missing=$(sed -n 1p /tmp/weapon-ui-icons.txt)
+          ids=$(sed -n 2p /tmp/weapon-ui-icons.txt)
+          echo "missing=$missing" >> "$GITHUB_OUTPUT"
+          if [ "$missing" != "0" ]; then
+            echo "::warning::$missing 把五星及以上武器的 UI 图标还没发布（$ids），本次跳过 AutoEssence 任务生成，等图标齐了再跑"
+          fi
+
       # 依赖都在 pyproject 的默认组里，uv 按 uv.lock 建好环境即可，不必单独装 python 或 pip install。
       - name: Generate EssenceFilter data
         run: |
           uv run python -u tools/essence_filter/sync_zmdmap.py
           uv run python -u tools/essence_filter/extract_skill_pools.py
           uv run python -u tools/essence_filter/build_locations.py
-          uv run python -u tools/essence_filter/build_autoessence_tasks.py
+
+      - name: Generate AutoEssence task
+        if: steps.weapon-icons.outputs.missing == '0'
+        run: uv run python -u tools/essence_filter/build_autoessence_tasks.py
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v8
