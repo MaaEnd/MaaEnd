@@ -4,6 +4,7 @@ package launchgamepc
 
 import (
 	"fmt"
+	"runtime"
 	"unsafe"
 
 	"golang.org/x/sys/windows"
@@ -30,6 +31,10 @@ var (
 	procEnumDisplayDevW   = user32.NewProc("EnumDisplayDevicesW")
 	procIsIconic          = user32.NewProc("IsIconic")
 	procShowWindow        = user32.NewProc("ShowWindow")
+
+	procGetDpiForWindow              = user32.NewProc("GetDpiForWindow")
+	procSetThreadDpiAwarenessContext = user32.NewProc("SetThreadDpiAwarenessContext")
+	procGetDpiForMonitor             = windows.NewLazySystemDLL("shcore.dll").NewProc("GetDpiForMonitor")
 )
 
 type displayDevice struct {
@@ -113,6 +118,37 @@ func restoreLauncherWindow(hWnd unsafe.Pointer) bool {
 	// ShowWindow 返回值表示调用前窗口是否可见，不代表成功与否
 	procShowWindow.Call(uintptr(hWnd), swRestore)
 	return true
+}
+
+// launcherDPI returns the window's rendering DPI and its monitor scale as DPI.
+// A zero value keeps the default capture method when scale cannot be queried.
+func launcherDPI(hWnd unsafe.Pointer) (windowDPI, monitorDPI uint32) {
+	if procGetDpiForWindow.Find() != nil || procSetThreadDpiAwarenessContext.Find() != nil ||
+		procGetDpiForMonitor.Find() != nil {
+		return 0, 0
+	}
+	// Read the actual monitor scale even when the Go process is DPI-unaware.
+	// DPI awareness is thread-local, so keep the calls and restoration on one thread.
+	runtime.LockOSThread()
+	defer runtime.UnlockOSThread()
+	const perMonitorAwareV2 = ^uintptr(3) // DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2 (-4)
+	previous, _, _ := procSetThreadDpiAwarenessContext.Call(perMonitorAwareV2)
+	if previous == 0 {
+		return 0, 0
+	}
+	defer procSetThreadDpiAwarenessContext.Call(previous)
+	monitor, _, _ := procMonitorFromWindow.Call(uintptr(hWnd), monitorDefaultToNearest)
+	if monitor == 0 {
+		return 0, 0
+	}
+	dpi, _, _ := procGetDpiForWindow.Call(uintptr(hWnd))
+	var x, y uint32
+	// MDT_EFFECTIVE_DPI is 0.
+	result, _, _ := procGetDpiForMonitor.Call(monitor, 0, uintptr(unsafe.Pointer(&x)), uintptr(unsafe.Pointer(&y)))
+	if result != 0 {
+		return 0, 0
+	}
+	return uint32(dpi), x
 }
 
 func enumDisplayDevice(parent *uint16, index uint32) (displayDevice, bool) {
