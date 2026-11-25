@@ -57,6 +57,18 @@ var locationLevelToKey = map[string]string{
         self.assertIn("map02_lv010", message)
         self.assertIn("locationLevelToKey", message)
 
+    def test_allow_missing_skips_unregistered_region(self):
+        resolved = resolve_locations(
+            [
+                {"name": "重度能量淤积点·枢纽区", "level_id": "map01_lv001"},
+                {"name": "重度能量淤积点·旧水坝", "level_id": "map02_lv011"},
+            ],
+            {"map01_lv001": "VFTheHub"},
+            {"global.region.TheHub"},
+            allow_missing=True,
+        )
+        self.assertEqual([key for key, _ in resolved], ["VFTheHub"])
+
 
 class OcrExpectedTest(unittest.TestCase):
     def test_dedupes_pool_languages(self):
