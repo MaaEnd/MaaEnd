@@ -780,7 +780,7 @@
         ]
     },
     "SceneEnterWorldWulingMarkerStoneCloudrestGrotto": {
-        "desc": "从任意界面进入武陵-首墩-栖云窟大世界",
+        "desc": "从任意界面进入武陵-首墩-栖云林地大世界",
         "pre_delay": 0,
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": "__ScenePrivateMapWulingMarkerStoneEnterWorldWulingMarkerStoneCloudrestGrotto"

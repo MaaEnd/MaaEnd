@@ -1319,5 +1319,45 @@
         "next": [
             "GiftOperatorSelectSpecifiedOpSuccess"
         ]
+    },
+    "GiftOperatorSelect_Kay": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "GiftOperatorSelectGiftOp",
+                "roi_offset": [
+                    -48,
+                    -36,
+                    165,
+                    128
+                ],
+                "template": [
+                    "GiftOperator/Operators/Kay.png"
+                ],
+                "green_mask": true
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorName": {
+                            "expected": [
+                                "小刻",
+                                "小刻",
+                                "Kay",
+                                "ケーちゃん",
+                                "케르"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "next": [
+            "GiftOperatorSelectSpecifiedOpSuccess"
+        ]
     }
 }

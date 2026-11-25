@@ -1,6 +1,6 @@
 {
-    "version": "1.6.4+11262943-8",
-    "sha256": "7beade684113e89d0bae000f4d509e0c53c130141150fdc10282ee544eaaa64f",
+    "version": "1.7.2+12026241-3",
+    "sha256": "d76f24c19f4148fa6e0be41e421fc34dc8d3a8d5251ffaa8414662ec3f0f5774",
     "regions": {
         "domain_1": {
             "names": {
@@ -90,7 +90,11 @@
                 "domainshop_goods_map02_007_3_4",
                 "domainshop_goods_map02_007_3_5",
                 "domainshop_goods_map02_007_3_6",
-                "domainshop_goods_map02_007_3_7"
+                "domainshop_goods_map02_007_3_7",
+                "domainshop_goods_map02_007_4_3",
+                "domainshop_goods_map02_007_4_4",
+                "domainshop_goods_map02_007_4_5",
+                "domainshop_goods_map02_007_4_6"
             ]
         }
     },
@@ -566,6 +570,46 @@
                 "ko_kr": "장식용 목검"
             },
             "icon_id": "item_gift_jinlong_13"
+        },
+        "item_wgthorns_1_mushbug_spmushroom1_1": {
+            "names": {
+                "zh_cn": "菌王之血",
+                "zh_tw": "菌王之血",
+                "en_us": "Fungal King's Blood",
+                "ja_jp": "キノコ菌グの血",
+                "ko_kr": "버섯 대왕의 피"
+            },
+            "icon_id": "item_wgthorns_1_mushbug_spmushroom1_1"
+        },
+        "item_jzmonk_1_mushbug_spmushroom1_1": {
+            "names": {
+                "zh_cn": "僭越的蜜饼",
+                "zh_tw": "僭越的蜜餅",
+                "en_us": "Usurper's Waffle",
+                "ja_jp": "はちみつワッフルもどき",
+                "ko_kr": "모양만 벌꿀 와플"
+            },
+            "icon_id": "item_jzmonk_1_mushbug_spmushroom1_1"
+        },
+        "item_gift_jinlong_14": {
+            "names": {
+                "zh_cn": "风味蜜饼·联名款",
+                "zh_tw": "風味蜜餅·聯名款",
+                "en_us": "WOW-FFLE: Fusion Event",
+                "ja_jp": "はちみつワッフル・コラボ限定味",
+                "ko_kr": "벌꿀 와플 · 콜라보 한정판"
+            },
+            "icon_id": "item_gift_jinlong_14"
+        },
+        "item_gift_jinlong_15": {
+            "names": {
+                "zh_cn": "《团结号》",
+                "zh_tw": "《團結號》",
+                "en_us": "The Unicity",
+                "ja_jp": "『ユニシティ号』",
+                "ko_kr": "<유니티>"
+            },
+            "icon_id": "item_gift_jinlong_15"
         }
     },
     "goods": {
@@ -2088,6 +2132,98 @@
                     "level": 3,
                     "count": 30,
                     "version_start": "v1d6d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map02_007_4_3": {
+            "region_id": "domain_2",
+            "shop_id": "domainshop_page_com_map02",
+            "category_id": "household",
+            "item_id": "item_wgthorns_1_mushbug_spmushroom1_1",
+            "count": 1,
+            "price": 300000,
+            "discount": 0.5,
+            "currency_id": "item_domain_jinlong_coupon",
+            "refresh_type": "Weekly",
+            "limit_count": 0,
+            "sort_id": 100,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map02_3",
+                    "level": 4,
+                    "count": 40,
+                    "version_start": "v1d7d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map02_007_4_4": {
+            "region_id": "domain_2",
+            "shop_id": "domainshop_page_com_map02",
+            "category_id": "household",
+            "item_id": "item_jzmonk_1_mushbug_spmushroom1_1",
+            "count": 1,
+            "price": 300000,
+            "discount": 0.5,
+            "currency_id": "item_domain_jinlong_coupon",
+            "refresh_type": "Weekly",
+            "limit_count": 0,
+            "sort_id": 100,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map02_3",
+                    "level": 4,
+                    "count": 40,
+                    "version_start": "v1d7d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map02_007_4_5": {
+            "region_id": "domain_2",
+            "shop_id": "domainshop_page_com_map02",
+            "category_id": "crafts",
+            "item_id": "item_gift_jinlong_14",
+            "count": 1,
+            "price": 90000,
+            "discount": 0.4000000059604645,
+            "currency_id": "item_domain_jinlong_coupon",
+            "refresh_type": "Weekly",
+            "limit_count": 0,
+            "sort_id": 70,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map02_3",
+                    "level": 4,
+                    "count": 30,
+                    "version_start": "v1d7d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map02_007_4_6": {
+            "region_id": "domain_2",
+            "shop_id": "domainshop_page_com_map02",
+            "category_id": "crafts",
+            "item_id": "item_gift_jinlong_15",
+            "count": 1,
+            "price": 90000,
+            "discount": 0.4000000059604645,
+            "currency_id": "item_domain_jinlong_coupon",
+            "refresh_type": "Weekly",
+            "limit_count": 0,
+            "sort_id": 70,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map02_3",
+                    "level": 4,
+                    "count": 30,
+                    "version_start": "v1d7d0",
                     "time_id": ""
                 }
             ]

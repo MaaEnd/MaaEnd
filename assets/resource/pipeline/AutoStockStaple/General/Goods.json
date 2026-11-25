@@ -1028,5 +1028,88 @@
                 ]
             }
         }
+    },
+    "AutoStockStapleGoodsItemJzmonk1MushbugSpmushroom11": {
+        "desc": "僭越的蜜饼",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    418,
+                    122,
+                    269,
+                    147
+                ],
+                "expected": [
+                    "僭越的蜜饼",
+                    "僭越的蜜餅",
+                    "(?i)Usurper's\\s*Waffle",
+                    "はちみつワッフルもどき",
+                    "모양만 벌꿀 와플"
+                ]
+            }
+        }
+    },
+    "AutoStockStapleGoodsItemWgthorns1MushbugSpmushroom11": {
+        "desc": "菌王之血",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    418,
+                    122,
+                    269,
+                    147
+                ],
+                "expected": [
+                    "菌王之血",
+                    "(?i)Fungal\\s*King's\\s*Blood",
+                    "キノコ菌グの血",
+                    "버섯 대왕의 피"
+                ]
+            }
+        }
+    },
+    "AutoStockStapleGoodsItemGiftJinlong14": {
+        "desc": "风味蜜饼·联名款",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    418,
+                    122,
+                    269,
+                    147
+                ],
+                "expected": [
+                    "风味蜜饼·联名款",
+                    "風味蜜餅·聯名款",
+                    "(?i)WOW-FFLE:\\s*Fusion\\s*Event",
+                    "はちみつワッフル・コラボ限定味",
+                    "벌꿀 와플 · 콜라보 한정판"
+                ]
+            }
+        }
+    },
+    "AutoStockStapleGoodsItemGiftJinlong15": {
+        "desc": "《团结号》",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    418,
+                    122,
+                    269,
+                    147
+                ],
+                "expected": [
+                    "《团结号》",
+                    "《團結號》",
+                    "(?i)The\\s*Unicity",
+                    "『ユニシティ号』",
+                    "<유니티>"
+                ]
+            }
+        }
     }
 }

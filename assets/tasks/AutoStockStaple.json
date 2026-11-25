@@ -2088,6 +2088,42 @@
                             }
                         }
                     }
+                },
+                {
+                    "name": "UsurpersWaffle",
+                    "label": "$task.AutoStockStaple.item.item_jzmonk_1_mushbug_spmushroom1_1",
+                    "icon": "resource/image/UI/Item/item_jzmonk_1_mushbug_spmushroom1_1.png",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemNameDaily": {
+                            "attach": {
+                                "item_jzmonk_1_mushbug_spmushroom1_1": [
+                                    "僭越的蜜饼",
+                                    "僭越的蜜餅",
+                                    "Usurper's Waffle",
+                                    "はちみつワッフルもどき",
+                                    "모양만 벌꿀 와플"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "FungalKingsBlood",
+                    "label": "$task.AutoStockStaple.item.item_wgthorns_1_mushbug_spmushroom1_1",
+                    "icon": "resource/image/UI/Item/item_wgthorns_1_mushbug_spmushroom1_1.png",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemNameDaily": {
+                            "attach": {
+                                "item_wgthorns_1_mushbug_spmushroom1_1": [
+                                    "菌王之血",
+                                    "菌王之血",
+                                    "Fungal King's Blood",
+                                    "キノコ菌グの血",
+                                    "버섯 대왕의 피"
+                                ]
+                            }
+                        }
+                    }
                 }
             ]
         },
@@ -2542,6 +2578,42 @@
                     }
                 },
                 "AutoStockStapleGoodsItemInkkirin1Hscrane11ExcludeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingFoodAndBuffLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsItemJzmonk1MushbugSpmushroom11Validate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingFoodAndBuffLimit} > {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsItemJzmonk1MushbugSpmushroom11ExcludeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingFoodAndBuffLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsItemWgthorns1MushbugSpmushroom11Validate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingFoodAndBuffLimit} > {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsItemWgthorns1MushbugSpmushroom11ExcludeValidate": {
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
@@ -3711,6 +3783,42 @@
                             }
                         }
                     }
+                },
+                {
+                    "name": "WOWFFLEFusionEvent",
+                    "label": "$task.AutoStockStaple.item.item_gift_jinlong_14",
+                    "icon": "resource/image/UI/Item/item_gift_jinlong_14.png",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemNameCultural": {
+                            "attach": {
+                                "item_gift_jinlong_14": [
+                                    "风味蜜饼·联名款",
+                                    "風味蜜餅·聯名款",
+                                    "WOW-FFLE: Fusion Event",
+                                    "はちみつワッフル・コラボ限定味",
+                                    "벌꿀 와플 · 콜라보 한정판"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "TheUnicity",
+                    "label": "$task.AutoStockStaple.item.item_gift_jinlong_15",
+                    "icon": "resource/image/UI/Item/item_gift_jinlong_15.png",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemNameCultural": {
+                            "attach": {
+                                "item_gift_jinlong_15": [
+                                    "《团结号》",
+                                    "《團結號》",
+                                    "The Unicity",
+                                    "『ユニシティ号』",
+                                    "<유니티>"
+                                ]
+                            }
+                        }
+                    }
                 }
             ]
         },
@@ -3956,6 +4064,42 @@
                     }
                 },
                 "AutoStockStapleGoodsItemGiftJinlong13ExcludeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingGiftLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsItemGiftJinlong14Validate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingGiftLimit} > {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsItemGiftJinlong14ExcludeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingGiftLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsItemGiftJinlong15Validate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingGiftLimit} > {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsItemGiftJinlong15ExcludeValidate": {
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {

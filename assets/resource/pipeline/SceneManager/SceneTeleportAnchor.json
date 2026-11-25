@@ -2040,7 +2040,7 @@
         }
     },
     "__ScenePrivateMapWulingMarkerStoneEnterWorldWulingMarkerStoneCloudrestGrotto": {
-        "desc": "在地图界面找锚点 (首墩-栖云窟)",
+        "desc": "在地图界面找锚点 (首墩-栖云林地)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
         "custom_recognition_param": {
