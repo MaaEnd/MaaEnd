@@ -276,9 +276,12 @@ jobs:
           uv run python -u tools/essence_filter/extract_skill_pools.py
           uv run python -u tools/essence_filter/build_locations.py
 
+      # 新地图上线后，激发点所属地区要先在 locations.go 的 locationLevelToKey、五语文案与 RegionNodes 里登记
+      # （导航节点要实机信息），任务选项才带得上它。--allow-missing-regions：还没登记的地区跳过并打警告，
+      # 图标与 EssenceFilter 数据照常发；地区补上后下一次运行会自动带上，本地跑仍按默认报错提醒。
       - name: Generate AutoEssence task
         if: steps.weapon-icons.outputs.missing == '0'
-        run: uv run python -u tools/essence_filter/build_autoessence_tasks.py
+        run: uv run python -u tools/essence_filter/build_autoessence_tasks.py --allow-missing-regions
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v8
