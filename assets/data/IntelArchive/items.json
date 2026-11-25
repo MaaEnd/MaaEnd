@@ -13275,8 +13275,8 @@
         "paper_map02_17009": {
             "id": "paper_map02_17009",
             "names": {
-                "zh_cn": "行程记录（一)",
-                "zh_tw": "行程紀錄（一)"
+                "zh_cn": "行程记录（一）",
+                "zh_tw": "行程紀錄（一）"
             },
             "page": "text",
             "fileCategory": "paper",
