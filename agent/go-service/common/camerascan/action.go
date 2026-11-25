@@ -42,12 +42,25 @@ func (a *CameraScanAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		return false
 	}
 
+	request := scanRequest{param: param}
+	request.freeze, request.hasFreeze = resolveFreezeTarget(ctx, param.WaitNodes)
+	if request.hasFreeze {
+		log.Info().
+			Str("component", componentName).
+			Ints("freeze_roi", request.freeze.rect()).
+			Msg("camera scan freeze target resolved from wait nodes")
+	} else {
+		log.Warn().
+			Str("component", componentName).
+			Msg("camera scan freeze target unresolved; move nodes keep their own post_wait_freezes")
+	}
+
 	ctrl := ctx.GetTasker().GetController()
 	for index, step := range buildCameraScanPath(param.FallbackYawSteps) {
 		if ctx.GetTasker().Stopping() {
 			return false
 		}
-		detail, ok := runScanStep(ctx, ctrl, step, param, index+1)
+		detail, ok := runScanStep(ctx, ctrl, step, request, index+1)
 		if !ok {
 			return false
 		}
@@ -62,20 +75,27 @@ func (a *CameraScanAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 	return false
 }
 
+// scanRequest 把参数与运行期解析出的静止判定区域一起往下传。
+type scanRequest struct {
+	param     cameraScanParam
+	freeze    freezeTarget
+	hasFreeze bool
+}
+
 func runScanStep(
 	ctx *maa.Context,
 	ctrl *maa.Controller,
 	step cameraScanStep,
-	param cameraScanParam,
+	request scanRequest,
 	stepIndex int,
 ) (*maa.RecognitionDetail, bool) {
-	if !runCameraSwipe(ctx, step, param) {
+	if !runCameraSwipe(ctx, step, request) {
 		return nil, false
 	}
 	if !step.recognize {
 		return nil, true
 	}
-	return recognizeWaitNodes(ctx, ctrl, param.WaitNodes, step.phase, stepIndex), true
+	return recognizeWaitNodes(ctx, ctrl, request.param.WaitNodes, step.phase, stepIndex), true
 }
 
 func parseParam(raw string) (cameraScanParam, bool) {
@@ -119,33 +139,41 @@ func parseParam(raw string) (cameraScanParam, bool) {
 	return param, true
 }
 
-func runCameraSwipe(ctx *maa.Context, step cameraScanStep, param cameraScanParam) bool {
+func runCameraSwipe(ctx *maa.Context, step cameraScanStep, request scanRequest) bool {
 	for range absInt(step.pitchDelta) {
-		node := param.MoveDown
+		node := request.param.MoveDown
 		if step.pitchDelta < 0 {
-			node = param.MoveUp
+			node = request.param.MoveUp
 		}
-		if !runMoveNode(ctx, node, step.phase) {
+		if !runMoveNode(ctx, node, step.phase, request) {
 			return false
 		}
 	}
 	for range absInt(step.yawDelta) {
-		node := param.MoveRight
+		node := request.param.MoveRight
 		if step.yawDelta < 0 {
-			node = param.MoveLeft
+			node = request.param.MoveLeft
 		}
-		if !runMoveNode(ctx, node, step.phase) {
+		if !runMoveNode(ctx, node, step.phase, request) {
 			return false
 		}
 	}
 	return true
 }
 
-func runMoveNode(ctx *maa.Context, node, phase string) bool {
+func runMoveNode(ctx *maa.Context, node, phase string, request scanRequest) bool {
 	if ctx.GetTasker().Stopping() {
 		return false
 	}
-	detail, err := ctx.RunTask(node)
+
+	var detail *maa.TaskDetail
+	var err error
+	if request.hasFreeze {
+		// 只替换比较区域，等待时长与阈值仍用节点自身的 post_wait_freezes
+		detail, err = ctx.RunTask(node, freezeOverride(ctx, node, request.freeze))
+	} else {
+		detail, err = ctx.RunTask(node)
+	}
 	if err != nil {
 		log.Error().
 			Err(err).
