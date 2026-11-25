@@ -1,10 +1,11 @@
-"""``uv run zmdmap`` 的入口：把两个子命令挂上。
+"""``uv run zmdmap`` 的入口：把三个子命令挂上。
 
 - ``generate``：从本地游戏数据生成精简数据，再入库（:mod:`tools.zmdmap.generate`）；各数据集要哪些输入
   由它 ``build`` 的参数决定；
-- ``fetch``：从 zmdmap 下载已发布的原始数据，再入库（:mod:`tools.zmdmap.fetch`）。
+- ``fetch``：从 zmdmap 下载已发布的原始数据，再入库（:mod:`tools.zmdmap.fetch`）；
+- ``version``：打印上游清单里这一批数据的版本号（同步作业的 PR 标题用它）。
 
-两个子命令各自的流程在自己的文件里，选项也各写各的；入库（投影 / 原样复制）共用一个
+generate 与 fetch 的流程各自在文件里，选项也各写各的；version 只是读一次清单。入库（投影 / 原样复制）共用一个
 :mod:`tools.zmdmap.materialize`。``version`` 只由 ``generate`` 写进 ``data/raw/``，``fetch`` 与入库都只沿用；
 细节见 ``tools/zmdmap/README.md``。
 
@@ -16,11 +17,12 @@
     uv run zmdmap generate --raw-only              # 只出原始形态，不入库
     uv run zmdmap fetch                            # 下载已发布数据并入库
     uv run zmdmap fetch --only delivery_jobs       # 只下、只入库这一份
+    uv run zmdmap version                          # 打印上游清单里这一批的版本号
 """
 
 import click
 
-from .fetch import fetch_command
+from .fetch import fetch_command, version_command
 from .generate import generate_command
 from .utils.log import logger
 
@@ -32,6 +34,7 @@ def _command() -> None:
 
 _command.add_command(generate_command)
 _command.add_command(fetch_command)
+_command.add_command(version_command)
 
 
 def main() -> None:

@@ -62,8 +62,9 @@ jobs:
       - name: Get version info
         id: version
         run: |
-          # 版本写在每份数据的最前面（version 字段），不再有单独的 version.txt。
-          echo "version=$(jq -r .version tools/zmdmap/data/delivery_destinations.json)" >> "$GITHUB_OUTPUT"
+          # 版本取自上游清单：单份数据文件里的 version 只说明那份内容来自哪一批，内容没变的那份不会被重新
+          # 下载，标签会停在上一批，标题就会显示旧版本。
+          echo "version=$(uv run zmdmap version)" >> "$GITHUB_OUTPUT"
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v8
@@ -143,7 +144,8 @@ jobs:
       - name: Get version info
         id: version
         run: |
-          echo "version=$(jq -r .version tools/zmdmap/data/delivery_destinations.json)" >> "$GITHUB_OUTPUT"
+          # 同 sync-pipeline-generate：版本取上游清单，不读单份数据文件。
+          echo "version=$(uv run zmdmap version)" >> "$GITHUB_OUTPUT"
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v8

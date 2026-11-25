@@ -517,3 +517,22 @@ def fetch_command(
     logger.section("汇总")
     logger.info(f"入库：正常（投影 {projected} 份、复制 {copied} 份，输出到 {data_dir}）")
     report_data_changes(data_dir, [dataset.file_name for dataset in datasets])
+
+
+@click.command(name="version")
+def version_command() -> None:
+    """打印上游清单里这一批数据的版本号。
+
+    同步作业的 PR 标题用它：清单里的 version 是整批数据的标签；单份数据文件里的 version 只说明那份内容来自
+    哪一批，内容没变的那份不会被重新下载，标签会停在上一批。
+    """
+    try:
+        manifest = read_manifest()
+    except ManifestError as error:
+        logger.error(f"x {error}")
+        raise SystemExit(1) from error
+    if not manifest.version:
+        logger.error("x 清单里没有 version 字段，取不到这批数据的版本")
+        raise SystemExit(1)
+    # 只打版本本身：调用方（同步作业）直接用 $(uv run zmdmap version) 取值。
+    click.echo(manifest.version)

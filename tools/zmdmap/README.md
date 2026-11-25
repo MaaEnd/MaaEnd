@@ -15,6 +15,7 @@ MaaEnd 的几个任务要读游戏里的物品名、商店货架、采集点、�
 
 - `uv run zmdmap generate`：从本地的游戏数据生成（每份数据都读 TableCfg；`collect_points` / `delivery_destinations` / `energy_points` / `teleport_anchors` 还要 JsonData，`region3d` 还要 Lua 脚本与解包资源）。
 - `uv run zmdmap fetch`：从上游下载已经发布好的数据（数据 CI 用 `generate` 生成并发布的就是它）。
+- `uv run zmdmap version`：打印上游清单里这一批数据的版本号（同步作业的 PR 标题用它；单份数据文件里的 `version` 只说明那份内容来自哪一批，内容没变的那份不会被重新下载，标签会停在上一批）。
 
 `python -m tools.zmdmap` 和 `uv run zmdmap` 等价。
 
@@ -105,6 +106,7 @@ uv run zmdmap                                     # 看帮助
 uv run zmdmap fetch                                # 下载最新数据并入库（CI 就是这么跑的）
 uv run zmdmap fetch --only sell_product            # 只要这一份
 uv run zmdmap fetch --no-download                  # 不下载，拿现有 data/raw/ 重新入库
+uv run zmdmap version                              # 打印上游清单里这一批的版本号
 uv run zmdmap generate                             # 从本地游戏数据生成并入库
 uv run zmdmap generate --raw-only                  # 只出原始形态（发布用的那一份）
 uv run zmdmap generate --version 1.6.4+11262943-8  # 手动指定版本
