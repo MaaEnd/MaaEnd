@@ -171,66 +171,9 @@ jobs:
             **Version Information:**
             - Version: ${{ steps.version.outputs.version }}
 
-  sync-essence-filter:
-    runs-on: ubuntu-latest
-    env:
-      PYTHONUNBUFFERED: "1"
-    steps:
-      - name: Generate MaaEndBot GitHub App token
-        id: app-token
-        uses: actions/create-github-app-token@v3
-        with:
-          client-id: ${{ vars.MAAEND_BOT_APP_CLIENT_ID }}
-          private-key: ${{ secrets.MAAEND_BOT_APP_PRIVATE_KEY }}
-          permission-contents: write
-          permission-pull-requests: write
-
-      - name: Checkout repository
-        uses: actions/checkout@v6
-        with:
-          token: ${{ steps.app-token.outputs.token }}
-          ref: ${{ github.event.repository.default_branch }}
-
-      # setup-uv 一并负责 Python：uv 按 requires-python 自动准备解释器，不必再挂 actions/setup-python。
-      - uses: astral-sh/setup-uv@v10.3.0
-        with:
-          enable-cache: true
-          cache-python: true
-
-      - name: Fetch zmdmap data
-        run: uv run zmdmap fetch --only weapons --only energy_point_gems
-
-      # 依赖都在 pyproject 的默认组里，uv 按 uv.lock 建好环境即可，不必单独装 python 或 pip install。
-      - name: Generate EssenceFilter data
-        run: |
-          uv run python -u tools/essence_filter/sync_zmdmap.py
-          uv run python -u tools/essence_filter/extract_skill_pools.py
-          uv run python -u tools/essence_filter/build_locations.py
-          uv run python -u tools/essence_filter/build_autoessence_tasks.py
-
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v8
-        with:
-          token: ${{ steps.app-token.outputs.token }}
-          committer: "maaendbotapp[bot] <305547419+maaendbotapp[bot]@users.noreply.github.com>"
-          author: "maaendbotapp[bot] <305547419+maaendbotapp[bot]@users.noreply.github.com>"
-          add-paths: |
-            tools/zmdmap
-            assets/data/EssenceFilter
-            assets/tasks/AutoEssence
-            assets/interface.json
-            assets/resource/pipeline/AutoEssence
-            assets/locales/interface
-          commit-message: "chore(essencefilter): sync zmdmap data"
-          branch: chore/sync-zmdmap-essence-filter-data
-          title: "chore(essencefilter): sync zmdmap data"
-          body: |
-            ## Summary
-
-            This PR synchronized the latest EssenceFilter compact game data from zmdmap and regenerated dependent data files and AutoEssence task options.
-
-            Please review the changes before merging it.
-
+  # 图标、EssenceFilter 数据与两个任务必须在同一个作业里跑：任务生成要用这一批刚下载、刚合成的图标，
+  # 拆成两个作业的话，另一个作业只能从默认分支检出，拿不到还没合并的图标（2026-11-21 就是这样失败的）。
+  # 依赖图标的步骤也各自留了一道检查，上游还没发布某张图时只跳过那一步，不让整份 PR 失败。
   sync-icon-recognition:
     runs-on: ubuntu-latest
     env:
@@ -258,7 +201,7 @@ jobs:
           cache-python: true
 
       - name: Fetch zmdmap data
-        run: uv run zmdmap fetch --only item_mini_table --only weapons
+        run: uv run zmdmap fetch --only item_mini_table --only weapons --only usable_items --only energy_point_gems
 
       # json5（读物品表）与 pillow（合成 UI 图标）都在默认组里，httpx 是核心依赖。
       - name: Download icon resources
@@ -266,6 +209,76 @@ jobs:
 
       - name: Publish icon resources
         run: uv run tools/icon_recognition/publish.py
+
+      # 下面两个任务都要用刚下载、刚合成的图标：StashBackpack 按 IconRecognition 的目录给战术物品排序，
+      # AutoEssence 直接引用 UI/Item 下的武器贴图。放在图标之后，用的就是这一批的图标。
+      - uses: pnpm/action-setup@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # 上游有时只发布了数据、还没发布这一批的图标（下载那一步遇到 404 只是跳过，不算失败）。
+      # 这时不生成 StashBackpack：任务会引用没有图标的物品，宁可按原样留着，等图标齐了再跑一次。
+      - name: Check tactical item icons
+        id: tactical-icons
+        run: |
+          missing=$(python3 -c 'import json; items = json.load(open("tools/zmdmap/data/item_mini_table.json", encoding="utf-8")); catalog = json.load(open("assets/data/IconRecognition/recognition_items.json", encoding="utf-8")); print(sum(1 for item_id, item in items.items() if isinstance(item, dict) and item.get("storageKind") == "Normal" and item.get("categoryType") == "Usable" and item.get("type") == "TacticalItem" and item_id not in catalog))'
+          )
+          echo "missing=$missing" >> "$GITHUB_OUTPUT"
+          if [ "$missing" != "0" ]; then
+            echo "::warning::$missing 个战术物品的图标上游还没发布，本次跳过 StashBackpack 生成，等图标齐了再跑"
+          fi
+
+      - name: Generate StashBackpack task
+        if: steps.tactical-icons.outputs.missing == '0'
+        run: pnpm generate:StashBackpack
+
+      # AutoEssence 的武器选项会把图标写成 resource/image/UI/Item/<武器id>.png，并在生成时检查文件在不在；
+      # 上游还没发布某张图时只跳过任务生成：EssenceFilter 的数据照常更新、PR 照常提，等图标合进来下次补上。
+      - name: Check weapon UI icons
+        id: weapon-icons
+        run: |
+          python3 - > /tmp/weapon-ui-icons.txt <<'PY'
+          import json
+          import pathlib
+
+          weapons = json.load(open("tools/zmdmap/data/weapons.json", encoding="utf-8"))
+          weapon_types = {"Sword", "Claymores", "Pistol", "Wand", "Lance"}
+          ui_dir = pathlib.Path("assets/resource/image/UI/Item")
+          missing = [
+              weapon_id
+              for weapon_id, weapon in weapons.items()
+              if isinstance(weapon, dict)
+              and isinstance(weapon.get("rarity"), int)
+              and weapon["rarity"] >= 5
+              and weapon.get("weapon_type") in weapon_types
+              and not (ui_dir / f"{weapon_id}.png").is_file()
+          ]
+          print(len(missing))
+          print(", ".join(missing))
+          PY
+          missing=$(sed -n 1p /tmp/weapon-ui-icons.txt)
+          ids=$(sed -n 2p /tmp/weapon-ui-icons.txt)
+          echo "missing=$missing" >> "$GITHUB_OUTPUT"
+          if [ "$missing" != "0" ]; then
+            echo "::warning::$missing 把五星及以上武器的 UI 图标还没发布（$ids），本次跳过 AutoEssence 任务生成，等图标齐了再跑"
+          fi
+
+      - name: Generate EssenceFilter data
+        run: |
+          uv run python -u tools/essence_filter/sync_zmdmap.py
+          uv run python -u tools/essence_filter/extract_skill_pools.py
+          uv run python -u tools/essence_filter/build_locations.py
+
+      - name: Generate AutoEssence task
+        if: steps.weapon-icons.outputs.missing == '0'
+        run: uv run python -u tools/essence_filter/build_autoessence_tasks.py
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v8
@@ -276,21 +289,32 @@ jobs:
           add-paths: |
             tools/zmdmap
             assets/data/IconRecognition
+            assets/data/EssenceFilter
             assets/resource/image/IconRecognition
             assets/resource/image/UI/Item
+            assets/tasks/AutoEssence
+            assets/tasks/StashBackpack.json
+            assets/interface.json
+            assets/resource/pipeline/AutoEssence
+            assets/resource/pipeline/StashBackpack
             assets/locales/interface
-          commit-message: "chore(iconrecognition): sync zmdmap icon resources"
-          branch: chore/sync-zmdmap-icon-recognition
-          title: "chore(iconrecognition): sync zmdmap icon resources"
+          commit-message: "chore(sync-zmdmap): sync icon resources, EssenceFilter data and dependent tasks"
+          branch: chore/sync-zmdmap-icons-and-tasks
+          title: "chore(sync-zmdmap): sync icon resources, EssenceFilter data and dependent tasks"
           body: |
             ## Summary
 
-            This PR automatically downloaded the latest IconRecognition icons from zmdmap and regenerated the recognition catalog, item images, and localized item names.
+            This PR synchronized the latest zmdmap icon resources and EssenceFilter compact data in one run, and regenerated everything that depends on this batch's icons: the IconRecognition catalog and item images, the AutoEssence task options, and the StashBackpack task.
+
+            They are generated together on purpose: both tasks reference `assets/resource/image/UI/Item`, which is produced by the icon step, so building them from a separate job (a fresh checkout of the default branch) would miss icons still in review.
 
             Please review the changes before merging it.
 
             **Generated Artifacts:**
             - `assets/data/IconRecognition/recognition_items.json`
+            - `assets/data/EssenceFilter/`
             - `assets/resource/image/IconRecognition/`
             - `assets/resource/image/UI/Item/`
-            - `assets/locales/interface/` item names
+            - `assets/tasks/AutoEssence/` and `assets/resource/pipeline/AutoEssence/`
+            - `assets/tasks/StashBackpack.json` and `assets/resource/pipeline/StashBackpack/`
+            - `assets/locales/interface/` and `assets/interface.json` names and entries
