@@ -46,7 +46,7 @@
                         {
                             "action": "NAVMESH",
                             "target": [
-                                2395.043,
+                                2491.043,
                                 630.653
                             ],
                             "target_deck_y": 362.4
@@ -54,7 +54,7 @@
                         {
                             "action": "INTERACT",
                             "target": [
-                                2395.043,
+                                2491.043,
                                 630.653
                             ],
                             "strict_arrival": true,

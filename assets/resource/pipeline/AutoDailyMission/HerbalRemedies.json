@@ -190,21 +190,21 @@
             "candidates": [
                 {
                     "at": [
-                        810.974,
+                        906.974,
                         1508.925
                     ],
                     "next": "AutoDailyMissionHerbalRemediesMaintenanceZone"
                 },
                 {
                     "at": [
-                        917.025,
+                        1013.025,
                         1895.85
                     ],
                     "next": "AutoDailyMissionHerbalRemediesFieldLogisticsDepot"
                 },
                 {
                     "at": [
-                        925.725,
+                        1021.725,
                         1739.325
                     ],
                     "next": "AutoDailyMissionHerbalRemediesTianjingCourtyard"
@@ -254,14 +254,14 @@
             "candidates": [
                 {
                     "at": [
-                        657.637,
+                        753.637,
                         2798.775
                     ],
                     "next": "AutoDailyMissionHerbalRemediesEverwaterBrook"
                 },
                 {
                     "at": [
-                        868.856,
+                        964.856,
                         2221.885
                     ],
                     "next": "AutoDailyMissionHerbalRemediesEcologicalResearchStation"
@@ -365,14 +365,14 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        818.28,
+                        914.28,
                         1508.97
                     ]
                 },
                 {
                     "action": "COLLECT",
                     "target": [
-                        818.28,
+                        914.28,
                         1508.97
                     ],
                     "strict": true
@@ -380,7 +380,7 @@
                 {
                     "action": "COLLECT",
                     "target": [
-                        806.46,
+                        902.46,
                         1520.273
                     ],
                     "strict": true
@@ -388,7 +388,7 @@
                 {
                     "action": "COLLECT",
                     "target": [
-                        826.072,
+                        922.072,
                         1530.368
                     ],
                     "strict": true
@@ -396,7 +396,7 @@
                 {
                     "action": "COLLECT",
                     "target": [
-                        845.355,
+                        941.355,
                         1524.54
                     ],
                     "strict": true
@@ -405,14 +405,14 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        819.677,
+                        915.677,
                         1492.537
                     ]
                 },
                 {
                     "action": "COLLECT",
                     "target": [
-                        819.677,
+                        915.677,
                         1492.537
                     ],
                     "strict": true
@@ -438,14 +438,14 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        915.53,
+                        1011.53,
                         1910.54
                     ]
                 },
                 {
                     "action": "COLLECT",
                     "target": [
-                        916.283,
+                        1012.283,
                         1911.84
                     ],
                     "strict": true
@@ -453,14 +453,14 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        928.66,
+                        1024.66,
                         1910.28
                     ]
                 },
                 {
                     "action": "COLLECT",
                     "target": [
-                        929.722,
+                        1025.722,
                         1909.215
                     ],
                     "strict": true
@@ -468,14 +468,14 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        940.93,
+                        1036.93,
                         1885.38
                     ]
                 },
                 {
                     "action": "COLLECT",
                     "target": [
-                        940.8,
+                        1036.8,
                         1884.9
                     ],
                     "strict": true
@@ -483,14 +483,14 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        917.85,
+                        1013.85,
                         1879.15
                     ]
                 },
                 {
                     "action": "COLLECT",
                     "target": [
-                        916.597,
+                        1012.597,
                         1876.987
                     ],
                     "strict": true
@@ -498,14 +498,14 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        888.9,
+                        984.9,
                         1884.26
                     ]
                 },
                 {
                     "action": "COLLECT",
                     "target": [
-                        888.255,
+                        984.255,
                         1881.847
                     ],
                     "strict": true
@@ -530,14 +530,14 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        922.507,
+                        1018.507,
                         1736.985
                     ]
                 },
                 {
                     "action": "COLLECT",
                     "target": [
-                        922.507,
+                        1018.507,
                         1736.985
                     ],
                     "strict": true
@@ -545,14 +545,14 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        918.577,
+                        1014.577,
                         1730.265
                     ]
                 },
                 {
                     "action": "COLLECT",
                     "target": [
-                        918.577,
+                        1014.577,
                         1730.265
                     ],
                     "strict": true
@@ -560,14 +560,14 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        934.148,
+                        1030.148,
                         1723.905
                     ]
                 },
                 {
                     "action": "COLLECT",
                     "target": [
-                        934.148,
+                        1030.148,
                         1723.905
                     ],
                     "strict": true
@@ -575,14 +575,14 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        940.192,
+                        1036.192,
                         1744.253
                     ]
                 },
                 {
                     "action": "COLLECT",
                     "target": [
-                        940.192,
+                        1036.192,
                         1744.253
                     ],
                     "strict": true
@@ -590,14 +590,14 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        921.713,
+                        1017.713,
                         1749.638
                     ]
                 },
                 {
                     "action": "COLLECT",
                     "target": [
-                        921.713,
+                        1017.713,
                         1749.638
                     ],
                     "strict": true
@@ -622,14 +622,14 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        650.018,
+                        746.018,
                         2798.296
                     ]
                 },
                 {
                     "action": "COLLECT",
                     "target": [
-                        650.018,
+                        746.018,
                         2798.296
                     ],
                     "strict": true
@@ -637,7 +637,7 @@
                 {
                     "action": "COLLECT",
                     "target": [
-                        650.79,
+                        746.79,
                         2806.29
                     ],
                     "strict": true
@@ -645,7 +645,7 @@
                 {
                     "action": "COLLECT",
                     "target": [
-                        666.007,
+                        762.007,
                         2799.113
                     ],
                     "strict": true
@@ -653,7 +653,7 @@
                 {
                     "action": "COLLECT",
                     "target": [
-                        667.102,
+                        763.102,
                         2796.225
                     ],
                     "strict": true
@@ -661,7 +661,7 @@
                 {
                     "action": "COLLECT",
                     "target": [
-                        660.082,
+                        756.082,
                         2791.485
                     ],
                     "strict": true
@@ -686,7 +686,7 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        873.43,
+                        969.43,
                         2215.82
                     ]
                 }
@@ -715,14 +715,14 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        881.31,
+                        977.31,
                         2209.185
                     ]
                 },
                 {
                     "action": "COLLECT",
                     "target": [
-                        881.31,
+                        977.31,
                         2209.185
                     ],
                     "strict": true
@@ -747,14 +747,14 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        877.912,
+                        973.912,
                         2225.52
                     ]
                 },
                 {
                     "action": "COLLECT",
                     "target": [
-                        877.912,
+                        973.912,
                         2225.52
                     ],
                     "strict": true
@@ -779,14 +779,14 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        867.217,
+                        963.217,
                         2241.023
                     ]
                 },
                 {
                     "action": "COLLECT",
                     "target": [
-                        867.217,
+                        963.217,
                         2241.023
                     ],
                     "strict": true
@@ -811,14 +811,14 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        851.1,
+                        947.1,
                         2225.325
                     ]
                 },
                 {
                     "action": "COLLECT",
                     "target": [
-                        851.1,
+                        947.1,
                         2225.325
                     ],
                     "strict": true
@@ -843,14 +843,14 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        860.73,
+                        956.73,
                         2221.2
                     ]
                 },
                 {
                     "action": "COLLECT",
                     "target": [
-                        860.73,
+                        956.73,
                         2221.2
                     ],
                     "strict": true

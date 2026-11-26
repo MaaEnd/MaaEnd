@@ -10,17 +10,17 @@
                 "zone_id": "Wuling_Base"
             },
             [
-                922.79,
+                1018.79,
                 1312.01
             ],
             [
-                915.76,
+                1011.76,
                 1352.1
             ],
             {
                 "action": "NAVMESH",
                 "target": [
-                    978.32,
+                    1074.32,
                     1399.26
                 ]
             }
@@ -40,12 +40,12 @@
             {
                 "action": "NAVMESH",
                 "target": [
-                    788.14,
+                    884.14,
                     2603.23
                 ]
             },
             [
-                795.02,
+                891.02,
                 2602.86
             ]
         ],
@@ -64,7 +64,7 @@
             {
                 "action": "NAVMESH",
                 "target": [
-                    710.64,
+                    806.64,
                     2664.58
                 ]
             }
@@ -84,7 +84,7 @@
             {
                 "action": "NAVMESH",
                 "target": [
-                    474.12,
+                    570.12,
                     1772.18
                 ]
             }
@@ -104,7 +104,7 @@
             {
                 "action": "NAVMESH",
                 "target": [
-                    829.41,
+                    925.41,
                     2576.94
                 ]
             }
@@ -124,7 +124,7 @@
             {
                 "action": "NAVMESH",
                 "target": [
-                    644.99,
+                    740.99,
                     2617.89
                 ]
             }
@@ -138,7 +138,7 @@
         "EnterMap": "SceneEnterWorldWulingJingyuValleyTreasureGrottoNorth",
         "NavZoneId": "Wuling_Base",
         "NavAssert": [
-            783.72,
+            879.72,
             2303.61,
             51.61,
             43.01
@@ -151,7 +151,7 @@
             {
                 "action": "NAVMESH",
                 "target": [
-                    820.47,
+                    916.47,
                     2324.7
                 ]
             }
@@ -169,7 +169,7 @@
                 "zone_id": "Wuling_Base"
             },
             [
-                726.02,
+                822.02,
                 2405
             ]
         ],
@@ -182,7 +182,7 @@
         "EnterMap": "SceneEnterWorldWulingJingyuValleySwordQuenchingMarsh",
         "NavZoneId": "Wuling_Base",
         "NavAssert": [
-            682.09,
+            778.09,
             2636.41,
             44.2,
             48.35
@@ -195,7 +195,7 @@
             {
                 "action": "NAVMESH",
                 "target": [
-                    691.16,
+                    787.16,
                     2634.78
                 ]
             }
@@ -215,7 +215,7 @@
             {
                 "action": "NAVMESH",
                 "target": [
-                    774.59,
+                    870.59,
                     2581.41
                 ]
             }
@@ -236,7 +236,7 @@
         "EnterMap": "SceneEnterWorldWulingWulingCityFieldLogisticsDepotWest",
         "NavZoneId": "Wuling_Base",
         "NavAssert": [
-            851.95,
+            947.95,
             1858.85,
             33.14,
             30.5
@@ -249,7 +249,7 @@
             {
                 "action": "NAVMESH",
                 "target": [
-                    909.81,
+                    1005.81,
                     1921.56
                 ]
             }
@@ -269,7 +269,7 @@
             {
                 "action": "NAVMESH",
                 "target": [
-                    710.94,
+                    806.94,
                     1887.4
                 ]
             }
@@ -289,7 +289,7 @@
             {
                 "action": "NAVMESH",
                 "target": [
-                    457.25,
+                    553.25,
                     1720.53
                 ]
             }
@@ -315,7 +315,7 @@
             {
                 "action": "NAVMESH",
                 "target": [
-                    467.7,
+                    563.7,
                     1751.95
                 ]
             }
@@ -341,7 +341,7 @@
             {
                 "action": "NAVMESH",
                 "target": [
-                    1364.14,
+                    1460.14,
                     2147.09
                 ]
             }
@@ -385,7 +385,7 @@
             {
                 "action": "NAVMESH",
                 "target": [
-                    1298.93,
+                    1394.93,
                     2346.99
                 ]
             }
@@ -416,7 +416,7 @@
         "EnterMap": "SceneEnterWorldWulingMarkerStoneRestrictedArea",
         "NavZoneId": "Wuling_Base",
         "NavAssert": [
-            556.4,
+            652.4,
             2209.45,
             82.62,
             59.95
@@ -457,7 +457,7 @@
         "EnterMap": "SceneEnterWorldWulingMarkerStoneRestrictedArea",
         "NavZoneId": "Wuling_Base",
         "NavAssert": [
-            598,
+            694,
             2336,
             60,
             48
@@ -470,21 +470,21 @@
             {
                 "action": "NAVMESH",
                 "target": [
-                    636.32,
+                    732.32,
                     2331.84
                 ]
             },
             {
                 "action": "NAVMESH",
                 "target": [
-                    590.94,
+                    686.94,
                     2346.75
                 ]
             },
             {
                 "action": "NAVMESH",
                 "target": [
-                    430.6,
+                    526.6,
                     2398.33
                 ]
             }
@@ -498,7 +498,7 @@
             {
                 "action": "NAVMESH",
                 "target": [
-                    430.6,
+                    526.6,
                     2398.33
                 ]
             }
@@ -517,26 +517,23 @@
             {
                 "action": "NAVMESH",
                 "target": [
-                    243.65,
-                    182.44
-                ],
-                "target_tier": "Wuling_L4_328"
+                    595.65,
+                    2550.44
+                ]
             },
             {
                 "action": "RUN",
                 "target": [
-                    243.5,
-                    178.04
-                ],
-                "target_tier": "Wuling_L4_328"
+                    595.5,
+                    2546.04
+                ]
             },
             {
                 "action": "NAVMESH",
                 "target": [
-                    214.61,
-                    145.62
-                ],
-                "target_tier": "Wuling_L4_328"
+                    566.61,
+                    2513.62
+                ]
             }
         ],
         "Heading": 260
@@ -550,10 +547,9 @@
             {
                 "action": "NAVMESH",
                 "target": [
-                    258.16,
-                    207.3
-                ],
-                "target_tier": "Wuling_L4_328"
+                    610.16,
+                    2575.3
+                ]
             }
         ],
         "Heading": 92
@@ -571,7 +567,7 @@
             {
                 "action": "NAVMESH",
                 "target": [
-                    333.71,
+                    429.71,
                     2155.67
                 ],
                 "target_deck_y": 265.55
@@ -592,7 +588,7 @@
             {
                 "action": "NAVMESH",
                 "target": [
-                    290.29,
+                    386.29,
                     2317.95
                 ]
             }
@@ -618,7 +614,7 @@
             {
                 "action": "NAVMESH",
                 "target": [
-                    573.36,
+                    669.36,
                     2219.06
                 ]
             }
@@ -638,7 +634,7 @@
             {
                 "action": "NAVMESH",
                 "target": [
-                    294.89,
+                    390.89,
                     2300.77
                 ]
             }

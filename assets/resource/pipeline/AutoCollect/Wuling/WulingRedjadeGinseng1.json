@@ -34,7 +34,7 @@
         "custom_recognition_param": {
             "zone_id": "Wuling_Base",
             "target": [
-                589,
+                685,
                 2231,
                 20,
                 20
@@ -60,36 +60,36 @@
                         {
                             "action": "NAVMESH",
                             "target": [
-                                636.26,
+                                732.26,
                                 2293.87
                             ]
                         },
                         {
                             "action": "NAVMESH",
                             "target": [
-                                636.05,
+                                732.05,
                                 2332.92
                             ]
                         },
                         {
                             "action": "NAVMESH",
                             "target": [
-                                590.98,
+                                686.98,
                                 2346.76
                             ]
                         },
                         [
-                            554.7,
+                            650.7,
                             2347.1
                         ],
                         [
-                            541.68,
+                            637.68,
                             2352.06
                         ],
                         {
                             "action": "NAVMESH",
                             "target": [
-                                455.19,
+                                551.19,
                                 2388.06
                             ]
                         }
@@ -116,7 +116,7 @@
         "custom_recognition_param": {
             "zone_id": "Wuling_Base",
             "target": [
-                445,
+                541,
                 2379,
                 20,
                 20
@@ -140,55 +140,55 @@
                             "zone_id": "Wuling_Base"
                         },
                         [
-                            454.1,
+                            550.1,
                             2388.75,
                             "COLLECT"
                         ],
                         [
-                            454.1,
+                            550.1,
                             2388.75,
                             "COLLECT"
                         ],
                         [
-                            454.1,
+                            550.1,
                             2389.93,
                             "COLLECT"
                         ],
                         [
-                            454.1,
+                            550.1,
                             2389.93,
                             "COLLECT"
                         ],
                         {
                             "action": "NAVMESH",
                             "target": [
-                                467.08,
+                                563.08,
                                 2400.82
                             ],
                             "zone_id": "Wuling_Base"
                         },
                         [
-                            464.94,
+                            560.94,
                             2397.12,
                             "COLLECT"
                         ],
                         [
-                            464.94,
+                            560.94,
                             2397.12,
                             "COLLECT"
                         ],
                         [
-                            464.94,
+                            560.94,
                             2397.12,
                             "COLLECT"
                         ],
                         [
-                            464.34,
+                            560.34,
                             2397.52,
                             "COLLECT"
                         ],
                         [
-                            464.34,
+                            560.34,
                             2397.52,
                             "COLLECT"
                         ]
