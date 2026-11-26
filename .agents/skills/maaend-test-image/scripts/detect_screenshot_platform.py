@@ -6,13 +6,14 @@
 # ]
 # ///
 
-"""判断 MaaEnd 节点测试截图来自哪个控制器（ADB / CloudADB / Win32）。
+"""判断 MaaEnd 节点测试截图来自哪个控制器（ADB / CloudADB / CloudWeb / Win32）。
 
 判据是左下状态行（HUD）里的 UID 文字，三个平台把它画在不同位置，`UID_FIXED_ROIS` 里三套 ROI 正是按各自的文字范围标定的：
 
 - `Win32`：字号最小，UID 文字右边界约 x=157、高约 8、上边界约 y=700，落在 `[70, 696, 90, 13]` 内；
 - `ADB`：UID 文字右边界约 x=196、高约 10、上边界约 y=694，前面跟着"信号格 + xx ms"延迟指示，落在 `[84, 690, 114, 18]` 内；
 - `CloudADB`：云客户端左下角**没有延迟指示**，整行 UID 因此左移到 x≈18 起、右边界约 x=130、高约 10，落在 `[18, 690, 114, 18]` 内。
+- `CloudWeb`：云网页版外壳（`MaaEnd CloudShell`）左下和 CloudADB 是同一套云 HUD，也没有延迟指示、UID 贴左边缘，实测落在 x=18..101、y=700..707，所以这里只会判成 CloudADB，两者靠 UID 文字分不开；导入时按同一族放行（见 `same_hud_family`）。
 
 所以"有没有延迟指示"是区分 CloudADB 的关键：条带里只找到一段文字时，这一段就是贴着左边缘的 UID（CloudADB）；找到两段以上时，左侧一段是延迟指示，最右侧一段才是 UID（ADB / Win32），再按字高和上边界分档。
 
@@ -36,14 +37,26 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 
-SUPPORTED_CONTROLLERS = {"adb": "ADB", "cloudadb": "CloudADB", "win32": "Win32"}
+SUPPORTED_CONTROLLERS = {"adb": "ADB", "cloudadb": "CloudADB", "cloudweb": "CloudWeb", "win32": "Win32"}
 
 # 按平台标定的 UID 固定打码 ROI，格式 x, y, w, h。
+# CloudWeb（云网页版外壳）和 CloudADB 是同一套云 HUD，ROI 一样覆盖得到。
 UID_FIXED_ROIS = {
     "ADB": [84, 690, 114, 18],
     "CloudADB": [18, 690, 114, 18],
+    "CloudWeb": [18, 690, 114, 18],
     "Win32": [70, 696, 90, 13],
 }
+
+# 云 HUD 的两个平台：左下都是没有延迟指示、UID 贴左边缘，光看文字分不开。
+CLOUD_HUD_FAMILY = ("CloudADB", "CloudWeb")
+
+
+def same_hud_family(expected: str, detected: str | None) -> bool:
+    """目标平台和判定结果是不是同一套 HUD（云网页版 / 云安卓版分不开）。"""
+    if detected is None or expected == detected:
+        return False
+    return expected in CLOUD_HUD_FAMILY and detected in CLOUD_HUD_FAMILY
 
 # UID 文字所在条带（y0, y1, x0, x1）。x 从 0 起：CloudADB 的 UID 贴着左边缘，
 # 从中间起扫会把左侧的 "UID:" 切掉，判定和打码边界都会跟着错。
