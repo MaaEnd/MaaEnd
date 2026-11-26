@@ -15,7 +15,8 @@
             "name": "我转交的委托列表",
             "image": "我转交的委托.png",
             "hits": [
-                "InClaimDeliveryJobsNode"
+                "InClaimDeliveryJobsNode",
+                "DeliveryJobsQuickTransferBackToLocalDepotNode"
             ]
         }
     ]
