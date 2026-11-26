@@ -106,6 +106,13 @@ SKIPPED_TEXTS = {
     "ja_jp": "{name} 在庫が目標に達したため、今回はスキップします",
     "ko_kr": "{name} 재고가 목표에 도달하여 이번에는 건너뜁니다",
 }
+STOCK_EMPTY_TEXTS = {
+    "zh_cn": "{name} 存量为 0，本次跳过",
+    "zh_tw": "{name} 存量為 0，本次跳過",
+    "en_us": "{name} — area stock is 0, skipped this run",
+    "ja_jp": "{name} エリアの在庫が0のため、今回はスキップします",
+    "ko_kr": "{name} 구역 재고가 0이라 이번에는 건너뜁니다",
+}
 
 
 class RegistryError(ValueError):
@@ -644,6 +651,7 @@ def stock_nodes(route: Route, name: str, region: str, stock: StockArea) -> dict[
             "post_delay": 0,
             "rate_limit": 0,
             "next": ["AutoCollectStockPanelClose", "AutoCollectStockPanelLeave"],
+            "focus": {"Node.Recognition.Succeeded": f"$task.AutoCollect.route.{route.id}.stock_empty"},
         },
         f"{node}StockPanelStocked": {
             "desc": f"路线 {name} 存量检查：详情面板存量不为 0，照常执行",
@@ -806,7 +814,11 @@ def owned_key(key: str) -> bool:
 
 
 def locale_texts(
-    locale: str, groups: list[Group], routes: list[Route], names: dict[str, dict[str, str]]
+    locale: str,
+    groups: list[Group],
+    routes: list[Route],
+    names: dict[str, dict[str, str]],
+    stocks: dict[str, StockArea],
 ) -> dict[str, str]:
     texts = {f"option.AutoCollect{kind.capitalize()}Items.label": KIND_LABELS[kind][locale] for kind in KINDS}
     for item in unique_items(groups):
@@ -818,6 +830,8 @@ def locale_texts(
         name = names[route.id][locale]
         texts[f"task.AutoCollect.route.{route.id}.label"] = ROUTE_LABELS[locale].format(name=name)
         texts[f"task.AutoCollect.route.{route.id}.failed"] = FAILED_STYLE.format(FAILED_TEXTS[locale].format(name=name))
+        if route.id in stocks:
+            texts[f"task.AutoCollect.route.{route.id}.stock_empty"] = STOCK_EMPTY_TEXTS[locale].format(name=name)
     return texts
 
 
@@ -838,5 +852,6 @@ def generate() -> list[Path]:
     for locale in LOCALES:
         path = LOCALE_DIR / f"{locale}.json"
         messages = {key: value for key, value in read_json(path).items() if not owned_key(key)}
-        write_json(path, dict(sorted({**messages, **locale_texts(locale, groups, routes, names)}.items())))
+        texts = locale_texts(locale, groups, routes, names, stocks)
+        write_json(path, dict(sorted({**messages, **texts}.items())))
     return list(GENERATED_FILES)

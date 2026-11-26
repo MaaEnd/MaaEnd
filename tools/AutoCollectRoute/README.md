@@ -118,7 +118,7 @@ uv run autocollect-route generate
 2. `StockFind` 用 [`MapFind`](../../docs/zh_cn/developers/components/world-map.md) 与图标 `RareCollectArea`（稀有采集物区）或 `RareMineralArea`（稀有矿物区）确认该区域图标；
 3. `StockDigit` / `StockDigitWide` 在图标右上角用两个框做 OCR：一个只框角标，一个向右与上下放宽以容忍遮挡与偏移（不向左放宽，避免把图标本体的竖线读成 `1`）。任一读到置信度 0.9 以上的数字即照常执行，没读到或不够确定时交给详情面板确认；
 4. 两个框都读不到时，`StockRecheck` 等画面静止后换一帧再读一次；
-5. 仍读不到时，`StockPanelOpen` 点开该区域的详情面板（图标重叠弹出选择列表时，`StockPanelPick` 按列表项左侧的兔耳或矿石图标点选），读面板右上角的「存量/上限」：为 `0/…` 时 `StockPanelEmpty` 停用本轮的 `__AutoCollect<路线 id>Run`，否则 `StockPanelStocked` 照常执行。随后 `AutoCollectStockPanelClose` 在面板仍开着时点面板右上角的 X 关闭面板，地图保持打开，随后的传送照常进行。
+5. 仍读不到时，`StockPanelOpen` 点开该区域的详情面板（图标重叠弹出选择列表时，`StockPanelPick` 按列表项左侧的兔耳或矿石图标点选），读面板右上角的「存量/上限」：为 `0/…` 时 `StockPanelEmpty` 停用本轮的 `__AutoCollect<路线 id>Run`，并在运行日志中提示「`<路线名>` 存量为 0，本次跳过」（文案键 `task.AutoCollect.route.<路线 id>.stock_empty`），否则 `StockPanelStocked` 照常执行。随后 `AutoCollectStockPanelClose` 在面板仍开着时点面板右上角的 X 关闭面板，地图保持打开，随后的传送照常进行。
 
 打不开地图、找不到图标（包括被角色标记盖住）、打不开详情面板时走 `StockKept`，照常执行路线。只有游戏详情面板明确显示存量为 0 时才会跳过。实测有角标时两个框的较高置信度通常在 0.95 以上，直接放行；角标被滑索架压住时约 0.76，改走详情面板；OCR 在图标旁的背景上偶尔会误读出较高分的数字，这只会让该跳过的路线照常执行。
 
