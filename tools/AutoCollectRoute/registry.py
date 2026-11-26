@@ -1,6 +1,7 @@
 """AutoCollect 路线登记表 -> 调度节点、任务选项与五语文案。"""
 
 import json
+import math
 import re
 from collections import Counter
 from collections.abc import Callable, Iterable
@@ -18,6 +19,7 @@ ROUTE_DIR = PROJECT_ROOT / "assets" / "resource" / "pipeline" / "AutoCollect"
 DISPATCH_PATH = ROUTE_DIR / "Dispatch.json"
 TASK_PATH = PROJECT_ROOT / "assets" / "tasks" / "AutoCollect.json"
 LOCALE_DIR = PROJECT_ROOT / "assets" / "locales" / "interface"
+SCENE_INTERFACE_DIR = PROJECT_ROOT / "assets" / "resource" / "pipeline" / "Interface"
 
 LOCALES = ("zh_cn", "zh_tw", "en_us", "ja_jp", "ko_kr")
 GENERATED_FILES = (DISPATCH_PATH, TASK_PATH, *(LOCALE_DIR / f"{locale}.json" for locale in LOCALES))
@@ -32,7 +34,15 @@ HAND_WRITTEN_OPTIONS = (
     "AutoCollectMidSweepStashEvery",
     "AutoCollectMode",
     "AutoCollectTargetInventory",
+    "AutoCollectSkipEmptyStock",
 )
+# 稀有采集物区：大地图上带存量角标（1~10）的兔耳图标，采空后不显示角标
+STOCK_AREA_DETAIL = "int_doodad_core_plant_rabbithole"
+STOCK_AREA_RADIUS = 15.0
+REGION_MAPS = {"ValleyIV": "map01", "Wuling": "map02"}
+STOCK_COLLECT_ACTIONS = ("COLLECT", "DIG")
+STOCK_PANEL_COUNT_ROI = [1120, 160, 105, 40]
+STOCK_LIST_ENTRY_TEMPLATE = "AutoCollect/StockAreaListEntry.png"
 HAND_WRITTEN_KEYS = (
     "option.AutoCollectMode.",
     "option.AutoCollectTargetInventory.description",
@@ -141,6 +151,14 @@ class Group:
         return f"__AutoCollect{self.region}{self.item.key}"
 
 
+@dataclass(frozen=True)
+class StockArea:
+    """路线采的那片稀有采集物区：底图坐标，以及传送前打开的子区域地图入口。"""
+
+    at: tuple[float, float]
+    scene: str
+
+
 # zmdmap 数据与 locale 是机器写出的严格 JSON，体积大，用 json 读；手写的配置按 JSONC 读
 def read_json(path: Path) -> Any:
     return json.loads(path.read_text(encoding="utf-8"))
@@ -217,6 +235,71 @@ def load_routes(registry: dict[str, Any], items: dict[str, Item]) -> list[Route]
     if duplicated:
         raise RegistryError(f"路线 id 重复: {', '.join(duplicated)}")
     return routes
+
+
+def route_collect_points(route: Route) -> list[tuple[float, float]] | None:
+    """路线全部采集点的底图坐标；有采集点不在底图上（分层或对象写法）时返回 None。"""
+    points = []
+    for name, node in read_jsonc(route_file(route.region, route.id)).items():
+        if not name.startswith(f"AutoCollect{route.id}Goto"):
+            continue
+        action = node.get("action")
+        param = (action.get("param", {}) if isinstance(action, dict) else node).get("custom_action_param") or {}
+        zone = ""
+        for waypoint in param.get("path", []):
+            if isinstance(waypoint, dict):
+                if waypoint.get("action") == "ZONE":
+                    zone = waypoint.get("zone_id") or ""
+                elif waypoint.get("action") in STOCK_COLLECT_ACTIONS:
+                    return None
+                continue
+            if len(waypoint) >= 3 and waypoint[2] in STOCK_COLLECT_ACTIONS:
+                if not zone.endswith("_Base"):
+                    return None
+                points.append((waypoint[0], waypoint[1]))
+    return points
+
+
+def teleport_scene(route: Route, scenes: dict[str, Any]) -> str | None:
+    """路线起点传送入口在传送前打开的子区域地图入口 SceneEnterMap<子区域>。"""
+    start = read_jsonc(route_file(route.region, route.id))[f"AutoCollect{route.id}Start"]
+    teleport = next(iter((start.get("custom_action_param") or {}).get("sub", [])), None)
+    entries = scenes.get(teleport, {}).get("next", [])
+    return next((entry.removeprefix("[JumpBack]") for entry in entries if "SceneEnterMap" in entry), None)
+
+
+def load_stock_areas(routes: list[Route]) -> dict[str, StockArea]:
+    """只给「全部采集点都落在同一片稀有采集物区里」的稀有路线做存量检查，其余路线照常执行。"""
+    areas: dict[str, list[tuple[float, float]]] = {}
+    for point in read_json(COLLECT_POINTS_PATH)["points"]:
+        if point["detail_id"].startswith(STOCK_AREA_DETAIL):
+            areas.setdefault(point["map"], []).append((point["u"], point["v"]))
+    scenes: dict[str, Any] = {}
+    for path in sorted(SCENE_INTERFACE_DIR.glob("*.json")):
+        scenes.update(read_jsonc(path))
+
+    stocks = {}
+    for route in routes:
+        if any(item.kind != "rare" for item in route.items):
+            continue
+        points = route_collect_points(route)
+        if not points:
+            continue
+        near = {
+            area
+            for point in points
+            for area in areas.get(REGION_MAPS.get(route.region, ""), [])
+            if math.dist(area, point) <= STOCK_AREA_RADIUS
+        }
+        if len(near) != 1:
+            continue
+        area = near.pop()
+        if any(math.dist(area, point) > STOCK_AREA_RADIUS for point in points):
+            continue
+        scene = teleport_scene(route, scenes)
+        if scene is not None:
+            stocks[route.id] = StockArea((round(area[0], 2), round(area[1], 2)), scene)
+    return stocks
 
 
 def validate_series_order(series_order: list[str], items: dict[str, Item]) -> None:
@@ -327,7 +410,13 @@ def quantity_check(expression: str) -> dict[str, Any]:
     }
 
 
-def group_nodes(group: Group) -> dict[str, Any]:
+def route_entries(route: Route, stocks: dict[str, StockArea]) -> list[str]:
+    """调度入口里一条路线占的位置：有存量检查时先检查，再执行。"""
+    check = [f"[JumpBack]__AutoCollect{route.id}StockCheck"] if route.id in stocks else []
+    return [*check, f"[JumpBack]__AutoCollect{route.id}Run"]
+
+
+def group_nodes(group: Group, stocks: dict[str, StockArea]) -> dict[str, Any]:
     node = group.node
     name = group.item.names["zh_cn"]
     return {
@@ -340,7 +429,7 @@ def group_nodes(group: Group) -> dict[str, Any]:
             "action": "DoNothing",
             "post_delay": 0,
             "rate_limit": 0,
-            "next": [*(f"[JumpBack]__AutoCollect{route.id}Run" for route in group.routes), "AutoCollectEnd"],
+            "next": [*(entry for route in group.routes for entry in route_entries(route, stocks)), "AutoCollectEnd"],
         },
         f"{node}Skipped": {
             "desc": f"{name}目标库存预判：已达标时停用调度入口",
@@ -397,7 +486,181 @@ def route_nodes(route: Route, name: str) -> dict[str, Any]:
     }
 
 
-def dispatch_document(groups: list[Group], routes: list[Route], names: dict[str, dict[str, str]]) -> dict[str, Any]:
+def stock_panel_count(expected: str) -> dict[str, Any]:
+    """稀有采集物区详情面板右上角的「存量/上限」。"""
+    return {"type": "OCR", "param": {"roi": STOCK_PANEL_COUNT_ROI, "expected": [expected]}}
+
+
+def stock_panel_shared_nodes() -> dict[str, Any]:
+    """各路线共用：确认详情面板仍开着再点面板右上角的 X 关闭，地图保持打开供随后的传送使用。"""
+    return {
+        "AutoCollectStockPanelCount": {
+            "desc": "稀有采集物区详情面板：右上角的「存量/上限」",
+            "recognition": stock_panel_count(r"^\d+/\d+$"),
+        },
+        "AutoCollectStockPanelClose": {
+            "desc": "关闭稀有采集物区详情面板：面板仍开着时才点右上角 X，避免误关地图",
+            "recognition": "And",
+            "all_of": ["AutoCollectStockPanelCount", "CloseButtonType1"],
+            "box_index": 1,
+            "pre_delay": 0,
+            "action": "Click",
+            "post_wait_freezes": 300,
+            "post_delay": 0,
+            "rate_limit": 0,
+        },
+        "AutoCollectStockPanelLeave": {
+            "desc": "详情面板未能确认关闭，交给随后的传送流程处理",
+            "recognition": "DirectHit",
+            "pre_delay": 0,
+            "action": "DoNothing",
+            "post_delay": 0,
+            "rate_limit": 0,
+        },
+    }
+
+
+def stock_digit_node(name: str, find_node: str, roi_offset: list[int], note: str) -> dict[str, Any]:
+    """读到存量角标数字即命中，照常执行路线。"""
+    return {
+        "desc": f"路线 {name} 存量检查：读到存量角标，照常执行（{note}）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": find_node,
+                "roi_offset": roi_offset,
+                "only_rec": True,
+                "replace": [["\\D", ""]],
+                "expected": ["^\\d+$"],
+                # 只在读得很确定时直接放行；没读到或不够确定时交给详情面板确认。
+                # 实测有角标时两个框的较高置信度通常在 0.95 以上，被滑索架压住时约 0.76，会改走详情面板
+                "threshold": 0.9,
+            },
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+    }
+
+
+def stock_nodes(route: Route, name: str, region: str, stock: StockArea) -> dict[str, Any]:
+    """传送前打开同一张子区域地图，读稀有采集物区的存量角标；只有确认读到 0 才停用本轮的路线执行。"""
+    node = f"__AutoCollect{route.id}"
+    return {
+        f"{node}StockCheck": {
+            "desc": f"路线 {name} 存量检查：打开传送所在的子区域地图",
+            "enabled": False,
+            "max_hit": 1,
+            "recognition": "DirectHit",
+            "pre_delay": 0,
+            "action": {
+                "type": "Custom",
+                "param": {"custom_action": "SubTask", "custom_action_param": {"sub": [stock.scene]}},
+            },
+            "post_delay": 0,
+            "rate_limit": 0,
+            "next": [f"{node}StockFind", f"{node}StockKept"],
+            # 打不开地图时不判断存量，照常执行路线
+            "on_error": [f"{node}StockKept"],
+        },
+        f"{node}StockFind": {
+            "desc": f"路线 {name} 存量检查：在大地图上确认稀有采集物区图标",
+            "recognition": {
+                "type": "Custom",
+                "param": {
+                    "custom_recognition": "MapFind",
+                    "custom_recognition_param": {
+                        "zone": region,
+                        "icon": "RareCollectArea",
+                        "at": list(stock.at),
+                        "max_attempts": 2,
+                    },
+                },
+            },
+            "pre_delay": 0,
+            "action": "DoNothing",
+            "post_delay": 0,
+            "rate_limit": 0,
+            "next": [f"{node}StockDigit", f"{node}StockDigitWide", f"{node}StockRecheck"],
+        },
+        # 存量为 0 时不显示角标。两个框任一读到数字就照常执行；都读不到时换一帧再看，两帧都读不到才停用
+        f"{node}StockDigit": stock_digit_node(name, f"{node}StockFind", [9, -12, 10, 12], "只框角标本身"),
+        f"{node}StockDigitWide": stock_digit_node(
+            name, f"{node}StockFind", [9, -13, 13, 14], "向右与上下放宽，容忍遮挡与偏移；不向左放宽，避开图标本体"
+        ),
+        f"{node}StockRecheck": {
+            "desc": f"路线 {name} 存量检查：首帧没读到角标，画面静止后再读一次",
+            "recognition": "DirectHit",
+            "pre_delay": 0,
+            "action": "DoNothing",
+            "post_wait_freezes": 300,
+            "post_delay": 0,
+            "rate_limit": 0,
+            "next": [f"{node}StockDigit", f"{node}StockDigitWide", f"{node}StockPanelOpen"],
+        },
+        # 两帧都读不到角标时不直接跳过，点开区域详情面板读「存量/上限」，面板明确为 0 才停用
+        f"{node}StockPanelOpen": {
+            "desc": f"路线 {name} 存量检查：点开稀有采集物区详情面板",
+            "recognition": "DirectHit",
+            "pre_delay": 0,
+            "action": {"type": "Click", "param": {"target": f"{node}StockFind"}},
+            "post_wait_freezes": 300,
+            "post_delay": 0,
+            "rate_limit": 0,
+            "next": [f"{node}StockPanelEmpty", f"{node}StockPanelStocked", f"{node}StockPanelPick", f"{node}StockKept"],
+        },
+        f"{node}StockPanelPick": {
+            "desc": f"路线 {name} 存量检查：图标重叠时在选择列表中点选稀有采集物区",
+            "recognition": {
+                "type": "TemplateMatch",
+                "param": {"roi": [860, 300, 140, 360], "template": [STOCK_LIST_ENTRY_TEMPLATE], "threshold": 0.8},
+            },
+            "pre_delay": 0,
+            "action": "Click",
+            "post_wait_freezes": 300,
+            "post_delay": 0,
+            "rate_limit": 0,
+            "next": [f"{node}StockPanelEmpty", f"{node}StockPanelStocked", f"{node}StockKept"],
+        },
+        f"{node}StockPanelEmpty": {
+            "desc": f"路线 {name} 存量检查：详情面板存量为 0，停用本轮执行",
+            "recognition": stock_panel_count(r"^0/\d+$"),
+            "pre_delay": 0,
+            "action": {
+                "type": "Custom",
+                "param": {
+                    "custom_action": "PipelineOverride",
+                    "custom_action_param": {"patch": {f"{node}Run": {"enabled": False}}},
+                },
+            },
+            "post_delay": 0,
+            "rate_limit": 0,
+            "next": ["AutoCollectStockPanelClose", "AutoCollectStockPanelLeave"],
+        },
+        f"{node}StockPanelStocked": {
+            "desc": f"路线 {name} 存量检查：详情面板存量不为 0，照常执行",
+            "recognition": stock_panel_count(r"^[1-9]\d*/\d+$"),
+            "pre_delay": 0,
+            "action": "DoNothing",
+            "post_delay": 0,
+            "rate_limit": 0,
+            "next": ["AutoCollectStockPanelClose", "AutoCollectStockPanelLeave"],
+        },
+        f"{node}StockKept": {
+            "desc": f"路线 {name} 存量检查：打不开地图、找不到图标或打不开详情面板，照常执行",
+            "recognition": "DirectHit",
+            "pre_delay": 0,
+            "action": "DoNothing",
+            "post_delay": 0,
+            "rate_limit": 0,
+        },
+    }
+
+
+def dispatch_document(
+    groups: list[Group], routes: list[Route], names: dict[str, dict[str, str]], stocks: dict[str, StockArea]
+) -> dict[str, Any]:
     document = {
         "AutoCollectLoop": {
             "desc": "依次调度已勾选的采集物，未勾选的不进入库存判断",
@@ -438,9 +701,13 @@ def dispatch_document(groups: list[Group], routes: list[Route], names: dict[str,
         },
     }
     for group in groups:
-        document.update(group_nodes(group))
+        document.update(group_nodes(group, stocks))
     for route in routes:
         document.update(route_nodes(route, names[route.id]["zh_cn"]))
+        if route.id in stocks:
+            document.update(stock_nodes(route, names[route.id]["zh_cn"], route.region, stocks[route.id]))
+    if stocks:
+        document.update(stock_panel_shared_nodes())
     return document
 
 
@@ -488,9 +755,13 @@ def update_task(
     groups: list[Group],
     rank: Callable[[Item], tuple[int, int, int]],
     default_limits: dict[str, int],
+    stocks: dict[str, StockArea],
 ) -> dict[str, Any]:
     generated = region_options(groups)
     options = {name: option for name, option in task["option"].items() if name in HAND_WRITTEN_OPTIONS}
+
+    skip_empty = next(case for case in options["AutoCollectSkipEmptyStock"]["cases"] if case["name"] == "Yes")
+    skip_empty["pipeline_override"] = {f"__AutoCollect{route_id}StockCheck": {"enabled": True} for route_id in stocks}
 
     inventory = options["AutoCollectTargetInventory"]
     inventory["inputs"] = [
@@ -552,9 +823,11 @@ def generate() -> list[Path]:
     rank = item_rank(routes, series_order)
     groups = build_groups(routes, rank)
     names = route_names(routes)
+    stocks = load_stock_areas(routes)
 
-    write_json(DISPATCH_PATH, dispatch_document(groups, routes, names))
-    write_json(TASK_PATH, update_task(read_jsonc(TASK_PATH), groups, rank, registry.get("default_limits", {})))
+    write_json(DISPATCH_PATH, dispatch_document(groups, routes, names, stocks))
+    task = update_task(read_jsonc(TASK_PATH), groups, rank, registry.get("default_limits", {}), stocks)
+    write_json(TASK_PATH, task)
     for locale in LOCALES:
         path = LOCALE_DIR / f"{locale}.json"
         messages = {key: value for key, value in read_json(path).items() if not owned_key(key)}

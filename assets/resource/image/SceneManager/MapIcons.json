@@ -49,6 +49,11 @@
             "../AutoEcoFarm/Ranch.png"
         ]
     },
+    "RareCollectArea": {
+        "templates": [
+            "MapRareCollectArea.png"
+        ]
+    },
     "MissionTrack": {
         "templates": [
             "../AutoDailyMission/MissionTrack.png"

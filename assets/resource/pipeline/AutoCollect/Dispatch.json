@@ -117,6 +117,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]__AutoCollectValleyIVPinkBolete1StockCheck",
             "[JumpBack]__AutoCollectValleyIVPinkBolete1Run",
             "AutoCollectEnd"
         ]
@@ -165,6 +166,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]__AutoCollectValleyIVKalkodendra1StockCheck",
             "[JumpBack]__AutoCollectValleyIVKalkodendra1Run",
             "AutoCollectEnd"
         ]
@@ -213,6 +215,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]__AutoCollectValleyIVChrysodendra1StockCheck",
             "[JumpBack]__AutoCollectValleyIVChrysodendra1Run",
             "AutoCollectEnd"
         ]
@@ -453,6 +456,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]__AutoCollectWulingRedBolete1StockCheck",
             "[JumpBack]__AutoCollectWulingRedBolete1Run",
             "AutoCollectEnd"
         ]
@@ -549,7 +553,9 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]__AutoCollectWulingVitrodendra1StockCheck",
             "[JumpBack]__AutoCollectWulingVitrodendra1Run",
+            "[JumpBack]__AutoCollectWulingVitrodendra2StockCheck",
             "[JumpBack]__AutoCollectWulingVitrodendra2Run",
             "AutoCollectEnd"
         ]
@@ -695,7 +701,9 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]__AutoCollectWulingCosmagaric1StockCheck",
             "[JumpBack]__AutoCollectWulingCosmagaric1Run",
+            "[JumpBack]__AutoCollectWulingCosmagaric2StockCheck",
             "[JumpBack]__AutoCollectWulingCosmagaric2Run",
             "AutoCollectEnd"
         ]
@@ -744,6 +752,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]__AutoCollectWulingTalosCap1StockCheck",
             "[JumpBack]__AutoCollectWulingTalosCap1Run",
             "AutoCollectEnd"
         ]
@@ -792,6 +801,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]__AutoCollectWulingBlightedJadeleaf1StockCheck",
             "[JumpBack]__AutoCollectWulingBlightedJadeleaf1Run",
             "AutoCollectEnd"
         ]
@@ -840,6 +850,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]__AutoCollectWulingFalseAggela1StockCheck",
             "[JumpBack]__AutoCollectWulingFalseAggela1Run",
             "AutoCollectEnd"
         ]
@@ -888,6 +899,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]__AutoCollectWulingCrimsonSpearleaf1StockCheck",
             "[JumpBack]__AutoCollectWulingCrimsonSpearleaf1Run",
             "AutoCollectEnd"
         ]
@@ -1442,6 +1454,252 @@
             "Node.Recognition.Succeeded": "$task.AutoCollect.route.ValleyIVChrysodendra1.failed"
         }
     },
+    "__AutoCollectValleyIVChrysodendra1StockCheck": {
+        "desc": "路线 纯晶多齿叶 存量检查：打开传送所在的子区域地图",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "SceneEnterMapValleyIVPowerPlateau"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectValleyIVChrysodendra1StockFind",
+            "__AutoCollectValleyIVChrysodendra1StockKept"
+        ],
+        "on_error": [
+            "__AutoCollectValleyIVChrysodendra1StockKept"
+        ]
+    },
+    "__AutoCollectValleyIVChrysodendra1StockFind": {
+        "desc": "路线 纯晶多齿叶 存量检查：在大地图上确认稀有采集物区图标",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapFind",
+                "custom_recognition_param": {
+                    "zone": "ValleyIV",
+                    "icon": "RareCollectArea",
+                    "at": [
+                        711.26,
+                        378.2
+                    ],
+                    "max_attempts": 2
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectValleyIVChrysodendra1StockDigit",
+            "__AutoCollectValleyIVChrysodendra1StockDigitWide",
+            "__AutoCollectValleyIVChrysodendra1StockRecheck"
+        ]
+    },
+    "__AutoCollectValleyIVChrysodendra1StockDigit": {
+        "desc": "路线 纯晶多齿叶 存量检查：读到存量角标，照常执行（只框角标本身）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "__AutoCollectValleyIVChrysodendra1StockFind",
+                "roi_offset": [
+                    9,
+                    -12,
+                    10,
+                    12
+                ],
+                "expected": [
+                    "^\\d+$"
+                ],
+                "replace": [
+                    [
+                        "\\D",
+                        ""
+                    ]
+                ],
+                "only_rec": true,
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoCollectValleyIVChrysodendra1StockDigitWide": {
+        "desc": "路线 纯晶多齿叶 存量检查：读到存量角标，照常执行（向右与上下放宽，容忍遮挡与偏移；不向左放宽，避开图标本体）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "__AutoCollectValleyIVChrysodendra1StockFind",
+                "roi_offset": [
+                    9,
+                    -13,
+                    13,
+                    14
+                ],
+                "expected": [
+                    "^\\d+$"
+                ],
+                "replace": [
+                    [
+                        "\\D",
+                        ""
+                    ]
+                ],
+                "only_rec": true,
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoCollectValleyIVChrysodendra1StockRecheck": {
+        "desc": "路线 纯晶多齿叶 存量检查：首帧没读到角标，画面静止后再读一次",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_wait_freezes": 300,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectValleyIVChrysodendra1StockDigit",
+            "__AutoCollectValleyIVChrysodendra1StockDigitWide",
+            "__AutoCollectValleyIVChrysodendra1StockPanelOpen"
+        ]
+    },
+    "__AutoCollectValleyIVChrysodendra1StockPanelOpen": {
+        "desc": "路线 纯晶多齿叶 存量检查：点开稀有采集物区详情面板",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": "__AutoCollectValleyIVChrysodendra1StockFind"
+            }
+        },
+        "post_wait_freezes": 300,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectValleyIVChrysodendra1StockPanelEmpty",
+            "__AutoCollectValleyIVChrysodendra1StockPanelStocked",
+            "__AutoCollectValleyIVChrysodendra1StockPanelPick",
+            "__AutoCollectValleyIVChrysodendra1StockKept"
+        ]
+    },
+    "__AutoCollectValleyIVChrysodendra1StockPanelPick": {
+        "desc": "路线 纯晶多齿叶 存量检查：图标重叠时在选择列表中点选稀有采集物区",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    860,
+                    300,
+                    140,
+                    360
+                ],
+                "template": [
+                    "AutoCollect/StockAreaListEntry.png"
+                ],
+                "threshold": 0.8
+            }
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": 300,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectValleyIVChrysodendra1StockPanelEmpty",
+            "__AutoCollectValleyIVChrysodendra1StockPanelStocked",
+            "__AutoCollectValleyIVChrysodendra1StockKept"
+        ]
+    },
+    "__AutoCollectValleyIVChrysodendra1StockPanelEmpty": {
+        "desc": "路线 纯晶多齿叶 存量检查：详情面板存量为 0，停用本轮执行",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1120,
+                    160,
+                    105,
+                    40
+                ],
+                "expected": [
+                    "^0/\\d+$"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "__AutoCollectValleyIVChrysodendra1Run": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectStockPanelClose",
+            "AutoCollectStockPanelLeave"
+        ]
+    },
+    "__AutoCollectValleyIVChrysodendra1StockPanelStocked": {
+        "desc": "路线 纯晶多齿叶 存量检查：详情面板存量不为 0，照常执行",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1120,
+                    160,
+                    105,
+                    40
+                ],
+                "expected": [
+                    "^[1-9]\\d*/\\d+$"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectStockPanelClose",
+            "AutoCollectStockPanelLeave"
+        ]
+    },
+    "__AutoCollectValleyIVChrysodendra1StockKept": {
+        "desc": "路线 纯晶多齿叶 存量检查：打不开地图、找不到图标或打不开详情面板，照常执行",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
     "__AutoCollectValleyIVKalkonyx1Run": {
         "desc": "执行路线 轻黯石，同一轮只执行一次，失败计入汇总",
         "max_hit": 1,
@@ -1506,6 +1764,252 @@
             "Node.Recognition.Succeeded": "$task.AutoCollect.route.ValleyIVPinkBolete1.failed"
         }
     },
+    "__AutoCollectValleyIVPinkBolete1StockCheck": {
+        "desc": "路线 轻红柱状菌 存量检查：打开传送所在的子区域地图",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "SceneEnterMapValleyIVTheHub"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectValleyIVPinkBolete1StockFind",
+            "__AutoCollectValleyIVPinkBolete1StockKept"
+        ],
+        "on_error": [
+            "__AutoCollectValleyIVPinkBolete1StockKept"
+        ]
+    },
+    "__AutoCollectValleyIVPinkBolete1StockFind": {
+        "desc": "路线 轻红柱状菌 存量检查：在大地图上确认稀有采集物区图标",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapFind",
+                "custom_recognition_param": {
+                    "zone": "ValleyIV",
+                    "icon": "RareCollectArea",
+                    "at": [
+                        574.04,
+                        727.75
+                    ],
+                    "max_attempts": 2
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectValleyIVPinkBolete1StockDigit",
+            "__AutoCollectValleyIVPinkBolete1StockDigitWide",
+            "__AutoCollectValleyIVPinkBolete1StockRecheck"
+        ]
+    },
+    "__AutoCollectValleyIVPinkBolete1StockDigit": {
+        "desc": "路线 轻红柱状菌 存量检查：读到存量角标，照常执行（只框角标本身）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "__AutoCollectValleyIVPinkBolete1StockFind",
+                "roi_offset": [
+                    9,
+                    -12,
+                    10,
+                    12
+                ],
+                "expected": [
+                    "^\\d+$"
+                ],
+                "replace": [
+                    [
+                        "\\D",
+                        ""
+                    ]
+                ],
+                "only_rec": true,
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoCollectValleyIVPinkBolete1StockDigitWide": {
+        "desc": "路线 轻红柱状菌 存量检查：读到存量角标，照常执行（向右与上下放宽，容忍遮挡与偏移；不向左放宽，避开图标本体）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "__AutoCollectValleyIVPinkBolete1StockFind",
+                "roi_offset": [
+                    9,
+                    -13,
+                    13,
+                    14
+                ],
+                "expected": [
+                    "^\\d+$"
+                ],
+                "replace": [
+                    [
+                        "\\D",
+                        ""
+                    ]
+                ],
+                "only_rec": true,
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoCollectValleyIVPinkBolete1StockRecheck": {
+        "desc": "路线 轻红柱状菌 存量检查：首帧没读到角标，画面静止后再读一次",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_wait_freezes": 300,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectValleyIVPinkBolete1StockDigit",
+            "__AutoCollectValleyIVPinkBolete1StockDigitWide",
+            "__AutoCollectValleyIVPinkBolete1StockPanelOpen"
+        ]
+    },
+    "__AutoCollectValleyIVPinkBolete1StockPanelOpen": {
+        "desc": "路线 轻红柱状菌 存量检查：点开稀有采集物区详情面板",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": "__AutoCollectValleyIVPinkBolete1StockFind"
+            }
+        },
+        "post_wait_freezes": 300,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectValleyIVPinkBolete1StockPanelEmpty",
+            "__AutoCollectValleyIVPinkBolete1StockPanelStocked",
+            "__AutoCollectValleyIVPinkBolete1StockPanelPick",
+            "__AutoCollectValleyIVPinkBolete1StockKept"
+        ]
+    },
+    "__AutoCollectValleyIVPinkBolete1StockPanelPick": {
+        "desc": "路线 轻红柱状菌 存量检查：图标重叠时在选择列表中点选稀有采集物区",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    860,
+                    300,
+                    140,
+                    360
+                ],
+                "template": [
+                    "AutoCollect/StockAreaListEntry.png"
+                ],
+                "threshold": 0.8
+            }
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": 300,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectValleyIVPinkBolete1StockPanelEmpty",
+            "__AutoCollectValleyIVPinkBolete1StockPanelStocked",
+            "__AutoCollectValleyIVPinkBolete1StockKept"
+        ]
+    },
+    "__AutoCollectValleyIVPinkBolete1StockPanelEmpty": {
+        "desc": "路线 轻红柱状菌 存量检查：详情面板存量为 0，停用本轮执行",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1120,
+                    160,
+                    105,
+                    40
+                ],
+                "expected": [
+                    "^0/\\d+$"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "__AutoCollectValleyIVPinkBolete1Run": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectStockPanelClose",
+            "AutoCollectStockPanelLeave"
+        ]
+    },
+    "__AutoCollectValleyIVPinkBolete1StockPanelStocked": {
+        "desc": "路线 轻红柱状菌 存量检查：详情面板存量不为 0，照常执行",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1120,
+                    160,
+                    105,
+                    40
+                ],
+                "expected": [
+                    "^[1-9]\\d*/\\d+$"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectStockPanelClose",
+            "AutoCollectStockPanelLeave"
+        ]
+    },
+    "__AutoCollectValleyIVPinkBolete1StockKept": {
+        "desc": "路线 轻红柱状菌 存量检查：打不开地图、找不到图标或打不开详情面板，照常执行",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
     "__AutoCollectValleyIVAuronyx1Run": {
         "desc": "执行路线 中黯石，同一轮只执行一次，失败计入汇总",
         "max_hit": 1,
@@ -1569,6 +2073,252 @@
         "focus": {
             "Node.Recognition.Succeeded": "$task.AutoCollect.route.ValleyIVKalkodendra1.failed"
         }
+    },
+    "__AutoCollectValleyIVKalkodendra1StockCheck": {
+        "desc": "路线 晶化多齿叶 存量检查：打开传送所在的子区域地图",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "SceneEnterMapValleyIVTheHub"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectValleyIVKalkodendra1StockFind",
+            "__AutoCollectValleyIVKalkodendra1StockKept"
+        ],
+        "on_error": [
+            "__AutoCollectValleyIVKalkodendra1StockKept"
+        ]
+    },
+    "__AutoCollectValleyIVKalkodendra1StockFind": {
+        "desc": "路线 晶化多齿叶 存量检查：在大地图上确认稀有采集物区图标",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapFind",
+                "custom_recognition_param": {
+                    "zone": "ValleyIV",
+                    "icon": "RareCollectArea",
+                    "at": [
+                        605.47,
+                        994.99
+                    ],
+                    "max_attempts": 2
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectValleyIVKalkodendra1StockDigit",
+            "__AutoCollectValleyIVKalkodendra1StockDigitWide",
+            "__AutoCollectValleyIVKalkodendra1StockRecheck"
+        ]
+    },
+    "__AutoCollectValleyIVKalkodendra1StockDigit": {
+        "desc": "路线 晶化多齿叶 存量检查：读到存量角标，照常执行（只框角标本身）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "__AutoCollectValleyIVKalkodendra1StockFind",
+                "roi_offset": [
+                    9,
+                    -12,
+                    10,
+                    12
+                ],
+                "expected": [
+                    "^\\d+$"
+                ],
+                "replace": [
+                    [
+                        "\\D",
+                        ""
+                    ]
+                ],
+                "only_rec": true,
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoCollectValleyIVKalkodendra1StockDigitWide": {
+        "desc": "路线 晶化多齿叶 存量检查：读到存量角标，照常执行（向右与上下放宽，容忍遮挡与偏移；不向左放宽，避开图标本体）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "__AutoCollectValleyIVKalkodendra1StockFind",
+                "roi_offset": [
+                    9,
+                    -13,
+                    13,
+                    14
+                ],
+                "expected": [
+                    "^\\d+$"
+                ],
+                "replace": [
+                    [
+                        "\\D",
+                        ""
+                    ]
+                ],
+                "only_rec": true,
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoCollectValleyIVKalkodendra1StockRecheck": {
+        "desc": "路线 晶化多齿叶 存量检查：首帧没读到角标，画面静止后再读一次",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_wait_freezes": 300,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectValleyIVKalkodendra1StockDigit",
+            "__AutoCollectValleyIVKalkodendra1StockDigitWide",
+            "__AutoCollectValleyIVKalkodendra1StockPanelOpen"
+        ]
+    },
+    "__AutoCollectValleyIVKalkodendra1StockPanelOpen": {
+        "desc": "路线 晶化多齿叶 存量检查：点开稀有采集物区详情面板",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": "__AutoCollectValleyIVKalkodendra1StockFind"
+            }
+        },
+        "post_wait_freezes": 300,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectValleyIVKalkodendra1StockPanelEmpty",
+            "__AutoCollectValleyIVKalkodendra1StockPanelStocked",
+            "__AutoCollectValleyIVKalkodendra1StockPanelPick",
+            "__AutoCollectValleyIVKalkodendra1StockKept"
+        ]
+    },
+    "__AutoCollectValleyIVKalkodendra1StockPanelPick": {
+        "desc": "路线 晶化多齿叶 存量检查：图标重叠时在选择列表中点选稀有采集物区",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    860,
+                    300,
+                    140,
+                    360
+                ],
+                "template": [
+                    "AutoCollect/StockAreaListEntry.png"
+                ],
+                "threshold": 0.8
+            }
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": 300,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectValleyIVKalkodendra1StockPanelEmpty",
+            "__AutoCollectValleyIVKalkodendra1StockPanelStocked",
+            "__AutoCollectValleyIVKalkodendra1StockKept"
+        ]
+    },
+    "__AutoCollectValleyIVKalkodendra1StockPanelEmpty": {
+        "desc": "路线 晶化多齿叶 存量检查：详情面板存量为 0，停用本轮执行",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1120,
+                    160,
+                    105,
+                    40
+                ],
+                "expected": [
+                    "^0/\\d+$"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "__AutoCollectValleyIVKalkodendra1Run": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectStockPanelClose",
+            "AutoCollectStockPanelLeave"
+        ]
+    },
+    "__AutoCollectValleyIVKalkodendra1StockPanelStocked": {
+        "desc": "路线 晶化多齿叶 存量检查：详情面板存量不为 0，照常执行",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1120,
+                    160,
+                    105,
+                    40
+                ],
+                "expected": [
+                    "^[1-9]\\d*/\\d+$"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectStockPanelClose",
+            "AutoCollectStockPanelLeave"
+        ]
+    },
+    "__AutoCollectValleyIVKalkodendra1StockKept": {
+        "desc": "路线 晶化多齿叶 存量检查：打不开地图、找不到图标或打不开详情面板，照常执行",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "__AutoCollectValleyIVFirebuckle1Run": {
         "desc": "执行路线 映火荞花，同一轮只执行一次，失败计入汇总",
@@ -1666,6 +2416,252 @@
             "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingBlightedJadeleaf1.failed"
         }
     },
+    "__AutoCollectWulingBlightedJadeleaf1StockCheck": {
+        "desc": "路线 受蚀玉化叶 存量检查：打开传送所在的子区域地图",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "SceneEnterMapWulingWulingCity"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectWulingBlightedJadeleaf1StockFind",
+            "__AutoCollectWulingBlightedJadeleaf1StockKept"
+        ],
+        "on_error": [
+            "__AutoCollectWulingBlightedJadeleaf1StockKept"
+        ]
+    },
+    "__AutoCollectWulingBlightedJadeleaf1StockFind": {
+        "desc": "路线 受蚀玉化叶 存量检查：在大地图上确认稀有采集物区图标",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapFind",
+                "custom_recognition_param": {
+                    "zone": "Wuling",
+                    "icon": "RareCollectArea",
+                    "at": [
+                        930.94,
+                        1702.5
+                    ],
+                    "max_attempts": 2
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectWulingBlightedJadeleaf1StockDigit",
+            "__AutoCollectWulingBlightedJadeleaf1StockDigitWide",
+            "__AutoCollectWulingBlightedJadeleaf1StockRecheck"
+        ]
+    },
+    "__AutoCollectWulingBlightedJadeleaf1StockDigit": {
+        "desc": "路线 受蚀玉化叶 存量检查：读到存量角标，照常执行（只框角标本身）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "__AutoCollectWulingBlightedJadeleaf1StockFind",
+                "roi_offset": [
+                    9,
+                    -12,
+                    10,
+                    12
+                ],
+                "expected": [
+                    "^\\d+$"
+                ],
+                "replace": [
+                    [
+                        "\\D",
+                        ""
+                    ]
+                ],
+                "only_rec": true,
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoCollectWulingBlightedJadeleaf1StockDigitWide": {
+        "desc": "路线 受蚀玉化叶 存量检查：读到存量角标，照常执行（向右与上下放宽，容忍遮挡与偏移；不向左放宽，避开图标本体）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "__AutoCollectWulingBlightedJadeleaf1StockFind",
+                "roi_offset": [
+                    9,
+                    -13,
+                    13,
+                    14
+                ],
+                "expected": [
+                    "^\\d+$"
+                ],
+                "replace": [
+                    [
+                        "\\D",
+                        ""
+                    ]
+                ],
+                "only_rec": true,
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoCollectWulingBlightedJadeleaf1StockRecheck": {
+        "desc": "路线 受蚀玉化叶 存量检查：首帧没读到角标，画面静止后再读一次",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_wait_freezes": 300,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectWulingBlightedJadeleaf1StockDigit",
+            "__AutoCollectWulingBlightedJadeleaf1StockDigitWide",
+            "__AutoCollectWulingBlightedJadeleaf1StockPanelOpen"
+        ]
+    },
+    "__AutoCollectWulingBlightedJadeleaf1StockPanelOpen": {
+        "desc": "路线 受蚀玉化叶 存量检查：点开稀有采集物区详情面板",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": "__AutoCollectWulingBlightedJadeleaf1StockFind"
+            }
+        },
+        "post_wait_freezes": 300,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectWulingBlightedJadeleaf1StockPanelEmpty",
+            "__AutoCollectWulingBlightedJadeleaf1StockPanelStocked",
+            "__AutoCollectWulingBlightedJadeleaf1StockPanelPick",
+            "__AutoCollectWulingBlightedJadeleaf1StockKept"
+        ]
+    },
+    "__AutoCollectWulingBlightedJadeleaf1StockPanelPick": {
+        "desc": "路线 受蚀玉化叶 存量检查：图标重叠时在选择列表中点选稀有采集物区",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    860,
+                    300,
+                    140,
+                    360
+                ],
+                "template": [
+                    "AutoCollect/StockAreaListEntry.png"
+                ],
+                "threshold": 0.8
+            }
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": 300,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectWulingBlightedJadeleaf1StockPanelEmpty",
+            "__AutoCollectWulingBlightedJadeleaf1StockPanelStocked",
+            "__AutoCollectWulingBlightedJadeleaf1StockKept"
+        ]
+    },
+    "__AutoCollectWulingBlightedJadeleaf1StockPanelEmpty": {
+        "desc": "路线 受蚀玉化叶 存量检查：详情面板存量为 0，停用本轮执行",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1120,
+                    160,
+                    105,
+                    40
+                ],
+                "expected": [
+                    "^0/\\d+$"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "__AutoCollectWulingBlightedJadeleaf1Run": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectStockPanelClose",
+            "AutoCollectStockPanelLeave"
+        ]
+    },
+    "__AutoCollectWulingBlightedJadeleaf1StockPanelStocked": {
+        "desc": "路线 受蚀玉化叶 存量检查：详情面板存量不为 0，照常执行",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1120,
+                    160,
+                    105,
+                    40
+                ],
+                "expected": [
+                    "^[1-9]\\d*/\\d+$"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectStockPanelClose",
+            "AutoCollectStockPanelLeave"
+        ]
+    },
+    "__AutoCollectWulingBlightedJadeleaf1StockKept": {
+        "desc": "路线 受蚀玉化叶 存量检查：打不开地图、找不到图标或打不开详情面板，照常执行",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
     "__AutoCollectWulingFalseAggela1Run": {
         "desc": "执行路线 岩天使叶，同一轮只执行一次，失败计入汇总",
         "max_hit": 1,
@@ -1698,6 +2694,252 @@
             "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingFalseAggela1.failed"
         }
     },
+    "__AutoCollectWulingFalseAggela1StockCheck": {
+        "desc": "路线 岩天使叶 存量检查：打开传送所在的子区域地图",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "SceneEnterMapWulingWulingCity"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectWulingFalseAggela1StockFind",
+            "__AutoCollectWulingFalseAggela1StockKept"
+        ],
+        "on_error": [
+            "__AutoCollectWulingFalseAggela1StockKept"
+        ]
+    },
+    "__AutoCollectWulingFalseAggela1StockFind": {
+        "desc": "路线 岩天使叶 存量检查：在大地图上确认稀有采集物区图标",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapFind",
+                "custom_recognition_param": {
+                    "zone": "Wuling",
+                    "icon": "RareCollectArea",
+                    "at": [
+                        808.34,
+                        1521.93
+                    ],
+                    "max_attempts": 2
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectWulingFalseAggela1StockDigit",
+            "__AutoCollectWulingFalseAggela1StockDigitWide",
+            "__AutoCollectWulingFalseAggela1StockRecheck"
+        ]
+    },
+    "__AutoCollectWulingFalseAggela1StockDigit": {
+        "desc": "路线 岩天使叶 存量检查：读到存量角标，照常执行（只框角标本身）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "__AutoCollectWulingFalseAggela1StockFind",
+                "roi_offset": [
+                    9,
+                    -12,
+                    10,
+                    12
+                ],
+                "expected": [
+                    "^\\d+$"
+                ],
+                "replace": [
+                    [
+                        "\\D",
+                        ""
+                    ]
+                ],
+                "only_rec": true,
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoCollectWulingFalseAggela1StockDigitWide": {
+        "desc": "路线 岩天使叶 存量检查：读到存量角标，照常执行（向右与上下放宽，容忍遮挡与偏移；不向左放宽，避开图标本体）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "__AutoCollectWulingFalseAggela1StockFind",
+                "roi_offset": [
+                    9,
+                    -13,
+                    13,
+                    14
+                ],
+                "expected": [
+                    "^\\d+$"
+                ],
+                "replace": [
+                    [
+                        "\\D",
+                        ""
+                    ]
+                ],
+                "only_rec": true,
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoCollectWulingFalseAggela1StockRecheck": {
+        "desc": "路线 岩天使叶 存量检查：首帧没读到角标，画面静止后再读一次",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_wait_freezes": 300,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectWulingFalseAggela1StockDigit",
+            "__AutoCollectWulingFalseAggela1StockDigitWide",
+            "__AutoCollectWulingFalseAggela1StockPanelOpen"
+        ]
+    },
+    "__AutoCollectWulingFalseAggela1StockPanelOpen": {
+        "desc": "路线 岩天使叶 存量检查：点开稀有采集物区详情面板",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": "__AutoCollectWulingFalseAggela1StockFind"
+            }
+        },
+        "post_wait_freezes": 300,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectWulingFalseAggela1StockPanelEmpty",
+            "__AutoCollectWulingFalseAggela1StockPanelStocked",
+            "__AutoCollectWulingFalseAggela1StockPanelPick",
+            "__AutoCollectWulingFalseAggela1StockKept"
+        ]
+    },
+    "__AutoCollectWulingFalseAggela1StockPanelPick": {
+        "desc": "路线 岩天使叶 存量检查：图标重叠时在选择列表中点选稀有采集物区",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    860,
+                    300,
+                    140,
+                    360
+                ],
+                "template": [
+                    "AutoCollect/StockAreaListEntry.png"
+                ],
+                "threshold": 0.8
+            }
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": 300,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectWulingFalseAggela1StockPanelEmpty",
+            "__AutoCollectWulingFalseAggela1StockPanelStocked",
+            "__AutoCollectWulingFalseAggela1StockKept"
+        ]
+    },
+    "__AutoCollectWulingFalseAggela1StockPanelEmpty": {
+        "desc": "路线 岩天使叶 存量检查：详情面板存量为 0，停用本轮执行",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1120,
+                    160,
+                    105,
+                    40
+                ],
+                "expected": [
+                    "^0/\\d+$"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "__AutoCollectWulingFalseAggela1Run": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectStockPanelClose",
+            "AutoCollectStockPanelLeave"
+        ]
+    },
+    "__AutoCollectWulingFalseAggela1StockPanelStocked": {
+        "desc": "路线 岩天使叶 存量检查：详情面板存量不为 0，照常执行",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1120,
+                    160,
+                    105,
+                    40
+                ],
+                "expected": [
+                    "^[1-9]\\d*/\\d+$"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectStockPanelClose",
+            "AutoCollectStockPanelLeave"
+        ]
+    },
+    "__AutoCollectWulingFalseAggela1StockKept": {
+        "desc": "路线 岩天使叶 存量检查：打不开地图、找不到图标或打不开详情面板，照常执行",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
     "__AutoCollectWulingVitrodendra1Run": {
         "desc": "执行路线 至晶多齿叶（路线1），同一轮只执行一次，失败计入汇总",
         "max_hit": 1,
@@ -1729,6 +2971,252 @@
         "focus": {
             "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingVitrodendra1.failed"
         }
+    },
+    "__AutoCollectWulingVitrodendra1StockCheck": {
+        "desc": "路线 至晶多齿叶（路线1） 存量检查：打开传送所在的子区域地图",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "SceneEnterMapWulingWulingCity"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectWulingVitrodendra1StockFind",
+            "__AutoCollectWulingVitrodendra1StockKept"
+        ],
+        "on_error": [
+            "__AutoCollectWulingVitrodendra1StockKept"
+        ]
+    },
+    "__AutoCollectWulingVitrodendra1StockFind": {
+        "desc": "路线 至晶多齿叶（路线1） 存量检查：在大地图上确认稀有采集物区图标",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapFind",
+                "custom_recognition_param": {
+                    "zone": "Wuling",
+                    "icon": "RareCollectArea",
+                    "at": [
+                        740.85,
+                        1853.23
+                    ],
+                    "max_attempts": 2
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectWulingVitrodendra1StockDigit",
+            "__AutoCollectWulingVitrodendra1StockDigitWide",
+            "__AutoCollectWulingVitrodendra1StockRecheck"
+        ]
+    },
+    "__AutoCollectWulingVitrodendra1StockDigit": {
+        "desc": "路线 至晶多齿叶（路线1） 存量检查：读到存量角标，照常执行（只框角标本身）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "__AutoCollectWulingVitrodendra1StockFind",
+                "roi_offset": [
+                    9,
+                    -12,
+                    10,
+                    12
+                ],
+                "expected": [
+                    "^\\d+$"
+                ],
+                "replace": [
+                    [
+                        "\\D",
+                        ""
+                    ]
+                ],
+                "only_rec": true,
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoCollectWulingVitrodendra1StockDigitWide": {
+        "desc": "路线 至晶多齿叶（路线1） 存量检查：读到存量角标，照常执行（向右与上下放宽，容忍遮挡与偏移；不向左放宽，避开图标本体）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "__AutoCollectWulingVitrodendra1StockFind",
+                "roi_offset": [
+                    9,
+                    -13,
+                    13,
+                    14
+                ],
+                "expected": [
+                    "^\\d+$"
+                ],
+                "replace": [
+                    [
+                        "\\D",
+                        ""
+                    ]
+                ],
+                "only_rec": true,
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoCollectWulingVitrodendra1StockRecheck": {
+        "desc": "路线 至晶多齿叶（路线1） 存量检查：首帧没读到角标，画面静止后再读一次",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_wait_freezes": 300,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectWulingVitrodendra1StockDigit",
+            "__AutoCollectWulingVitrodendra1StockDigitWide",
+            "__AutoCollectWulingVitrodendra1StockPanelOpen"
+        ]
+    },
+    "__AutoCollectWulingVitrodendra1StockPanelOpen": {
+        "desc": "路线 至晶多齿叶（路线1） 存量检查：点开稀有采集物区详情面板",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": "__AutoCollectWulingVitrodendra1StockFind"
+            }
+        },
+        "post_wait_freezes": 300,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectWulingVitrodendra1StockPanelEmpty",
+            "__AutoCollectWulingVitrodendra1StockPanelStocked",
+            "__AutoCollectWulingVitrodendra1StockPanelPick",
+            "__AutoCollectWulingVitrodendra1StockKept"
+        ]
+    },
+    "__AutoCollectWulingVitrodendra1StockPanelPick": {
+        "desc": "路线 至晶多齿叶（路线1） 存量检查：图标重叠时在选择列表中点选稀有采集物区",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    860,
+                    300,
+                    140,
+                    360
+                ],
+                "template": [
+                    "AutoCollect/StockAreaListEntry.png"
+                ],
+                "threshold": 0.8
+            }
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": 300,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectWulingVitrodendra1StockPanelEmpty",
+            "__AutoCollectWulingVitrodendra1StockPanelStocked",
+            "__AutoCollectWulingVitrodendra1StockKept"
+        ]
+    },
+    "__AutoCollectWulingVitrodendra1StockPanelEmpty": {
+        "desc": "路线 至晶多齿叶（路线1） 存量检查：详情面板存量为 0，停用本轮执行",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1120,
+                    160,
+                    105,
+                    40
+                ],
+                "expected": [
+                    "^0/\\d+$"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "__AutoCollectWulingVitrodendra1Run": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectStockPanelClose",
+            "AutoCollectStockPanelLeave"
+        ]
+    },
+    "__AutoCollectWulingVitrodendra1StockPanelStocked": {
+        "desc": "路线 至晶多齿叶（路线1） 存量检查：详情面板存量不为 0，照常执行",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1120,
+                    160,
+                    105,
+                    40
+                ],
+                "expected": [
+                    "^[1-9]\\d*/\\d+$"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectStockPanelClose",
+            "AutoCollectStockPanelLeave"
+        ]
+    },
+    "__AutoCollectWulingVitrodendra1StockKept": {
+        "desc": "路线 至晶多齿叶（路线1） 存量检查：打不开地图、找不到图标或打不开详情面板，照常执行",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "__AutoCollectWulingBloodcapWulingstone1Run": {
         "desc": "执行路线 血菌、武陵石，同一轮只执行一次，失败计入汇总",
@@ -1793,6 +3281,252 @@
         "focus": {
             "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingCosmagaric1.failed"
         }
+    },
+    "__AutoCollectWulingCosmagaric1StockCheck": {
+        "desc": "路线 星门菌（路线1） 存量检查：打开传送所在的子区域地图",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "SceneEnterMapWulingWulingCity"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectWulingCosmagaric1StockFind",
+            "__AutoCollectWulingCosmagaric1StockKept"
+        ],
+        "on_error": [
+            "__AutoCollectWulingCosmagaric1StockKept"
+        ]
+    },
+    "__AutoCollectWulingCosmagaric1StockFind": {
+        "desc": "路线 星门菌（路线1） 存量检查：在大地图上确认稀有采集物区图标",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapFind",
+                "custom_recognition_param": {
+                    "zone": "Wuling",
+                    "icon": "RareCollectArea",
+                    "at": [
+                        668.81,
+                        1845.11
+                    ],
+                    "max_attempts": 2
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectWulingCosmagaric1StockDigit",
+            "__AutoCollectWulingCosmagaric1StockDigitWide",
+            "__AutoCollectWulingCosmagaric1StockRecheck"
+        ]
+    },
+    "__AutoCollectWulingCosmagaric1StockDigit": {
+        "desc": "路线 星门菌（路线1） 存量检查：读到存量角标，照常执行（只框角标本身）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "__AutoCollectWulingCosmagaric1StockFind",
+                "roi_offset": [
+                    9,
+                    -12,
+                    10,
+                    12
+                ],
+                "expected": [
+                    "^\\d+$"
+                ],
+                "replace": [
+                    [
+                        "\\D",
+                        ""
+                    ]
+                ],
+                "only_rec": true,
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoCollectWulingCosmagaric1StockDigitWide": {
+        "desc": "路线 星门菌（路线1） 存量检查：读到存量角标，照常执行（向右与上下放宽，容忍遮挡与偏移；不向左放宽，避开图标本体）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "__AutoCollectWulingCosmagaric1StockFind",
+                "roi_offset": [
+                    9,
+                    -13,
+                    13,
+                    14
+                ],
+                "expected": [
+                    "^\\d+$"
+                ],
+                "replace": [
+                    [
+                        "\\D",
+                        ""
+                    ]
+                ],
+                "only_rec": true,
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoCollectWulingCosmagaric1StockRecheck": {
+        "desc": "路线 星门菌（路线1） 存量检查：首帧没读到角标，画面静止后再读一次",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_wait_freezes": 300,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectWulingCosmagaric1StockDigit",
+            "__AutoCollectWulingCosmagaric1StockDigitWide",
+            "__AutoCollectWulingCosmagaric1StockPanelOpen"
+        ]
+    },
+    "__AutoCollectWulingCosmagaric1StockPanelOpen": {
+        "desc": "路线 星门菌（路线1） 存量检查：点开稀有采集物区详情面板",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": "__AutoCollectWulingCosmagaric1StockFind"
+            }
+        },
+        "post_wait_freezes": 300,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectWulingCosmagaric1StockPanelEmpty",
+            "__AutoCollectWulingCosmagaric1StockPanelStocked",
+            "__AutoCollectWulingCosmagaric1StockPanelPick",
+            "__AutoCollectWulingCosmagaric1StockKept"
+        ]
+    },
+    "__AutoCollectWulingCosmagaric1StockPanelPick": {
+        "desc": "路线 星门菌（路线1） 存量检查：图标重叠时在选择列表中点选稀有采集物区",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    860,
+                    300,
+                    140,
+                    360
+                ],
+                "template": [
+                    "AutoCollect/StockAreaListEntry.png"
+                ],
+                "threshold": 0.8
+            }
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": 300,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectWulingCosmagaric1StockPanelEmpty",
+            "__AutoCollectWulingCosmagaric1StockPanelStocked",
+            "__AutoCollectWulingCosmagaric1StockKept"
+        ]
+    },
+    "__AutoCollectWulingCosmagaric1StockPanelEmpty": {
+        "desc": "路线 星门菌（路线1） 存量检查：详情面板存量为 0，停用本轮执行",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1120,
+                    160,
+                    105,
+                    40
+                ],
+                "expected": [
+                    "^0/\\d+$"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "__AutoCollectWulingCosmagaric1Run": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectStockPanelClose",
+            "AutoCollectStockPanelLeave"
+        ]
+    },
+    "__AutoCollectWulingCosmagaric1StockPanelStocked": {
+        "desc": "路线 星门菌（路线1） 存量检查：详情面板存量不为 0，照常执行",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1120,
+                    160,
+                    105,
+                    40
+                ],
+                "expected": [
+                    "^[1-9]\\d*/\\d+$"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectStockPanelClose",
+            "AutoCollectStockPanelLeave"
+        ]
+    },
+    "__AutoCollectWulingCosmagaric1StockKept": {
+        "desc": "路线 星门菌（路线1） 存量检查：打不开地图、找不到图标或打不开详情面板，照常执行",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "__AutoCollectWulingIgneosite1Run": {
         "desc": "执行路线 燎石（路线1），同一轮只执行一次，失败计入汇总",
@@ -1922,6 +3656,252 @@
             "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingRedBolete1.failed"
         }
     },
+    "__AutoCollectWulingRedBolete1StockCheck": {
+        "desc": "路线 中红柱状菌 存量检查：打开传送所在的子区域地图",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "SceneEnterMapWulingMarkerStone"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectWulingRedBolete1StockFind",
+            "__AutoCollectWulingRedBolete1StockKept"
+        ],
+        "on_error": [
+            "__AutoCollectWulingRedBolete1StockKept"
+        ]
+    },
+    "__AutoCollectWulingRedBolete1StockFind": {
+        "desc": "路线 中红柱状菌 存量检查：在大地图上确认稀有采集物区图标",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapFind",
+                "custom_recognition_param": {
+                    "zone": "Wuling",
+                    "icon": "RareCollectArea",
+                    "at": [
+                        613.32,
+                        2273.04
+                    ],
+                    "max_attempts": 2
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectWulingRedBolete1StockDigit",
+            "__AutoCollectWulingRedBolete1StockDigitWide",
+            "__AutoCollectWulingRedBolete1StockRecheck"
+        ]
+    },
+    "__AutoCollectWulingRedBolete1StockDigit": {
+        "desc": "路线 中红柱状菌 存量检查：读到存量角标，照常执行（只框角标本身）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "__AutoCollectWulingRedBolete1StockFind",
+                "roi_offset": [
+                    9,
+                    -12,
+                    10,
+                    12
+                ],
+                "expected": [
+                    "^\\d+$"
+                ],
+                "replace": [
+                    [
+                        "\\D",
+                        ""
+                    ]
+                ],
+                "only_rec": true,
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoCollectWulingRedBolete1StockDigitWide": {
+        "desc": "路线 中红柱状菌 存量检查：读到存量角标，照常执行（向右与上下放宽，容忍遮挡与偏移；不向左放宽，避开图标本体）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "__AutoCollectWulingRedBolete1StockFind",
+                "roi_offset": [
+                    9,
+                    -13,
+                    13,
+                    14
+                ],
+                "expected": [
+                    "^\\d+$"
+                ],
+                "replace": [
+                    [
+                        "\\D",
+                        ""
+                    ]
+                ],
+                "only_rec": true,
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoCollectWulingRedBolete1StockRecheck": {
+        "desc": "路线 中红柱状菌 存量检查：首帧没读到角标，画面静止后再读一次",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_wait_freezes": 300,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectWulingRedBolete1StockDigit",
+            "__AutoCollectWulingRedBolete1StockDigitWide",
+            "__AutoCollectWulingRedBolete1StockPanelOpen"
+        ]
+    },
+    "__AutoCollectWulingRedBolete1StockPanelOpen": {
+        "desc": "路线 中红柱状菌 存量检查：点开稀有采集物区详情面板",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": "__AutoCollectWulingRedBolete1StockFind"
+            }
+        },
+        "post_wait_freezes": 300,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectWulingRedBolete1StockPanelEmpty",
+            "__AutoCollectWulingRedBolete1StockPanelStocked",
+            "__AutoCollectWulingRedBolete1StockPanelPick",
+            "__AutoCollectWulingRedBolete1StockKept"
+        ]
+    },
+    "__AutoCollectWulingRedBolete1StockPanelPick": {
+        "desc": "路线 中红柱状菌 存量检查：图标重叠时在选择列表中点选稀有采集物区",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    860,
+                    300,
+                    140,
+                    360
+                ],
+                "template": [
+                    "AutoCollect/StockAreaListEntry.png"
+                ],
+                "threshold": 0.8
+            }
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": 300,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectWulingRedBolete1StockPanelEmpty",
+            "__AutoCollectWulingRedBolete1StockPanelStocked",
+            "__AutoCollectWulingRedBolete1StockKept"
+        ]
+    },
+    "__AutoCollectWulingRedBolete1StockPanelEmpty": {
+        "desc": "路线 中红柱状菌 存量检查：详情面板存量为 0，停用本轮执行",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1120,
+                    160,
+                    105,
+                    40
+                ],
+                "expected": [
+                    "^0/\\d+$"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "__AutoCollectWulingRedBolete1Run": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectStockPanelClose",
+            "AutoCollectStockPanelLeave"
+        ]
+    },
+    "__AutoCollectWulingRedBolete1StockPanelStocked": {
+        "desc": "路线 中红柱状菌 存量检查：详情面板存量不为 0，照常执行",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1120,
+                    160,
+                    105,
+                    40
+                ],
+                "expected": [
+                    "^[1-9]\\d*/\\d+$"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectStockPanelClose",
+            "AutoCollectStockPanelLeave"
+        ]
+    },
+    "__AutoCollectWulingRedBolete1StockKept": {
+        "desc": "路线 中红柱状菌 存量检查：打不开地图、找不到图标或打不开详情面板，照常执行",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
     "__AutoCollectWulingCrimsonSpearleaf1Run": {
         "desc": "执行路线 红矛叶，同一轮只执行一次，失败计入汇总",
         "max_hit": 1,
@@ -1953,6 +3933,252 @@
         "focus": {
             "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingCrimsonSpearleaf1.failed"
         }
+    },
+    "__AutoCollectWulingCrimsonSpearleaf1StockCheck": {
+        "desc": "路线 红矛叶 存量检查：打开传送所在的子区域地图",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "SceneEnterMapWulingNorthWulingExclusionZone"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectWulingCrimsonSpearleaf1StockFind",
+            "__AutoCollectWulingCrimsonSpearleaf1StockKept"
+        ],
+        "on_error": [
+            "__AutoCollectWulingCrimsonSpearleaf1StockKept"
+        ]
+    },
+    "__AutoCollectWulingCrimsonSpearleaf1StockFind": {
+        "desc": "路线 红矛叶 存量检查：在大地图上确认稀有采集物区图标",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapFind",
+                "custom_recognition_param": {
+                    "zone": "Wuling",
+                    "icon": "RareCollectArea",
+                    "at": [
+                        1088.33,
+                        572.8
+                    ],
+                    "max_attempts": 2
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectWulingCrimsonSpearleaf1StockDigit",
+            "__AutoCollectWulingCrimsonSpearleaf1StockDigitWide",
+            "__AutoCollectWulingCrimsonSpearleaf1StockRecheck"
+        ]
+    },
+    "__AutoCollectWulingCrimsonSpearleaf1StockDigit": {
+        "desc": "路线 红矛叶 存量检查：读到存量角标，照常执行（只框角标本身）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "__AutoCollectWulingCrimsonSpearleaf1StockFind",
+                "roi_offset": [
+                    9,
+                    -12,
+                    10,
+                    12
+                ],
+                "expected": [
+                    "^\\d+$"
+                ],
+                "replace": [
+                    [
+                        "\\D",
+                        ""
+                    ]
+                ],
+                "only_rec": true,
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoCollectWulingCrimsonSpearleaf1StockDigitWide": {
+        "desc": "路线 红矛叶 存量检查：读到存量角标，照常执行（向右与上下放宽，容忍遮挡与偏移；不向左放宽，避开图标本体）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "__AutoCollectWulingCrimsonSpearleaf1StockFind",
+                "roi_offset": [
+                    9,
+                    -13,
+                    13,
+                    14
+                ],
+                "expected": [
+                    "^\\d+$"
+                ],
+                "replace": [
+                    [
+                        "\\D",
+                        ""
+                    ]
+                ],
+                "only_rec": true,
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoCollectWulingCrimsonSpearleaf1StockRecheck": {
+        "desc": "路线 红矛叶 存量检查：首帧没读到角标，画面静止后再读一次",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_wait_freezes": 300,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectWulingCrimsonSpearleaf1StockDigit",
+            "__AutoCollectWulingCrimsonSpearleaf1StockDigitWide",
+            "__AutoCollectWulingCrimsonSpearleaf1StockPanelOpen"
+        ]
+    },
+    "__AutoCollectWulingCrimsonSpearleaf1StockPanelOpen": {
+        "desc": "路线 红矛叶 存量检查：点开稀有采集物区详情面板",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": "__AutoCollectWulingCrimsonSpearleaf1StockFind"
+            }
+        },
+        "post_wait_freezes": 300,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectWulingCrimsonSpearleaf1StockPanelEmpty",
+            "__AutoCollectWulingCrimsonSpearleaf1StockPanelStocked",
+            "__AutoCollectWulingCrimsonSpearleaf1StockPanelPick",
+            "__AutoCollectWulingCrimsonSpearleaf1StockKept"
+        ]
+    },
+    "__AutoCollectWulingCrimsonSpearleaf1StockPanelPick": {
+        "desc": "路线 红矛叶 存量检查：图标重叠时在选择列表中点选稀有采集物区",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    860,
+                    300,
+                    140,
+                    360
+                ],
+                "template": [
+                    "AutoCollect/StockAreaListEntry.png"
+                ],
+                "threshold": 0.8
+            }
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": 300,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectWulingCrimsonSpearleaf1StockPanelEmpty",
+            "__AutoCollectWulingCrimsonSpearleaf1StockPanelStocked",
+            "__AutoCollectWulingCrimsonSpearleaf1StockKept"
+        ]
+    },
+    "__AutoCollectWulingCrimsonSpearleaf1StockPanelEmpty": {
+        "desc": "路线 红矛叶 存量检查：详情面板存量为 0，停用本轮执行",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1120,
+                    160,
+                    105,
+                    40
+                ],
+                "expected": [
+                    "^0/\\d+$"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "__AutoCollectWulingCrimsonSpearleaf1Run": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectStockPanelClose",
+            "AutoCollectStockPanelLeave"
+        ]
+    },
+    "__AutoCollectWulingCrimsonSpearleaf1StockPanelStocked": {
+        "desc": "路线 红矛叶 存量检查：详情面板存量不为 0，照常执行",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1120,
+                    160,
+                    105,
+                    40
+                ],
+                "expected": [
+                    "^[1-9]\\d*/\\d+$"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectStockPanelClose",
+            "AutoCollectStockPanelLeave"
+        ]
+    },
+    "__AutoCollectWulingCrimsonSpearleaf1StockKept": {
+        "desc": "路线 红矛叶 存量检查：打不开地图、找不到图标或打不开详情面板，照常执行",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "__AutoCollectWulingProtocolith1Run": {
         "desc": "执行路线 协议纹石（路线1），同一轮只执行一次，失败计入汇总",
@@ -2017,6 +4243,252 @@
         "focus": {
             "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingTalosCap1.failed"
         }
+    },
+    "__AutoCollectWulingTalosCap1StockCheck": {
+        "desc": "路线 塔罗斯菌 存量检查：打开传送所在的子区域地图",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "SceneEnterMapWulingSnowyForest"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectWulingTalosCap1StockFind",
+            "__AutoCollectWulingTalosCap1StockKept"
+        ],
+        "on_error": [
+            "__AutoCollectWulingTalosCap1StockKept"
+        ]
+    },
+    "__AutoCollectWulingTalosCap1StockFind": {
+        "desc": "路线 塔罗斯菌 存量检查：在大地图上确认稀有采集物区图标",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapFind",
+                "custom_recognition_param": {
+                    "zone": "Wuling",
+                    "icon": "RareCollectArea",
+                    "at": [
+                        1663.49,
+                        1010.21
+                    ],
+                    "max_attempts": 2
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectWulingTalosCap1StockDigit",
+            "__AutoCollectWulingTalosCap1StockDigitWide",
+            "__AutoCollectWulingTalosCap1StockRecheck"
+        ]
+    },
+    "__AutoCollectWulingTalosCap1StockDigit": {
+        "desc": "路线 塔罗斯菌 存量检查：读到存量角标，照常执行（只框角标本身）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "__AutoCollectWulingTalosCap1StockFind",
+                "roi_offset": [
+                    9,
+                    -12,
+                    10,
+                    12
+                ],
+                "expected": [
+                    "^\\d+$"
+                ],
+                "replace": [
+                    [
+                        "\\D",
+                        ""
+                    ]
+                ],
+                "only_rec": true,
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoCollectWulingTalosCap1StockDigitWide": {
+        "desc": "路线 塔罗斯菌 存量检查：读到存量角标，照常执行（向右与上下放宽，容忍遮挡与偏移；不向左放宽，避开图标本体）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "__AutoCollectWulingTalosCap1StockFind",
+                "roi_offset": [
+                    9,
+                    -13,
+                    13,
+                    14
+                ],
+                "expected": [
+                    "^\\d+$"
+                ],
+                "replace": [
+                    [
+                        "\\D",
+                        ""
+                    ]
+                ],
+                "only_rec": true,
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoCollectWulingTalosCap1StockRecheck": {
+        "desc": "路线 塔罗斯菌 存量检查：首帧没读到角标，画面静止后再读一次",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_wait_freezes": 300,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectWulingTalosCap1StockDigit",
+            "__AutoCollectWulingTalosCap1StockDigitWide",
+            "__AutoCollectWulingTalosCap1StockPanelOpen"
+        ]
+    },
+    "__AutoCollectWulingTalosCap1StockPanelOpen": {
+        "desc": "路线 塔罗斯菌 存量检查：点开稀有采集物区详情面板",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": "__AutoCollectWulingTalosCap1StockFind"
+            }
+        },
+        "post_wait_freezes": 300,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectWulingTalosCap1StockPanelEmpty",
+            "__AutoCollectWulingTalosCap1StockPanelStocked",
+            "__AutoCollectWulingTalosCap1StockPanelPick",
+            "__AutoCollectWulingTalosCap1StockKept"
+        ]
+    },
+    "__AutoCollectWulingTalosCap1StockPanelPick": {
+        "desc": "路线 塔罗斯菌 存量检查：图标重叠时在选择列表中点选稀有采集物区",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    860,
+                    300,
+                    140,
+                    360
+                ],
+                "template": [
+                    "AutoCollect/StockAreaListEntry.png"
+                ],
+                "threshold": 0.8
+            }
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": 300,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectWulingTalosCap1StockPanelEmpty",
+            "__AutoCollectWulingTalosCap1StockPanelStocked",
+            "__AutoCollectWulingTalosCap1StockKept"
+        ]
+    },
+    "__AutoCollectWulingTalosCap1StockPanelEmpty": {
+        "desc": "路线 塔罗斯菌 存量检查：详情面板存量为 0，停用本轮执行",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1120,
+                    160,
+                    105,
+                    40
+                ],
+                "expected": [
+                    "^0/\\d+$"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "__AutoCollectWulingTalosCap1Run": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectStockPanelClose",
+            "AutoCollectStockPanelLeave"
+        ]
+    },
+    "__AutoCollectWulingTalosCap1StockPanelStocked": {
+        "desc": "路线 塔罗斯菌 存量检查：详情面板存量不为 0，照常执行",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1120,
+                    160,
+                    105,
+                    40
+                ],
+                "expected": [
+                    "^[1-9]\\d*/\\d+$"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectStockPanelClose",
+            "AutoCollectStockPanelLeave"
+        ]
+    },
+    "__AutoCollectWulingTalosCap1StockKept": {
+        "desc": "路线 塔罗斯菌 存量检查：打不开地图、找不到图标或打不开详情面板，照常执行",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "__AutoCollectWulingScorchbug1Run": {
         "desc": "执行路线 灼壳虫，同一轮只执行一次，失败计入汇总",
@@ -2402,6 +4874,252 @@
             "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingVitrodendra2.failed"
         }
     },
+    "__AutoCollectWulingVitrodendra2StockCheck": {
+        "desc": "路线 至晶多齿叶（路线2） 存量检查：打开传送所在的子区域地图",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "SceneEnterMapWulingJingyuValley"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectWulingVitrodendra2StockFind",
+            "__AutoCollectWulingVitrodendra2StockKept"
+        ],
+        "on_error": [
+            "__AutoCollectWulingVitrodendra2StockKept"
+        ]
+    },
+    "__AutoCollectWulingVitrodendra2StockFind": {
+        "desc": "路线 至晶多齿叶（路线2） 存量检查：在大地图上确认稀有采集物区图标",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapFind",
+                "custom_recognition_param": {
+                    "zone": "Wuling",
+                    "icon": "RareCollectArea",
+                    "at": [
+                        848.65,
+                        2517.7
+                    ],
+                    "max_attempts": 2
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectWulingVitrodendra2StockDigit",
+            "__AutoCollectWulingVitrodendra2StockDigitWide",
+            "__AutoCollectWulingVitrodendra2StockRecheck"
+        ]
+    },
+    "__AutoCollectWulingVitrodendra2StockDigit": {
+        "desc": "路线 至晶多齿叶（路线2） 存量检查：读到存量角标，照常执行（只框角标本身）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "__AutoCollectWulingVitrodendra2StockFind",
+                "roi_offset": [
+                    9,
+                    -12,
+                    10,
+                    12
+                ],
+                "expected": [
+                    "^\\d+$"
+                ],
+                "replace": [
+                    [
+                        "\\D",
+                        ""
+                    ]
+                ],
+                "only_rec": true,
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoCollectWulingVitrodendra2StockDigitWide": {
+        "desc": "路线 至晶多齿叶（路线2） 存量检查：读到存量角标，照常执行（向右与上下放宽，容忍遮挡与偏移；不向左放宽，避开图标本体）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "__AutoCollectWulingVitrodendra2StockFind",
+                "roi_offset": [
+                    9,
+                    -13,
+                    13,
+                    14
+                ],
+                "expected": [
+                    "^\\d+$"
+                ],
+                "replace": [
+                    [
+                        "\\D",
+                        ""
+                    ]
+                ],
+                "only_rec": true,
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoCollectWulingVitrodendra2StockRecheck": {
+        "desc": "路线 至晶多齿叶（路线2） 存量检查：首帧没读到角标，画面静止后再读一次",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_wait_freezes": 300,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectWulingVitrodendra2StockDigit",
+            "__AutoCollectWulingVitrodendra2StockDigitWide",
+            "__AutoCollectWulingVitrodendra2StockPanelOpen"
+        ]
+    },
+    "__AutoCollectWulingVitrodendra2StockPanelOpen": {
+        "desc": "路线 至晶多齿叶（路线2） 存量检查：点开稀有采集物区详情面板",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": "__AutoCollectWulingVitrodendra2StockFind"
+            }
+        },
+        "post_wait_freezes": 300,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectWulingVitrodendra2StockPanelEmpty",
+            "__AutoCollectWulingVitrodendra2StockPanelStocked",
+            "__AutoCollectWulingVitrodendra2StockPanelPick",
+            "__AutoCollectWulingVitrodendra2StockKept"
+        ]
+    },
+    "__AutoCollectWulingVitrodendra2StockPanelPick": {
+        "desc": "路线 至晶多齿叶（路线2） 存量检查：图标重叠时在选择列表中点选稀有采集物区",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    860,
+                    300,
+                    140,
+                    360
+                ],
+                "template": [
+                    "AutoCollect/StockAreaListEntry.png"
+                ],
+                "threshold": 0.8
+            }
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": 300,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectWulingVitrodendra2StockPanelEmpty",
+            "__AutoCollectWulingVitrodendra2StockPanelStocked",
+            "__AutoCollectWulingVitrodendra2StockKept"
+        ]
+    },
+    "__AutoCollectWulingVitrodendra2StockPanelEmpty": {
+        "desc": "路线 至晶多齿叶（路线2） 存量检查：详情面板存量为 0，停用本轮执行",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1120,
+                    160,
+                    105,
+                    40
+                ],
+                "expected": [
+                    "^0/\\d+$"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "__AutoCollectWulingVitrodendra2Run": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectStockPanelClose",
+            "AutoCollectStockPanelLeave"
+        ]
+    },
+    "__AutoCollectWulingVitrodendra2StockPanelStocked": {
+        "desc": "路线 至晶多齿叶（路线2） 存量检查：详情面板存量不为 0，照常执行",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1120,
+                    160,
+                    105,
+                    40
+                ],
+                "expected": [
+                    "^[1-9]\\d*/\\d+$"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectStockPanelClose",
+            "AutoCollectStockPanelLeave"
+        ]
+    },
+    "__AutoCollectWulingVitrodendra2StockKept": {
+        "desc": "路线 至晶多齿叶（路线2） 存量检查：打不开地图、找不到图标或打不开详情面板，照常执行",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
     "__AutoCollectWulingIgneosite2Run": {
         "desc": "执行路线 燎石（路线2），同一轮只执行一次，失败计入汇总",
         "max_hit": 1,
@@ -2465,5 +5183,290 @@
         "focus": {
             "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingCosmagaric2.failed"
         }
+    },
+    "__AutoCollectWulingCosmagaric2StockCheck": {
+        "desc": "路线 星门菌（路线2） 存量检查：打开传送所在的子区域地图",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "SceneEnterMapWulingTestArea"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectWulingCosmagaric2StockFind",
+            "__AutoCollectWulingCosmagaric2StockKept"
+        ],
+        "on_error": [
+            "__AutoCollectWulingCosmagaric2StockKept"
+        ]
+    },
+    "__AutoCollectWulingCosmagaric2StockFind": {
+        "desc": "路线 星门菌（路线2） 存量检查：在大地图上确认稀有采集物区图标",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapFind",
+                "custom_recognition_param": {
+                    "zone": "Wuling",
+                    "icon": "RareCollectArea",
+                    "at": [
+                        1082.65,
+                        1542.37
+                    ],
+                    "max_attempts": 2
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectWulingCosmagaric2StockDigit",
+            "__AutoCollectWulingCosmagaric2StockDigitWide",
+            "__AutoCollectWulingCosmagaric2StockRecheck"
+        ]
+    },
+    "__AutoCollectWulingCosmagaric2StockDigit": {
+        "desc": "路线 星门菌（路线2） 存量检查：读到存量角标，照常执行（只框角标本身）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "__AutoCollectWulingCosmagaric2StockFind",
+                "roi_offset": [
+                    9,
+                    -12,
+                    10,
+                    12
+                ],
+                "expected": [
+                    "^\\d+$"
+                ],
+                "replace": [
+                    [
+                        "\\D",
+                        ""
+                    ]
+                ],
+                "only_rec": true,
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoCollectWulingCosmagaric2StockDigitWide": {
+        "desc": "路线 星门菌（路线2） 存量检查：读到存量角标，照常执行（向右与上下放宽，容忍遮挡与偏移；不向左放宽，避开图标本体）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "__AutoCollectWulingCosmagaric2StockFind",
+                "roi_offset": [
+                    9,
+                    -13,
+                    13,
+                    14
+                ],
+                "expected": [
+                    "^\\d+$"
+                ],
+                "replace": [
+                    [
+                        "\\D",
+                        ""
+                    ]
+                ],
+                "only_rec": true,
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoCollectWulingCosmagaric2StockRecheck": {
+        "desc": "路线 星门菌（路线2） 存量检查：首帧没读到角标，画面静止后再读一次",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_wait_freezes": 300,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectWulingCosmagaric2StockDigit",
+            "__AutoCollectWulingCosmagaric2StockDigitWide",
+            "__AutoCollectWulingCosmagaric2StockPanelOpen"
+        ]
+    },
+    "__AutoCollectWulingCosmagaric2StockPanelOpen": {
+        "desc": "路线 星门菌（路线2） 存量检查：点开稀有采集物区详情面板",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": "__AutoCollectWulingCosmagaric2StockFind"
+            }
+        },
+        "post_wait_freezes": 300,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectWulingCosmagaric2StockPanelEmpty",
+            "__AutoCollectWulingCosmagaric2StockPanelStocked",
+            "__AutoCollectWulingCosmagaric2StockPanelPick",
+            "__AutoCollectWulingCosmagaric2StockKept"
+        ]
+    },
+    "__AutoCollectWulingCosmagaric2StockPanelPick": {
+        "desc": "路线 星门菌（路线2） 存量检查：图标重叠时在选择列表中点选稀有采集物区",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    860,
+                    300,
+                    140,
+                    360
+                ],
+                "template": [
+                    "AutoCollect/StockAreaListEntry.png"
+                ],
+                "threshold": 0.8
+            }
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": 300,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoCollectWulingCosmagaric2StockPanelEmpty",
+            "__AutoCollectWulingCosmagaric2StockPanelStocked",
+            "__AutoCollectWulingCosmagaric2StockKept"
+        ]
+    },
+    "__AutoCollectWulingCosmagaric2StockPanelEmpty": {
+        "desc": "路线 星门菌（路线2） 存量检查：详情面板存量为 0，停用本轮执行",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1120,
+                    160,
+                    105,
+                    40
+                ],
+                "expected": [
+                    "^0/\\d+$"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "__AutoCollectWulingCosmagaric2Run": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectStockPanelClose",
+            "AutoCollectStockPanelLeave"
+        ]
+    },
+    "__AutoCollectWulingCosmagaric2StockPanelStocked": {
+        "desc": "路线 星门菌（路线2） 存量检查：详情面板存量不为 0，照常执行",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1120,
+                    160,
+                    105,
+                    40
+                ],
+                "expected": [
+                    "^[1-9]\\d*/\\d+$"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectStockPanelClose",
+            "AutoCollectStockPanelLeave"
+        ]
+    },
+    "__AutoCollectWulingCosmagaric2StockKept": {
+        "desc": "路线 星门菌（路线2） 存量检查：打不开地图、找不到图标或打不开详情面板，照常执行",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoCollectStockPanelCount": {
+        "desc": "稀有采集物区详情面板：右上角的「存量/上限」",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1120,
+                    160,
+                    105,
+                    40
+                ],
+                "expected": [
+                    "^\\d+/\\d+$"
+                ]
+            }
+        }
+    },
+    "AutoCollectStockPanelClose": {
+        "desc": "关闭稀有采集物区详情面板：面板仍开着时才点右上角 X，避免误关地图",
+        "recognition": "And",
+        "all_of": [
+            "AutoCollectStockPanelCount",
+            "CloseButtonType1"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": 300,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoCollectStockPanelLeave": {
+        "desc": "详情面板未能确认关闭，交给随后的传送流程处理",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0
     }
 }

@@ -2100,6 +2100,7 @@
     "task.AutoCollect.option.AutoCollectMidSweepStash.label": "Stash backpack between routes",
     "task.AutoCollect.option.AutoCollectMidSweepStashEvery.label": "Stash interval (routes)",
     "task.AutoCollect.option.AutoCollectMidSweepStashEvery.pattern_msg": "Please enter an integer greater than 0.",
+    "task.AutoCollect.option.AutoCollectSkipEmptyStock.label": "Skip rare collectible areas with 0 stock",
     "task.AutoCollect.option.AutoCollectStashBackpackSubTask.label": "Stash backpack before and after task",
     "task.AutoCollect.route.ValleyIVAuronyx1.failed": "<span style=\"color: red; font-weight: bold;\">Auronyx collection failed</span>",
     "task.AutoCollect.route.ValleyIVAuronyx1.label": "Collecting Auronyx",

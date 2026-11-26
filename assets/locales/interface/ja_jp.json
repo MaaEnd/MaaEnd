@@ -2100,6 +2100,7 @@
     "task.AutoCollect.option.AutoCollectMidSweepStash.label": "ルートの合間にバックパックを収納",
     "task.AutoCollect.option.AutoCollectMidSweepStashEvery.label": "収納間隔（ルート数）",
     "task.AutoCollect.option.AutoCollectMidSweepStashEvery.pattern_msg": "0より大きい整数を入力してください。",
+    "task.AutoCollect.option.AutoCollectSkipEmptyStock.label": "在庫0のレア採集物エリアをスキップ",
     "task.AutoCollect.option.AutoCollectStashBackpackSubTask.label": "タスク前後にバックパックを収納",
     "task.AutoCollect.route.ValleyIVAuronyx1.failed": "<span style=\"color: red; font-weight: bold;\">中闇石：採集失敗</span>",
     "task.AutoCollect.route.ValleyIVAuronyx1.label": "中闇石を採集",

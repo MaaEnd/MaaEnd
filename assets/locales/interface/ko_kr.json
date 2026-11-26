@@ -2100,6 +2100,7 @@
     "task.AutoCollect.option.AutoCollectMidSweepStash.label": "경로 중간에 배낭 보관",
     "task.AutoCollect.option.AutoCollectMidSweepStashEvery.label": "보관 간격(경로 수)",
     "task.AutoCollect.option.AutoCollectMidSweepStashEvery.pattern_msg": "0보다 큰 정수를 입력하세요.",
+    "task.AutoCollect.option.AutoCollectSkipEmptyStock.label": "재고가 0인 희귀 채집물 구역 건너뛰기",
     "task.AutoCollect.option.AutoCollectStashBackpackSubTask.label": "태스크 전후 배낭 보관",
     "task.AutoCollect.route.ValleyIVAuronyx1.failed": "<span style=\"color: red; font-weight: bold;\">일반 흑암석 채집 실패</span>",
     "task.AutoCollect.route.ValleyIVAuronyx1.label": "일반 흑암석 채집",
