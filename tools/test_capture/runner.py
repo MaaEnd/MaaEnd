@@ -22,7 +22,7 @@ from .controllers import create_controller
 from .flow import BASE_HEIGHT, BASE_WIDTH, Flow, FlowError, RouteFunc, Step, as_dict, as_list
 from .runtime import AGENT_DIR, controller_entry, load_task, log_dir, maafw_dir, resource_bundles
 from .testset import TestSetError, TestSetWriter
-from .types import Box, Controller, Image, Point, Recognition, RecognitionDetail, Resource, Tasker
+from .types import Box, Controller, Image, NodeName, Point, Recognition, RecognitionDetail, Resource, Tasker
 from .validate import NodeRefs
 
 PROBE_NODE = "TestCaptureProbe"
@@ -271,6 +271,24 @@ class Session:
         detail, _ = self.wait_for(node, timeout, interval)
         self._fallback_image = detail.raw_image
         return detail.box if detail.box is not None else (0, 0, 0, 0)
+
+    def wait_any(self, *nodes: NodeName, timeout: float = 20.0, interval: float = 0.5) -> NodeName | None:
+        """等这几个界面里先出现的一个，返回它的节点名；到点都没出现返回 None。
+
+        两个界面都可能出现、出现哪个决定后面怎么走时用它：比如「货物竞价」有时不出现，
+        游戏直接落到调度申请界面。只看有没有命中，不额外等待；都没出现不算失败，
+        交给下一步的 enter 去等真正该在的界面。
+        """
+        if not nodes:
+            raise FlowError("wait_any 至少要给一个节点")
+        deadline = time.monotonic() + timeout
+        while True:
+            for node in nodes:
+                if self.hit(node):
+                    return node
+            if time.monotonic() >= deadline:
+                return None
+            time.sleep(interval)
 
     def shot_when(self, node: str, name: str, *, settle: float | None = None) -> None:
         """等这个节点命中，再截当前画面存成 name。"""

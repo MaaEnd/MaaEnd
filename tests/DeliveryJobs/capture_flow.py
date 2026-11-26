@@ -1,7 +1,7 @@
 """转交委托：武陵第一个仓储节点（武陵城）装箱、竞价、快速转交的截图流程。
 
 一天开始时的线性流程，一条路走到黑，中间不做判断：
-武陵仓储节点 → 点「货物装箱」→ 选类型 → 装满 → 下一步（游戏自己完成竞价）→ 调度申请
+武陵仓储节点 → 点「货物装箱」→ 选类型 → 装满 → 下一步（竞价对话框不一定出现）→ 调度申请
 → 快速转交 → 确认 → 获得奖励 → 我转交的委托 → 回仓储节点。
 
 分成两截：前面的仓储节点、装箱界面（连装满箱子）随时退得出来，两台平台都能拍；
@@ -119,10 +119,19 @@ def 武陵城货物装箱(c: Capture) -> None:
     once=True,
 )
 def 武陵城装满货物(c: Capture) -> None:
-    # 点「下一步」才算提交：货交出去、竞价游戏自己完成，到这儿就回不了头了
+    # 点「下一步」才算提交：货交出去、竞价由游戏自己走完，到这儿就回不了头了
     c.run(Nodes.DeliveryJobsFillToMaxNextStep)
-    c.shot_when(Nodes.DeliveryJobsCargoBid, "货物竞价")
-    c.run(Nodes.DeliveryJobsCargoBid)
+    # 竞价对话框不一定出来：看报价方式，有的直接落到调度申请界面，所以等先出现的那个
+    if (
+        c.wait_any(
+            Nodes.DeliveryJobsCargoBid,
+            Nodes.DeliveryJobsInCargoRedistributionBid,
+            timeout=10,
+        )
+        == Nodes.DeliveryJobsCargoBid
+    ):
+        c.shot("货物竞价")
+        c.run(Nodes.DeliveryJobsCargoBid)  # 竞价界面要点一下才往下走
 
 
 @flow.step(

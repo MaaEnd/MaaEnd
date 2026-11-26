@@ -197,6 +197,7 @@ uv run test-capture diagram --flow tests/DeliveryJobs/capture_flow.py 流程.htm
 | `goto(enter, route=None)` | 先看在这个界面没有，不在就转跳过去；每个步骤开跑前自动调一次 |
 | `run(node)` | 按这个节点自己的识别和动作执行一次，不跟它后面的 next |
 | `hit(node)` | 看一眼现在命不命中，不等待 |
+| `wait_any(*nodes, timeout=10)` | 等这几个界面里先出现的一个，返回它的节点名；都没出现返回 `None`，不算失败 |
 | `text(node)` | 等节点命中并返回它 OCR 认出来的文字 |
 | `ocr(roi)` / `number(roi)` | 临时在一小块区域上认字 / 读数字，读不到当 0 |
 | `sleep(秒)` | 硬等，能不用就不用 |
@@ -283,6 +284,20 @@ for round_index in range(1, 13):
     c.wait(Nodes.OutpostTradingCheckResultHeader)  # 交易完成的提示出来了
     c.run(Nodes.OutpostTradingSellCheck)  # 现成的「交易后确认」节点，自己点 ✓
 ```
+
+### 两个界面都可能出现
+
+同一个操作之后有时落在这个界面、有时落在那个界面，用 `wait_any` 等先出现的那个，看返回值决定怎么走：
+
+```python
+c.run(Nodes.DeliveryJobsFillToMaxNextStep)
+# 竞价对话框不一定出来：有的报价方式直接落到调度申请界面
+if c.wait_any(Nodes.DeliveryJobsCargoBid, Nodes.DeliveryJobsInCargoRedistributionBid, timeout=10) == Nodes.DeliveryJobsCargoBid:
+    c.shot("货物竞价")
+    c.run(Nodes.DeliveryJobsCargoBid)
+```
+
+都没出现时返回 `None`，不报错：真出问题的话，下一步的 `enter` 会等不到该在的界面而报错。
 
 ## 顺手写进测试集
 

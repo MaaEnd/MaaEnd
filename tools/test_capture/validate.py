@@ -12,8 +12,18 @@ import click
 from .flow import FlowError
 from .types import Resource
 
-# 这些 Capture 方法的前几个参数是节点名；其余方法收截图名、坐标、文字，不在这里核对。
-NODE_ARG_METHODS = {"hit": 1, "text": 1, "wait": 1, "click": 1, "run": 1, "sub_task": 1, "shot_when": 1, "goto": 2}
+# 这些 Capture 方法的前几个参数是节点名，-1 表示位置参数全是节点名；其余方法收截图名、坐标、文字，不在这里核对。
+NODE_ARG_METHODS = {
+    "hit": 1,
+    "text": 1,
+    "wait": 1,
+    "click": 1,
+    "run": 1,
+    "sub_task": 1,
+    "shot_when": 1,
+    "goto": 2,
+    "wait_any": -1,
+}
 
 # 步骤声明里的关键字，值也是节点名。
 STEP_KEYWORDS = frozenset({"enter", "route"})
@@ -67,7 +77,8 @@ def collect(path: Path) -> NodeRefs:
         if not isinstance(node, ast.Call):
             continue
         method = node.func.attr if isinstance(node.func, ast.Attribute) else ""
-        for position, arg in enumerate(node.args[: NODE_ARG_METHODS.get(method, 0)]):
+        count = NODE_ARG_METHODS.get(method, 0)
+        for position, arg in enumerate(node.args if count < 0 else node.args[:count]):
             name = node_name_of(arg)
             if name is not None:
                 refs.nodes.append(NodeRef(name, arg.lineno))

@@ -39,6 +39,16 @@ class Capture(Protocol):
         """
         ...
 
+    def wait_any(
+        self, *nodes: NodeName, timeout: float = ..., interval: float = ...
+    ) -> NodeName | None:
+        """等这几个界面里先出现的一个，返回它的节点名；到点都没出现返回 None。
+
+        同一个操作之后有时落在这个界面、有时落在那个界面时用它，看返回值决定后面怎么走；
+        都没出现不算失败，交给下一步的 enter 去等真正该在的界面。
+        """
+        ...
+
     def hit(self, node: NodeName) -> bool:
         """看一眼现在命不命中，不等待、不重试。用来写 if 判断界面状态。"""
         ...
