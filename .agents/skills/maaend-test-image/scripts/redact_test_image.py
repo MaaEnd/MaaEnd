@@ -134,9 +134,11 @@ def controller_from_destination(repo: Path, destination: Path) -> str:
     except ValueError as exc:
         raise SystemExit("目标图片必须位于 tests/MaaEndTestset/ 内。") from exc
 
-    if len(relative.parts) != 3:
+    # <controller>/<resource>/<任务目录>/<文件名>.png；任务目录可以省略，那批老图就放在 <resource> 下。
+    if len(relative.parts) < 3:
         raise SystemExit(
-            "目标图片必须使用 tests/MaaEndTestset/<controller>/<resource>/<文件名>.png。"
+            "目标图片必须使用 "
+            "tests/MaaEndTestset/<controller>/<resource>/<任务目录>/<文件名>.png。"
         )
     controller = SUPPORTED_CONTROLLERS.get(relative.parts[0].casefold())
     if controller is None:
@@ -216,7 +218,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "destination",
         type=Path,
-        help="tests/MaaEndTestset/<controller>/<resource>/ 下的目标 PNG",
+        help="tests/MaaEndTestset/<controller>/<resource>/<任务目录>/ 下的目标 PNG",
     )
     parser.add_argument(
         "--controller",
@@ -282,7 +284,7 @@ def main() -> None:
         else:
             raise SystemExit(
                 f"原图平台判定为 {detection.platform}，与目标路径的 {controller} 不一致。\n"
-                f"- 若原图来自 {detection.platform}，请把目标改到 tests/MaaEndTestset/{detection.platform}/<resource>/ 下；\n"
+                f"- 若原图来自 {detection.platform}，请把目标改到 tests/MaaEndTestset/{detection.platform}/<resource>/<任务目录>/ 下；\n"
                 "- 若确认平台无误（例如同平台下 UID 文字更长），用 --skip-platform-check 并用 --extra-roi 补齐遮盖范围。"
             )
     if detection.confidence == "unknown":

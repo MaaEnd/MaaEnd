@@ -10,7 +10,7 @@ description: 为 MaaEnd 添加、导入或补充节点识别测试截图，并�
 把原始游戏截图安全地加入 MaaEnd 的节点测试。最终同时满足：
 
 - 仓库内只出现脱敏后的 PNG，不先复制未打码原图；
-- 图片位于 `tests/MaaEndTestset/<controller>/<resource>/`；
+- 图片位于 `tests/MaaEndTestset/<controller>/<resource>/<任务目录>/`，任务目录和对应的 `tests/<任务>/` 同名；
 - 对应 `tests/**/test_*.json` 使用正确的 `controller`、`resource`、图片文件名和 `hits`；
 - JSON、图片引用、`pnpm check` 和 `pnpm test` 通过；
 - 需要提交时，测试图片提交到 `tests/MaaEndTestset` 子模块的 `main` 分支，主仓库再记录该提交指针；
@@ -28,6 +28,7 @@ description: 为 MaaEnd 添加、导入或补充节点识别测试截图，并�
     - 原始截图路径；
     - `controller`：`ADB`、`CloudADB`、`CloudWeb` 或 `Win32`；
     - `resource`：当前官服目录为 `Official_CN`，测试配置写 `官服`；
+    - `任务目录`：图片放在哪一层，和用例所在的 `tests/<任务>/` 同名（`tests/DeliveryJobs/` 对 `Official_CN/DeliveryJobs/`）；
     - 无扩展名图片名和目标 `test_*.json`；
     - 期望命中节点 `hits`，以及确需校验时的 `box`。
 
@@ -38,8 +39,10 @@ description: 为 MaaEnd 添加、导入或补充节点识别测试截图，并�
 图片使用：
 
 ```text
-tests/MaaEndTestset/<controller>/<resource>/<图片名>.png
+tests/MaaEndTestset/<controller>/<resource>/<任务目录>/<图片名>.png
 ```
+
+新拍的截图一律放进任务目录，不要直接放在 `<resource>` 根目录：根目录里那批是早期一张图一个界面的老位置，只有用例不写 `imageRoot` 时才会去那里找，堆在一起以后分不清属于哪个任务。
 
 测试文件使用：
 
@@ -59,11 +62,12 @@ tests/<功能或组件>/test_<测试主题>.json
         "controller": [
             "Win32",
             "ADB"
-        ]
+        ],
+        "imageRoot": "DeliveryJobs"
     },
     "cases": [
         {
-            "image": "四号谷地_地区建设_仓储节点_送货任务_确认转交.png",
+            "image": "送货任务_确认转交.png",
             "hits": [
                 "DeliveryJobsConfirmTaskTransfer"
             ]
@@ -81,7 +85,7 @@ tests/<功能或组件>/test_<测试主题>.json
 ```powershell
 uv run .agents/skills/maaend-test-image/scripts/redact_test_image.py `
   "C:\path\raw.png" `
-  "tests\MaaEndTestset\ADB\Official_CN\四号谷地_确认转交.png"
+  "tests\MaaEndTestset\ADB\Official_CN\DeliveryJobs\四号谷地_确认转交.png"
 ```
 
 脚本会先判定原图平台，再用 MaaEnd 自带的 OCR 模型脱敏：
@@ -98,7 +102,7 @@ uv run .agents/skills/maaend-test-image/scripts/redact_test_image.py `
 ```powershell
 uv run .agents/skills/maaend-test-image/scripts/redact_test_image.py `
   "C:\path\raw.png" `
-  "tests\MaaEndTestset\Win32\Official_CN\功能_画面.png" `
+  "tests\MaaEndTestset\Win32\Official_CN\DeliveryJobs\功能_画面.png" `
   --extra-roi 1100,20,160,40 `
   --extra-roi 20,620,240,60
 ```
@@ -199,10 +203,11 @@ uv run .agents/skills/maaend-test-image/scripts/detect_screenshot_platform.py "C
 
 - `configs.controller` 与图片目录一致，可写字符串或数组。
 - `configs.resource` 与 `tests/scripts/loader.mts` 的映射一致；当前官服写 `官服`。
-- 不手写 `imageRoot`；loader 会根据矩阵自动生成。
+- `configs.imageRoot` 写任务目录名（图片所在的那层目录，如 `DeliveryJobs`），loader 会拼成 `<controller>/<resource>/<imageRoot>`；只有图片直接放在 `<resource>` 下的老用例才不写。
 - `image` 必须是实际文件名并带 `.png`，不得包含 `/` 或 `\`。
 - `hits` 必须存在，允许空数组。
 - 同一文件内不要重复添加相同 `image`；需要增加节点时合并到已有用例。
+- 同一份用例里所有 `hits` 节点会在该组每张图上一起检查：没写进某张图、却在它上面命中的节点，同样算失败（`should missed but hit`）。同一个节点在这张图命中、在另一张图不命中（例如某平台的画面上标记已经消失），就要拆成两份用例文件。
 - 测试文件允许 JSONC 注释，格式必须遵循仓库 Prettier（通常为 4 空格）。
 - 只编辑目标测试文件，不顺手修正其它已有测试。
 
@@ -218,7 +223,7 @@ pnpm test
 
 随后确认：
 
-1. 每个新增 `image` 在对应 controller/resource 的目录下都存在，且该目录的平台与原图平台一致（`redact_test_image.py` 导入时已校验，事后移动或补图时要复查）；
+1. 每个新增 `image` 都在对应的 `<controller>/<resource>/<imageRoot>` 目录下存在，且该目录的平台与原图平台一致（`redact_test_image.py` 导入时已校验，事后移动或补图时要复查）；
 2. `tests/maatools/error_details.json` 没有本次用例的错误；
 3. `git diff --check` 没有文本问题；
 4. `git status --short` 和目标文件 diff 只包含预期变更。
