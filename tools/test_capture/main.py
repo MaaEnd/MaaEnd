@@ -21,6 +21,10 @@
 
     uv run test-capture export .cache/test-capture/20261122-075434
 
+某一步在界面上已经走不到（比如货早就交出去了），又想接着跑后面的，就把那一步标成跑过：
+
+    uv run test-capture mark .cache/test-capture/20261124-090000 --step 4
+
 写流程时想让编辑器补全节点名，先用这个生成一次节点名类型存根（跑流程、画流程图也会顺手刷新）：
 
     uv run test-capture nodes
@@ -315,6 +319,53 @@ def _export(run_dir: Path, resource: str, folder: str | None) -> None:
     click.echo("用例文件不会自动生成：把这些图片名和 imageRoot 补到 tests/<任务>/test_*.json 里")
 
 
+def _record_step_name(record: dict[str, Any]) -> str:
+    """记录里的步骤名：新记录写在 name，老目录把名字写在 step 里。"""
+    value = record.get("step")
+    if isinstance(value, str):
+        return value
+    return str(record.get("name") or "")
+
+
+def _mark(run_dir: Path, step: int, controllers: tuple[str, ...]) -> None:
+    """把某一步标成已经跑过：这次 --resume 就会跳过它。"""
+    run_dir = run_dir.resolve()
+    manifest = _read_manifest(run_dir)
+    flow_file = str(manifest.get("flowFile") or "")
+    if not flow_file or not Path(flow_file).is_file():
+        raise FlowError(f"运行目录里记的流程文件找不到（{flow_file or '没记'}），不知道第 {step} 步叫什么")
+    flow = load_flow(Path(flow_file))
+    if step > len(flow.steps):
+        raise click.UsageError(f"流程「{flow.name or Path(flow_file).name}」只有 {len(flow.steps)} 步，没有第 {step} 步")
+    name = flow.steps[step - 1].name
+    items = cast("list[dict[str, Any]]", manifest.get("controllers") or [])
+    recorded = [str(item.get("controller") or "") for item in items]
+    targets = list(controllers) or recorded
+    unknown = [one for one in targets if one not in recorded]
+    if unknown:
+        raise click.UsageError(f"运行目录里没有平台 {'、'.join(unknown)}，记录的是：{'、'.join(recorded)}")
+    marked: list[str] = []
+    for item in items:
+        who = str(item.get("controller") or "")
+        if who not in targets:
+            continue
+        steps = cast("list[dict[str, Any]]", item.get("steps") or [])
+        if any(_record_step_name(record) == name for record in steps):
+            click.echo(f"[{who}] 第 {step} 步「{name}」早就记成跑过，不用再标")
+            continue
+        steps.append({"step": step, "name": name, "marked": datetime.now().isoformat(timespec="seconds")})
+        item["steps"] = steps
+        error = cast("dict[str, Any] | None", item.get("error"))
+        if error is not None and error.get("step") == step:
+            item["error"] = None
+            click.echo(f"[{who}] 顺手清掉第 {step} 步那条失败记录")
+        marked.append(who)
+    if not marked:
+        return
+    _write_manifest(run_dir, manifest)
+    click.echo(f"标成跑过：{'、'.join(marked)} 的第 {step} 步「{name}」")
+    click.echo(f"接着跑：uv run test-capture run --resume {run_dir}")
+
 # 每个子命令的 -h 和 --help 通用。
 HELP = {"help_option_names": ["-h", "--help"]}
 
@@ -522,6 +573,28 @@ def _export_command(run_dir: Path, testset_resource: str, testset_dir: str | Non
     忘了加 --testset 时用它补导，不用重跑。
     """
     _export(run_dir, testset_resource, testset_dir)
+
+
+@_command.command("mark", context_settings=HELP)
+@click.argument("run_dir", type=click.Path(exists=True, file_okay=False, path_type=Path))
+@click.option(
+    "--step",
+    "step",
+    type=click.IntRange(min=1),
+    required=True,
+    help="第几步：流程里的序号，从 1 开始",
+)
+@click.option(
+    "--controller",
+    "controllers",
+    type=_ControllerName(),
+    multiple=True,
+    help="只标这台平台，默认把运行目录里记着的平台都标上",
+)
+@_errors
+def _mark_command(run_dir: Path, step: int, controllers: tuple[str, ...]) -> None:
+    """把某一步标成已经跑过：界面上再也走不到那一步时用，接着跑会跳过它。"""
+    _mark(run_dir, step, controllers)
 
 
 @_command.command("nodes", context_settings=HELP)

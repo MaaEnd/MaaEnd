@@ -104,7 +104,7 @@ def 清空调度券(c: Capture) -> None:
 
 ## 怎么跑
 
-命令分成四个子命令：`run` 跑流程、`diagram` 画流程图、`export` 补导测试图、`nodes` 刷新节点名补全。`uv run test-capture -h` 看子命令列表，`uv run test-capture run -h` 看某个子命令自己的参数；只写 `uv run test-capture run` 不给参数时，click 会报缺哪个参数，并列出可选的流程文件；给了 `--flow` 却没给 `--controller` 时列出可选的控制器名。
+命令分成五个子命令：`run` 跑流程、`diagram` 画流程图、`export` 补导测试图、`mark` 把某一步标成跑过、`nodes` 刷新节点名补全。`uv run test-capture -h` 看子命令列表，`uv run test-capture run -h` 看某个子命令自己的参数；只写 `uv run test-capture run` 不给参数时，click 会报缺哪个参数，并列出可选的流程文件；给了 `--flow` 却没给 `--controller` 时列出可选的控制器名。
 
 ```bash
 # 单个平台
@@ -162,6 +162,16 @@ uv run test-capture diagram --flow tests/DeliveryJobs/capture_flow.py 流程.htm
 因为 manifest 是边跑边写的，中断的运行目录也能用 `--from-run` 补导测试图。
 
 只想补跑其中一台平台就加 `--only <平台>`：那台之外平台的记录、截图原样保留，结尾还会列出哪些平台带着上次的失败。`--only` 只能跟 `--resume` 一起用，新跑一场还是用 `--controller`。
+
+某一步在界面上已经走不到（比如货早就交出去了、界面上再也不会出现那一步），又不想整个重跑，就把它标成跑过：
+
+```bash
+uv run test-capture mark .cache/test-capture/20261124-090000 --step 4                 # 所有平台都标
+uv run test-capture mark .cache/test-capture/20261124-090000 --step 4 --controller CloudADB  # 只标一台
+```
+
+序号按流程文件里的步骤顺序数，从 1 开始；步骤名由 manifest 里记的流程文件查出来，标完记录里会留一个 `marked` 时间，看得出是手标的。
+那一步的失败记录会一起清掉；同一步标第二次不会重复写。`once` 的步骤只标一台也行，别的平台会按「已经由 X 做完」跳过。
 
 日志跟着运行目录走，都在 `<运行目录>/logs/` 下：`maafw.log`、`debug/on_error/` 里的失败截图、`agent-*.log`、`pretask-*.log`。续跑沿用同一个目录，日志接着往里写；`--keep`（默认留 10 次运行）删旧运行目录时，里面的日志一起删。
 
