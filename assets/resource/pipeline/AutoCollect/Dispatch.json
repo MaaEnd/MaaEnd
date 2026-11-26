@@ -1610,50 +1610,13 @@
                 "target": "__AutoCollectValleyIVChrysodendra1StockFind"
             }
         },
-        "post_wait_freezes": {
-            "time": 300,
-            "target": [
-                860,
-                160,
-                365,
-                500
-            ]
-        },
         "post_delay": 0,
-        "rate_limit": 0,
+        "timeout": 5000,
+        "rate_limit": 250,
         "next": [
             "__AutoCollectValleyIVChrysodendra1StockPanelEmpty",
             "__AutoCollectValleyIVChrysodendra1StockPanelStocked",
-            "__AutoCollectValleyIVChrysodendra1StockPanelPick",
-            "__AutoCollectValleyIVChrysodendra1StockPanelRecheck",
-            "__AutoCollectValleyIVChrysodendra1StockKept"
-        ],
-        "on_error": [
-            "AutoCollectStockCheckAborted"
-        ]
-    },
-    "__AutoCollectValleyIVChrysodendra1StockPanelRecheck": {
-        "desc": "路线 纯晶多齿叶 存量检查：选择列表或详情面板还在滑入，画面静止后再读一次",
-        "max_hit": 2,
-        "recognition": "DirectHit",
-        "pre_wait_freezes": {
-            "time": 300,
-            "target": [
-                860,
-                160,
-                365,
-                500
-            ]
-        },
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "__AutoCollectValleyIVChrysodendra1StockPanelEmpty",
-            "__AutoCollectValleyIVChrysodendra1StockPanelStocked",
-            "__AutoCollectValleyIVChrysodendra1StockPanelPick",
-            "__AutoCollectValleyIVChrysodendra1StockKept"
+            "__AutoCollectValleyIVChrysodendra1StockPanelPick"
         ],
         "on_error": [
             "AutoCollectStockCheckAborted"
@@ -1678,22 +1641,12 @@
         },
         "pre_delay": 0,
         "action": "Click",
-        "post_wait_freezes": {
-            "time": 300,
-            "target": [
-                950,
-                50,
-                275,
-                150
-            ]
-        },
         "post_delay": 0,
-        "rate_limit": 0,
+        "timeout": 5000,
+        "rate_limit": 250,
         "next": [
             "__AutoCollectValleyIVChrysodendra1StockPanelEmpty",
-            "__AutoCollectValleyIVChrysodendra1StockPanelStocked",
-            "__AutoCollectValleyIVChrysodendra1StockPanelRecheck",
-            "__AutoCollectValleyIVChrysodendra1StockKept"
+            "__AutoCollectValleyIVChrysodendra1StockPanelStocked"
         ],
         "on_error": [
             "AutoCollectStockCheckAborted"
@@ -1769,7 +1722,7 @@
         ]
     },
     "__AutoCollectValleyIVChrysodendra1StockKept": {
-        "desc": "路线 纯晶多齿叶 存量检查：打不开地图、找不到图标或打不开详情面板，照常执行",
+        "desc": "路线 纯晶多齿叶 存量检查：未找到区域图标，照常执行",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "DoNothing",
@@ -1958,50 +1911,13 @@
                 "target": "__AutoCollectValleyIVKalkonyx1StockFind"
             }
         },
-        "post_wait_freezes": {
-            "time": 300,
-            "target": [
-                860,
-                160,
-                365,
-                500
-            ]
-        },
         "post_delay": 0,
-        "rate_limit": 0,
+        "timeout": 5000,
+        "rate_limit": 250,
         "next": [
             "__AutoCollectValleyIVKalkonyx1StockPanelEmpty",
             "__AutoCollectValleyIVKalkonyx1StockPanelStocked",
-            "__AutoCollectValleyIVKalkonyx1StockPanelPick",
-            "__AutoCollectValleyIVKalkonyx1StockPanelRecheck",
-            "__AutoCollectValleyIVKalkonyx1StockKept"
-        ],
-        "on_error": [
-            "AutoCollectStockCheckAborted"
-        ]
-    },
-    "__AutoCollectValleyIVKalkonyx1StockPanelRecheck": {
-        "desc": "路线 轻黯石 存量检查：选择列表或详情面板还在滑入，画面静止后再读一次",
-        "max_hit": 2,
-        "recognition": "DirectHit",
-        "pre_wait_freezes": {
-            "time": 300,
-            "target": [
-                860,
-                160,
-                365,
-                500
-            ]
-        },
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "__AutoCollectValleyIVKalkonyx1StockPanelEmpty",
-            "__AutoCollectValleyIVKalkonyx1StockPanelStocked",
-            "__AutoCollectValleyIVKalkonyx1StockPanelPick",
-            "__AutoCollectValleyIVKalkonyx1StockKept"
+            "__AutoCollectValleyIVKalkonyx1StockPanelPick"
         ],
         "on_error": [
             "AutoCollectStockCheckAborted"
@@ -2026,22 +1942,12 @@
         },
         "pre_delay": 0,
         "action": "Click",
-        "post_wait_freezes": {
-            "time": 300,
-            "target": [
-                950,
-                50,
-                275,
-                150
-            ]
-        },
         "post_delay": 0,
-        "rate_limit": 0,
+        "timeout": 5000,
+        "rate_limit": 250,
         "next": [
             "__AutoCollectValleyIVKalkonyx1StockPanelEmpty",
-            "__AutoCollectValleyIVKalkonyx1StockPanelStocked",
-            "__AutoCollectValleyIVKalkonyx1StockPanelRecheck",
-            "__AutoCollectValleyIVKalkonyx1StockKept"
+            "__AutoCollectValleyIVKalkonyx1StockPanelStocked"
         ],
         "on_error": [
             "AutoCollectStockCheckAborted"
@@ -2117,7 +2023,7 @@
         ]
     },
     "__AutoCollectValleyIVKalkonyx1StockKept": {
-        "desc": "路线 轻黯石 存量检查：打不开地图、找不到图标或打不开详情面板，照常执行",
+        "desc": "路线 轻黯石 存量检查：未找到区域图标，照常执行",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "DoNothing",
@@ -2306,50 +2212,13 @@
                 "target": "__AutoCollectValleyIVPinkBolete1StockFind"
             }
         },
-        "post_wait_freezes": {
-            "time": 300,
-            "target": [
-                860,
-                160,
-                365,
-                500
-            ]
-        },
         "post_delay": 0,
-        "rate_limit": 0,
+        "timeout": 5000,
+        "rate_limit": 250,
         "next": [
             "__AutoCollectValleyIVPinkBolete1StockPanelEmpty",
             "__AutoCollectValleyIVPinkBolete1StockPanelStocked",
-            "__AutoCollectValleyIVPinkBolete1StockPanelPick",
-            "__AutoCollectValleyIVPinkBolete1StockPanelRecheck",
-            "__AutoCollectValleyIVPinkBolete1StockKept"
-        ],
-        "on_error": [
-            "AutoCollectStockCheckAborted"
-        ]
-    },
-    "__AutoCollectValleyIVPinkBolete1StockPanelRecheck": {
-        "desc": "路线 轻红柱状菌 存量检查：选择列表或详情面板还在滑入，画面静止后再读一次",
-        "max_hit": 2,
-        "recognition": "DirectHit",
-        "pre_wait_freezes": {
-            "time": 300,
-            "target": [
-                860,
-                160,
-                365,
-                500
-            ]
-        },
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "__AutoCollectValleyIVPinkBolete1StockPanelEmpty",
-            "__AutoCollectValleyIVPinkBolete1StockPanelStocked",
-            "__AutoCollectValleyIVPinkBolete1StockPanelPick",
-            "__AutoCollectValleyIVPinkBolete1StockKept"
+            "__AutoCollectValleyIVPinkBolete1StockPanelPick"
         ],
         "on_error": [
             "AutoCollectStockCheckAborted"
@@ -2374,22 +2243,12 @@
         },
         "pre_delay": 0,
         "action": "Click",
-        "post_wait_freezes": {
-            "time": 300,
-            "target": [
-                950,
-                50,
-                275,
-                150
-            ]
-        },
         "post_delay": 0,
-        "rate_limit": 0,
+        "timeout": 5000,
+        "rate_limit": 250,
         "next": [
             "__AutoCollectValleyIVPinkBolete1StockPanelEmpty",
-            "__AutoCollectValleyIVPinkBolete1StockPanelStocked",
-            "__AutoCollectValleyIVPinkBolete1StockPanelRecheck",
-            "__AutoCollectValleyIVPinkBolete1StockKept"
+            "__AutoCollectValleyIVPinkBolete1StockPanelStocked"
         ],
         "on_error": [
             "AutoCollectStockCheckAborted"
@@ -2465,7 +2324,7 @@
         ]
     },
     "__AutoCollectValleyIVPinkBolete1StockKept": {
-        "desc": "路线 轻红柱状菌 存量检查：打不开地图、找不到图标或打不开详情面板，照常执行",
+        "desc": "路线 轻红柱状菌 存量检查：未找到区域图标，照常执行",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "DoNothing",
@@ -2654,50 +2513,13 @@
                 "target": "__AutoCollectValleyIVAuronyx1StockFind"
             }
         },
-        "post_wait_freezes": {
-            "time": 300,
-            "target": [
-                860,
-                160,
-                365,
-                500
-            ]
-        },
         "post_delay": 0,
-        "rate_limit": 0,
+        "timeout": 5000,
+        "rate_limit": 250,
         "next": [
             "__AutoCollectValleyIVAuronyx1StockPanelEmpty",
             "__AutoCollectValleyIVAuronyx1StockPanelStocked",
-            "__AutoCollectValleyIVAuronyx1StockPanelPick",
-            "__AutoCollectValleyIVAuronyx1StockPanelRecheck",
-            "__AutoCollectValleyIVAuronyx1StockKept"
-        ],
-        "on_error": [
-            "AutoCollectStockCheckAborted"
-        ]
-    },
-    "__AutoCollectValleyIVAuronyx1StockPanelRecheck": {
-        "desc": "路线 中黯石 存量检查：选择列表或详情面板还在滑入，画面静止后再读一次",
-        "max_hit": 2,
-        "recognition": "DirectHit",
-        "pre_wait_freezes": {
-            "time": 300,
-            "target": [
-                860,
-                160,
-                365,
-                500
-            ]
-        },
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "__AutoCollectValleyIVAuronyx1StockPanelEmpty",
-            "__AutoCollectValleyIVAuronyx1StockPanelStocked",
-            "__AutoCollectValleyIVAuronyx1StockPanelPick",
-            "__AutoCollectValleyIVAuronyx1StockKept"
+            "__AutoCollectValleyIVAuronyx1StockPanelPick"
         ],
         "on_error": [
             "AutoCollectStockCheckAborted"
@@ -2722,22 +2544,12 @@
         },
         "pre_delay": 0,
         "action": "Click",
-        "post_wait_freezes": {
-            "time": 300,
-            "target": [
-                950,
-                50,
-                275,
-                150
-            ]
-        },
         "post_delay": 0,
-        "rate_limit": 0,
+        "timeout": 5000,
+        "rate_limit": 250,
         "next": [
             "__AutoCollectValleyIVAuronyx1StockPanelEmpty",
-            "__AutoCollectValleyIVAuronyx1StockPanelStocked",
-            "__AutoCollectValleyIVAuronyx1StockPanelRecheck",
-            "__AutoCollectValleyIVAuronyx1StockKept"
+            "__AutoCollectValleyIVAuronyx1StockPanelStocked"
         ],
         "on_error": [
             "AutoCollectStockCheckAborted"
@@ -2813,7 +2625,7 @@
         ]
     },
     "__AutoCollectValleyIVAuronyx1StockKept": {
-        "desc": "路线 中黯石 存量检查：打不开地图、找不到图标或打不开详情面板，照常执行",
+        "desc": "路线 中黯石 存量检查：未找到区域图标，照常执行",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "DoNothing",
@@ -3002,50 +2814,13 @@
                 "target": "__AutoCollectValleyIVKalkodendra1StockFind"
             }
         },
-        "post_wait_freezes": {
-            "time": 300,
-            "target": [
-                860,
-                160,
-                365,
-                500
-            ]
-        },
         "post_delay": 0,
-        "rate_limit": 0,
+        "timeout": 5000,
+        "rate_limit": 250,
         "next": [
             "__AutoCollectValleyIVKalkodendra1StockPanelEmpty",
             "__AutoCollectValleyIVKalkodendra1StockPanelStocked",
-            "__AutoCollectValleyIVKalkodendra1StockPanelPick",
-            "__AutoCollectValleyIVKalkodendra1StockPanelRecheck",
-            "__AutoCollectValleyIVKalkodendra1StockKept"
-        ],
-        "on_error": [
-            "AutoCollectStockCheckAborted"
-        ]
-    },
-    "__AutoCollectValleyIVKalkodendra1StockPanelRecheck": {
-        "desc": "路线 晶化多齿叶 存量检查：选择列表或详情面板还在滑入，画面静止后再读一次",
-        "max_hit": 2,
-        "recognition": "DirectHit",
-        "pre_wait_freezes": {
-            "time": 300,
-            "target": [
-                860,
-                160,
-                365,
-                500
-            ]
-        },
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "__AutoCollectValleyIVKalkodendra1StockPanelEmpty",
-            "__AutoCollectValleyIVKalkodendra1StockPanelStocked",
-            "__AutoCollectValleyIVKalkodendra1StockPanelPick",
-            "__AutoCollectValleyIVKalkodendra1StockKept"
+            "__AutoCollectValleyIVKalkodendra1StockPanelPick"
         ],
         "on_error": [
             "AutoCollectStockCheckAborted"
@@ -3070,22 +2845,12 @@
         },
         "pre_delay": 0,
         "action": "Click",
-        "post_wait_freezes": {
-            "time": 300,
-            "target": [
-                950,
-                50,
-                275,
-                150
-            ]
-        },
         "post_delay": 0,
-        "rate_limit": 0,
+        "timeout": 5000,
+        "rate_limit": 250,
         "next": [
             "__AutoCollectValleyIVKalkodendra1StockPanelEmpty",
-            "__AutoCollectValleyIVKalkodendra1StockPanelStocked",
-            "__AutoCollectValleyIVKalkodendra1StockPanelRecheck",
-            "__AutoCollectValleyIVKalkodendra1StockKept"
+            "__AutoCollectValleyIVKalkodendra1StockPanelStocked"
         ],
         "on_error": [
             "AutoCollectStockCheckAborted"
@@ -3161,7 +2926,7 @@
         ]
     },
     "__AutoCollectValleyIVKalkodendra1StockKept": {
-        "desc": "路线 晶化多齿叶 存量检查：打不开地图、找不到图标或打不开详情面板，照常执行",
+        "desc": "路线 晶化多齿叶 存量检查：未找到区域图标，照常执行",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "DoNothing",
@@ -3414,50 +3179,13 @@
                 "target": "__AutoCollectWulingBlightedJadeleaf1StockFind"
             }
         },
-        "post_wait_freezes": {
-            "time": 300,
-            "target": [
-                860,
-                160,
-                365,
-                500
-            ]
-        },
         "post_delay": 0,
-        "rate_limit": 0,
+        "timeout": 5000,
+        "rate_limit": 250,
         "next": [
             "__AutoCollectWulingBlightedJadeleaf1StockPanelEmpty",
             "__AutoCollectWulingBlightedJadeleaf1StockPanelStocked",
-            "__AutoCollectWulingBlightedJadeleaf1StockPanelPick",
-            "__AutoCollectWulingBlightedJadeleaf1StockPanelRecheck",
-            "__AutoCollectWulingBlightedJadeleaf1StockKept"
-        ],
-        "on_error": [
-            "AutoCollectStockCheckAborted"
-        ]
-    },
-    "__AutoCollectWulingBlightedJadeleaf1StockPanelRecheck": {
-        "desc": "路线 受蚀玉化叶 存量检查：选择列表或详情面板还在滑入，画面静止后再读一次",
-        "max_hit": 2,
-        "recognition": "DirectHit",
-        "pre_wait_freezes": {
-            "time": 300,
-            "target": [
-                860,
-                160,
-                365,
-                500
-            ]
-        },
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "__AutoCollectWulingBlightedJadeleaf1StockPanelEmpty",
-            "__AutoCollectWulingBlightedJadeleaf1StockPanelStocked",
-            "__AutoCollectWulingBlightedJadeleaf1StockPanelPick",
-            "__AutoCollectWulingBlightedJadeleaf1StockKept"
+            "__AutoCollectWulingBlightedJadeleaf1StockPanelPick"
         ],
         "on_error": [
             "AutoCollectStockCheckAborted"
@@ -3482,22 +3210,12 @@
         },
         "pre_delay": 0,
         "action": "Click",
-        "post_wait_freezes": {
-            "time": 300,
-            "target": [
-                950,
-                50,
-                275,
-                150
-            ]
-        },
         "post_delay": 0,
-        "rate_limit": 0,
+        "timeout": 5000,
+        "rate_limit": 250,
         "next": [
             "__AutoCollectWulingBlightedJadeleaf1StockPanelEmpty",
-            "__AutoCollectWulingBlightedJadeleaf1StockPanelStocked",
-            "__AutoCollectWulingBlightedJadeleaf1StockPanelRecheck",
-            "__AutoCollectWulingBlightedJadeleaf1StockKept"
+            "__AutoCollectWulingBlightedJadeleaf1StockPanelStocked"
         ],
         "on_error": [
             "AutoCollectStockCheckAborted"
@@ -3573,7 +3291,7 @@
         ]
     },
     "__AutoCollectWulingBlightedJadeleaf1StockKept": {
-        "desc": "路线 受蚀玉化叶 存量检查：打不开地图、找不到图标或打不开详情面板，照常执行",
+        "desc": "路线 受蚀玉化叶 存量检查：未找到区域图标，照常执行",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "DoNothing",
@@ -3762,50 +3480,13 @@
                 "target": "__AutoCollectWulingFalseAggela1StockFind"
             }
         },
-        "post_wait_freezes": {
-            "time": 300,
-            "target": [
-                860,
-                160,
-                365,
-                500
-            ]
-        },
         "post_delay": 0,
-        "rate_limit": 0,
+        "timeout": 5000,
+        "rate_limit": 250,
         "next": [
             "__AutoCollectWulingFalseAggela1StockPanelEmpty",
             "__AutoCollectWulingFalseAggela1StockPanelStocked",
-            "__AutoCollectWulingFalseAggela1StockPanelPick",
-            "__AutoCollectWulingFalseAggela1StockPanelRecheck",
-            "__AutoCollectWulingFalseAggela1StockKept"
-        ],
-        "on_error": [
-            "AutoCollectStockCheckAborted"
-        ]
-    },
-    "__AutoCollectWulingFalseAggela1StockPanelRecheck": {
-        "desc": "路线 岩天使叶 存量检查：选择列表或详情面板还在滑入，画面静止后再读一次",
-        "max_hit": 2,
-        "recognition": "DirectHit",
-        "pre_wait_freezes": {
-            "time": 300,
-            "target": [
-                860,
-                160,
-                365,
-                500
-            ]
-        },
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "__AutoCollectWulingFalseAggela1StockPanelEmpty",
-            "__AutoCollectWulingFalseAggela1StockPanelStocked",
-            "__AutoCollectWulingFalseAggela1StockPanelPick",
-            "__AutoCollectWulingFalseAggela1StockKept"
+            "__AutoCollectWulingFalseAggela1StockPanelPick"
         ],
         "on_error": [
             "AutoCollectStockCheckAborted"
@@ -3830,22 +3511,12 @@
         },
         "pre_delay": 0,
         "action": "Click",
-        "post_wait_freezes": {
-            "time": 300,
-            "target": [
-                950,
-                50,
-                275,
-                150
-            ]
-        },
         "post_delay": 0,
-        "rate_limit": 0,
+        "timeout": 5000,
+        "rate_limit": 250,
         "next": [
             "__AutoCollectWulingFalseAggela1StockPanelEmpty",
-            "__AutoCollectWulingFalseAggela1StockPanelStocked",
-            "__AutoCollectWulingFalseAggela1StockPanelRecheck",
-            "__AutoCollectWulingFalseAggela1StockKept"
+            "__AutoCollectWulingFalseAggela1StockPanelStocked"
         ],
         "on_error": [
             "AutoCollectStockCheckAborted"
@@ -3921,7 +3592,7 @@
         ]
     },
     "__AutoCollectWulingFalseAggela1StockKept": {
-        "desc": "路线 岩天使叶 存量检查：打不开地图、找不到图标或打不开详情面板，照常执行",
+        "desc": "路线 岩天使叶 存量检查：未找到区域图标，照常执行",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "DoNothing",
@@ -4110,50 +3781,13 @@
                 "target": "__AutoCollectWulingVitrodendra1StockFind"
             }
         },
-        "post_wait_freezes": {
-            "time": 300,
-            "target": [
-                860,
-                160,
-                365,
-                500
-            ]
-        },
         "post_delay": 0,
-        "rate_limit": 0,
+        "timeout": 5000,
+        "rate_limit": 250,
         "next": [
             "__AutoCollectWulingVitrodendra1StockPanelEmpty",
             "__AutoCollectWulingVitrodendra1StockPanelStocked",
-            "__AutoCollectWulingVitrodendra1StockPanelPick",
-            "__AutoCollectWulingVitrodendra1StockPanelRecheck",
-            "__AutoCollectWulingVitrodendra1StockKept"
-        ],
-        "on_error": [
-            "AutoCollectStockCheckAborted"
-        ]
-    },
-    "__AutoCollectWulingVitrodendra1StockPanelRecheck": {
-        "desc": "路线 至晶多齿叶（路线1） 存量检查：选择列表或详情面板还在滑入，画面静止后再读一次",
-        "max_hit": 2,
-        "recognition": "DirectHit",
-        "pre_wait_freezes": {
-            "time": 300,
-            "target": [
-                860,
-                160,
-                365,
-                500
-            ]
-        },
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "__AutoCollectWulingVitrodendra1StockPanelEmpty",
-            "__AutoCollectWulingVitrodendra1StockPanelStocked",
-            "__AutoCollectWulingVitrodendra1StockPanelPick",
-            "__AutoCollectWulingVitrodendra1StockKept"
+            "__AutoCollectWulingVitrodendra1StockPanelPick"
         ],
         "on_error": [
             "AutoCollectStockCheckAborted"
@@ -4178,22 +3812,12 @@
         },
         "pre_delay": 0,
         "action": "Click",
-        "post_wait_freezes": {
-            "time": 300,
-            "target": [
-                950,
-                50,
-                275,
-                150
-            ]
-        },
         "post_delay": 0,
-        "rate_limit": 0,
+        "timeout": 5000,
+        "rate_limit": 250,
         "next": [
             "__AutoCollectWulingVitrodendra1StockPanelEmpty",
-            "__AutoCollectWulingVitrodendra1StockPanelStocked",
-            "__AutoCollectWulingVitrodendra1StockPanelRecheck",
-            "__AutoCollectWulingVitrodendra1StockKept"
+            "__AutoCollectWulingVitrodendra1StockPanelStocked"
         ],
         "on_error": [
             "AutoCollectStockCheckAborted"
@@ -4269,7 +3893,7 @@
         ]
     },
     "__AutoCollectWulingVitrodendra1StockKept": {
-        "desc": "路线 至晶多齿叶（路线1） 存量检查：打不开地图、找不到图标或打不开详情面板，照常执行",
+        "desc": "路线 至晶多齿叶（路线1） 存量检查：未找到区域图标，照常执行",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "DoNothing",
@@ -4490,50 +4114,13 @@
                 "target": "__AutoCollectWulingCosmagaric1StockFind"
             }
         },
-        "post_wait_freezes": {
-            "time": 300,
-            "target": [
-                860,
-                160,
-                365,
-                500
-            ]
-        },
         "post_delay": 0,
-        "rate_limit": 0,
+        "timeout": 5000,
+        "rate_limit": 250,
         "next": [
             "__AutoCollectWulingCosmagaric1StockPanelEmpty",
             "__AutoCollectWulingCosmagaric1StockPanelStocked",
-            "__AutoCollectWulingCosmagaric1StockPanelPick",
-            "__AutoCollectWulingCosmagaric1StockPanelRecheck",
-            "__AutoCollectWulingCosmagaric1StockKept"
-        ],
-        "on_error": [
-            "AutoCollectStockCheckAborted"
-        ]
-    },
-    "__AutoCollectWulingCosmagaric1StockPanelRecheck": {
-        "desc": "路线 星门菌（路线1） 存量检查：选择列表或详情面板还在滑入，画面静止后再读一次",
-        "max_hit": 2,
-        "recognition": "DirectHit",
-        "pre_wait_freezes": {
-            "time": 300,
-            "target": [
-                860,
-                160,
-                365,
-                500
-            ]
-        },
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "__AutoCollectWulingCosmagaric1StockPanelEmpty",
-            "__AutoCollectWulingCosmagaric1StockPanelStocked",
-            "__AutoCollectWulingCosmagaric1StockPanelPick",
-            "__AutoCollectWulingCosmagaric1StockKept"
+            "__AutoCollectWulingCosmagaric1StockPanelPick"
         ],
         "on_error": [
             "AutoCollectStockCheckAborted"
@@ -4558,22 +4145,12 @@
         },
         "pre_delay": 0,
         "action": "Click",
-        "post_wait_freezes": {
-            "time": 300,
-            "target": [
-                950,
-                50,
-                275,
-                150
-            ]
-        },
         "post_delay": 0,
-        "rate_limit": 0,
+        "timeout": 5000,
+        "rate_limit": 250,
         "next": [
             "__AutoCollectWulingCosmagaric1StockPanelEmpty",
-            "__AutoCollectWulingCosmagaric1StockPanelStocked",
-            "__AutoCollectWulingCosmagaric1StockPanelRecheck",
-            "__AutoCollectWulingCosmagaric1StockKept"
+            "__AutoCollectWulingCosmagaric1StockPanelStocked"
         ],
         "on_error": [
             "AutoCollectStockCheckAborted"
@@ -4649,7 +4226,7 @@
         ]
     },
     "__AutoCollectWulingCosmagaric1StockKept": {
-        "desc": "路线 星门菌（路线1） 存量检查：打不开地图、找不到图标或打不开详情面板，照常执行",
+        "desc": "路线 星门菌（路线1） 存量检查：未找到区域图标，照常执行",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "DoNothing",
@@ -4838,50 +4415,13 @@
                 "target": "__AutoCollectWulingIgneosite1StockFind"
             }
         },
-        "post_wait_freezes": {
-            "time": 300,
-            "target": [
-                860,
-                160,
-                365,
-                500
-            ]
-        },
         "post_delay": 0,
-        "rate_limit": 0,
+        "timeout": 5000,
+        "rate_limit": 250,
         "next": [
             "__AutoCollectWulingIgneosite1StockPanelEmpty",
             "__AutoCollectWulingIgneosite1StockPanelStocked",
-            "__AutoCollectWulingIgneosite1StockPanelPick",
-            "__AutoCollectWulingIgneosite1StockPanelRecheck",
-            "__AutoCollectWulingIgneosite1StockKept"
-        ],
-        "on_error": [
-            "AutoCollectStockCheckAborted"
-        ]
-    },
-    "__AutoCollectWulingIgneosite1StockPanelRecheck": {
-        "desc": "路线 燎石（路线1） 存量检查：选择列表或详情面板还在滑入，画面静止后再读一次",
-        "max_hit": 2,
-        "recognition": "DirectHit",
-        "pre_wait_freezes": {
-            "time": 300,
-            "target": [
-                860,
-                160,
-                365,
-                500
-            ]
-        },
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "__AutoCollectWulingIgneosite1StockPanelEmpty",
-            "__AutoCollectWulingIgneosite1StockPanelStocked",
-            "__AutoCollectWulingIgneosite1StockPanelPick",
-            "__AutoCollectWulingIgneosite1StockKept"
+            "__AutoCollectWulingIgneosite1StockPanelPick"
         ],
         "on_error": [
             "AutoCollectStockCheckAborted"
@@ -4906,22 +4446,12 @@
         },
         "pre_delay": 0,
         "action": "Click",
-        "post_wait_freezes": {
-            "time": 300,
-            "target": [
-                950,
-                50,
-                275,
-                150
-            ]
-        },
         "post_delay": 0,
-        "rate_limit": 0,
+        "timeout": 5000,
+        "rate_limit": 250,
         "next": [
             "__AutoCollectWulingIgneosite1StockPanelEmpty",
-            "__AutoCollectWulingIgneosite1StockPanelStocked",
-            "__AutoCollectWulingIgneosite1StockPanelRecheck",
-            "__AutoCollectWulingIgneosite1StockKept"
+            "__AutoCollectWulingIgneosite1StockPanelStocked"
         ],
         "on_error": [
             "AutoCollectStockCheckAborted"
@@ -4997,7 +4527,7 @@
         ]
     },
     "__AutoCollectWulingIgneosite1StockKept": {
-        "desc": "路线 燎石（路线1） 存量检查：打不开地图、找不到图标或打不开详情面板，照常执行",
+        "desc": "路线 燎石（路线1） 存量检查：未找到区域图标，照常执行",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "DoNothing",
@@ -5218,50 +4748,13 @@
                 "target": "__AutoCollectWulingUmbronyx1StockFind"
             }
         },
-        "post_wait_freezes": {
-            "time": 300,
-            "target": [
-                860,
-                160,
-                365,
-                500
-            ]
-        },
         "post_delay": 0,
-        "rate_limit": 0,
+        "timeout": 5000,
+        "rate_limit": 250,
         "next": [
             "__AutoCollectWulingUmbronyx1StockPanelEmpty",
             "__AutoCollectWulingUmbronyx1StockPanelStocked",
-            "__AutoCollectWulingUmbronyx1StockPanelPick",
-            "__AutoCollectWulingUmbronyx1StockPanelRecheck",
-            "__AutoCollectWulingUmbronyx1StockKept"
-        ],
-        "on_error": [
-            "AutoCollectStockCheckAborted"
-        ]
-    },
-    "__AutoCollectWulingUmbronyx1StockPanelRecheck": {
-        "desc": "路线 重黯石 存量检查：选择列表或详情面板还在滑入，画面静止后再读一次",
-        "max_hit": 2,
-        "recognition": "DirectHit",
-        "pre_wait_freezes": {
-            "time": 300,
-            "target": [
-                860,
-                160,
-                365,
-                500
-            ]
-        },
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "__AutoCollectWulingUmbronyx1StockPanelEmpty",
-            "__AutoCollectWulingUmbronyx1StockPanelStocked",
-            "__AutoCollectWulingUmbronyx1StockPanelPick",
-            "__AutoCollectWulingUmbronyx1StockKept"
+            "__AutoCollectWulingUmbronyx1StockPanelPick"
         ],
         "on_error": [
             "AutoCollectStockCheckAborted"
@@ -5286,22 +4779,12 @@
         },
         "pre_delay": 0,
         "action": "Click",
-        "post_wait_freezes": {
-            "time": 300,
-            "target": [
-                950,
-                50,
-                275,
-                150
-            ]
-        },
         "post_delay": 0,
-        "rate_limit": 0,
+        "timeout": 5000,
+        "rate_limit": 250,
         "next": [
             "__AutoCollectWulingUmbronyx1StockPanelEmpty",
-            "__AutoCollectWulingUmbronyx1StockPanelStocked",
-            "__AutoCollectWulingUmbronyx1StockPanelRecheck",
-            "__AutoCollectWulingUmbronyx1StockKept"
+            "__AutoCollectWulingUmbronyx1StockPanelStocked"
         ],
         "on_error": [
             "AutoCollectStockCheckAborted"
@@ -5377,7 +4860,7 @@
         ]
     },
     "__AutoCollectWulingUmbronyx1StockKept": {
-        "desc": "路线 重黯石 存量检查：打不开地图、找不到图标或打不开详情面板，照常执行",
+        "desc": "路线 重黯石 存量检查：未找到区域图标，照常执行",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "DoNothing",
@@ -5566,50 +5049,13 @@
                 "target": "__AutoCollectWulingRedBolete1StockFind"
             }
         },
-        "post_wait_freezes": {
-            "time": 300,
-            "target": [
-                860,
-                160,
-                365,
-                500
-            ]
-        },
         "post_delay": 0,
-        "rate_limit": 0,
+        "timeout": 5000,
+        "rate_limit": 250,
         "next": [
             "__AutoCollectWulingRedBolete1StockPanelEmpty",
             "__AutoCollectWulingRedBolete1StockPanelStocked",
-            "__AutoCollectWulingRedBolete1StockPanelPick",
-            "__AutoCollectWulingRedBolete1StockPanelRecheck",
-            "__AutoCollectWulingRedBolete1StockKept"
-        ],
-        "on_error": [
-            "AutoCollectStockCheckAborted"
-        ]
-    },
-    "__AutoCollectWulingRedBolete1StockPanelRecheck": {
-        "desc": "路线 中红柱状菌 存量检查：选择列表或详情面板还在滑入，画面静止后再读一次",
-        "max_hit": 2,
-        "recognition": "DirectHit",
-        "pre_wait_freezes": {
-            "time": 300,
-            "target": [
-                860,
-                160,
-                365,
-                500
-            ]
-        },
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "__AutoCollectWulingRedBolete1StockPanelEmpty",
-            "__AutoCollectWulingRedBolete1StockPanelStocked",
-            "__AutoCollectWulingRedBolete1StockPanelPick",
-            "__AutoCollectWulingRedBolete1StockKept"
+            "__AutoCollectWulingRedBolete1StockPanelPick"
         ],
         "on_error": [
             "AutoCollectStockCheckAborted"
@@ -5634,22 +5080,12 @@
         },
         "pre_delay": 0,
         "action": "Click",
-        "post_wait_freezes": {
-            "time": 300,
-            "target": [
-                950,
-                50,
-                275,
-                150
-            ]
-        },
         "post_delay": 0,
-        "rate_limit": 0,
+        "timeout": 5000,
+        "rate_limit": 250,
         "next": [
             "__AutoCollectWulingRedBolete1StockPanelEmpty",
-            "__AutoCollectWulingRedBolete1StockPanelStocked",
-            "__AutoCollectWulingRedBolete1StockPanelRecheck",
-            "__AutoCollectWulingRedBolete1StockKept"
+            "__AutoCollectWulingRedBolete1StockPanelStocked"
         ],
         "on_error": [
             "AutoCollectStockCheckAborted"
@@ -5725,7 +5161,7 @@
         ]
     },
     "__AutoCollectWulingRedBolete1StockKept": {
-        "desc": "路线 中红柱状菌 存量检查：打不开地图、找不到图标或打不开详情面板，照常执行",
+        "desc": "路线 中红柱状菌 存量检查：未找到区域图标，照常执行",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "DoNothing",
@@ -5914,50 +5350,13 @@
                 "target": "__AutoCollectWulingCrimsonSpearleaf1StockFind"
             }
         },
-        "post_wait_freezes": {
-            "time": 300,
-            "target": [
-                860,
-                160,
-                365,
-                500
-            ]
-        },
         "post_delay": 0,
-        "rate_limit": 0,
+        "timeout": 5000,
+        "rate_limit": 250,
         "next": [
             "__AutoCollectWulingCrimsonSpearleaf1StockPanelEmpty",
             "__AutoCollectWulingCrimsonSpearleaf1StockPanelStocked",
-            "__AutoCollectWulingCrimsonSpearleaf1StockPanelPick",
-            "__AutoCollectWulingCrimsonSpearleaf1StockPanelRecheck",
-            "__AutoCollectWulingCrimsonSpearleaf1StockKept"
-        ],
-        "on_error": [
-            "AutoCollectStockCheckAborted"
-        ]
-    },
-    "__AutoCollectWulingCrimsonSpearleaf1StockPanelRecheck": {
-        "desc": "路线 红矛叶 存量检查：选择列表或详情面板还在滑入，画面静止后再读一次",
-        "max_hit": 2,
-        "recognition": "DirectHit",
-        "pre_wait_freezes": {
-            "time": 300,
-            "target": [
-                860,
-                160,
-                365,
-                500
-            ]
-        },
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "__AutoCollectWulingCrimsonSpearleaf1StockPanelEmpty",
-            "__AutoCollectWulingCrimsonSpearleaf1StockPanelStocked",
-            "__AutoCollectWulingCrimsonSpearleaf1StockPanelPick",
-            "__AutoCollectWulingCrimsonSpearleaf1StockKept"
+            "__AutoCollectWulingCrimsonSpearleaf1StockPanelPick"
         ],
         "on_error": [
             "AutoCollectStockCheckAborted"
@@ -5982,22 +5381,12 @@
         },
         "pre_delay": 0,
         "action": "Click",
-        "post_wait_freezes": {
-            "time": 300,
-            "target": [
-                950,
-                50,
-                275,
-                150
-            ]
-        },
         "post_delay": 0,
-        "rate_limit": 0,
+        "timeout": 5000,
+        "rate_limit": 250,
         "next": [
             "__AutoCollectWulingCrimsonSpearleaf1StockPanelEmpty",
-            "__AutoCollectWulingCrimsonSpearleaf1StockPanelStocked",
-            "__AutoCollectWulingCrimsonSpearleaf1StockPanelRecheck",
-            "__AutoCollectWulingCrimsonSpearleaf1StockKept"
+            "__AutoCollectWulingCrimsonSpearleaf1StockPanelStocked"
         ],
         "on_error": [
             "AutoCollectStockCheckAborted"
@@ -6073,7 +5462,7 @@
         ]
     },
     "__AutoCollectWulingCrimsonSpearleaf1StockKept": {
-        "desc": "路线 红矛叶 存量检查：打不开地图、找不到图标或打不开详情面板，照常执行",
+        "desc": "路线 红矛叶 存量检查：未找到区域图标，照常执行",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "DoNothing",
@@ -6294,50 +5683,13 @@
                 "target": "__AutoCollectWulingTalosCap1StockFind"
             }
         },
-        "post_wait_freezes": {
-            "time": 300,
-            "target": [
-                860,
-                160,
-                365,
-                500
-            ]
-        },
         "post_delay": 0,
-        "rate_limit": 0,
+        "timeout": 5000,
+        "rate_limit": 250,
         "next": [
             "__AutoCollectWulingTalosCap1StockPanelEmpty",
             "__AutoCollectWulingTalosCap1StockPanelStocked",
-            "__AutoCollectWulingTalosCap1StockPanelPick",
-            "__AutoCollectWulingTalosCap1StockPanelRecheck",
-            "__AutoCollectWulingTalosCap1StockKept"
-        ],
-        "on_error": [
-            "AutoCollectStockCheckAborted"
-        ]
-    },
-    "__AutoCollectWulingTalosCap1StockPanelRecheck": {
-        "desc": "路线 塔罗斯菌 存量检查：选择列表或详情面板还在滑入，画面静止后再读一次",
-        "max_hit": 2,
-        "recognition": "DirectHit",
-        "pre_wait_freezes": {
-            "time": 300,
-            "target": [
-                860,
-                160,
-                365,
-                500
-            ]
-        },
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "__AutoCollectWulingTalosCap1StockPanelEmpty",
-            "__AutoCollectWulingTalosCap1StockPanelStocked",
-            "__AutoCollectWulingTalosCap1StockPanelPick",
-            "__AutoCollectWulingTalosCap1StockKept"
+            "__AutoCollectWulingTalosCap1StockPanelPick"
         ],
         "on_error": [
             "AutoCollectStockCheckAborted"
@@ -6362,22 +5714,12 @@
         },
         "pre_delay": 0,
         "action": "Click",
-        "post_wait_freezes": {
-            "time": 300,
-            "target": [
-                950,
-                50,
-                275,
-                150
-            ]
-        },
         "post_delay": 0,
-        "rate_limit": 0,
+        "timeout": 5000,
+        "rate_limit": 250,
         "next": [
             "__AutoCollectWulingTalosCap1StockPanelEmpty",
-            "__AutoCollectWulingTalosCap1StockPanelStocked",
-            "__AutoCollectWulingTalosCap1StockPanelRecheck",
-            "__AutoCollectWulingTalosCap1StockKept"
+            "__AutoCollectWulingTalosCap1StockPanelStocked"
         ],
         "on_error": [
             "AutoCollectStockCheckAborted"
@@ -6453,7 +5795,7 @@
         ]
     },
     "__AutoCollectWulingTalosCap1StockKept": {
-        "desc": "路线 塔罗斯菌 存量检查：打不开地图、找不到图标或打不开详情面板，照常执行",
+        "desc": "路线 塔罗斯菌 存量检查：未找到区域图标，照常执行",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "DoNothing",
@@ -6930,50 +6272,13 @@
                 "target": "__AutoCollectWulingProtocolith2StockFind"
             }
         },
-        "post_wait_freezes": {
-            "time": 300,
-            "target": [
-                860,
-                160,
-                365,
-                500
-            ]
-        },
         "post_delay": 0,
-        "rate_limit": 0,
+        "timeout": 5000,
+        "rate_limit": 250,
         "next": [
             "__AutoCollectWulingProtocolith2StockPanelEmpty",
             "__AutoCollectWulingProtocolith2StockPanelStocked",
-            "__AutoCollectWulingProtocolith2StockPanelPick",
-            "__AutoCollectWulingProtocolith2StockPanelRecheck",
-            "__AutoCollectWulingProtocolith2StockKept"
-        ],
-        "on_error": [
-            "AutoCollectStockCheckAborted"
-        ]
-    },
-    "__AutoCollectWulingProtocolith2StockPanelRecheck": {
-        "desc": "路线 协议纹石（路线2） 存量检查：选择列表或详情面板还在滑入，画面静止后再读一次",
-        "max_hit": 2,
-        "recognition": "DirectHit",
-        "pre_wait_freezes": {
-            "time": 300,
-            "target": [
-                860,
-                160,
-                365,
-                500
-            ]
-        },
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "__AutoCollectWulingProtocolith2StockPanelEmpty",
-            "__AutoCollectWulingProtocolith2StockPanelStocked",
-            "__AutoCollectWulingProtocolith2StockPanelPick",
-            "__AutoCollectWulingProtocolith2StockKept"
+            "__AutoCollectWulingProtocolith2StockPanelPick"
         ],
         "on_error": [
             "AutoCollectStockCheckAborted"
@@ -6998,22 +6303,12 @@
         },
         "pre_delay": 0,
         "action": "Click",
-        "post_wait_freezes": {
-            "time": 300,
-            "target": [
-                950,
-                50,
-                275,
-                150
-            ]
-        },
         "post_delay": 0,
-        "rate_limit": 0,
+        "timeout": 5000,
+        "rate_limit": 250,
         "next": [
             "__AutoCollectWulingProtocolith2StockPanelEmpty",
-            "__AutoCollectWulingProtocolith2StockPanelStocked",
-            "__AutoCollectWulingProtocolith2StockPanelRecheck",
-            "__AutoCollectWulingProtocolith2StockKept"
+            "__AutoCollectWulingProtocolith2StockPanelStocked"
         ],
         "on_error": [
             "AutoCollectStockCheckAborted"
@@ -7089,7 +6384,7 @@
         ]
     },
     "__AutoCollectWulingProtocolith2StockKept": {
-        "desc": "路线 协议纹石（路线2） 存量检查：打不开地图、找不到图标或打不开详情面板，照常执行",
+        "desc": "路线 协议纹石（路线2） 存量检查：未找到区域图标，照常执行",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "DoNothing",
@@ -7310,50 +6605,13 @@
                 "target": "__AutoCollectWulingVitrodendra2StockFind"
             }
         },
-        "post_wait_freezes": {
-            "time": 300,
-            "target": [
-                860,
-                160,
-                365,
-                500
-            ]
-        },
         "post_delay": 0,
-        "rate_limit": 0,
+        "timeout": 5000,
+        "rate_limit": 250,
         "next": [
             "__AutoCollectWulingVitrodendra2StockPanelEmpty",
             "__AutoCollectWulingVitrodendra2StockPanelStocked",
-            "__AutoCollectWulingVitrodendra2StockPanelPick",
-            "__AutoCollectWulingVitrodendra2StockPanelRecheck",
-            "__AutoCollectWulingVitrodendra2StockKept"
-        ],
-        "on_error": [
-            "AutoCollectStockCheckAborted"
-        ]
-    },
-    "__AutoCollectWulingVitrodendra2StockPanelRecheck": {
-        "desc": "路线 至晶多齿叶（路线2） 存量检查：选择列表或详情面板还在滑入，画面静止后再读一次",
-        "max_hit": 2,
-        "recognition": "DirectHit",
-        "pre_wait_freezes": {
-            "time": 300,
-            "target": [
-                860,
-                160,
-                365,
-                500
-            ]
-        },
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "__AutoCollectWulingVitrodendra2StockPanelEmpty",
-            "__AutoCollectWulingVitrodendra2StockPanelStocked",
-            "__AutoCollectWulingVitrodendra2StockPanelPick",
-            "__AutoCollectWulingVitrodendra2StockKept"
+            "__AutoCollectWulingVitrodendra2StockPanelPick"
         ],
         "on_error": [
             "AutoCollectStockCheckAborted"
@@ -7378,22 +6636,12 @@
         },
         "pre_delay": 0,
         "action": "Click",
-        "post_wait_freezes": {
-            "time": 300,
-            "target": [
-                950,
-                50,
-                275,
-                150
-            ]
-        },
         "post_delay": 0,
-        "rate_limit": 0,
+        "timeout": 5000,
+        "rate_limit": 250,
         "next": [
             "__AutoCollectWulingVitrodendra2StockPanelEmpty",
-            "__AutoCollectWulingVitrodendra2StockPanelStocked",
-            "__AutoCollectWulingVitrodendra2StockPanelRecheck",
-            "__AutoCollectWulingVitrodendra2StockKept"
+            "__AutoCollectWulingVitrodendra2StockPanelStocked"
         ],
         "on_error": [
             "AutoCollectStockCheckAborted"
@@ -7469,7 +6717,7 @@
         ]
     },
     "__AutoCollectWulingVitrodendra2StockKept": {
-        "desc": "路线 至晶多齿叶（路线2） 存量检查：打不开地图、找不到图标或打不开详情面板，照常执行",
+        "desc": "路线 至晶多齿叶（路线2） 存量检查：未找到区域图标，照常执行",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "DoNothing",
@@ -7658,50 +6906,13 @@
                 "target": "__AutoCollectWulingIgneosite2StockFind"
             }
         },
-        "post_wait_freezes": {
-            "time": 300,
-            "target": [
-                860,
-                160,
-                365,
-                500
-            ]
-        },
         "post_delay": 0,
-        "rate_limit": 0,
+        "timeout": 5000,
+        "rate_limit": 250,
         "next": [
             "__AutoCollectWulingIgneosite2StockPanelEmpty",
             "__AutoCollectWulingIgneosite2StockPanelStocked",
-            "__AutoCollectWulingIgneosite2StockPanelPick",
-            "__AutoCollectWulingIgneosite2StockPanelRecheck",
-            "__AutoCollectWulingIgneosite2StockKept"
-        ],
-        "on_error": [
-            "AutoCollectStockCheckAborted"
-        ]
-    },
-    "__AutoCollectWulingIgneosite2StockPanelRecheck": {
-        "desc": "路线 燎石（路线2） 存量检查：选择列表或详情面板还在滑入，画面静止后再读一次",
-        "max_hit": 2,
-        "recognition": "DirectHit",
-        "pre_wait_freezes": {
-            "time": 300,
-            "target": [
-                860,
-                160,
-                365,
-                500
-            ]
-        },
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "__AutoCollectWulingIgneosite2StockPanelEmpty",
-            "__AutoCollectWulingIgneosite2StockPanelStocked",
-            "__AutoCollectWulingIgneosite2StockPanelPick",
-            "__AutoCollectWulingIgneosite2StockKept"
+            "__AutoCollectWulingIgneosite2StockPanelPick"
         ],
         "on_error": [
             "AutoCollectStockCheckAborted"
@@ -7726,22 +6937,12 @@
         },
         "pre_delay": 0,
         "action": "Click",
-        "post_wait_freezes": {
-            "time": 300,
-            "target": [
-                950,
-                50,
-                275,
-                150
-            ]
-        },
         "post_delay": 0,
-        "rate_limit": 0,
+        "timeout": 5000,
+        "rate_limit": 250,
         "next": [
             "__AutoCollectWulingIgneosite2StockPanelEmpty",
-            "__AutoCollectWulingIgneosite2StockPanelStocked",
-            "__AutoCollectWulingIgneosite2StockPanelRecheck",
-            "__AutoCollectWulingIgneosite2StockKept"
+            "__AutoCollectWulingIgneosite2StockPanelStocked"
         ],
         "on_error": [
             "AutoCollectStockCheckAborted"
@@ -7817,7 +7018,7 @@
         ]
     },
     "__AutoCollectWulingIgneosite2StockKept": {
-        "desc": "路线 燎石（路线2） 存量检查：打不开地图、找不到图标或打不开详情面板，照常执行",
+        "desc": "路线 燎石（路线2） 存量检查：未找到区域图标，照常执行",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "DoNothing",
@@ -8006,50 +7207,13 @@
                 "target": "__AutoCollectWulingCosmagaric2StockFind"
             }
         },
-        "post_wait_freezes": {
-            "time": 300,
-            "target": [
-                860,
-                160,
-                365,
-                500
-            ]
-        },
         "post_delay": 0,
-        "rate_limit": 0,
+        "timeout": 5000,
+        "rate_limit": 250,
         "next": [
             "__AutoCollectWulingCosmagaric2StockPanelEmpty",
             "__AutoCollectWulingCosmagaric2StockPanelStocked",
-            "__AutoCollectWulingCosmagaric2StockPanelPick",
-            "__AutoCollectWulingCosmagaric2StockPanelRecheck",
-            "__AutoCollectWulingCosmagaric2StockKept"
-        ],
-        "on_error": [
-            "AutoCollectStockCheckAborted"
-        ]
-    },
-    "__AutoCollectWulingCosmagaric2StockPanelRecheck": {
-        "desc": "路线 星门菌（路线2） 存量检查：选择列表或详情面板还在滑入，画面静止后再读一次",
-        "max_hit": 2,
-        "recognition": "DirectHit",
-        "pre_wait_freezes": {
-            "time": 300,
-            "target": [
-                860,
-                160,
-                365,
-                500
-            ]
-        },
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "__AutoCollectWulingCosmagaric2StockPanelEmpty",
-            "__AutoCollectWulingCosmagaric2StockPanelStocked",
-            "__AutoCollectWulingCosmagaric2StockPanelPick",
-            "__AutoCollectWulingCosmagaric2StockKept"
+            "__AutoCollectWulingCosmagaric2StockPanelPick"
         ],
         "on_error": [
             "AutoCollectStockCheckAborted"
@@ -8074,22 +7238,12 @@
         },
         "pre_delay": 0,
         "action": "Click",
-        "post_wait_freezes": {
-            "time": 300,
-            "target": [
-                950,
-                50,
-                275,
-                150
-            ]
-        },
         "post_delay": 0,
-        "rate_limit": 0,
+        "timeout": 5000,
+        "rate_limit": 250,
         "next": [
             "__AutoCollectWulingCosmagaric2StockPanelEmpty",
-            "__AutoCollectWulingCosmagaric2StockPanelStocked",
-            "__AutoCollectWulingCosmagaric2StockPanelRecheck",
-            "__AutoCollectWulingCosmagaric2StockKept"
+            "__AutoCollectWulingCosmagaric2StockPanelStocked"
         ],
         "on_error": [
             "AutoCollectStockCheckAborted"
@@ -8165,7 +7319,7 @@
         ]
     },
     "__AutoCollectWulingCosmagaric2StockKept": {
-        "desc": "路线 星门菌（路线2） 存量检查：打不开地图、找不到图标或打不开详情面板，照常执行",
+        "desc": "路线 星门菌（路线2） 存量检查：未找到区域图标，照常执行",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "DoNothing",
@@ -8207,7 +7361,7 @@
         ]
     },
     "AutoCollectStockCheckAborted": {
-        "desc": "存量检查：打开地图、点击或停用路线的动作失败，不判断存量，照常执行并返回调度",
+        "desc": "存量检查：动作失败或面板识别超时，照常执行并返回调度",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "DoNothing",

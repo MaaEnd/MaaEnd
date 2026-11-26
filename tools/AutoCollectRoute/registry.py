@@ -46,8 +46,9 @@ STOCK_AREA_RADIUS = 15.0
 REGION_MAPS = {"ValleyIV": "map01", "Wuling": "map02"}
 STOCK_COLLECT_ACTIONS = ("COLLECT", "DIG")
 STOCK_PANEL_COUNT_ROI = [1120, 160, 105, 40]
-# 检查节点的动作失败时统一跳到这里：照常执行路线，并正常返回调度，避免框架因动作失败结束整个任务。
-# 不复用各节点 next 里的 StockKept，避免 next 与 on_error 重复路由
+STOCK_PANEL_TIMEOUT_MS = 5000
+STOCK_PANEL_RATE_LIMIT_MS = 250
+# 检查节点的动作失败或面板识别超时后，照常执行路线并返回调度。
 STOCK_ABORTED = "AutoCollectStockCheckAborted"
 HAND_WRITTEN_KEYS = (
     "option.AutoCollectMode.",
@@ -591,7 +592,7 @@ def stock_panel_shared_nodes() -> dict[str, Any]:
             "on_error": ["AutoCollectStockPanelLeave"],
         },
         STOCK_ABORTED: {
-            "desc": "存量检查：打开地图、点击或停用路线的动作失败，不判断存量，照常执行并返回调度",
+            "desc": "存量检查：动作失败或面板识别超时，照常执行并返回调度",
             "recognition": "DirectHit",
             "pre_delay": 0,
             "action": "DoNothing",
@@ -637,8 +638,7 @@ def stock_nodes(route: Route, name: str, region: str, stock: StockArea) -> dict[
     """传送前打开同一张子区域地图，读稀有采集物区 / 稀有矿物区的存量角标；只有详情面板确认为 0 才停用本轮的路线执行。"""
     node = f"__AutoCollect{route.id}"
     find_node = f"{node}StockFind"
-    # 地图图标点击后可能显示选择列表，也可能直接打开详情。等待范围覆盖列表项与存量计数的识别区域。
-    panel_or_picker_wait = {"time": 300, "target": [860, 160, 365, 500]}
+    panel_states = [f"{node}StockPanelEmpty", f"{node}StockPanelStocked"]
     return {
         f"{node}StockCheck": {
             "desc": f"路线 {name} 存量检查：打开传送所在的子区域地图",
@@ -692,36 +692,16 @@ def stock_nodes(route: Route, name: str, region: str, stock: StockArea) -> dict[
             "next": [f"{node}StockDigit", f"{node}StockDigitWide", f"{node}StockPanelOpen"],
             "on_error": [STOCK_ABORTED],
         },
-        # 两帧都读不到角标时不直接跳过，点开区域详情面板读「存量/上限」，面板明确为 0 才停用
+        # 点开区域后轮询存量读数或重叠图标的选择列表，滑入期间未命中时继续识别。
         f"{node}StockPanelOpen": {
             "desc": f"路线 {name} 存量检查：点开存量区域详情面板",
             "recognition": "DirectHit",
             "pre_delay": 0,
             "action": {"type": "Click", "param": {"target": find_node}},
-            "post_wait_freezes": panel_or_picker_wait,
             "post_delay": 0,
-            "rate_limit": 0,
-            "next": [
-                f"{node}StockPanelEmpty",
-                f"{node}StockPanelStocked",
-                f"{node}StockPanelPick",
-                f"{node}StockPanelRecheck",
-                f"{node}StockKept",
-            ],
-            "on_error": [STOCK_ABORTED],
-        },
-        # 选择列表与详情面板都会滑入，画面静止判定可能在滑入途中就结束、读不到；画面再次静止后补读。
-        # 点开与点选后各可能补读一次，故 max_hit 为 2；用完后落到 StockKept 照常执行，不会循环
-        f"{node}StockPanelRecheck": {
-            "desc": f"路线 {name} 存量检查：选择列表或详情面板还在滑入，画面静止后再读一次",
-            "max_hit": 2,
-            "recognition": "DirectHit",
-            "pre_wait_freezes": panel_or_picker_wait,
-            "pre_delay": 0,
-            "action": "DoNothing",
-            "post_delay": 0,
-            "rate_limit": 0,
-            "next": [f"{node}StockPanelEmpty", f"{node}StockPanelStocked", f"{node}StockPanelPick", f"{node}StockKept"],
+            "rate_limit": STOCK_PANEL_RATE_LIMIT_MS,
+            "timeout": STOCK_PANEL_TIMEOUT_MS,
+            "next": [*panel_states, f"{node}StockPanelPick"],
             "on_error": [STOCK_ABORTED],
         },
         f"{node}StockPanelPick": {
@@ -732,21 +712,15 @@ def stock_nodes(route: Route, name: str, region: str, stock: StockArea) -> dict[
             },
             "pre_delay": 0,
             "action": "Click",
-            # 选中列表项后，等待滑入的详情标题、说明与存量计数稳定。
-            "post_wait_freezes": {"time": 300, "target": [950, 50, 275, 150]},
             "post_delay": 0,
-            "rate_limit": 0,
-            "next": [
-                f"{node}StockPanelEmpty",
-                f"{node}StockPanelStocked",
-                f"{node}StockPanelRecheck",
-                f"{node}StockKept",
-            ],
+            "rate_limit": STOCK_PANEL_RATE_LIMIT_MS,
+            "timeout": STOCK_PANEL_TIMEOUT_MS,
+            "next": panel_states,
             "on_error": [STOCK_ABORTED],
         },
         f"{node}StockPanelEmpty": {
             "desc": f"路线 {name} 存量检查：详情面板存量为 0，停用本轮执行",
-            # 这是唯一会跳过路线的识别：读得不够确定时不停用，落到 StockKept 照常执行。实测 0/8 置信度约 0.99
+            # 这是唯一会跳过路线的识别。置信度不足时继续轮询，实测 0/8 置信度约 0.99。
             "recognition": stock_panel_count(r"^0/\d+$", threshold=0.9),
             "pre_delay": 0,
             "action": {
@@ -773,7 +747,7 @@ def stock_nodes(route: Route, name: str, region: str, stock: StockArea) -> dict[
             "next": ["AutoCollectStockPanelClose", "AutoCollectStockPanelLeave"],
         },
         f"{node}StockKept": {
-            "desc": f"路线 {name} 存量检查：打不开地图、找不到图标或打不开详情面板，照常执行",
+            "desc": f"路线 {name} 存量检查：未找到区域图标，照常执行",
             "recognition": "DirectHit",
             "pre_delay": 0,
             "action": "DoNothing",
