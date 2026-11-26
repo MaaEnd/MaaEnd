@@ -54,6 +54,7 @@ STOCK_AREA_KINDS = {
 STOCK_AREA_RADIUS = 15.0
 REGION_MAPS = {"ValleyIV": "map01", "Wuling": "map02"}
 STOCK_COLLECT_ACTIONS = {int(ActionType.COLLECT), int(ActionType.DIG)}
+STOCK_COLLECT_NAMES = {ActionType.COLLECT.name, ActionType.DIG.name}
 STOCK_PANEL_COUNT_ROI = [1120, 160, 105, 40]
 # 检查节点的动作失败时统一跳到这里：照常执行路线，并正常返回调度，避免框架因动作失败结束整个任务。
 # 不复用各节点 next 里的 StockKept，避免 next 与 on_error 重复路由
@@ -270,10 +271,23 @@ def node_custom_action(node: dict[str, Any]) -> tuple[str, dict[str, Any]]:
     return node.get("custom_action", ""), node.get("custom_action_param") or {}
 
 
+def waypoint_collects(waypoint: Any) -> bool:
+    """宽松判断一个原始路点是否含采集动作：数组任意位置的动作字符串或动作数组，对象的 action 与 actions 都算。"""
+    if isinstance(waypoint, list):
+        tokens = waypoint[2:]
+    elif isinstance(waypoint, dict):
+        tokens = [waypoint.get("action"), waypoint.get("actions")]
+    else:
+        return False
+    flat = [item for token in tokens for item in (token if isinstance(token, list) else [token])]
+    return any(isinstance(item, str) and item.upper() in STOCK_COLLECT_NAMES for item in flat)
+
+
 def route_collect_points(route: Route) -> list[tuple[float, float]] | None:
     """路线全部采集点的底图坐标，路点按 MapNavigator 的解析规则读取。
 
-    有采集点不在底图上（分层），或起点之外另经 SubTask 执行（采集点不在本文件里）时返回 None，不做存量检查。
+    以下情况返回 None，不做存量检查：有采集点不在底图上（分层）；起点之外另经 SubTask 执行（采集点不在本文件里）；
+    任一导航段解析出的采集点数与原始路点中的采集动作数对不上（导入器放弃整段或动作字段合并规则与运行时不同）。
     """
     points = []
     for name, node in read_jsonc(route_file(route.region, route.id)).items():
@@ -282,13 +296,19 @@ def route_collect_points(route: Route) -> list[tuple[float, float]] | None:
             return None
         if action != "MapNavigateAction":
             continue
-        for segment in discover_path_routes({"path": param.get("path", [])}):
-            for point in segment:
-                if not STOCK_COLLECT_ACTIONS & set(point.get("actions", [])):
-                    continue
-                if point.get("target_tier") or not str(point.get("zone", "")).endswith("_Base"):
-                    return None
-                points.append((point["x"], point["y"]))
+        path = param.get("path", [])
+        segment_points = [
+            point
+            for segment in discover_path_routes({"path": path})
+            for point in segment
+            if STOCK_COLLECT_ACTIONS & set(point.get("actions", []))
+        ]
+        if len(segment_points) != sum(waypoint_collects(waypoint) for waypoint in path):
+            return None
+        for point in segment_points:
+            if point.get("target_tier") or not str(point.get("zone", "")).endswith("_Base"):
+                return None
+            points.append((point["x"], point["y"]))
     return points
 
 

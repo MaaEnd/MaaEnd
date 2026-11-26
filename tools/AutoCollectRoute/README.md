@@ -126,6 +126,7 @@ uv run autocollect-route generate
 
 - 路线全部是稀有产物；
 - 路线的全部 `COLLECT` / `DIG` 采集点都在底图上，且都落在同一片稀有采集物区（`collect_points.json` 中 `int_doodad_core_plant_rabbithole*` 点位）或稀有矿物区（`int_doodad_core_spcstone*` 点位）15 px 以内；
-- 起点 `Start` 的传送入口能在 `assets/resource/pipeline/Interface/` 中找到 `SceneEnterMap<子区域>`。
+- 起点 `Start` 的传送入口能在 `assets/resource/pipeline/Interface/` 中找到 `SceneEnterMap<子区域>`；
+- 每段 `MapNavigateAction` 都能按 MapNavigator 的规则完整解析，解析出的采集点数与路径里含 `COLLECT` / `DIG` 的路点数一致，起点之外没有经 `SubTask` 执行的导航。
 
 覆盖多片区域（如同时采稀有采集物区与稀有矿物区）或含分层采集点的路线不做检查。区域图标贴近子区域地图边缘、`MapFind` 拖不到安全区时同样照常执行，例如 `WulingRedBolete1`、`WulingIgneosite2`。
