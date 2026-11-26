@@ -463,7 +463,7 @@
             ]
         },
         "next": [
-            "AutoDailyMissionRepairRobotPuzzle"
+            "AutoDailyMissionFriendOfBotsRepairPuzzle"
         ]
     },
     "AutoDailyMissionFriendOfBotsRouteWorkerDorms": {
@@ -497,7 +497,7 @@
             ]
         },
         "next": [
-            "AutoDailyMissionRepairRobotPuzzle"
+            "AutoDailyMissionFriendOfBotsRepairPuzzle"
         ]
     },
     "AutoDailyMissionFriendOfBotsRouteCliffsideTrail": {
@@ -531,7 +531,7 @@
             ]
         },
         "next": [
-            "AutoDailyMissionRepairRobotPuzzle"
+            "AutoDailyMissionFriendOfBotsRepairPuzzle"
         ]
     },
     "AutoDailyMissionFriendOfBotsElevatorCallText": {
@@ -733,7 +733,7 @@
             ]
         },
         "next": [
-            "AutoDailyMissionRepairRobotPuzzle"
+            "AutoDailyMissionFriendOfBotsRepairPuzzle"
         ]
     },
     "AutoDailyMissionFriendOfBotsRouteEvacuationZone": {
@@ -804,7 +804,28 @@
             ]
         },
         "next": [
-            "AutoDailyMissionRepairRobotPuzzle"
+            "AutoDailyMissionFriendOfBotsRepairPuzzle"
+        ]
+    },
+    "AutoDailyMissionFriendOfBotsRepairPuzzle": {
+        "desc": "修复故障机器人的电路拼图，有第二盘时再解一次",
+        // 一个机器人最多两盘，解不出时别无限重试
+        "max_hit": 4,
+        "recognition": "Or",
+        "any_of": [
+            "PuzzleSolverOnScenePrepare",
+            "PuzzleSolverOnSceneMain"
+        ],
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "PuzzleSolverMain"
+            ]
+        },
+        "next": [
+            "AutoDailyMissionFriendOfBotsRepairPuzzle",
+            "AutoDailyMissionWaitSnsPopup"
         ]
     }
 }

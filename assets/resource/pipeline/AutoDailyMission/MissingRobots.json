@@ -594,7 +594,7 @@
             ]
         },
         "next": [
-            "AutoDailyMissionCheckFinished"
+            "AutoDailyMissionWaitSnsPopup"
         ],
         "focus": {
             "Node.Action.Succeeded": "$task.AutoDailyMission.focus.beacon_arrived"
@@ -782,7 +782,7 @@
             ]
         },
         "next": [
-            "AutoDailyMissionCheckFinished"
+            "AutoDailyMissionWaitSnsPopup"
         ],
         "focus": {
             "Node.Action.Succeeded": "$task.AutoDailyMission.focus.beacon_arrived"
@@ -934,7 +934,7 @@
             ]
         },
         "next": [
-            "AutoDailyMissionCheckFinished"
+            "AutoDailyMissionWaitSnsPopup"
         ],
         "focus": {
             "Node.Action.Succeeded": "$task.AutoDailyMission.focus.beacon_arrived"
@@ -1089,7 +1089,7 @@
             ]
         },
         "next": [
-            "AutoDailyMissionCheckFinished"
+            "AutoDailyMissionWaitSnsPopup"
         ],
         "focus": {
             "Node.Action.Succeeded": "$task.AutoDailyMission.focus.beacon_arrived"
@@ -1224,7 +1224,7 @@
             ]
         },
         "next": [
-            "AutoDailyMissionCheckFinished"
+            "AutoDailyMissionWaitSnsPopup"
         ],
         "focus": {
             "Node.Action.Succeeded": "$task.AutoDailyMission.focus.beacon_arrived"
