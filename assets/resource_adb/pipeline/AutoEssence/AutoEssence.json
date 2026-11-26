@@ -72,6 +72,24 @@
             }
         }
     },
+    "__AutoEssenceRecoEssenceObtainButton": {
+        "desc": "寻找领取奖励的状态（仅识别，ADB）",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    660,
+                    280,
+                    290,
+                    320
+                ],
+                "template": "AutoEssence/EssenceObtain.png",
+                "green_mask": true,
+                "threshold": 0.55,
+                "order_by": "Score"
+            }
+        }
+    },
     "AutoEssenceClickObtainButton": {
         "desc": "识别领取奖励的大世界按钮（ADB）；等待与复检流程沿用主 Pipeline",
         "recognition": {
