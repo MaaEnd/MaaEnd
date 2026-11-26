@@ -163,18 +163,13 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "RestaurantShopRefreshAvailable": {
+                        "PantryShopRefresh": {
                             "enabled": true
                         }
                     }
                 },
                 {
-                    "name": "No",
-                    "pipeline_override": {
-                        "RestaurantShopRefreshAvailable": {
-                            "enabled": false
-                        }
-                    }
+                    "name": "No"
                 }
             ],
             "default_case": "No"
