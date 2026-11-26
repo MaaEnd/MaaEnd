@@ -1577,9 +1577,18 @@
     "__AutoCollectValleyIVChrysodendra1StockRecheck": {
         "desc": "路线 纯晶多齿叶 存量检查：首帧没读到角标，画面静止后再读一次",
         "recognition": "DirectHit",
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": "__AutoCollectValleyIVChrysodendra1StockFind",
+            "target_offset": [
+                0,
+                -13,
+                22,
+                22
+            ]
+        },
         "pre_delay": 0,
         "action": "DoNothing",
-        "post_wait_freezes": 300,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -1601,7 +1610,15 @@
                 "target": "__AutoCollectValleyIVChrysodendra1StockFind"
             }
         },
-        "post_wait_freezes": 300,
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                860,
+                160,
+                365,
+                500
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -1619,9 +1636,17 @@
         "desc": "路线 纯晶多齿叶 存量检查：选择列表或详情面板还在滑入，画面静止后再读一次",
         "max_hit": 2,
         "recognition": "DirectHit",
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                860,
+                160,
+                365,
+                500
+            ]
+        },
         "pre_delay": 0,
         "action": "DoNothing",
-        "post_wait_freezes": 300,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -1653,7 +1678,15 @@
         },
         "pre_delay": 0,
         "action": "Click",
-        "post_wait_freezes": 300,
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                950,
+                50,
+                275,
+                150
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -1892,9 +1925,18 @@
     "__AutoCollectValleyIVKalkonyx1StockRecheck": {
         "desc": "路线 轻黯石 存量检查：首帧没读到角标，画面静止后再读一次",
         "recognition": "DirectHit",
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": "__AutoCollectValleyIVKalkonyx1StockFind",
+            "target_offset": [
+                0,
+                -13,
+                22,
+                22
+            ]
+        },
         "pre_delay": 0,
         "action": "DoNothing",
-        "post_wait_freezes": 300,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -1916,7 +1958,15 @@
                 "target": "__AutoCollectValleyIVKalkonyx1StockFind"
             }
         },
-        "post_wait_freezes": 300,
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                860,
+                160,
+                365,
+                500
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -1934,9 +1984,17 @@
         "desc": "路线 轻黯石 存量检查：选择列表或详情面板还在滑入，画面静止后再读一次",
         "max_hit": 2,
         "recognition": "DirectHit",
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                860,
+                160,
+                365,
+                500
+            ]
+        },
         "pre_delay": 0,
         "action": "DoNothing",
-        "post_wait_freezes": 300,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -1968,7 +2026,15 @@
         },
         "pre_delay": 0,
         "action": "Click",
-        "post_wait_freezes": 300,
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                950,
+                50,
+                275,
+                150
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -2207,9 +2273,18 @@
     "__AutoCollectValleyIVPinkBolete1StockRecheck": {
         "desc": "路线 轻红柱状菌 存量检查：首帧没读到角标，画面静止后再读一次",
         "recognition": "DirectHit",
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": "__AutoCollectValleyIVPinkBolete1StockFind",
+            "target_offset": [
+                0,
+                -13,
+                22,
+                22
+            ]
+        },
         "pre_delay": 0,
         "action": "DoNothing",
-        "post_wait_freezes": 300,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -2231,7 +2306,15 @@
                 "target": "__AutoCollectValleyIVPinkBolete1StockFind"
             }
         },
-        "post_wait_freezes": 300,
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                860,
+                160,
+                365,
+                500
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -2249,9 +2332,17 @@
         "desc": "路线 轻红柱状菌 存量检查：选择列表或详情面板还在滑入，画面静止后再读一次",
         "max_hit": 2,
         "recognition": "DirectHit",
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                860,
+                160,
+                365,
+                500
+            ]
+        },
         "pre_delay": 0,
         "action": "DoNothing",
-        "post_wait_freezes": 300,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -2283,7 +2374,15 @@
         },
         "pre_delay": 0,
         "action": "Click",
-        "post_wait_freezes": 300,
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                950,
+                50,
+                275,
+                150
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -2522,9 +2621,18 @@
     "__AutoCollectValleyIVAuronyx1StockRecheck": {
         "desc": "路线 中黯石 存量检查：首帧没读到角标，画面静止后再读一次",
         "recognition": "DirectHit",
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": "__AutoCollectValleyIVAuronyx1StockFind",
+            "target_offset": [
+                0,
+                -13,
+                22,
+                22
+            ]
+        },
         "pre_delay": 0,
         "action": "DoNothing",
-        "post_wait_freezes": 300,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -2546,7 +2654,15 @@
                 "target": "__AutoCollectValleyIVAuronyx1StockFind"
             }
         },
-        "post_wait_freezes": 300,
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                860,
+                160,
+                365,
+                500
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -2564,9 +2680,17 @@
         "desc": "路线 中黯石 存量检查：选择列表或详情面板还在滑入，画面静止后再读一次",
         "max_hit": 2,
         "recognition": "DirectHit",
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                860,
+                160,
+                365,
+                500
+            ]
+        },
         "pre_delay": 0,
         "action": "DoNothing",
-        "post_wait_freezes": 300,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -2598,7 +2722,15 @@
         },
         "pre_delay": 0,
         "action": "Click",
-        "post_wait_freezes": 300,
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                950,
+                50,
+                275,
+                150
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -2837,9 +2969,18 @@
     "__AutoCollectValleyIVKalkodendra1StockRecheck": {
         "desc": "路线 晶化多齿叶 存量检查：首帧没读到角标，画面静止后再读一次",
         "recognition": "DirectHit",
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": "__AutoCollectValleyIVKalkodendra1StockFind",
+            "target_offset": [
+                0,
+                -13,
+                22,
+                22
+            ]
+        },
         "pre_delay": 0,
         "action": "DoNothing",
-        "post_wait_freezes": 300,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -2861,7 +3002,15 @@
                 "target": "__AutoCollectValleyIVKalkodendra1StockFind"
             }
         },
-        "post_wait_freezes": 300,
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                860,
+                160,
+                365,
+                500
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -2879,9 +3028,17 @@
         "desc": "路线 晶化多齿叶 存量检查：选择列表或详情面板还在滑入，画面静止后再读一次",
         "max_hit": 2,
         "recognition": "DirectHit",
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                860,
+                160,
+                365,
+                500
+            ]
+        },
         "pre_delay": 0,
         "action": "DoNothing",
-        "post_wait_freezes": 300,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -2913,7 +3070,15 @@
         },
         "pre_delay": 0,
         "action": "Click",
-        "post_wait_freezes": 300,
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                950,
+                50,
+                275,
+                150
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -3216,9 +3381,18 @@
     "__AutoCollectWulingBlightedJadeleaf1StockRecheck": {
         "desc": "路线 受蚀玉化叶 存量检查：首帧没读到角标，画面静止后再读一次",
         "recognition": "DirectHit",
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": "__AutoCollectWulingBlightedJadeleaf1StockFind",
+            "target_offset": [
+                0,
+                -13,
+                22,
+                22
+            ]
+        },
         "pre_delay": 0,
         "action": "DoNothing",
-        "post_wait_freezes": 300,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -3240,7 +3414,15 @@
                 "target": "__AutoCollectWulingBlightedJadeleaf1StockFind"
             }
         },
-        "post_wait_freezes": 300,
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                860,
+                160,
+                365,
+                500
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -3258,9 +3440,17 @@
         "desc": "路线 受蚀玉化叶 存量检查：选择列表或详情面板还在滑入，画面静止后再读一次",
         "max_hit": 2,
         "recognition": "DirectHit",
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                860,
+                160,
+                365,
+                500
+            ]
+        },
         "pre_delay": 0,
         "action": "DoNothing",
-        "post_wait_freezes": 300,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -3292,7 +3482,15 @@
         },
         "pre_delay": 0,
         "action": "Click",
-        "post_wait_freezes": 300,
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                950,
+                50,
+                275,
+                150
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -3531,9 +3729,18 @@
     "__AutoCollectWulingFalseAggela1StockRecheck": {
         "desc": "路线 岩天使叶 存量检查：首帧没读到角标，画面静止后再读一次",
         "recognition": "DirectHit",
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": "__AutoCollectWulingFalseAggela1StockFind",
+            "target_offset": [
+                0,
+                -13,
+                22,
+                22
+            ]
+        },
         "pre_delay": 0,
         "action": "DoNothing",
-        "post_wait_freezes": 300,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -3555,7 +3762,15 @@
                 "target": "__AutoCollectWulingFalseAggela1StockFind"
             }
         },
-        "post_wait_freezes": 300,
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                860,
+                160,
+                365,
+                500
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -3573,9 +3788,17 @@
         "desc": "路线 岩天使叶 存量检查：选择列表或详情面板还在滑入，画面静止后再读一次",
         "max_hit": 2,
         "recognition": "DirectHit",
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                860,
+                160,
+                365,
+                500
+            ]
+        },
         "pre_delay": 0,
         "action": "DoNothing",
-        "post_wait_freezes": 300,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -3607,7 +3830,15 @@
         },
         "pre_delay": 0,
         "action": "Click",
-        "post_wait_freezes": 300,
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                950,
+                50,
+                275,
+                150
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -3846,9 +4077,18 @@
     "__AutoCollectWulingVitrodendra1StockRecheck": {
         "desc": "路线 至晶多齿叶（路线1） 存量检查：首帧没读到角标，画面静止后再读一次",
         "recognition": "DirectHit",
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": "__AutoCollectWulingVitrodendra1StockFind",
+            "target_offset": [
+                0,
+                -13,
+                22,
+                22
+            ]
+        },
         "pre_delay": 0,
         "action": "DoNothing",
-        "post_wait_freezes": 300,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -3870,7 +4110,15 @@
                 "target": "__AutoCollectWulingVitrodendra1StockFind"
             }
         },
-        "post_wait_freezes": 300,
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                860,
+                160,
+                365,
+                500
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -3888,9 +4136,17 @@
         "desc": "路线 至晶多齿叶（路线1） 存量检查：选择列表或详情面板还在滑入，画面静止后再读一次",
         "max_hit": 2,
         "recognition": "DirectHit",
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                860,
+                160,
+                365,
+                500
+            ]
+        },
         "pre_delay": 0,
         "action": "DoNothing",
-        "post_wait_freezes": 300,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -3922,7 +4178,15 @@
         },
         "pre_delay": 0,
         "action": "Click",
-        "post_wait_freezes": 300,
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                950,
+                50,
+                275,
+                150
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -4193,9 +4457,18 @@
     "__AutoCollectWulingCosmagaric1StockRecheck": {
         "desc": "路线 星门菌（路线1） 存量检查：首帧没读到角标，画面静止后再读一次",
         "recognition": "DirectHit",
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": "__AutoCollectWulingCosmagaric1StockFind",
+            "target_offset": [
+                0,
+                -13,
+                22,
+                22
+            ]
+        },
         "pre_delay": 0,
         "action": "DoNothing",
-        "post_wait_freezes": 300,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -4217,7 +4490,15 @@
                 "target": "__AutoCollectWulingCosmagaric1StockFind"
             }
         },
-        "post_wait_freezes": 300,
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                860,
+                160,
+                365,
+                500
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -4235,9 +4516,17 @@
         "desc": "路线 星门菌（路线1） 存量检查：选择列表或详情面板还在滑入，画面静止后再读一次",
         "max_hit": 2,
         "recognition": "DirectHit",
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                860,
+                160,
+                365,
+                500
+            ]
+        },
         "pre_delay": 0,
         "action": "DoNothing",
-        "post_wait_freezes": 300,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -4269,7 +4558,15 @@
         },
         "pre_delay": 0,
         "action": "Click",
-        "post_wait_freezes": 300,
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                950,
+                50,
+                275,
+                150
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -4508,9 +4805,18 @@
     "__AutoCollectWulingIgneosite1StockRecheck": {
         "desc": "路线 燎石（路线1） 存量检查：首帧没读到角标，画面静止后再读一次",
         "recognition": "DirectHit",
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": "__AutoCollectWulingIgneosite1StockFind",
+            "target_offset": [
+                0,
+                -13,
+                22,
+                22
+            ]
+        },
         "pre_delay": 0,
         "action": "DoNothing",
-        "post_wait_freezes": 300,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -4532,7 +4838,15 @@
                 "target": "__AutoCollectWulingIgneosite1StockFind"
             }
         },
-        "post_wait_freezes": 300,
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                860,
+                160,
+                365,
+                500
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -4550,9 +4864,17 @@
         "desc": "路线 燎石（路线1） 存量检查：选择列表或详情面板还在滑入，画面静止后再读一次",
         "max_hit": 2,
         "recognition": "DirectHit",
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                860,
+                160,
+                365,
+                500
+            ]
+        },
         "pre_delay": 0,
         "action": "DoNothing",
-        "post_wait_freezes": 300,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -4584,7 +4906,15 @@
         },
         "pre_delay": 0,
         "action": "Click",
-        "post_wait_freezes": 300,
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                950,
+                50,
+                275,
+                150
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -4855,9 +5185,18 @@
     "__AutoCollectWulingUmbronyx1StockRecheck": {
         "desc": "路线 重黯石 存量检查：首帧没读到角标，画面静止后再读一次",
         "recognition": "DirectHit",
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": "__AutoCollectWulingUmbronyx1StockFind",
+            "target_offset": [
+                0,
+                -13,
+                22,
+                22
+            ]
+        },
         "pre_delay": 0,
         "action": "DoNothing",
-        "post_wait_freezes": 300,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -4879,7 +5218,15 @@
                 "target": "__AutoCollectWulingUmbronyx1StockFind"
             }
         },
-        "post_wait_freezes": 300,
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                860,
+                160,
+                365,
+                500
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -4897,9 +5244,17 @@
         "desc": "路线 重黯石 存量检查：选择列表或详情面板还在滑入，画面静止后再读一次",
         "max_hit": 2,
         "recognition": "DirectHit",
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                860,
+                160,
+                365,
+                500
+            ]
+        },
         "pre_delay": 0,
         "action": "DoNothing",
-        "post_wait_freezes": 300,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -4931,7 +5286,15 @@
         },
         "pre_delay": 0,
         "action": "Click",
-        "post_wait_freezes": 300,
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                950,
+                50,
+                275,
+                150
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -5170,9 +5533,18 @@
     "__AutoCollectWulingRedBolete1StockRecheck": {
         "desc": "路线 中红柱状菌 存量检查：首帧没读到角标，画面静止后再读一次",
         "recognition": "DirectHit",
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": "__AutoCollectWulingRedBolete1StockFind",
+            "target_offset": [
+                0,
+                -13,
+                22,
+                22
+            ]
+        },
         "pre_delay": 0,
         "action": "DoNothing",
-        "post_wait_freezes": 300,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -5194,7 +5566,15 @@
                 "target": "__AutoCollectWulingRedBolete1StockFind"
             }
         },
-        "post_wait_freezes": 300,
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                860,
+                160,
+                365,
+                500
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -5212,9 +5592,17 @@
         "desc": "路线 中红柱状菌 存量检查：选择列表或详情面板还在滑入，画面静止后再读一次",
         "max_hit": 2,
         "recognition": "DirectHit",
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                860,
+                160,
+                365,
+                500
+            ]
+        },
         "pre_delay": 0,
         "action": "DoNothing",
-        "post_wait_freezes": 300,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -5246,7 +5634,15 @@
         },
         "pre_delay": 0,
         "action": "Click",
-        "post_wait_freezes": 300,
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                950,
+                50,
+                275,
+                150
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -5485,9 +5881,18 @@
     "__AutoCollectWulingCrimsonSpearleaf1StockRecheck": {
         "desc": "路线 红矛叶 存量检查：首帧没读到角标，画面静止后再读一次",
         "recognition": "DirectHit",
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": "__AutoCollectWulingCrimsonSpearleaf1StockFind",
+            "target_offset": [
+                0,
+                -13,
+                22,
+                22
+            ]
+        },
         "pre_delay": 0,
         "action": "DoNothing",
-        "post_wait_freezes": 300,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -5509,7 +5914,15 @@
                 "target": "__AutoCollectWulingCrimsonSpearleaf1StockFind"
             }
         },
-        "post_wait_freezes": 300,
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                860,
+                160,
+                365,
+                500
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -5527,9 +5940,17 @@
         "desc": "路线 红矛叶 存量检查：选择列表或详情面板还在滑入，画面静止后再读一次",
         "max_hit": 2,
         "recognition": "DirectHit",
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                860,
+                160,
+                365,
+                500
+            ]
+        },
         "pre_delay": 0,
         "action": "DoNothing",
-        "post_wait_freezes": 300,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -5561,7 +5982,15 @@
         },
         "pre_delay": 0,
         "action": "Click",
-        "post_wait_freezes": 300,
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                950,
+                50,
+                275,
+                150
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -5832,9 +6261,18 @@
     "__AutoCollectWulingTalosCap1StockRecheck": {
         "desc": "路线 塔罗斯菌 存量检查：首帧没读到角标，画面静止后再读一次",
         "recognition": "DirectHit",
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": "__AutoCollectWulingTalosCap1StockFind",
+            "target_offset": [
+                0,
+                -13,
+                22,
+                22
+            ]
+        },
         "pre_delay": 0,
         "action": "DoNothing",
-        "post_wait_freezes": 300,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -5856,7 +6294,15 @@
                 "target": "__AutoCollectWulingTalosCap1StockFind"
             }
         },
-        "post_wait_freezes": 300,
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                860,
+                160,
+                365,
+                500
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -5874,9 +6320,17 @@
         "desc": "路线 塔罗斯菌 存量检查：选择列表或详情面板还在滑入，画面静止后再读一次",
         "max_hit": 2,
         "recognition": "DirectHit",
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                860,
+                160,
+                365,
+                500
+            ]
+        },
         "pre_delay": 0,
         "action": "DoNothing",
-        "post_wait_freezes": 300,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -5908,7 +6362,15 @@
         },
         "pre_delay": 0,
         "action": "Click",
-        "post_wait_freezes": 300,
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                950,
+                50,
+                275,
+                150
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -6435,9 +6897,18 @@
     "__AutoCollectWulingProtocolith2StockRecheck": {
         "desc": "路线 协议纹石（路线2） 存量检查：首帧没读到角标，画面静止后再读一次",
         "recognition": "DirectHit",
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": "__AutoCollectWulingProtocolith2StockFind",
+            "target_offset": [
+                0,
+                -13,
+                22,
+                22
+            ]
+        },
         "pre_delay": 0,
         "action": "DoNothing",
-        "post_wait_freezes": 300,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -6459,7 +6930,15 @@
                 "target": "__AutoCollectWulingProtocolith2StockFind"
             }
         },
-        "post_wait_freezes": 300,
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                860,
+                160,
+                365,
+                500
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -6477,9 +6956,17 @@
         "desc": "路线 协议纹石（路线2） 存量检查：选择列表或详情面板还在滑入，画面静止后再读一次",
         "max_hit": 2,
         "recognition": "DirectHit",
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                860,
+                160,
+                365,
+                500
+            ]
+        },
         "pre_delay": 0,
         "action": "DoNothing",
-        "post_wait_freezes": 300,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -6511,7 +6998,15 @@
         },
         "pre_delay": 0,
         "action": "Click",
-        "post_wait_freezes": 300,
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                950,
+                50,
+                275,
+                150
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -6782,9 +7277,18 @@
     "__AutoCollectWulingVitrodendra2StockRecheck": {
         "desc": "路线 至晶多齿叶（路线2） 存量检查：首帧没读到角标，画面静止后再读一次",
         "recognition": "DirectHit",
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": "__AutoCollectWulingVitrodendra2StockFind",
+            "target_offset": [
+                0,
+                -13,
+                22,
+                22
+            ]
+        },
         "pre_delay": 0,
         "action": "DoNothing",
-        "post_wait_freezes": 300,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -6806,7 +7310,15 @@
                 "target": "__AutoCollectWulingVitrodendra2StockFind"
             }
         },
-        "post_wait_freezes": 300,
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                860,
+                160,
+                365,
+                500
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -6824,9 +7336,17 @@
         "desc": "路线 至晶多齿叶（路线2） 存量检查：选择列表或详情面板还在滑入，画面静止后再读一次",
         "max_hit": 2,
         "recognition": "DirectHit",
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                860,
+                160,
+                365,
+                500
+            ]
+        },
         "pre_delay": 0,
         "action": "DoNothing",
-        "post_wait_freezes": 300,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -6858,7 +7378,15 @@
         },
         "pre_delay": 0,
         "action": "Click",
-        "post_wait_freezes": 300,
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                950,
+                50,
+                275,
+                150
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -7097,9 +7625,18 @@
     "__AutoCollectWulingIgneosite2StockRecheck": {
         "desc": "路线 燎石（路线2） 存量检查：首帧没读到角标，画面静止后再读一次",
         "recognition": "DirectHit",
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": "__AutoCollectWulingIgneosite2StockFind",
+            "target_offset": [
+                0,
+                -13,
+                22,
+                22
+            ]
+        },
         "pre_delay": 0,
         "action": "DoNothing",
-        "post_wait_freezes": 300,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -7121,7 +7658,15 @@
                 "target": "__AutoCollectWulingIgneosite2StockFind"
             }
         },
-        "post_wait_freezes": 300,
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                860,
+                160,
+                365,
+                500
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -7139,9 +7684,17 @@
         "desc": "路线 燎石（路线2） 存量检查：选择列表或详情面板还在滑入，画面静止后再读一次",
         "max_hit": 2,
         "recognition": "DirectHit",
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                860,
+                160,
+                365,
+                500
+            ]
+        },
         "pre_delay": 0,
         "action": "DoNothing",
-        "post_wait_freezes": 300,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -7173,7 +7726,15 @@
         },
         "pre_delay": 0,
         "action": "Click",
-        "post_wait_freezes": 300,
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                950,
+                50,
+                275,
+                150
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -7412,9 +7973,18 @@
     "__AutoCollectWulingCosmagaric2StockRecheck": {
         "desc": "路线 星门菌（路线2） 存量检查：首帧没读到角标，画面静止后再读一次",
         "recognition": "DirectHit",
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": "__AutoCollectWulingCosmagaric2StockFind",
+            "target_offset": [
+                0,
+                -13,
+                22,
+                22
+            ]
+        },
         "pre_delay": 0,
         "action": "DoNothing",
-        "post_wait_freezes": 300,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -7436,7 +8006,15 @@
                 "target": "__AutoCollectWulingCosmagaric2StockFind"
             }
         },
-        "post_wait_freezes": 300,
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                860,
+                160,
+                365,
+                500
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -7454,9 +8032,17 @@
         "desc": "路线 星门菌（路线2） 存量检查：选择列表或详情面板还在滑入，画面静止后再读一次",
         "max_hit": 2,
         "recognition": "DirectHit",
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                860,
+                160,
+                365,
+                500
+            ]
+        },
         "pre_delay": 0,
         "action": "DoNothing",
-        "post_wait_freezes": 300,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -7488,7 +8074,15 @@
         },
         "pre_delay": 0,
         "action": "Click",
-        "post_wait_freezes": 300,
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                950,
+                50,
+                275,
+                150
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [

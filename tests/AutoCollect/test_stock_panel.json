@@ -16,6 +16,15 @@
             ]
         },
         {
+            // 在上一张实机图的存量卡片上叠加 6 像素水平运动模糊，模拟滑入时的不清晰读数。
+            "name": "模拟面板滑入：低置信度 0/8 可识别，继续采集",
+            "image": "武陵城_稀有采集物区_存量低置信度_模拟滑入.png",
+            "hits": [
+                "AutoCollectStockPanelCount",
+                "AutoCollectStockPanelClose"
+            ]
+        },
+        {
             "name": "存量 8/8，继续采集",
             "image": "北部禁区_稀有采集物区_存量已满.png",
             "hits": [

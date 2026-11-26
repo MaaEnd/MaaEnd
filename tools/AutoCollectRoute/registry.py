@@ -336,11 +336,10 @@ def teleport_scene(route: Route, scenes: dict[str, Any]) -> str | None:
     if action != "SubTask":
         return None
     teleport = next(iter(param.get("sub", [])), None)
+    value = scenes.get(teleport, {}).get("next", [])
+    entries = [value] if isinstance(value, (str, dict)) else value
     # next 条目可写成 "[JumpBack]节点名" 或对象 {"name": "节点名", "jump_back": true}
-    names = (
-        entry.get("name", "") if isinstance(entry, dict) else entry
-        for entry in scenes.get(teleport, {}).get("next", [])
-    )
+    names = (entry.get("name", "") if isinstance(entry, dict) else entry for entry in entries)
     return next((name.removeprefix("[JumpBack]") for name in names if "SceneEnterMap" in name), None)
 
 
@@ -637,6 +636,9 @@ def stock_digit_node(name: str, find_node: str, roi_offset: list[int], note: str
 def stock_nodes(route: Route, name: str, region: str, stock: StockArea) -> dict[str, Any]:
     """传送前打开同一张子区域地图，读稀有采集物区 / 稀有矿物区的存量角标；只有详情面板确认为 0 才停用本轮的路线执行。"""
     node = f"__AutoCollect{route.id}"
+    find_node = f"{node}StockFind"
+    # 地图图标点击后可能显示选择列表，也可能直接打开详情。等待范围覆盖列表项与存量计数的识别区域。
+    panel_or_picker_wait = {"time": 300, "target": [860, 160, 365, 500]}
     return {
         f"{node}StockCheck": {
             "desc": f"路线 {name} 存量检查：打开传送所在的子区域地图",
@@ -650,10 +652,10 @@ def stock_nodes(route: Route, name: str, region: str, stock: StockArea) -> dict[
             },
             "post_delay": 0,
             "rate_limit": 0,
-            "next": [f"{node}StockFind", f"{node}StockKept"],
+            "next": [find_node, f"{node}StockKept"],
             "on_error": [STOCK_ABORTED],
         },
-        f"{node}StockFind": {
+        find_node: {
             "desc": f"路线 {name} 存量检查：在大地图上确认存量区域图标",
             "recognition": {
                 "type": "Custom",
@@ -673,17 +675,18 @@ def stock_nodes(route: Route, name: str, region: str, stock: StockArea) -> dict[
             "rate_limit": 0,
             "next": [f"{node}StockDigit", f"{node}StockDigitWide", f"{node}StockRecheck"],
         },
-        # 存量为 0 时不显示角标。两个框任一读到数字就照常执行；都读不到时换一帧再看，两帧都读不到才停用
-        f"{node}StockDigit": stock_digit_node(name, f"{node}StockFind", [9, -12, 10, 12], "只框角标本身"),
+        # 存量为 0 时不显示角标。两个框任一读到数字就照常执行；两帧都读不到时再打开详情面板。
+        f"{node}StockDigit": stock_digit_node(name, find_node, [9, -12, 10, 12], "只框角标本身"),
         f"{node}StockDigitWide": stock_digit_node(
-            name, f"{node}StockFind", [9, -13, 13, 14], "向右与上下放宽，容忍遮挡与偏移；不向左放宽，避开图标本体"
+            name, find_node, [9, -13, 13, 14], "向右与上下放宽，容忍遮挡与偏移；不向左放宽，避开图标本体"
         ),
         f"{node}StockRecheck": {
             "desc": f"路线 {name} 存量检查：首帧没读到角标，画面静止后再读一次",
             "recognition": "DirectHit",
+            # MapFind 返回图标上的一点。等待区域覆盖图标与两个 OCR 框，角标消失时仍有可匹配的内容。
+            "pre_wait_freezes": {"time": 300, "target": find_node, "target_offset": [0, -13, 22, 22]},
             "pre_delay": 0,
             "action": "DoNothing",
-            "post_wait_freezes": 300,
             "post_delay": 0,
             "rate_limit": 0,
             "next": [f"{node}StockDigit", f"{node}StockDigitWide", f"{node}StockPanelOpen"],
@@ -694,8 +697,8 @@ def stock_nodes(route: Route, name: str, region: str, stock: StockArea) -> dict[
             "desc": f"路线 {name} 存量检查：点开存量区域详情面板",
             "recognition": "DirectHit",
             "pre_delay": 0,
-            "action": {"type": "Click", "param": {"target": f"{node}StockFind"}},
-            "post_wait_freezes": 300,
+            "action": {"type": "Click", "param": {"target": find_node}},
+            "post_wait_freezes": panel_or_picker_wait,
             "post_delay": 0,
             "rate_limit": 0,
             "next": [
@@ -713,9 +716,9 @@ def stock_nodes(route: Route, name: str, region: str, stock: StockArea) -> dict[
             "desc": f"路线 {name} 存量检查：选择列表或详情面板还在滑入，画面静止后再读一次",
             "max_hit": 2,
             "recognition": "DirectHit",
+            "pre_wait_freezes": panel_or_picker_wait,
             "pre_delay": 0,
             "action": "DoNothing",
-            "post_wait_freezes": 300,
             "post_delay": 0,
             "rate_limit": 0,
             "next": [f"{node}StockPanelEmpty", f"{node}StockPanelStocked", f"{node}StockPanelPick", f"{node}StockKept"],
@@ -729,7 +732,8 @@ def stock_nodes(route: Route, name: str, region: str, stock: StockArea) -> dict[
             },
             "pre_delay": 0,
             "action": "Click",
-            "post_wait_freezes": 300,
+            # 选中列表项后，等待滑入的详情标题、说明与存量计数稳定。
+            "post_wait_freezes": {"time": 300, "target": [950, 50, 275, 150]},
             "post_delay": 0,
             "rate_limit": 0,
             "next": [
