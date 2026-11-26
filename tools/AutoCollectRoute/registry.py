@@ -3,7 +3,6 @@
 import json
 import math
 import re
-import sys
 from collections import Counter
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass, field
@@ -12,14 +11,6 @@ from pathlib import Path
 from typing import Any
 
 import json5
-
-# 路点解析复用 MapNavigator（与运行时一致），它的模块以裸模块名互相 import
-_MAPNAV_DIR = Path(__file__).resolve().parent.parent / "MapNavigator"
-if str(_MAPNAV_DIR) not in sys.path:
-    sys.path.insert(0, str(_MAPNAV_DIR))
-
-from json_import import discover_path_routes  # noqa: E402
-from model import ActionType  # noqa: E402
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 REGISTRY_PATH = PROJECT_ROOT / "tools" / "AutoCollectRoute" / "routes.json"
@@ -53,8 +44,7 @@ STOCK_AREA_KINDS = {
 }
 STOCK_AREA_RADIUS = 15.0
 REGION_MAPS = {"ValleyIV": "map01", "Wuling": "map02"}
-STOCK_COLLECT_ACTIONS = {int(ActionType.COLLECT), int(ActionType.DIG)}
-STOCK_COLLECT_NAMES = {ActionType.COLLECT.name, ActionType.DIG.name}
+STOCK_COLLECT_ACTIONS = ("COLLECT", "DIG")
 STOCK_PANEL_COUNT_ROI = [1120, 160, 105, 40]
 # 检查节点的动作失败时统一跳到这里：照常执行路线，并正常返回调度，避免框架因动作失败结束整个任务。
 # 不复用各节点 next 里的 StockKept，避免 next 与 on_error 重复路由
@@ -271,23 +261,57 @@ def node_custom_action(node: dict[str, Any]) -> tuple[str, dict[str, Any]]:
     return node.get("custom_action", ""), node.get("custom_action_param") or {}
 
 
-def waypoint_collects(waypoint: Any) -> bool:
-    """宽松判断一个原始路点是否含采集动作：数组任意位置的动作字符串或动作数组，对象的 action 与 actions 都算。"""
-    if isinstance(waypoint, list):
-        tokens = waypoint[2:]
-    elif isinstance(waypoint, dict):
-        tokens = [waypoint.get("action"), waypoint.get("actions")]
-    else:
-        return False
-    flat = [item for token in tokens for item in (token if isinstance(token, list) else [token])]
-    return any(isinstance(item, str) and item.upper() in STOCK_COLLECT_NAMES for item in flat)
+def is_number(value: Any) -> bool:
+    return isinstance(value, (int, float)) and not isinstance(value, bool)
+
+
+def path_collect_points(path: Any) -> list[tuple[float, float]] | None:
+    """按白名单读取一段 path 的采集点底图坐标；出现白名单以外的写法时返回 None。
+
+    白名单即路线生成器产出的写法：{"action": "ZONE", "zone_id": "<区域>_Base"}、
+    {"action": "NAVMESH", "target": [x, y](, "target_deck_y": h)}、[x, y]、[x, y, "COLLECT" | "DIG"(, bool)]。
+    运行时还支持更多写法（单点、数字枚举、对象坐标、map_name、分层等），这里不复刻其解析，一律不做存量检查。
+    """
+    if not isinstance(path, list) or not path:
+        return None
+    zone = ""
+    points = []
+    for waypoint in path:
+        if isinstance(waypoint, dict):
+            action = waypoint.get("action")
+            if action == "ZONE" and set(waypoint) == {"action", "zone_id"}:
+                zone = waypoint["zone_id"]
+                if not isinstance(zone, str) or not zone.endswith("_Base"):
+                    return None
+            elif (
+                action == "NAVMESH"
+                and {"action", "target"} <= set(waypoint) <= {"action", "target", "target_deck_y"}
+                and isinstance(waypoint["target"], list)
+                and len(waypoint["target"]) == 2
+                and all(is_number(value) for value in waypoint["target"])
+            ):
+                pass
+            else:
+                return None
+            continue
+        if not isinstance(waypoint, list) or len(waypoint) < 2 or not all(is_number(v) for v in waypoint[:2]):
+            return None
+        tail = waypoint[2:]
+        if not tail:
+            continue
+        if tail[0] not in STOCK_COLLECT_ACTIONS or len(tail) > 2 or (len(tail) == 2 and not isinstance(tail[1], bool)):
+            return None
+        if not zone:
+            return None
+        points.append((waypoint[0], waypoint[1]))
+    return points
 
 
 def route_collect_points(route: Route) -> list[tuple[float, float]] | None:
-    """路线全部采集点的底图坐标，路点按 MapNavigator 的解析规则读取。
+    """路线全部采集点的底图坐标。
 
-    以下情况返回 None，不做存量检查：有采集点不在底图上（分层）；起点之外另经 SubTask 执行（采集点不在本文件里）；
-    任一导航段解析出的采集点数与原始路点中的采集动作数对不上（导入器放弃整段或动作字段合并规则与运行时不同）。
+    以下情况返回 None，不做存量检查：起点之外另经 SubTask 执行（采集点不在本文件里）；
+    MapNavigateAction 参数不止 path，或 path 用了白名单以外的写法（见 path_collect_points）。
     """
     points = []
     for name, node in read_jsonc(route_file(route.region, route.id)).items():
@@ -296,19 +320,12 @@ def route_collect_points(route: Route) -> list[tuple[float, float]] | None:
             return None
         if action != "MapNavigateAction":
             continue
-        path = param.get("path", [])
-        segment_points = [
-            point
-            for segment in discover_path_routes({"path": path})
-            for point in segment
-            if STOCK_COLLECT_ACTIONS & set(point.get("actions", []))
-        ]
-        if len(segment_points) != sum(waypoint_collects(waypoint) for waypoint in path):
+        if set(param) != {"path"}:
             return None
-        for point in segment_points:
-            if point.get("target_tier") or not str(point.get("zone", "")).endswith("_Base"):
-                return None
-            points.append((point["x"], point["y"]))
+        segment = path_collect_points(param["path"])
+        if segment is None:
+            return None
+        points += segment
     return points
 
 
