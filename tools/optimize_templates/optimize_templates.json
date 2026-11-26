@@ -2776,5 +2776,6 @@
     "resource/image/UI/Item/item_case_wpn_selfselect_gahca_wulfa": "8a00592cae5d5191846b552f72d2f004d6453d22e162b1197521e9945fe8a437",
     "resource/image/UI/Item/item_gacha_introletter_1_7_1": "f05b8c9c7a84935a17df2c1dfbfd3da375a961aeb09383820f2229c04ed792b1",
     "resource/image/UI/Item/item_copper_bright_cmpt": "e487b0f66ee5086ab472788f880bc8ecb1b3617e6fa5c6ea95a94e916002a505",
-    "resource/image/DeliveryJobs/LocalDepotIcon": "fdbf5879786e91d9da3bfb1391d426527307aeb1506753f8ff53bc7f8fbe97fa"
+    "resource/image/DeliveryJobs/LocalDepotIcon": "fdbf5879786e91d9da3bfb1391d426527307aeb1506753f8ff53bc7f8fbe97fa",
+    "resource/image/AutoStockpile/Goods/Wuling/TianshiPillarCores.Tier2": "c66b83ecb110b90e65cf13da0fd51315e04ecd4eca04f7ee7419633d7d6c5403"
 }
