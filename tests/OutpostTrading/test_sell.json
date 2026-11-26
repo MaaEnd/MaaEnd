@@ -1,6 +1,6 @@
 {
     "configs": {
-        "name": "一键据点交易，测试售卖",
+        "name": "据点交易，测试售卖",
         "resource": "官服",
         "controller": [
             "Win32",

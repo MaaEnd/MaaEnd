@@ -1,6 +1,6 @@
 {
     "configs": {
-        "name": "一键据点交易，测试据点发展值上限",
+        "name": "据点交易，测试据点发展值上限",
         "resource": "官服",
         "controller": [
             "Win32",
