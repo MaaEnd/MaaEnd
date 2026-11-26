@@ -3,6 +3,7 @@
 import json
 import math
 import re
+import sys
 from collections import Counter
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass, field
@@ -11,6 +12,14 @@ from pathlib import Path
 from typing import Any
 
 import json5
+
+# 路点解析复用 MapNavigator（与运行时一致），它的模块以裸模块名互相 import
+_MAPNAV_DIR = Path(__file__).resolve().parent.parent / "MapNavigator"
+if str(_MAPNAV_DIR) not in sys.path:
+    sys.path.insert(0, str(_MAPNAV_DIR))
+
+from json_import import discover_path_routes  # noqa: E402
+from model import ActionType  # noqa: E402
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 REGISTRY_PATH = PROJECT_ROOT / "tools" / "AutoCollectRoute" / "routes.json"
@@ -44,8 +53,11 @@ STOCK_AREA_KINDS = {
 }
 STOCK_AREA_RADIUS = 15.0
 REGION_MAPS = {"ValleyIV": "map01", "Wuling": "map02"}
-STOCK_COLLECT_ACTIONS = ("COLLECT", "DIG")
+STOCK_COLLECT_ACTIONS = {int(ActionType.COLLECT), int(ActionType.DIG)}
 STOCK_PANEL_COUNT_ROI = [1120, 160, 105, 40]
+# 检查节点的动作失败时统一跳到这里：照常执行路线，并正常返回调度，避免框架因动作失败结束整个任务。
+# 不复用各节点 next 里的 StockKept，避免 next 与 on_error 重复路由
+STOCK_ABORTED = "AutoCollectStockCheckAborted"
 HAND_WRITTEN_KEYS = (
     "option.AutoCollectMode.",
     "option.AutoCollectTargetInventory.description",
@@ -249,26 +261,34 @@ def load_routes(registry: dict[str, Any], items: dict[str, Item]) -> list[Route]
     return routes
 
 
+def node_custom_action(node: dict[str, Any]) -> tuple[str, dict[str, Any]]:
+    """节点的 Custom 动作名与参数，兼容扁平与 v2 写法。"""
+    action = node.get("action")
+    if isinstance(action, dict):
+        param = action.get("param") or {}
+        return param.get("custom_action", ""), param.get("custom_action_param") or {}
+    return node.get("custom_action", ""), node.get("custom_action_param") or {}
+
+
 def route_collect_points(route: Route) -> list[tuple[float, float]] | None:
-    """路线全部采集点的底图坐标；有采集点不在底图上（分层或对象写法）时返回 None。"""
+    """路线全部采集点的底图坐标，路点按 MapNavigator 的解析规则读取。
+
+    有采集点不在底图上（分层），或起点之外另经 SubTask 执行（采集点不在本文件里）时返回 None，不做存量检查。
+    """
     points = []
     for name, node in read_jsonc(route_file(route.region, route.id)).items():
-        if not name.startswith(f"AutoCollect{route.id}Goto"):
+        action, param = node_custom_action(node)
+        if action == "SubTask" and name != f"AutoCollect{route.id}Start":
+            return None
+        if action != "MapNavigateAction":
             continue
-        action = node.get("action")
-        param = (action.get("param", {}) if isinstance(action, dict) else node).get("custom_action_param") or {}
-        zone = ""
-        for waypoint in param.get("path", []):
-            if isinstance(waypoint, dict):
-                if waypoint.get("action") == "ZONE":
-                    zone = waypoint.get("zone_id") or ""
-                elif waypoint.get("action") in STOCK_COLLECT_ACTIONS:
+        for segment in discover_path_routes({"path": param.get("path", [])}):
+            for point in segment:
+                if not STOCK_COLLECT_ACTIONS & set(point.get("actions", [])):
+                    continue
+                if point.get("target_tier") or not str(point.get("zone", "")).endswith("_Base"):
                     return None
-                continue
-            if len(waypoint) >= 3 and waypoint[2] in STOCK_COLLECT_ACTIONS:
-                if not zone.endswith("_Base"):
-                    return None
-                points.append((waypoint[0], waypoint[1]))
+                points.append((point["x"], point["y"]))
     return points
 
 
@@ -522,6 +542,15 @@ def stock_panel_shared_nodes() -> dict[str, Any]:
             "post_wait_freezes": 300,
             "post_delay": 0,
             "rate_limit": 0,
+            "on_error": ["AutoCollectStockPanelLeave"],
+        },
+        STOCK_ABORTED: {
+            "desc": "存量检查：打开地图、点击或停用路线的动作失败，不判断存量，照常执行并返回调度",
+            "recognition": "DirectHit",
+            "pre_delay": 0,
+            "action": "DoNothing",
+            "post_delay": 0,
+            "rate_limit": 0,
         },
         "AutoCollectStockPanelLeave": {
             "desc": "详情面板未能确认关闭，交给随后的传送流程处理",
@@ -575,8 +604,7 @@ def stock_nodes(route: Route, name: str, region: str, stock: StockArea) -> dict[
             "post_delay": 0,
             "rate_limit": 0,
             "next": [f"{node}StockFind", f"{node}StockKept"],
-            # 打不开地图时不判断存量，照常执行路线
-            "on_error": [f"{node}StockKept"],
+            "on_error": [STOCK_ABORTED],
         },
         f"{node}StockFind": {
             "desc": f"路线 {name} 存量检查：在大地图上确认存量区域图标",
@@ -612,6 +640,7 @@ def stock_nodes(route: Route, name: str, region: str, stock: StockArea) -> dict[
             "post_delay": 0,
             "rate_limit": 0,
             "next": [f"{node}StockDigit", f"{node}StockDigitWide", f"{node}StockPanelOpen"],
+            "on_error": [STOCK_ABORTED],
         },
         # 两帧都读不到角标时不直接跳过，点开区域详情面板读「存量/上限」，面板明确为 0 才停用
         f"{node}StockPanelOpen": {
@@ -623,6 +652,7 @@ def stock_nodes(route: Route, name: str, region: str, stock: StockArea) -> dict[
             "post_delay": 0,
             "rate_limit": 0,
             "next": [f"{node}StockPanelEmpty", f"{node}StockPanelStocked", f"{node}StockPanelPick", f"{node}StockKept"],
+            "on_error": [STOCK_ABORTED],
         },
         f"{node}StockPanelPick": {
             "desc": f"路线 {name} 存量检查：图标重叠时在选择列表中点选存量区域",
@@ -636,6 +666,7 @@ def stock_nodes(route: Route, name: str, region: str, stock: StockArea) -> dict[
             "post_delay": 0,
             "rate_limit": 0,
             "next": [f"{node}StockPanelEmpty", f"{node}StockPanelStocked", f"{node}StockKept"],
+            "on_error": [STOCK_ABORTED],
         },
         f"{node}StockPanelEmpty": {
             "desc": f"路线 {name} 存量检查：详情面板存量为 0，停用本轮执行",
@@ -651,7 +682,9 @@ def stock_nodes(route: Route, name: str, region: str, stock: StockArea) -> dict[
             "post_delay": 0,
             "rate_limit": 0,
             "next": ["AutoCollectStockPanelClose", "AutoCollectStockPanelLeave"],
-            "focus": {"Node.Recognition.Succeeded": f"$task.AutoCollect.route.{route.id}.stock_empty"},
+            "on_error": [STOCK_ABORTED],
+            # 停用成功后才提示跳过；停用失败时走 on_error 照常执行，不误报
+            "focus": {"Node.Action.Succeeded": f"$task.AutoCollect.route.{route.id}.stock_empty"},
         },
         f"{node}StockPanelStocked": {
             "desc": f"路线 {name} 存量检查：详情面板存量不为 0，照常执行",

@@ -1484,7 +1484,7 @@
             "__AutoCollectValleyIVChrysodendra1StockKept"
         ],
         "on_error": [
-            "__AutoCollectValleyIVChrysodendra1StockKept"
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectValleyIVChrysodendra1StockFind": {
@@ -1586,6 +1586,9 @@
             "__AutoCollectValleyIVChrysodendra1StockDigit",
             "__AutoCollectValleyIVChrysodendra1StockDigitWide",
             "__AutoCollectValleyIVChrysodendra1StockPanelOpen"
+        ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectValleyIVChrysodendra1StockPanelOpen": {
@@ -1606,6 +1609,9 @@
             "__AutoCollectValleyIVChrysodendra1StockPanelStocked",
             "__AutoCollectValleyIVChrysodendra1StockPanelPick",
             "__AutoCollectValleyIVChrysodendra1StockKept"
+        ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectValleyIVChrysodendra1StockPanelPick": {
@@ -1634,6 +1640,9 @@
             "__AutoCollectValleyIVChrysodendra1StockPanelEmpty",
             "__AutoCollectValleyIVChrysodendra1StockPanelStocked",
             "__AutoCollectValleyIVChrysodendra1StockKept"
+        ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectValleyIVChrysodendra1StockPanelEmpty": {
@@ -1672,8 +1681,11 @@
             "AutoCollectStockPanelClose",
             "AutoCollectStockPanelLeave"
         ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
+        ],
         "focus": {
-            "Node.Recognition.Succeeded": "$task.AutoCollect.route.ValleyIVChrysodendra1.stock_empty"
+            "Node.Action.Succeeded": "$task.AutoCollect.route.ValleyIVChrysodendra1.stock_empty"
         }
     },
     "__AutoCollectValleyIVChrysodendra1StockPanelStocked": {
@@ -1765,7 +1777,7 @@
             "__AutoCollectValleyIVKalkonyx1StockKept"
         ],
         "on_error": [
-            "__AutoCollectValleyIVKalkonyx1StockKept"
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectValleyIVKalkonyx1StockFind": {
@@ -1867,6 +1879,9 @@
             "__AutoCollectValleyIVKalkonyx1StockDigit",
             "__AutoCollectValleyIVKalkonyx1StockDigitWide",
             "__AutoCollectValleyIVKalkonyx1StockPanelOpen"
+        ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectValleyIVKalkonyx1StockPanelOpen": {
@@ -1887,6 +1902,9 @@
             "__AutoCollectValleyIVKalkonyx1StockPanelStocked",
             "__AutoCollectValleyIVKalkonyx1StockPanelPick",
             "__AutoCollectValleyIVKalkonyx1StockKept"
+        ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectValleyIVKalkonyx1StockPanelPick": {
@@ -1915,6 +1933,9 @@
             "__AutoCollectValleyIVKalkonyx1StockPanelEmpty",
             "__AutoCollectValleyIVKalkonyx1StockPanelStocked",
             "__AutoCollectValleyIVKalkonyx1StockKept"
+        ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectValleyIVKalkonyx1StockPanelEmpty": {
@@ -1953,8 +1974,11 @@
             "AutoCollectStockPanelClose",
             "AutoCollectStockPanelLeave"
         ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
+        ],
         "focus": {
-            "Node.Recognition.Succeeded": "$task.AutoCollect.route.ValleyIVKalkonyx1.stock_empty"
+            "Node.Action.Succeeded": "$task.AutoCollect.route.ValleyIVKalkonyx1.stock_empty"
         }
     },
     "__AutoCollectValleyIVKalkonyx1StockPanelStocked": {
@@ -2046,7 +2070,7 @@
             "__AutoCollectValleyIVPinkBolete1StockKept"
         ],
         "on_error": [
-            "__AutoCollectValleyIVPinkBolete1StockKept"
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectValleyIVPinkBolete1StockFind": {
@@ -2148,6 +2172,9 @@
             "__AutoCollectValleyIVPinkBolete1StockDigit",
             "__AutoCollectValleyIVPinkBolete1StockDigitWide",
             "__AutoCollectValleyIVPinkBolete1StockPanelOpen"
+        ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectValleyIVPinkBolete1StockPanelOpen": {
@@ -2168,6 +2195,9 @@
             "__AutoCollectValleyIVPinkBolete1StockPanelStocked",
             "__AutoCollectValleyIVPinkBolete1StockPanelPick",
             "__AutoCollectValleyIVPinkBolete1StockKept"
+        ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectValleyIVPinkBolete1StockPanelPick": {
@@ -2196,6 +2226,9 @@
             "__AutoCollectValleyIVPinkBolete1StockPanelEmpty",
             "__AutoCollectValleyIVPinkBolete1StockPanelStocked",
             "__AutoCollectValleyIVPinkBolete1StockKept"
+        ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectValleyIVPinkBolete1StockPanelEmpty": {
@@ -2234,8 +2267,11 @@
             "AutoCollectStockPanelClose",
             "AutoCollectStockPanelLeave"
         ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
+        ],
         "focus": {
-            "Node.Recognition.Succeeded": "$task.AutoCollect.route.ValleyIVPinkBolete1.stock_empty"
+            "Node.Action.Succeeded": "$task.AutoCollect.route.ValleyIVPinkBolete1.stock_empty"
         }
     },
     "__AutoCollectValleyIVPinkBolete1StockPanelStocked": {
@@ -2327,7 +2363,7 @@
             "__AutoCollectValleyIVAuronyx1StockKept"
         ],
         "on_error": [
-            "__AutoCollectValleyIVAuronyx1StockKept"
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectValleyIVAuronyx1StockFind": {
@@ -2429,6 +2465,9 @@
             "__AutoCollectValleyIVAuronyx1StockDigit",
             "__AutoCollectValleyIVAuronyx1StockDigitWide",
             "__AutoCollectValleyIVAuronyx1StockPanelOpen"
+        ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectValleyIVAuronyx1StockPanelOpen": {
@@ -2449,6 +2488,9 @@
             "__AutoCollectValleyIVAuronyx1StockPanelStocked",
             "__AutoCollectValleyIVAuronyx1StockPanelPick",
             "__AutoCollectValleyIVAuronyx1StockKept"
+        ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectValleyIVAuronyx1StockPanelPick": {
@@ -2477,6 +2519,9 @@
             "__AutoCollectValleyIVAuronyx1StockPanelEmpty",
             "__AutoCollectValleyIVAuronyx1StockPanelStocked",
             "__AutoCollectValleyIVAuronyx1StockKept"
+        ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectValleyIVAuronyx1StockPanelEmpty": {
@@ -2515,8 +2560,11 @@
             "AutoCollectStockPanelClose",
             "AutoCollectStockPanelLeave"
         ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
+        ],
         "focus": {
-            "Node.Recognition.Succeeded": "$task.AutoCollect.route.ValleyIVAuronyx1.stock_empty"
+            "Node.Action.Succeeded": "$task.AutoCollect.route.ValleyIVAuronyx1.stock_empty"
         }
     },
     "__AutoCollectValleyIVAuronyx1StockPanelStocked": {
@@ -2608,7 +2656,7 @@
             "__AutoCollectValleyIVKalkodendra1StockKept"
         ],
         "on_error": [
-            "__AutoCollectValleyIVKalkodendra1StockKept"
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectValleyIVKalkodendra1StockFind": {
@@ -2710,6 +2758,9 @@
             "__AutoCollectValleyIVKalkodendra1StockDigit",
             "__AutoCollectValleyIVKalkodendra1StockDigitWide",
             "__AutoCollectValleyIVKalkodendra1StockPanelOpen"
+        ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectValleyIVKalkodendra1StockPanelOpen": {
@@ -2730,6 +2781,9 @@
             "__AutoCollectValleyIVKalkodendra1StockPanelStocked",
             "__AutoCollectValleyIVKalkodendra1StockPanelPick",
             "__AutoCollectValleyIVKalkodendra1StockKept"
+        ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectValleyIVKalkodendra1StockPanelPick": {
@@ -2758,6 +2812,9 @@
             "__AutoCollectValleyIVKalkodendra1StockPanelEmpty",
             "__AutoCollectValleyIVKalkodendra1StockPanelStocked",
             "__AutoCollectValleyIVKalkodendra1StockKept"
+        ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectValleyIVKalkodendra1StockPanelEmpty": {
@@ -2796,8 +2853,11 @@
             "AutoCollectStockPanelClose",
             "AutoCollectStockPanelLeave"
         ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
+        ],
         "focus": {
-            "Node.Recognition.Succeeded": "$task.AutoCollect.route.ValleyIVKalkodendra1.stock_empty"
+            "Node.Action.Succeeded": "$task.AutoCollect.route.ValleyIVKalkodendra1.stock_empty"
         }
     },
     "__AutoCollectValleyIVKalkodendra1StockPanelStocked": {
@@ -2953,7 +3013,7 @@
             "__AutoCollectWulingBlightedJadeleaf1StockKept"
         ],
         "on_error": [
-            "__AutoCollectWulingBlightedJadeleaf1StockKept"
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectWulingBlightedJadeleaf1StockFind": {
@@ -3055,6 +3115,9 @@
             "__AutoCollectWulingBlightedJadeleaf1StockDigit",
             "__AutoCollectWulingBlightedJadeleaf1StockDigitWide",
             "__AutoCollectWulingBlightedJadeleaf1StockPanelOpen"
+        ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectWulingBlightedJadeleaf1StockPanelOpen": {
@@ -3075,6 +3138,9 @@
             "__AutoCollectWulingBlightedJadeleaf1StockPanelStocked",
             "__AutoCollectWulingBlightedJadeleaf1StockPanelPick",
             "__AutoCollectWulingBlightedJadeleaf1StockKept"
+        ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectWulingBlightedJadeleaf1StockPanelPick": {
@@ -3103,6 +3169,9 @@
             "__AutoCollectWulingBlightedJadeleaf1StockPanelEmpty",
             "__AutoCollectWulingBlightedJadeleaf1StockPanelStocked",
             "__AutoCollectWulingBlightedJadeleaf1StockKept"
+        ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectWulingBlightedJadeleaf1StockPanelEmpty": {
@@ -3141,8 +3210,11 @@
             "AutoCollectStockPanelClose",
             "AutoCollectStockPanelLeave"
         ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
+        ],
         "focus": {
-            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingBlightedJadeleaf1.stock_empty"
+            "Node.Action.Succeeded": "$task.AutoCollect.route.WulingBlightedJadeleaf1.stock_empty"
         }
     },
     "__AutoCollectWulingBlightedJadeleaf1StockPanelStocked": {
@@ -3234,7 +3306,7 @@
             "__AutoCollectWulingFalseAggela1StockKept"
         ],
         "on_error": [
-            "__AutoCollectWulingFalseAggela1StockKept"
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectWulingFalseAggela1StockFind": {
@@ -3336,6 +3408,9 @@
             "__AutoCollectWulingFalseAggela1StockDigit",
             "__AutoCollectWulingFalseAggela1StockDigitWide",
             "__AutoCollectWulingFalseAggela1StockPanelOpen"
+        ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectWulingFalseAggela1StockPanelOpen": {
@@ -3356,6 +3431,9 @@
             "__AutoCollectWulingFalseAggela1StockPanelStocked",
             "__AutoCollectWulingFalseAggela1StockPanelPick",
             "__AutoCollectWulingFalseAggela1StockKept"
+        ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectWulingFalseAggela1StockPanelPick": {
@@ -3384,6 +3462,9 @@
             "__AutoCollectWulingFalseAggela1StockPanelEmpty",
             "__AutoCollectWulingFalseAggela1StockPanelStocked",
             "__AutoCollectWulingFalseAggela1StockKept"
+        ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectWulingFalseAggela1StockPanelEmpty": {
@@ -3422,8 +3503,11 @@
             "AutoCollectStockPanelClose",
             "AutoCollectStockPanelLeave"
         ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
+        ],
         "focus": {
-            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingFalseAggela1.stock_empty"
+            "Node.Action.Succeeded": "$task.AutoCollect.route.WulingFalseAggela1.stock_empty"
         }
     },
     "__AutoCollectWulingFalseAggela1StockPanelStocked": {
@@ -3515,7 +3599,7 @@
             "__AutoCollectWulingVitrodendra1StockKept"
         ],
         "on_error": [
-            "__AutoCollectWulingVitrodendra1StockKept"
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectWulingVitrodendra1StockFind": {
@@ -3617,6 +3701,9 @@
             "__AutoCollectWulingVitrodendra1StockDigit",
             "__AutoCollectWulingVitrodendra1StockDigitWide",
             "__AutoCollectWulingVitrodendra1StockPanelOpen"
+        ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectWulingVitrodendra1StockPanelOpen": {
@@ -3637,6 +3724,9 @@
             "__AutoCollectWulingVitrodendra1StockPanelStocked",
             "__AutoCollectWulingVitrodendra1StockPanelPick",
             "__AutoCollectWulingVitrodendra1StockKept"
+        ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectWulingVitrodendra1StockPanelPick": {
@@ -3665,6 +3755,9 @@
             "__AutoCollectWulingVitrodendra1StockPanelEmpty",
             "__AutoCollectWulingVitrodendra1StockPanelStocked",
             "__AutoCollectWulingVitrodendra1StockKept"
+        ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectWulingVitrodendra1StockPanelEmpty": {
@@ -3703,8 +3796,11 @@
             "AutoCollectStockPanelClose",
             "AutoCollectStockPanelLeave"
         ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
+        ],
         "focus": {
-            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingVitrodendra1.stock_empty"
+            "Node.Action.Succeeded": "$task.AutoCollect.route.WulingVitrodendra1.stock_empty"
         }
     },
     "__AutoCollectWulingVitrodendra1StockPanelStocked": {
@@ -3828,7 +3924,7 @@
             "__AutoCollectWulingCosmagaric1StockKept"
         ],
         "on_error": [
-            "__AutoCollectWulingCosmagaric1StockKept"
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectWulingCosmagaric1StockFind": {
@@ -3930,6 +4026,9 @@
             "__AutoCollectWulingCosmagaric1StockDigit",
             "__AutoCollectWulingCosmagaric1StockDigitWide",
             "__AutoCollectWulingCosmagaric1StockPanelOpen"
+        ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectWulingCosmagaric1StockPanelOpen": {
@@ -3950,6 +4049,9 @@
             "__AutoCollectWulingCosmagaric1StockPanelStocked",
             "__AutoCollectWulingCosmagaric1StockPanelPick",
             "__AutoCollectWulingCosmagaric1StockKept"
+        ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectWulingCosmagaric1StockPanelPick": {
@@ -3978,6 +4080,9 @@
             "__AutoCollectWulingCosmagaric1StockPanelEmpty",
             "__AutoCollectWulingCosmagaric1StockPanelStocked",
             "__AutoCollectWulingCosmagaric1StockKept"
+        ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectWulingCosmagaric1StockPanelEmpty": {
@@ -4016,8 +4121,11 @@
             "AutoCollectStockPanelClose",
             "AutoCollectStockPanelLeave"
         ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
+        ],
         "focus": {
-            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingCosmagaric1.stock_empty"
+            "Node.Action.Succeeded": "$task.AutoCollect.route.WulingCosmagaric1.stock_empty"
         }
     },
     "__AutoCollectWulingCosmagaric1StockPanelStocked": {
@@ -4109,7 +4217,7 @@
             "__AutoCollectWulingIgneosite1StockKept"
         ],
         "on_error": [
-            "__AutoCollectWulingIgneosite1StockKept"
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectWulingIgneosite1StockFind": {
@@ -4211,6 +4319,9 @@
             "__AutoCollectWulingIgneosite1StockDigit",
             "__AutoCollectWulingIgneosite1StockDigitWide",
             "__AutoCollectWulingIgneosite1StockPanelOpen"
+        ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectWulingIgneosite1StockPanelOpen": {
@@ -4231,6 +4342,9 @@
             "__AutoCollectWulingIgneosite1StockPanelStocked",
             "__AutoCollectWulingIgneosite1StockPanelPick",
             "__AutoCollectWulingIgneosite1StockKept"
+        ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectWulingIgneosite1StockPanelPick": {
@@ -4259,6 +4373,9 @@
             "__AutoCollectWulingIgneosite1StockPanelEmpty",
             "__AutoCollectWulingIgneosite1StockPanelStocked",
             "__AutoCollectWulingIgneosite1StockKept"
+        ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectWulingIgneosite1StockPanelEmpty": {
@@ -4297,8 +4414,11 @@
             "AutoCollectStockPanelClose",
             "AutoCollectStockPanelLeave"
         ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
+        ],
         "focus": {
-            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingIgneosite1.stock_empty"
+            "Node.Action.Succeeded": "$task.AutoCollect.route.WulingIgneosite1.stock_empty"
         }
     },
     "__AutoCollectWulingIgneosite1StockPanelStocked": {
@@ -4422,7 +4542,7 @@
             "__AutoCollectWulingUmbronyx1StockKept"
         ],
         "on_error": [
-            "__AutoCollectWulingUmbronyx1StockKept"
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectWulingUmbronyx1StockFind": {
@@ -4524,6 +4644,9 @@
             "__AutoCollectWulingUmbronyx1StockDigit",
             "__AutoCollectWulingUmbronyx1StockDigitWide",
             "__AutoCollectWulingUmbronyx1StockPanelOpen"
+        ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectWulingUmbronyx1StockPanelOpen": {
@@ -4544,6 +4667,9 @@
             "__AutoCollectWulingUmbronyx1StockPanelStocked",
             "__AutoCollectWulingUmbronyx1StockPanelPick",
             "__AutoCollectWulingUmbronyx1StockKept"
+        ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectWulingUmbronyx1StockPanelPick": {
@@ -4572,6 +4698,9 @@
             "__AutoCollectWulingUmbronyx1StockPanelEmpty",
             "__AutoCollectWulingUmbronyx1StockPanelStocked",
             "__AutoCollectWulingUmbronyx1StockKept"
+        ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectWulingUmbronyx1StockPanelEmpty": {
@@ -4610,8 +4739,11 @@
             "AutoCollectStockPanelClose",
             "AutoCollectStockPanelLeave"
         ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
+        ],
         "focus": {
-            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingUmbronyx1.stock_empty"
+            "Node.Action.Succeeded": "$task.AutoCollect.route.WulingUmbronyx1.stock_empty"
         }
     },
     "__AutoCollectWulingUmbronyx1StockPanelStocked": {
@@ -4703,7 +4835,7 @@
             "__AutoCollectWulingRedBolete1StockKept"
         ],
         "on_error": [
-            "__AutoCollectWulingRedBolete1StockKept"
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectWulingRedBolete1StockFind": {
@@ -4805,6 +4937,9 @@
             "__AutoCollectWulingRedBolete1StockDigit",
             "__AutoCollectWulingRedBolete1StockDigitWide",
             "__AutoCollectWulingRedBolete1StockPanelOpen"
+        ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectWulingRedBolete1StockPanelOpen": {
@@ -4825,6 +4960,9 @@
             "__AutoCollectWulingRedBolete1StockPanelStocked",
             "__AutoCollectWulingRedBolete1StockPanelPick",
             "__AutoCollectWulingRedBolete1StockKept"
+        ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectWulingRedBolete1StockPanelPick": {
@@ -4853,6 +4991,9 @@
             "__AutoCollectWulingRedBolete1StockPanelEmpty",
             "__AutoCollectWulingRedBolete1StockPanelStocked",
             "__AutoCollectWulingRedBolete1StockKept"
+        ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectWulingRedBolete1StockPanelEmpty": {
@@ -4891,8 +5032,11 @@
             "AutoCollectStockPanelClose",
             "AutoCollectStockPanelLeave"
         ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
+        ],
         "focus": {
-            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingRedBolete1.stock_empty"
+            "Node.Action.Succeeded": "$task.AutoCollect.route.WulingRedBolete1.stock_empty"
         }
     },
     "__AutoCollectWulingRedBolete1StockPanelStocked": {
@@ -4984,7 +5128,7 @@
             "__AutoCollectWulingCrimsonSpearleaf1StockKept"
         ],
         "on_error": [
-            "__AutoCollectWulingCrimsonSpearleaf1StockKept"
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectWulingCrimsonSpearleaf1StockFind": {
@@ -5086,6 +5230,9 @@
             "__AutoCollectWulingCrimsonSpearleaf1StockDigit",
             "__AutoCollectWulingCrimsonSpearleaf1StockDigitWide",
             "__AutoCollectWulingCrimsonSpearleaf1StockPanelOpen"
+        ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectWulingCrimsonSpearleaf1StockPanelOpen": {
@@ -5106,6 +5253,9 @@
             "__AutoCollectWulingCrimsonSpearleaf1StockPanelStocked",
             "__AutoCollectWulingCrimsonSpearleaf1StockPanelPick",
             "__AutoCollectWulingCrimsonSpearleaf1StockKept"
+        ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectWulingCrimsonSpearleaf1StockPanelPick": {
@@ -5134,6 +5284,9 @@
             "__AutoCollectWulingCrimsonSpearleaf1StockPanelEmpty",
             "__AutoCollectWulingCrimsonSpearleaf1StockPanelStocked",
             "__AutoCollectWulingCrimsonSpearleaf1StockKept"
+        ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectWulingCrimsonSpearleaf1StockPanelEmpty": {
@@ -5172,8 +5325,11 @@
             "AutoCollectStockPanelClose",
             "AutoCollectStockPanelLeave"
         ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
+        ],
         "focus": {
-            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingCrimsonSpearleaf1.stock_empty"
+            "Node.Action.Succeeded": "$task.AutoCollect.route.WulingCrimsonSpearleaf1.stock_empty"
         }
     },
     "__AutoCollectWulingCrimsonSpearleaf1StockPanelStocked": {
@@ -5297,7 +5453,7 @@
             "__AutoCollectWulingTalosCap1StockKept"
         ],
         "on_error": [
-            "__AutoCollectWulingTalosCap1StockKept"
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectWulingTalosCap1StockFind": {
@@ -5399,6 +5555,9 @@
             "__AutoCollectWulingTalosCap1StockDigit",
             "__AutoCollectWulingTalosCap1StockDigitWide",
             "__AutoCollectWulingTalosCap1StockPanelOpen"
+        ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectWulingTalosCap1StockPanelOpen": {
@@ -5419,6 +5578,9 @@
             "__AutoCollectWulingTalosCap1StockPanelStocked",
             "__AutoCollectWulingTalosCap1StockPanelPick",
             "__AutoCollectWulingTalosCap1StockKept"
+        ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectWulingTalosCap1StockPanelPick": {
@@ -5447,6 +5609,9 @@
             "__AutoCollectWulingTalosCap1StockPanelEmpty",
             "__AutoCollectWulingTalosCap1StockPanelStocked",
             "__AutoCollectWulingTalosCap1StockKept"
+        ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectWulingTalosCap1StockPanelEmpty": {
@@ -5485,8 +5650,11 @@
             "AutoCollectStockPanelClose",
             "AutoCollectStockPanelLeave"
         ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
+        ],
         "focus": {
-            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingTalosCap1.stock_empty"
+            "Node.Action.Succeeded": "$task.AutoCollect.route.WulingTalosCap1.stock_empty"
         }
     },
     "__AutoCollectWulingTalosCap1StockPanelStocked": {
@@ -5866,7 +6034,7 @@
             "__AutoCollectWulingProtocolith2StockKept"
         ],
         "on_error": [
-            "__AutoCollectWulingProtocolith2StockKept"
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectWulingProtocolith2StockFind": {
@@ -5968,6 +6136,9 @@
             "__AutoCollectWulingProtocolith2StockDigit",
             "__AutoCollectWulingProtocolith2StockDigitWide",
             "__AutoCollectWulingProtocolith2StockPanelOpen"
+        ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectWulingProtocolith2StockPanelOpen": {
@@ -5988,6 +6159,9 @@
             "__AutoCollectWulingProtocolith2StockPanelStocked",
             "__AutoCollectWulingProtocolith2StockPanelPick",
             "__AutoCollectWulingProtocolith2StockKept"
+        ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectWulingProtocolith2StockPanelPick": {
@@ -6016,6 +6190,9 @@
             "__AutoCollectWulingProtocolith2StockPanelEmpty",
             "__AutoCollectWulingProtocolith2StockPanelStocked",
             "__AutoCollectWulingProtocolith2StockKept"
+        ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectWulingProtocolith2StockPanelEmpty": {
@@ -6054,8 +6231,11 @@
             "AutoCollectStockPanelClose",
             "AutoCollectStockPanelLeave"
         ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
+        ],
         "focus": {
-            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingProtocolith2.stock_empty"
+            "Node.Action.Succeeded": "$task.AutoCollect.route.WulingProtocolith2.stock_empty"
         }
     },
     "__AutoCollectWulingProtocolith2StockPanelStocked": {
@@ -6179,7 +6359,7 @@
             "__AutoCollectWulingVitrodendra2StockKept"
         ],
         "on_error": [
-            "__AutoCollectWulingVitrodendra2StockKept"
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectWulingVitrodendra2StockFind": {
@@ -6281,6 +6461,9 @@
             "__AutoCollectWulingVitrodendra2StockDigit",
             "__AutoCollectWulingVitrodendra2StockDigitWide",
             "__AutoCollectWulingVitrodendra2StockPanelOpen"
+        ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectWulingVitrodendra2StockPanelOpen": {
@@ -6301,6 +6484,9 @@
             "__AutoCollectWulingVitrodendra2StockPanelStocked",
             "__AutoCollectWulingVitrodendra2StockPanelPick",
             "__AutoCollectWulingVitrodendra2StockKept"
+        ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectWulingVitrodendra2StockPanelPick": {
@@ -6329,6 +6515,9 @@
             "__AutoCollectWulingVitrodendra2StockPanelEmpty",
             "__AutoCollectWulingVitrodendra2StockPanelStocked",
             "__AutoCollectWulingVitrodendra2StockKept"
+        ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectWulingVitrodendra2StockPanelEmpty": {
@@ -6367,8 +6556,11 @@
             "AutoCollectStockPanelClose",
             "AutoCollectStockPanelLeave"
         ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
+        ],
         "focus": {
-            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingVitrodendra2.stock_empty"
+            "Node.Action.Succeeded": "$task.AutoCollect.route.WulingVitrodendra2.stock_empty"
         }
     },
     "__AutoCollectWulingVitrodendra2StockPanelStocked": {
@@ -6460,7 +6652,7 @@
             "__AutoCollectWulingIgneosite2StockKept"
         ],
         "on_error": [
-            "__AutoCollectWulingIgneosite2StockKept"
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectWulingIgneosite2StockFind": {
@@ -6562,6 +6754,9 @@
             "__AutoCollectWulingIgneosite2StockDigit",
             "__AutoCollectWulingIgneosite2StockDigitWide",
             "__AutoCollectWulingIgneosite2StockPanelOpen"
+        ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectWulingIgneosite2StockPanelOpen": {
@@ -6582,6 +6777,9 @@
             "__AutoCollectWulingIgneosite2StockPanelStocked",
             "__AutoCollectWulingIgneosite2StockPanelPick",
             "__AutoCollectWulingIgneosite2StockKept"
+        ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectWulingIgneosite2StockPanelPick": {
@@ -6610,6 +6808,9 @@
             "__AutoCollectWulingIgneosite2StockPanelEmpty",
             "__AutoCollectWulingIgneosite2StockPanelStocked",
             "__AutoCollectWulingIgneosite2StockKept"
+        ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectWulingIgneosite2StockPanelEmpty": {
@@ -6648,8 +6849,11 @@
             "AutoCollectStockPanelClose",
             "AutoCollectStockPanelLeave"
         ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
+        ],
         "focus": {
-            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingIgneosite2.stock_empty"
+            "Node.Action.Succeeded": "$task.AutoCollect.route.WulingIgneosite2.stock_empty"
         }
     },
     "__AutoCollectWulingIgneosite2StockPanelStocked": {
@@ -6741,7 +6945,7 @@
             "__AutoCollectWulingCosmagaric2StockKept"
         ],
         "on_error": [
-            "__AutoCollectWulingCosmagaric2StockKept"
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectWulingCosmagaric2StockFind": {
@@ -6843,6 +7047,9 @@
             "__AutoCollectWulingCosmagaric2StockDigit",
             "__AutoCollectWulingCosmagaric2StockDigitWide",
             "__AutoCollectWulingCosmagaric2StockPanelOpen"
+        ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectWulingCosmagaric2StockPanelOpen": {
@@ -6863,6 +7070,9 @@
             "__AutoCollectWulingCosmagaric2StockPanelStocked",
             "__AutoCollectWulingCosmagaric2StockPanelPick",
             "__AutoCollectWulingCosmagaric2StockKept"
+        ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectWulingCosmagaric2StockPanelPick": {
@@ -6891,6 +7101,9 @@
             "__AutoCollectWulingCosmagaric2StockPanelEmpty",
             "__AutoCollectWulingCosmagaric2StockPanelStocked",
             "__AutoCollectWulingCosmagaric2StockKept"
+        ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
         ]
     },
     "__AutoCollectWulingCosmagaric2StockPanelEmpty": {
@@ -6929,8 +7142,11 @@
             "AutoCollectStockPanelClose",
             "AutoCollectStockPanelLeave"
         ],
+        "on_error": [
+            "AutoCollectStockCheckAborted"
+        ],
         "focus": {
-            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingCosmagaric2.stock_empty"
+            "Node.Action.Succeeded": "$task.AutoCollect.route.WulingCosmagaric2.stock_empty"
         }
     },
     "__AutoCollectWulingCosmagaric2StockPanelStocked": {
@@ -6994,6 +7210,17 @@
         "pre_delay": 0,
         "action": "Click",
         "post_wait_freezes": 300,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "on_error": [
+            "AutoCollectStockPanelLeave"
+        ]
+    },
+    "AutoCollectStockCheckAborted": {
+        "desc": "存量检查：打开地图、点击或停用路线的动作失败，不判断存量，照常执行并返回调度",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
         "post_delay": 0,
         "rate_limit": 0
     },

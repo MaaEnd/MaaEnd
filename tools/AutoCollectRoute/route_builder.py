@@ -510,7 +510,9 @@ def preview(
         if route_id != replace:
             files.append((old_path, "删除"))
     if route_id != replace:
-        files += [(path, "修改") for path in (registry.REGISTRY_PATH, *registry.GENERATED_FILES)]
+        files.append((registry.REGISTRY_PATH, "修改"))
+    # 存量检查按路线坐标推导所在区域，路线 id 不变时也要重新生成任务注册
+    files += [(path, "修改") for path in registry.GENERATED_FILES]
     return {
         **plan,
         "kind": kind,
@@ -551,7 +553,7 @@ def apply(
                 entry = {"id": route_id, "region": result["region"], "items": result["item_ids"]}
                 registry.replace_route(replace, entry)
                 registry.route_file(result["region"], replace).unlink()
-            registry.generate()
+        registry.generate()
     return {**result, "written": [file["path"] for file in result["files"]]}
 
 
