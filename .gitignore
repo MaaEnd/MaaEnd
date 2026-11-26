@@ -366,6 +366,8 @@ paket-files/
 
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
+# test-capture 生成的节点名类型存根，按本地 pipeline 生成
+tools/test_capture/node_names.pyi
 *.pyc
 *.egg-info/
 
