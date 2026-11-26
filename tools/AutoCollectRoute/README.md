@@ -119,9 +119,9 @@ uv run autocollect-route generate
 3. `StockDigit` / `StockDigitWide` 在图标右上角用两个框做 OCR：一个只框角标，一个向右与上下放宽以容忍遮挡与偏移（不向左放宽，避免把图标本体的竖线读成 `1`）。任一读到置信度 0.9 以上的数字即照常执行，没读到或不够确定时交给详情面板确认；
 4. 两个框都读不到时，`StockRecheck` 等画面静止后换一帧再读一次；
 5. 仍读不到时，`StockPanelOpen` 点击区域图标，轮询详情面板右上角的「存量/上限」或重叠图标的选择列表，超时为 5 秒。列表出现时，`StockPanelPick` 按列表项左侧的兔耳或矿石图标点选一次，再轮询面板存量，超时同为 5 秒。
-6. 以置信度 0.9 以上读到 `0/…` 时，`StockPanelEmpty` 停用本轮的 `__AutoCollect<路线 id>Run`，并在运行日志中提示「`<路线名>` 存量为 0，本次跳过」（文案键 `task.AutoCollect.route.<路线 id>.stock_empty`）。`StockPanelStocked` 读到非零存量时照常执行。随后 `AutoCollectStockPanelClose` 在面板仍开着时点面板右上角的 X 关闭面板，地图保持打开供传送使用。
+6. 以置信度 0.9 以上读到 `0/…` 时，`StockPanelEmpty` 尝试停用本轮的 `__AutoCollect<路线 id>Run`，仅在停用成功后才在运行日志中提示「`<路线名>` 存量为 0，本次跳过」（文案键 `task.AutoCollect.route.<路线 id>.stock_empty`）。`StockPanelStocked` 读到非零存量时照常执行。随后 `AutoCollectStockPanelClose` 在面板仍开着时点面板右上角的 X 关闭面板，地图保持打开供传送使用。
 
-打不开地图、点击失败或面板识别超时时，`AutoCollectStockCheckAborted` 返回调度并照常执行路线。找不到区域图标（包括被角色标记盖住）时，`StockKept` 同样返回调度并照常执行路线。实测面板 `0/8` 的置信度约 0.99。有角标时，两个框的较高置信度通常在 0.95 以上，直接放行。角标被滑索架压住时约 0.76，改走详情面板。OCR 在图标旁的背景上偶尔会误读出较高分的数字，使原本应跳过的路线照常执行。
+打不开地图、点击失败、面板识别超时或停用路线失败时，`AutoCollectStockCheckAborted` 返回调度并照常执行路线。找不到区域图标（包括被角色标记盖住）时，`StockKept` 同样返回调度并照常执行路线。实测面板 `0/8` 的置信度约 0.99。有角标时，两个框的较高置信度通常在 0.95 以上，直接放行。角标被滑索架压住时约 0.76，改走详情面板。OCR 在图标旁的背景上偶尔会误读出较高分的数字，使原本应跳过的路线照常执行。
 
 生成器按下列条件自动决定哪些路线做检查，`routes.json` 不需要额外字段：
 

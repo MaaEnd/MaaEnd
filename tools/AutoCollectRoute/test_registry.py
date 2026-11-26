@@ -50,7 +50,7 @@ class StockPanelPollingTest(unittest.TestCase):
                 click = nodes[f"{panel}{step}"]
                 self.assertEqual(click["next"], [f"{panel}{state}" for state in candidates])
                 self.assertEqual(click["on_error"], [registry.STOCK_ABORTED])
+                self.assertEqual(click["timeout"], 5_000)
                 self.assertGreater(click["timeout"], click["rate_limit"])
-                self.assertLess(click["timeout"], 20_000)
                 for state in candidates:
                     self.assertEqual(nodes[f"{panel}{state}"]["recognition"]["type"], recognition_types[state])
