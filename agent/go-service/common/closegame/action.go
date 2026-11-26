@@ -138,10 +138,8 @@ func (a *CloseGameAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 
 	// 先关启动器，再关游戏：启动器若仍在运行可能会重新拉起游戏进程。
 	if params.CloseLauncher {
-		for _, name := range launcherProcessNames {
-			if !killByName(name) {
-				return false
-			}
+		if !closeLaunchers() {
+			return false
 		}
 	}
 
