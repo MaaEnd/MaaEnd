@@ -34,6 +34,8 @@ OPEN_GAME_TASK = "AndroidOpenGame"
 PROBE_TIMEOUT = 0
 # 界面刚出来时可能有动画，截图前默认等 2 秒让画面稳定；只是等界面命中时不额外等待。
 DEFAULT_WAIT = 2.0
+# 失败现场图的后缀：它的前缀是步骤号，跟截图的序号不是一套，算最大号时要跳过。
+FAILURE_SUFFIX = "_失败"
 
 
 @dataclass
@@ -43,6 +45,22 @@ class RunSettings:
     dry_run: bool = False
     open_game: bool = True
     wait: float = DEFAULT_WAIT
+
+
+def last_shot_number(out_dir: Path) -> int:
+    """这个平台目录里的截图已经编到几号。
+
+    续跑、或者同一场里换了平台又换回来（会重连），编号都得接着目录里最大的往下数；
+    从 01 重来会和已有的图撞号。失败现场图不算，它的前缀是步骤号。
+    """
+    best = 0
+    for path in out_dir.glob("*.png"):
+        if path.stem.endswith(FAILURE_SUFFIX):
+            continue
+        head = path.name.split("_", 1)[0]
+        if head.isdigit():
+            best = max(best, int(head))
+    return best
 
 
 def save_image(image: Image, path: Path) -> None:
@@ -99,7 +117,8 @@ class Session:
         self.dry_run = dry_run
         self.default_wait = default_wait
         self.testset = testset
-        self.captured = 0
+        # 目录里可能已经有别的尝试拍的图（续跑、或者中途重连过），编号接着往下数。
+        self.captured = last_shot_number(out_dir)
         self.records: list[dict[str, Any]] = []
         self.clicked: list[tuple[int, int]] = []
         self._fallback_image: Image | None = None
@@ -493,7 +512,7 @@ class Platform:
                 record = self.session.run_step(index, step)
             except FlowError as error:
                 result["error"] = {"step": index, "name": step.name, "message": str(error)}
-                failure_path = self.out_dir / f"{index:02d}_{step.name}_失败.png"
+                failure_path = self.out_dir / f"{index:02d}_{step.name}{FAILURE_SUFFIX}.png"
                 try:
                     image = self.session.capture()
                     if image.size:
