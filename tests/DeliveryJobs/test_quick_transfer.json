@@ -24,7 +24,8 @@
             "image": "快速转交确认.png",
             "hits": [
                 "DeliveryJobsQuickTransferConfirm",
-                "DeliveryJobsCheckQuickTransferConfirmText"
+                "DeliveryJobsCheckQuickTransferConfirmText",
+                "DeliveryJobsDontRemindAgainForToday"
             ]
         },
         {
