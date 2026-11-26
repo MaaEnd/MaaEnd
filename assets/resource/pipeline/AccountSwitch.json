@@ -44,7 +44,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "__AccountSwitchFocusFormBeforeDropdown"
+            "__AccountSwitchClickDropdown"
         ]
     },
     "__AccountSwitchClickLogout": {
@@ -118,23 +118,8 @@
             "__AccountSwitchAtLoginScreenDialogShow"
         ]
     },
-    "__AccountSwitchFocusFormBeforeDropdown": {
-        "desc": "聚焦账号登录窗口后准备点击下拉",
-        "recognition": "DirectHit",
-        "action": "Custom",
-        "custom_action": "AccountSwitchWindowAction",
-        "custom_action_param": {
-            "op": "focus",
-            "window": "form",
-            "optional": false
-        },
-        "next": [
-            "__AccountSwitchClickDropdown"
-        ]
-    },
     "__AccountSwitchClickDropdown": {
-        "desc": "点击账号下拉按钮,maafw在前台截图时5秒内会置顶一次游戏窗口，导致下拉框消失，因此需要重试",
-        "max_hit": 5,
+        "desc": "点击账号下拉按钮",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -154,16 +139,10 @@
                 ]
             }
         },
-        "action": "Custom",
-        "custom_action": "AccountSwitchWindowAction", //目前是PostMessage，需要管理员运行，手动启动agent需要注意
-        "custom_action_param": {
-            "op": "click",
-            "window": "form"
-        },
+        "action": "Click",
         "post_wait_freezes": 500,
         "next": [
-            "__AccountSwitchClickDropdownSuccess",
-            "__AccountSwitchClickDropdown"
+            "__AccountSwitchClickDropdownSuccess"
         ]
     },
     "__AccountSwitchClickDropdownSuccess": {
@@ -186,13 +165,6 @@
             }
         },
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "ClearHitCount",
-        "custom_action_param": {
-            "nodes": [
-                "__AccountSwitchClickDropdown"
-            ]
-        },
         "post_delay": 0,
         "next": [
             "__AccountSwitchConfigureEmailPattern",
@@ -213,8 +185,7 @@
             "substring": true
         },
         "next": [
-            "__AccountSwitchOCRSelectAccount",
-            "__AccountSwitchClickDropdown"
+            "__AccountSwitchOCRSelectAccount"
         ]
     },
     "__AccountSwitchOCRSelectAccount": {
@@ -237,40 +208,7 @@
                 ]
             }
         },
-        "action": "Custom",
-        "custom_action": "AccountSwitchWindowAction",
-        "custom_action_param": {
-            "op": "click",
-            "window": "combo"
-        },
-        "next": [
-            "__AccountSwitchCloseCombo"
-        ]
-    },
-    "__AccountSwitchCloseCombo": {
-        "desc": "关闭账号下拉列表窗口",
-        "recognition": "DirectHit",
-        "action": "Custom",
-        "custom_action": "AccountSwitchWindowAction",
-        "custom_action_param": {
-            "op": "close",
-            "window": "combo",
-            "optional": true
-        },
-        "next": [
-            "__AccountSwitchFocusForm"
-        ]
-    },
-    "__AccountSwitchFocusForm": {
-        "desc": "聚焦账号登录窗口",
-        "recognition": "DirectHit",
-        "action": "Custom",
-        "custom_action": "AccountSwitchWindowAction",
-        "custom_action_param": {
-            "op": "focus",
-            "window": "form",
-            "optional": true
-        },
+        "action": "Click",
         "next": [
             "__AccountSwitchCheckAccount"
         ]
@@ -301,7 +239,7 @@
         },
         "next": [
             "__AccountSwitchVerifySelected",
-            "__AccountSwitchFocusFormBeforeDropdown"
+            "__AccountSwitchClickDropdown"
         ]
     },
     "__AccountSwitchVerifySelected": {

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/accountswitch"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/aerosalvage"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/arenaofgames"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autodelivery"
@@ -100,7 +99,6 @@ func registerAll() {
 	schedule.Register()
 
 	// Business Custom
-	accountswitch.Register()
 	aerosalvage.Register()
 	arenaofgames.Register()
 	captureuid.Register()
