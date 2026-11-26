@@ -557,9 +557,12 @@ def route_nodes(route: Route, name: str) -> dict[str, Any]:
     }
 
 
-def stock_panel_count(expected: str) -> dict[str, Any]:
+def stock_panel_count(expected: str, threshold: float | None = None) -> dict[str, Any]:
     """稀有采集物区 / 稀有矿物区详情面板右上角的「存量/上限」。"""
-    return {"type": "OCR", "param": {"roi": STOCK_PANEL_COUNT_ROI, "expected": [expected]}}
+    param: dict[str, Any] = {"roi": STOCK_PANEL_COUNT_ROI, "expected": [expected]}
+    if threshold is not None:
+        param["threshold"] = threshold
+    return {"type": "OCR", "param": param}
 
 
 def stock_panel_shared_nodes() -> dict[str, Any]:
@@ -707,7 +710,8 @@ def stock_nodes(route: Route, name: str, region: str, stock: StockArea) -> dict[
         },
         f"{node}StockPanelEmpty": {
             "desc": f"路线 {name} 存量检查：详情面板存量为 0，停用本轮执行",
-            "recognition": stock_panel_count(r"^0/\d+$"),
+            # 这是唯一会跳过路线的识别：读得不够确定时不停用，落到 StockKept 照常执行。实测 0/8 置信度约 0.99
+            "recognition": stock_panel_count(r"^0/\d+$", threshold=0.9),
             "pre_delay": 0,
             "action": {
                 "type": "Custom",
