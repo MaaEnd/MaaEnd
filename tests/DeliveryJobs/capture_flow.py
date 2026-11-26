@@ -109,11 +109,11 @@ def 武陵城货物装箱(c: Capture) -> None:
     c.shot_when(Nodes.DeliveryJobsCargoFillToMax, "货物装箱")  # 填充界面出来了，右上有「装满」按钮
 
     c.run(Nodes.DeliveryJobsCargoFillToMax)  # 装满了只是货进了箱子，还没交出去
-    c.shot_when(Nodes.DeliveryJobsCheckCargoFilledToMax, "货物装箱完成")
+    c.shot_when(Nodes.DeliveryJobsFillToMaxNextStep, "货物装箱完成")
 
 
 @flow.step(
-    enter=Nodes.DeliveryJobsInCargoPackGoods,
+    enter=Nodes.DeliveryJobsFillToMaxNextStep,
     route=回装箱界面,
     stop=False,
     once=True,
