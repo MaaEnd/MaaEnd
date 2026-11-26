@@ -606,25 +606,33 @@
             "DeliveryJobsQuickTransferBackToLocalDepotNode"
         ]
     },
+    "DeliveryJobsCheckLocalDepotIcon": {
+        "desc": "检查「本地仓储节点」图标是否存在（未选中的状态）",
+        "recognition": "TemplateMatch",
+        "roi": [
+            20,
+            40,
+            200,
+            110
+        ],
+        "template": [
+            "DeliveryJobs/LocalDepotIcon.png"
+        ],
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
     "DeliveryJobsQuickTransferBackToLocalDepotNode": {
         "desc": "关掉奖励后停在我转交的委托页，点回「本地仓储节点」标签页",
         "recognition": "And",
         "all_of": [
             "InClaimDeliveryJobsNode",
-            // 复用公共文字节点，「本地仓储节点」标签页与主界面标题在同一位置，不需要另建一份
-            "CheckLocalDepotNodeText"
+            "DeliveryJobsCheckLocalDepotIcon"
         ],
-        // box_index 1：用「本地仓储节点」文字框作为点击目标，点回标签页
         "box_index": 1,
         "pre_delay": 0,
         "action": "Click",
-        // target_offset 为 [dx, dy, dw, dh]：上边界下移 15px、下边界不动，点击区收成文字下半部分
-        "target_offset": [
-            0,
-            15,
-            0,
-            -15
-        ],
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
