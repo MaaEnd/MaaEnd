@@ -698,6 +698,26 @@ def stock_nodes(route: Route, name: str, region: str, stock: StockArea) -> dict[
             "post_wait_freezes": 300,
             "post_delay": 0,
             "rate_limit": 0,
+            "next": [
+                f"{node}StockPanelEmpty",
+                f"{node}StockPanelStocked",
+                f"{node}StockPanelPick",
+                f"{node}StockPanelRecheck",
+                f"{node}StockKept",
+            ],
+            "on_error": [STOCK_ABORTED],
+        },
+        # 选择列表与详情面板都会滑入，画面静止判定可能在滑入途中就结束、读不到；画面再次静止后补读。
+        # 点开与点选后各可能补读一次，故 max_hit 为 2；用完后落到 StockKept 照常执行，不会循环
+        f"{node}StockPanelRecheck": {
+            "desc": f"路线 {name} 存量检查：选择列表或详情面板还在滑入，画面静止后再读一次",
+            "max_hit": 2,
+            "recognition": "DirectHit",
+            "pre_delay": 0,
+            "action": "DoNothing",
+            "post_wait_freezes": 300,
+            "post_delay": 0,
+            "rate_limit": 0,
             "next": [f"{node}StockPanelEmpty", f"{node}StockPanelStocked", f"{node}StockPanelPick", f"{node}StockKept"],
             "on_error": [STOCK_ABORTED],
         },
@@ -712,7 +732,12 @@ def stock_nodes(route: Route, name: str, region: str, stock: StockArea) -> dict[
             "post_wait_freezes": 300,
             "post_delay": 0,
             "rate_limit": 0,
-            "next": [f"{node}StockPanelEmpty", f"{node}StockPanelStocked", f"{node}StockKept"],
+            "next": [
+                f"{node}StockPanelEmpty",
+                f"{node}StockPanelStocked",
+                f"{node}StockPanelRecheck",
+                f"{node}StockKept",
+            ],
             "on_error": [STOCK_ABORTED],
         },
         f"{node}StockPanelEmpty": {
