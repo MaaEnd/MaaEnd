@@ -517,6 +517,38 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            // 如果选择了今日不再提示，会直接跳到奖励界面
+            "DeliveryJobsQuickTransferReward",
+            "DeliveryJobsDontRemindAgainForToday"
+        ]
+    },
+    "DeliveryJobsCheckBox": {
+        "desc": "检查今日不再提示的复选框是否存在",
+        "recognition": "TemplateMatch",
+        "roi": [
+            517,
+            394,
+            193,
+            68
+        ],
+        "template": "DeliveryJobs/CheckBox.png",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "DeliveryJobsDontRemindAgainForToday": {
+        "desc": "选择今日不再提示的复选框",
+        "recognition": "And",
+        "all_of": [
+            "DeliveryJobsCheckBox",
+            "YellowConfirmButtonType1",
+            "DeliveryJobsCheckQuickTransferConfirmText"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
             "DeliveryJobsQuickTransferConfirm"
         ]
     },
