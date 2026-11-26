@@ -174,7 +174,6 @@ def 武陵城关掉奖励(c: Capture) -> None:
     enter=Nodes.InClaimDeliveryJobsNode,
     route=回我转交的委托,
     stop=False,
-    once=True,
 )
 def 武陵城我转交的委托(c: Capture) -> None:
     c.shot("我转交的委托")
