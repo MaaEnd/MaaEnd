@@ -332,9 +332,16 @@ def route_collect_points(route: Route) -> list[tuple[float, float]] | None:
 def teleport_scene(route: Route, scenes: dict[str, Any]) -> str | None:
     """路线起点传送入口在传送前打开的子区域地图入口 SceneEnterMap<子区域>。"""
     start = read_jsonc(route_file(route.region, route.id))[f"AutoCollect{route.id}Start"]
-    teleport = next(iter((start.get("custom_action_param") or {}).get("sub", [])), None)
-    entries = scenes.get(teleport, {}).get("next", [])
-    return next((entry.removeprefix("[JumpBack]") for entry in entries if "SceneEnterMap" in entry), None)
+    action, param = node_custom_action(start)
+    if action != "SubTask":
+        return None
+    teleport = next(iter(param.get("sub", [])), None)
+    # next 条目可写成 "[JumpBack]节点名" 或对象 {"name": "节点名", "jump_back": true}
+    names = (
+        entry.get("name", "") if isinstance(entry, dict) else entry
+        for entry in scenes.get(teleport, {}).get("next", [])
+    )
+    return next((name.removeprefix("[JumpBack]") for name in names if "SceneEnterMap" in name), None)
 
 
 def load_stock_areas(routes: list[Route]) -> dict[str, StockArea]:
