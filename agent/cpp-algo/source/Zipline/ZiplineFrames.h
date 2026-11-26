@@ -54,8 +54,6 @@ struct ZiplinePowerSource
 {
     std::string template_id;
     std::string name;
-    // 工厂网格上的水平占地 [x, z], 单位格
-    std::array<int, 2> footprint { 1, 1 };
     // 圆形供电半径, 世界距离, 只量水平, 与 coverage_size 二选一
     double radius = 0.0;
     // 以中心格为中心的覆盖尺寸 [x, z], 只接受奇数, 与 radius 二选一

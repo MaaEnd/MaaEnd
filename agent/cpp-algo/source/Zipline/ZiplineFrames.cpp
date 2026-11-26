@@ -146,10 +146,6 @@ bool ZiplineFrames::load(const std::filesystem::path& path)
                 ZiplinePowerSource source;
                 source.template_id = obj.get("template_id", std::string {});
                 source.name = obj.get("name", std::string {});
-                if (obj.contains("footprint") && !parse_odd_grid_size(obj, "footprint", source.footprint)) {
-                    LogWarn << "ZiplineFrames: power source with an invalid odd-grid footprint, skipped" << VAR(source.name);
-                    continue;
-                }
                 source.radius = obj.get("radius", 0.0);
                 const bool has_coverage_size = obj.contains("coverage_size");
                 if (has_coverage_size && !parse_odd_grid_size(obj, "coverage_size", source.coverage_size)) {

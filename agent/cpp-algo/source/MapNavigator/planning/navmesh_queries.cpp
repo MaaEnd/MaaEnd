@@ -188,11 +188,11 @@ std::optional<NavmeshSnap> NavmeshSnapAt(
     return NavmeshSnap { .distance = entry->distance, .height = navmesh::TriangleHeight(zone.mesh->pack, entry->triangle) };
 }
 
-std::vector<std::vector<navmesh::OccluderHit>>
-    NavmeshLineGroupBlocks(const NaviParam& param, const std::string& locator_zone, const std::vector<std::vector<NavmeshAirLine>>& groups)
+std::vector<std::optional<navmesh::OccluderHit>>
+    NavmeshLineBlocks(const NaviParam& param, const std::string& locator_zone, const std::vector<NavmeshAirLine>& lines)
 {
-    std::vector<std::vector<navmesh::OccluderHit>> blocks(groups.size());
-    if (groups.empty()) {
+    std::vector<std::optional<navmesh::OccluderHit>> blocks(lines.size());
+    if (lines.empty()) {
         return blocks;
     }
     const std::string navmesh_zone = InferBaseNavZone(locator_zone, param.map_name);
@@ -202,34 +202,24 @@ std::vector<std::vector<navmesh::OccluderHit>>
     const std::filesystem::path occluder_path = navmesh::OccluderSidecarPath(ResolveNavmeshFilePath(param.navmesh_file));
     const auto scene = navmesh::LoadOccluderScene(occluder_path, navmesh_zone);
     if (!scene) {
-        LogWarn << "No occluder scene, every air line passes." << VAR(occluder_path) << VAR(navmesh_zone) << VAR(groups.size());
+        LogWarn << "No occluder scene, every air line passes." << VAR(occluder_path) << VAR(navmesh_zone) << VAR(lines.size());
         return blocks;
     }
-    for (size_t index = 0; index < groups.size(); ++index) {
-        std::vector<navmesh::OccluderHit> hits;
-        for (const NavmeshAirLine& line : groups[index]) {
-            const std::vector<navmesh::OccluderHit> line_hits = navmesh::OccluderLineHits(*scene, line.a, line.b);
-            if (line_hits.empty()) {
-                hits.clear();
-                break;
-            }
-            hits.push_back(line_hits.front());
+    for (size_t index = 0; index < lines.size(); ++index) {
+        const std::vector<navmesh::OccluderHit> hits = navmesh::OccluderLineHits(*scene, lines[index].a, lines[index].b);
+        if (!hits.empty()) {
+            blocks[index] = hits.front();
         }
-        blocks[index] = std::move(hits);
     }
     return blocks;
 }
 
-std::vector<std::vector<double>> NavmeshGroundHeights(
-    const NaviParam& param,
-    const std::string& locator_zone,
-    const std::vector<std::vector<navmesh::OccluderPoint>>& bases)
+std::vector<double>
+    NavmeshGroundHeights(const NaviParam& param, const std::string& locator_zone, const std::vector<navmesh::OccluderPoint>& bases)
 {
-    std::vector<std::vector<double>> heights(bases.size());
-    for (size_t index = 0; index < bases.size(); ++index) {
-        for (const navmesh::OccluderPoint& base : bases[index]) {
-            heights[index].push_back(base.y);
-        }
+    std::vector<double> heights;
+    for (const navmesh::OccluderPoint& base : bases) {
+        heights.push_back(base.y);
     }
     const std::string navmesh_zone = InferBaseNavZone(locator_zone, param.map_name);
     if (navmesh_zone.empty()) {
@@ -240,9 +230,7 @@ std::vector<std::vector<double>> NavmeshGroundHeights(
         return heights;
     }
     for (size_t index = 0; index < bases.size(); ++index) {
-        for (size_t k = 0; k < bases[index].size(); ++k) {
-            heights[index][k] = navmesh::OccluderGroundHeight(*scene, bases[index][k]);
-        }
+        heights[index] = navmesh::OccluderGroundHeight(*scene, bases[index]);
     }
     return heights;
 }

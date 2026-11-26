@@ -125,7 +125,6 @@ struct SupplyPoint
     double x = 0.0;
     double z = 0.0;
     double radius = 0.0;
-    std::array<int, 2> footprint { 1, 1 };
     std::array<int, 2> coverage_size { 0, 0 };
 };
 
@@ -139,32 +138,24 @@ constexpr double grid_half_span(int size)
     return static_cast<double>((size - 1) / 2);
 }
 
-constexpr bool grid_areas_may_overlap(
-    double delta_x,
-    double delta_z,
-    const std::array<int, 2>& coverage_size,
-    const std::array<int, 2>& supply_footprint,
-    const std::array<int, 2>& tower_footprint)
+constexpr bool
+    grid_areas_overlap(double delta_x, double delta_z, const std::array<int, 2>& coverage_size, const std::array<int, 2>& tower_footprint)
 {
-    const double center_reach_x = grid_half_span(coverage_size[0]) + grid_half_span(tower_footprint[0]);
-    const double center_reach_z = grid_half_span(coverage_size[1]) + grid_half_span(tower_footprint[1]);
-    const double anchor_uncertainty_x = grid_half_span(supply_footprint[0]) + grid_half_span(tower_footprint[0]);
-    const double anchor_uncertainty_z = grid_half_span(supply_footprint[1]) + grid_half_span(tower_footprint[1]);
-    const double reach_x = center_reach_x + anchor_uncertainty_x;
-    const double reach_z = center_reach_z + anchor_uncertainty_z;
+    const double reach_x = grid_half_span(coverage_size[0]) + grid_half_span(tower_footprint[0]);
+    const double reach_z = grid_half_span(coverage_size[1]) + grid_half_span(tower_footprint[1]);
     return absolute_value(delta_x) <= reach_x && absolute_value(delta_z) <= reach_z;
 }
 
-static_assert(grid_areas_may_overlap(5.0, 2.0, { 7, 7 }, { 3, 3 }, { 3, 3 }));
-static_assert(grid_areas_may_overlap(6.0, 6.0, { 7, 7 }, { 3, 3 }, { 3, 3 }));
-static_assert(!grid_areas_may_overlap(0.0, 7.0, { 7, 7 }, { 3, 3 }, { 3, 3 }));
+static_assert(grid_areas_overlap(4.0, -4.0, { 7, 7 }, { 3, 3 }));
+static_assert(!grid_areas_overlap(5.0, 0.0, { 7, 7 }, { 3, 3 }));
+static_assert(!grid_areas_overlap(0.0, -5.0, { 7, 7 }, { 3, 3 }));
 
 // 只量原始世界坐标的水平 x/z, 高低差不进判据
 bool is_powered(const zipline::ZiplineMark& tower, const std::array<int, 2>& tower_footprint, const std::vector<SupplyPoint>& supplies)
 {
     return std::any_of(supplies.begin(), supplies.end(), [&](const SupplyPoint& supply) {
         if (supply.coverage_size[0] > 0 && supply.coverage_size[1] > 0) {
-            return grid_areas_may_overlap(supply.x - tower.x, supply.z - tower.z, supply.coverage_size, supply.footprint, tower_footprint);
+            return grid_areas_overlap(supply.x - tower.x, supply.z - tower.z, supply.coverage_size, tower_footprint);
         }
         return std::hypot(supply.x - tower.x, supply.z - tower.z) <= supply.radius;
     });
@@ -173,41 +164,6 @@ bool is_powered(const zipline::ZiplineMark& tower, const std::array<int, 2>& tow
 navmesh::WorldPoint to_world(const zipline::ZiplineNode& node)
 {
     return navmesh::WorldPoint { .x = node.x, .y = node.y };
-}
-
-// 标记坐标落在占地的某个角格上, 每个角都算一个可能的塔心, 原始世界坐标 x/z
-std::vector<std::array<double, 2>> tower_centers(const zipline::ZiplineNode& node, const std::array<int, 2>& footprint)
-{
-    const double half_x = grid_half_span(footprint[0]);
-    const double half_z = grid_half_span(footprint[1]);
-    const std::array<double, 2> signs { 1.0, -1.0 };
-    const size_t x_count = half_x > 0.0 ? signs.size() : 1;
-    const size_t z_count = half_z > 0.0 ? signs.size() : 1;
-    std::vector<std::array<double, 2>> centers;
-    for (size_t xi = 0; xi < x_count; ++xi) {
-        for (size_t zi = 0; zi < z_count; ++zi) {
-            centers.push_back({ node.world_x + 0.5 + signs[xi] * half_x, node.world_z + 0.5 + signs[zi] * half_z });
-        }
-    }
-    return centers;
-}
-
-// 偏移在原始世界坐标里按格算再投影, 地图比例不进这里
-std::vector<navmesh::WorldPoint>
-    center_spots(const zipline::ZiplineFrame& frame, const zipline::ZiplineNode& tower, const std::array<int, 2>& footprint)
-{
-    std::vector<navmesh::WorldPoint> spots;
-    for (const auto& [x, z] : tower_centers(tower, footprint)) {
-        const zipline::ZiplineMark shifted {
-            .template_id = tower.template_id,
-            .level_id = tower.level_id,
-            .x = x,
-            .y = tower.world_y,
-            .z = z,
-        };
-        spots.push_back(to_world(frame.project(shifted)));
-    }
-    return spots;
 }
 
 bool snaps_onto_tower_floor(
@@ -255,58 +211,6 @@ std::optional<navmesh::WorldPoint> mount_stand_point(
     return stand;
 }
 
-// 只取中心格, 往模型里推得越深, 被挡住那一刻离航点越远, 越容易落在预筛窗外
-std::vector<navmesh::WorldPoint> mount_spots(
-    const NaviParam& param,
-    const std::string& locator_zone,
-    const zipline::ZiplineFrame& frame,
-    const zipline::ZiplineNode& tower,
-    const std::array<int, 2>& footprint,
-    const navmesh::WorldPoint& approach_from,
-    const std::vector<navmesh::WorldPoint>& supplies)
-{
-    const navmesh::WorldPoint anchor = to_world(tower);
-    const double half_x = grid_half_span(footprint[0]);
-    const double half_z = grid_half_span(footprint[1]);
-    const double toward_x = anchor.x - approach_from.x;
-    const double toward_y = anchor.y - approach_from.y;
-    std::vector<std::pair<double, navmesh::WorldPoint>> ranked;
-    for (const navmesh::WorldPoint& spot : center_spots(frame, tower, footprint)) {
-        if (!snaps_onto_tower_floor(param, locator_zone, spot, tower)) {
-            continue;
-        }
-        ranked.emplace_back((spot.x - anchor.x) * toward_x + (spot.y - anchor.y) * toward_y, spot);
-    }
-    std::stable_sort(ranked.begin(), ranked.end(), [](const auto& lhs, const auto& rhs) { return lhs.first > rhs.first; });
-    std::vector<navmesh::WorldPoint> spots;
-    for (const auto& entry : ranked) {
-        spots.push_back(entry.second);
-    }
-    if (spots.empty()) {
-        spots.push_back(anchor);
-    }
-    if (const std::optional<navmesh::WorldPoint> stand = mount_stand_point(param, locator_zone, tower, supplies)) {
-        spots.push_back(*stand);
-    }
-    LogDebug << "ZiplineRoute: stand points to try at the mount tower" << VAR(spots.size()) << VAR(anchor.x) << VAR(anchor.y) << VAR(half_x)
-             << VAR(half_z);
-    return spots;
-}
-
-constexpr double minimum_possible_world_span_squared(
-    double anchor_delta_x,
-    double delta_y,
-    double anchor_delta_z,
-    const std::array<int, 2>& footprint_a,
-    const std::array<int, 2>& footprint_b)
-{
-    const double uncertainty_x = grid_half_span(footprint_a[0]) + grid_half_span(footprint_b[0]);
-    const double uncertainty_z = grid_half_span(footprint_a[1]) + grid_half_span(footprint_b[1]);
-    const double dx = std::max(absolute_value(anchor_delta_x) - uncertainty_x, 0.0);
-    const double dz = std::max(absolute_value(anchor_delta_z) - uncertainty_z, 0.0);
-    return dx * dx + delta_y * delta_y + dz * dz;
-}
-
 // BaseNavRouteResult::cost 是搜索代价, 和几何长度不能混用
 double polyline_length(const navmesh::WorldPath& path)
 {
@@ -328,13 +232,9 @@ constexpr double kRopeInterceptDropWu = 11.5;
 // 绳端在塔底上方的高度, 判索撞不撞地要按抬升后的两端连线量
 constexpr double kRopeEndHeightWu = 5.72;
 
-std::vector<navmesh::OccluderPoint> tower_base_points(const zipline::ZiplineNode& node, const std::array<int, 2>& footprint)
+navmesh::OccluderPoint tower_base_point(const zipline::ZiplineNode& node)
 {
-    std::vector<navmesh::OccluderPoint> bases;
-    for (const auto& [x, z] : tower_centers(node, footprint)) {
-        bases.push_back(navmesh::OccluderPoint { .x = x, .y = node.world_y, .z = z });
-    }
-    return bases;
+    return navmesh::OccluderPoint { .x = node.world_x, .y = node.world_y, .z = node.world_z };
 }
 
 // 从塔落地后的地面高度起算, 记录里的塔底是整数格高, 差几厘米就会判错贴着梁底过的绳
@@ -351,7 +251,7 @@ struct RopeCandidate
 {
     size_t a = 0;
     size_t b = 0;
-    std::vector<NavmeshAirLine> lines;
+    NavmeshAirLine line;
 };
 
 struct InterceptedHop
@@ -367,7 +267,7 @@ struct RopeInterceptors
     double lateral = 0.0;
 };
 
-// certain 是 all 的子集, 要求有一组连线不撞实体, 被拦的直索还要过 drop_intercepted_from_certain, 不成立只降档不删边
+// certain 是 all 的子集, 要求连线不撞实体, 被拦的直索还要过 drop_intercepted_from_certain, 不成立只降档不删边
 struct ZipLinkGraph
 {
     std::vector<std::vector<size_t>> all;
@@ -394,8 +294,7 @@ std::optional<RopeInterceptors> rope_intercepted(
     const std::vector<size_t>& node_record,
     size_t from,
     size_t to,
-    const std::vector<double>& span_limit,
-    const std::vector<std::array<int, 2>>& footprints)
+    const std::vector<double>& span_limit)
 {
     const double dx = nodes[to].world_x - nodes[from].world_x;
     const double dy = nodes[to].world_y - nodes[from].world_y;
@@ -432,8 +331,7 @@ std::optional<RopeInterceptors> rope_intercepted(
                 continue;
             }
         }
-        const double limit = std::min(span_limit[from], span_limit[k]);
-        if (minimum_possible_world_span_squared(offset_x, offset_y, offset_z, footprints[from], footprints[k]) > limit * limit) {
+        if (std::hypot(offset_x, offset_y, offset_z) > std::min(span_limit[from], span_limit[k])) {
             continue;
         }
         if (along < near_from_along) {
@@ -456,8 +354,7 @@ ZipLinkGraph build_links(
     const std::vector<zipline::ZiplineNode>& nodes,
     const std::vector<size_t>& node_record,
     const std::vector<double>& span_limit,
-    const std::vector<std::array<int, 2>>& footprints,
-    const std::vector<std::vector<navmesh::OccluderPoint>>& rope_ends)
+    const std::vector<navmesh::OccluderPoint>& rope_ends)
 {
     ZipLinkGraph graph;
     graph.all.resize(nodes.size());
@@ -472,40 +369,19 @@ ZipLinkGraph build_links(
             if (node_record[i] != node_record[j] || span_limit[j] <= 0.0) {
                 continue;
             }
-            const double limit = std::min(span_limit[i], span_limit[j]);
-            const double limit_squared = limit * limit;
-            const double span_squared = minimum_possible_world_span_squared(
-                nodes[j].world_x - nodes[i].world_x,
-                nodes[j].world_y - nodes[i].world_y,
-                nodes[j].world_z - nodes[i].world_z,
-                footprints[i],
-                footprints[j]);
-            if (span_squared > limit_squared) {
-                continue;
-            }
-            // 绳长高差按记录里的塔底量, 和上面的下界用同一组高度
-            std::vector<NavmeshAirLine> lines;
-            const double dy = nodes[j].world_y - nodes[i].world_y;
-            for (const navmesh::OccluderPoint& end_a : rope_ends[i]) {
-                for (const navmesh::OccluderPoint& end_b : rope_ends[j]) {
-                    const double dx = end_b.x - end_a.x;
-                    const double dz = end_b.z - end_a.z;
-                    if (dx * dx + dy * dy + dz * dz <= limit_squared) {
-                        lines.push_back(NavmeshAirLine { .a = end_a, .b = end_b });
-                    }
-                }
-            }
-            if (lines.empty()) {
+            const double span =
+                std::hypot(nodes[j].world_x - nodes[i].world_x, nodes[j].world_y - nodes[i].world_y, nodes[j].world_z - nodes[i].world_z);
+            if (span > std::min(span_limit[i], span_limit[j])) {
                 continue;
             }
             graph.all[i].push_back(j);
             graph.all[j].push_back(i);
-            if (const std::optional<RopeInterceptors> stop = rope_intercepted(nodes, node_record, i, j, span_limit, footprints)) {
+            if (const std::optional<RopeInterceptors> stop = rope_intercepted(nodes, node_record, i, j, span_limit)) {
                 intercepted_lateral.push_back(stop->lateral);
                 graph.intercepted[i].push_back(InterceptedHop { .to = j, .interceptor = stop->near_from });
                 graph.intercepted[j].push_back(InterceptedHop { .to = i, .interceptor = stop->near_to });
             }
-            graph.ropes.push_back(RopeCandidate { .a = i, .b = j, .lines = std::move(lines) });
+            graph.ropes.push_back(RopeCandidate { .a = i, .b = j, .line = NavmeshAirLine { .a = rope_ends[i], .b = rope_ends[j] } });
         }
     }
     if (!intercepted_lateral.empty()) {
@@ -603,7 +479,6 @@ struct PlanInputs
     const NaviParam& param;
     const ZiplineLegRequest& request;
     const zipline::ZiplineFrames& frames;
-    const zipline::ZiplineFrame& frame;
     const zipline::ZiplineCostModel& cost;
     double gain_threshold = 0.0;
 };
@@ -615,7 +490,6 @@ struct TowerSites
     std::vector<size_t> node_record;
     // 像素平面坐标, 通电判定另用世界坐标
     std::vector<navmesh::WorldPoint> supply_points;
-    std::vector<std::array<int, 2>> footprints;
     std::vector<navmesh::WorldPoint> spots;
     std::vector<size_t> spot_tower;
     std::vector<std::vector<size_t>> tower_spots;
@@ -652,7 +526,6 @@ TowerSites collect_powered_towers(const NaviParam& param, const ZiplineData& dat
                         .x = mark.x,
                         .z = mark.z,
                         .radius = source->radius,
-                        .footprint = source->footprint,
                         .coverage_size = source->coverage_size,
                     });
                 supply_points.push_back(to_world(frame.project(mark)));
@@ -687,37 +560,24 @@ TowerSites collect_powered_towers(const NaviParam& param, const ZiplineData& dat
 // 平面距离和高度都要判, 可走面会在同一平面坐标上摞好几层
 void find_boarding_spots(TowerSites* sites, const PlanInputs& in)
 {
-    sites->footprints.resize(sites->nodes.size());
     sites->tower_spots.resize(sites->nodes.size());
     size_t out_of_reach = 0;
     size_t wrong_floor = 0;
     for (size_t i = 0; i < sites->nodes.size(); ++i) {
         const zipline::ZiplineNode& node = sites->nodes[i];
-        sites->footprints[i] = in.frames.footprint(node.template_id);
-        const navmesh::WorldPoint anchor = to_world(node);
-        std::vector<navmesh::WorldPoint> tries { anchor };
-        for (const navmesh::WorldPoint& center : center_spots(in.frame, node, sites->footprints[i])) {
-            if (center.x != anchor.x || center.y != anchor.y) {
-                tries.push_back(center);
-            }
+        const navmesh::WorldPoint point = to_world(node);
+        const auto snap = NavmeshSnapAt(in.param, in.request.locator_zone, point, in.cost.reach_radius, node.height);
+        if (!snap || snap->distance > in.cost.reach_radius) {
+            ++out_of_reach;
+            continue;
         }
-        bool in_reach = false;
-        for (const navmesh::WorldPoint& point : tries) {
-            const auto snap = NavmeshSnapAt(in.param, in.request.locator_zone, point, in.cost.reach_radius, node.height);
-            if (!snap || snap->distance > in.cost.reach_radius) {
-                continue;
-            }
-            in_reach = true;
-            if (std::abs(snap->height - node.height) > navmesh::kBaseNavFloorBand) {
-                continue;
-            }
-            sites->tower_spots[i].push_back(sites->spots.size());
-            sites->spots.push_back(point);
-            sites->spot_tower.push_back(i);
+        if (std::abs(snap->height - node.height) > navmesh::kBaseNavFloorBand) {
+            ++wrong_floor;
+            continue;
         }
-        if (sites->tower_spots[i].empty()) {
-            ++(in_reach ? wrong_floor : out_of_reach);
-        }
+        sites->tower_spots[i].push_back(sites->spots.size());
+        sites->spots.push_back(point);
+        sites->spot_tower.push_back(i);
     }
     if (out_of_reach != 0 || wrong_floor != 0) {
         LogDebug << "ZiplineRoute: these ziplines can be ridden through but not boarded" << VAR(out_of_reach) << VAR(wrong_floor)
@@ -834,39 +694,30 @@ ZipLinkGraph build_rope_graph(const PlanInputs& in, const TowerSites& sites)
 {
     // 未登记的架子类型索长上限为 0, 不参与配对
     std::vector<double> span_limit(sites.nodes.size());
-    std::vector<std::vector<navmesh::OccluderPoint>> tower_bases(sites.nodes.size());
+    std::vector<navmesh::OccluderPoint> tower_bases(sites.nodes.size());
     for (size_t i = 0; i < sites.nodes.size(); ++i) {
         span_limit[i] = in.frames.maxSpan(sites.nodes[i].template_id);
-        tower_bases[i] = tower_base_points(sites.nodes[i], sites.footprints[i]);
+        tower_bases[i] = tower_base_point(sites.nodes[i]);
     }
-    const std::vector<std::vector<double>> grounds = NavmeshGroundHeights(in.param, in.request.locator_zone, tower_bases);
-    std::vector<std::vector<navmesh::OccluderPoint>> rope_ends(sites.nodes.size());
-    for (size_t i = 0; i < sites.nodes.size(); ++i) {
-        rope_ends[i] = rope_end_points(tower_bases[i], grounds[i]);
-    }
-    ZipLinkGraph graph = build_links(sites.nodes, sites.node_record, span_limit, sites.footprints, rope_ends);
+    const std::vector<double> grounds = NavmeshGroundHeights(in.param, in.request.locator_zone, tower_bases);
+    ZipLinkGraph graph = build_links(sites.nodes, sites.node_record, span_limit, rope_end_points(tower_bases, grounds));
 
-    std::vector<std::vector<NavmeshAirLine>> groups;
-    groups.reserve(graph.ropes.size());
-    for (RopeCandidate& rope : graph.ropes) {
-        groups.push_back(std::move(rope.lines));
+    std::vector<NavmeshAirLine> lines;
+    lines.reserve(graph.ropes.size());
+    for (const RopeCandidate& rope : graph.ropes) {
+        lines.push_back(rope.line);
     }
-    const std::vector<std::vector<navmesh::OccluderHit>> blocks = NavmeshLineGroupBlocks(in.param, in.request.locator_zone, groups);
+    const std::vector<std::optional<navmesh::OccluderHit>> blocks = NavmeshLineBlocks(in.param, in.request.locator_zone, lines);
     std::vector<double> demoted_first_hits;
     for (size_t index = 0; index < graph.ropes.size(); ++index) {
         const RopeCandidate& rope = graph.ropes[index];
-        if (blocks[index].empty()) {
+        if (!blocks[index]) {
             graph.certain[rope.a].push_back(rope.b);
             graph.certain[rope.b].push_back(rope.a);
             continue;
         }
-        double latest = 0.0;
-        for (size_t k = 0; k < blocks[index].size(); ++k) {
-            const NavmeshAirLine& line = groups[index][k];
-            const double length = std::hypot(line.b.x - line.a.x, line.b.y - line.a.y, line.b.z - line.a.z);
-            latest = std::max(latest, blocks[index][k].s * length);
-        }
-        demoted_first_hits.push_back(latest);
+        const NavmeshAirLine& line = rope.line;
+        demoted_first_hits.push_back(blocks[index]->s * std::hypot(line.b.x - line.a.x, line.b.y - line.a.y, line.b.z - line.a.z));
     }
     if (!demoted_first_hits.empty()) {
         LogDebug << "ZiplineRoute: demoted the ropes blocked by solids." << VAR(demoted_first_hits) << VAR(graph.ropes.size());
@@ -1198,16 +1049,11 @@ ZiplineRoute assemble_route(const PlanInputs& in, const TowerSites& sites, const
         route.diagnostics.push_back(picked.approach->diagnostic);
         route.diagnostics.push_back(picked.departure->diagnostic);
     }
-    const navmesh::WorldPoint& approach_from =
-        route.approach.points.size() >= 2 ? route.approach.points[route.approach.points.size() - 2] : in.request.start;
-    route.mount_spots = mount_spots(
-        in.param,
-        in.request.locator_zone,
-        in.frame,
-        route.towers.front(),
-        in.frames.footprint(route.towers.front().template_id),
-        approach_from,
-        sites.supply_points);
+    route.mount_spots = { to_world(route.towers.front()) };
+    if (const std::optional<navmesh::WorldPoint> stand =
+            mount_stand_point(in.param, in.request.locator_zone, route.towers.front(), sites.supply_points)) {
+        route.mount_spots.push_back(*stand);
+    }
     // 全被排除时退回上索步行的终点, 那一点规划时已避开禁区
     std::erase_if(route.mount_spots, [&](const navmesh::WorldPoint& spot) { return inside_no_go(in.request, spot); });
     return route;
@@ -1304,7 +1150,6 @@ std::optional<ZiplineRoute> PlanZiplineRoute(ZiplineOutcome* outcome, const Navi
         .param = param,
         .request = request,
         .frames = data->frames,
-        .frame = *frame,
         .cost = cost,
         .gain_threshold = gain_threshold,
     };
