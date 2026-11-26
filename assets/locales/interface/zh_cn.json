@@ -2100,7 +2100,7 @@
     "task.AutoCollect.option.AutoCollectMidSweepStash.label": "采集中途存放背包",
     "task.AutoCollect.option.AutoCollectMidSweepStashEvery.label": "存放间隔（路线数）",
     "task.AutoCollect.option.AutoCollectMidSweepStashEvery.pattern_msg": "请输入大于0的整数。",
-    "task.AutoCollect.option.AutoCollectSkipEmptyStock.label": "跳过存量为 0 的稀有采集物区",
+    "task.AutoCollect.option.AutoCollectSkipEmptyStock.label": "跳过存量为 0 的稀有采集物区与稀有矿物区",
     "task.AutoCollect.option.AutoCollectStashBackpackSubTask.label": "任务前后存放背包",
     "task.AutoCollect.route.ValleyIVAuronyx1.failed": "<span style=\"color: red; font-weight: bold;\">中黯石采集失败</span>",
     "task.AutoCollect.route.ValleyIVAuronyx1.label": "采集中黯石",

@@ -211,7 +211,13 @@
                         "__AutoCollectValleyIVChrysodendra1StockCheck": {
                             "enabled": true
                         },
+                        "__AutoCollectValleyIVKalkonyx1StockCheck": {
+                            "enabled": true
+                        },
                         "__AutoCollectValleyIVPinkBolete1StockCheck": {
+                            "enabled": true
+                        },
+                        "__AutoCollectValleyIVAuronyx1StockCheck": {
                             "enabled": true
                         },
                         "__AutoCollectValleyIVKalkodendra1StockCheck": {
@@ -229,6 +235,12 @@
                         "__AutoCollectWulingCosmagaric1StockCheck": {
                             "enabled": true
                         },
+                        "__AutoCollectWulingIgneosite1StockCheck": {
+                            "enabled": true
+                        },
+                        "__AutoCollectWulingUmbronyx1StockCheck": {
+                            "enabled": true
+                        },
                         "__AutoCollectWulingRedBolete1StockCheck": {
                             "enabled": true
                         },
@@ -238,7 +250,13 @@
                         "__AutoCollectWulingTalosCap1StockCheck": {
                             "enabled": true
                         },
+                        "__AutoCollectWulingProtocolith2StockCheck": {
+                            "enabled": true
+                        },
                         "__AutoCollectWulingVitrodendra2StockCheck": {
+                            "enabled": true
+                        },
+                        "__AutoCollectWulingIgneosite2StockCheck": {
                             "enabled": true
                         },
                         "__AutoCollectWulingCosmagaric2StockCheck": {

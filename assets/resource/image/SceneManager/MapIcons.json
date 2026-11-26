@@ -54,6 +54,11 @@
             "MapRareCollectArea.png"
         ]
     },
+    "RareMineralArea": {
+        "templates": [
+            "MapRareMineralArea.png"
+        ]
+    },
     "MissionTrack": {
         "templates": [
             "../AutoDailyMission/MissionTrack.png"

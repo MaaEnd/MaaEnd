@@ -36,13 +36,16 @@ HAND_WRITTEN_OPTIONS = (
     "AutoCollectTargetInventory",
     "AutoCollectSkipEmptyStock",
 )
-# 稀有采集物区：大地图上带存量角标（1~10）的兔耳图标，采空后不显示角标
-STOCK_AREA_DETAIL = "int_doodad_core_plant_rabbithole"
+# 稀有采集物区（兔耳图标）与稀有矿物区（矿石图标）：大地图上带存量角标（1~10），采空后不显示角标。
+# 点位类型前缀 -> (MapIcons 图标名, 图标重叠时选择列表项的模板)
+STOCK_AREA_KINDS = {
+    "int_doodad_core_plant_rabbithole": ("RareCollectArea", "AutoCollect/RareCollectListEntry.png"),
+    "int_doodad_core_spcstone": ("RareMineralArea", "AutoCollect/RareMineralListEntry.png"),
+}
 STOCK_AREA_RADIUS = 15.0
 REGION_MAPS = {"ValleyIV": "map01", "Wuling": "map02"}
 STOCK_COLLECT_ACTIONS = ("COLLECT", "DIG")
 STOCK_PANEL_COUNT_ROI = [1120, 160, 105, 40]
-STOCK_LIST_ENTRY_TEMPLATE = "AutoCollect/StockAreaListEntry.png"
 HAND_WRITTEN_KEYS = (
     "option.AutoCollectMode.",
     "option.AutoCollectTargetInventory.description",
@@ -153,9 +156,11 @@ class Group:
 
 @dataclass(frozen=True)
 class StockArea:
-    """路线采的那片稀有采集物区：底图坐标，以及传送前打开的子区域地图入口。"""
+    """路线采的那片稀有采集物区或稀有矿物区：底图坐标、地图图标、列表项模板，以及传送前打开的子区域地图入口。"""
 
     at: tuple[float, float]
+    icon: str
+    list_entry: str
     scene: str
 
 
@@ -269,11 +274,12 @@ def teleport_scene(route: Route, scenes: dict[str, Any]) -> str | None:
 
 
 def load_stock_areas(routes: list[Route]) -> dict[str, StockArea]:
-    """只给「全部采集点都落在同一片稀有采集物区里」的稀有路线做存量检查，其余路线照常执行。"""
-    areas: dict[str, list[tuple[float, float]]] = {}
+    """只给「全部采集点都落在同一片稀有采集物区或稀有矿物区里」的稀有路线做存量检查，其余路线照常执行。"""
+    areas: dict[str, list[tuple[float, float, str]]] = {}
     for point in read_json(COLLECT_POINTS_PATH)["points"]:
-        if point["detail_id"].startswith(STOCK_AREA_DETAIL):
-            areas.setdefault(point["map"], []).append((point["u"], point["v"]))
+        kind = next((prefix for prefix in STOCK_AREA_KINDS if point["detail_id"].startswith(prefix)), None)
+        if kind is not None:
+            areas.setdefault(point["map"], []).append((point["u"], point["v"], kind))
     scenes: dict[str, Any] = {}
     for path in sorted(SCENE_INTERFACE_DIR.glob("*.json")):
         scenes.update(read_jsonc(path))
@@ -289,16 +295,17 @@ def load_stock_areas(routes: list[Route]) -> dict[str, StockArea]:
             area
             for point in points
             for area in areas.get(REGION_MAPS.get(route.region, ""), [])
-            if math.dist(area, point) <= STOCK_AREA_RADIUS
+            if math.dist(area[:2], point) <= STOCK_AREA_RADIUS
         }
         if len(near) != 1:
             continue
-        area = near.pop()
-        if any(math.dist(area, point) > STOCK_AREA_RADIUS for point in points):
+        u, v, kind = near.pop()
+        if any(math.dist((u, v), point) > STOCK_AREA_RADIUS for point in points):
             continue
         scene = teleport_scene(route, scenes)
         if scene is not None:
-            stocks[route.id] = StockArea((round(area[0], 2), round(area[1], 2)), scene)
+            icon, list_entry = STOCK_AREA_KINDS[kind]
+            stocks[route.id] = StockArea((round(u, 2), round(v, 2)), icon, list_entry, scene)
     return stocks
 
 
@@ -487,7 +494,7 @@ def route_nodes(route: Route, name: str) -> dict[str, Any]:
 
 
 def stock_panel_count(expected: str) -> dict[str, Any]:
-    """稀有采集物区详情面板右上角的「存量/上限」。"""
+    """稀有采集物区 / 稀有矿物区详情面板右上角的「存量/上限」。"""
     return {"type": "OCR", "param": {"roi": STOCK_PANEL_COUNT_ROI, "expected": [expected]}}
 
 
@@ -495,11 +502,11 @@ def stock_panel_shared_nodes() -> dict[str, Any]:
     """各路线共用：确认详情面板仍开着再点面板右上角的 X 关闭，地图保持打开供随后的传送使用。"""
     return {
         "AutoCollectStockPanelCount": {
-            "desc": "稀有采集物区详情面板：右上角的「存量/上限」",
+            "desc": "稀有采集物区 / 稀有矿物区详情面板：右上角的「存量/上限」",
             "recognition": stock_panel_count(r"^\d+/\d+$"),
         },
         "AutoCollectStockPanelClose": {
-            "desc": "关闭稀有采集物区详情面板：面板仍开着时才点右上角 X，避免误关地图",
+            "desc": "关闭稀有采集物区 / 稀有矿物区详情面板：面板仍开着时才点右上角 X，避免误关地图",
             "recognition": "And",
             "all_of": ["AutoCollectStockPanelCount", "CloseButtonType1"],
             "box_index": 1,
@@ -545,7 +552,7 @@ def stock_digit_node(name: str, find_node: str, roi_offset: list[int], note: str
 
 
 def stock_nodes(route: Route, name: str, region: str, stock: StockArea) -> dict[str, Any]:
-    """传送前打开同一张子区域地图，读稀有采集物区的存量角标；只有确认读到 0 才停用本轮的路线执行。"""
+    """传送前打开同一张子区域地图，读稀有采集物区 / 稀有矿物区的存量角标；只有详情面板确认为 0 才停用本轮的路线执行。"""
     node = f"__AutoCollect{route.id}"
     return {
         f"{node}StockCheck": {
@@ -565,14 +572,14 @@ def stock_nodes(route: Route, name: str, region: str, stock: StockArea) -> dict[
             "on_error": [f"{node}StockKept"],
         },
         f"{node}StockFind": {
-            "desc": f"路线 {name} 存量检查：在大地图上确认稀有采集物区图标",
+            "desc": f"路线 {name} 存量检查：在大地图上确认存量区域图标",
             "recognition": {
                 "type": "Custom",
                 "param": {
                     "custom_recognition": "MapFind",
                     "custom_recognition_param": {
                         "zone": region,
-                        "icon": "RareCollectArea",
+                        "icon": stock.icon,
                         "at": list(stock.at),
                         "max_attempts": 2,
                     },
@@ -601,7 +608,7 @@ def stock_nodes(route: Route, name: str, region: str, stock: StockArea) -> dict[
         },
         # 两帧都读不到角标时不直接跳过，点开区域详情面板读「存量/上限」，面板明确为 0 才停用
         f"{node}StockPanelOpen": {
-            "desc": f"路线 {name} 存量检查：点开稀有采集物区详情面板",
+            "desc": f"路线 {name} 存量检查：点开存量区域详情面板",
             "recognition": "DirectHit",
             "pre_delay": 0,
             "action": {"type": "Click", "param": {"target": f"{node}StockFind"}},
@@ -611,10 +618,10 @@ def stock_nodes(route: Route, name: str, region: str, stock: StockArea) -> dict[
             "next": [f"{node}StockPanelEmpty", f"{node}StockPanelStocked", f"{node}StockPanelPick", f"{node}StockKept"],
         },
         f"{node}StockPanelPick": {
-            "desc": f"路线 {name} 存量检查：图标重叠时在选择列表中点选稀有采集物区",
+            "desc": f"路线 {name} 存量检查：图标重叠时在选择列表中点选存量区域",
             "recognition": {
                 "type": "TemplateMatch",
-                "param": {"roi": [860, 300, 140, 360], "template": [STOCK_LIST_ENTRY_TEMPLATE], "threshold": 0.8},
+                "param": {"roi": [860, 300, 140, 360], "template": [stock.list_entry], "threshold": 0.8},
             },
             "pre_delay": 0,
             "action": "Click",
