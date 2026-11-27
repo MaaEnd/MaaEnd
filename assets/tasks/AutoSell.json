@@ -19,6 +19,7 @@
                 "Win32-Front"
             ],
             "option": [
+                "AutoSellOverLimitFlow",
                 "AutoSellValleyIV",
                 "AutoSellWuling",
                 "AutoSellPriceType"
@@ -26,6 +27,50 @@
         }
     ],
     "option": {
+        "AutoSellOverLimitFlow": {
+            "type": "switch",
+            "label": "$option.AutoSellOverLimitFlow.label",
+            "description": "$option.AutoSellOverLimitFlow.description",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "AutoSellLocalPriceExpected": {
+                            "next": [
+                                "AutoSellBudgetPrice",
+                                "AutoSellFriendsPricesExpectedNeedSlide",
+                                "AutoSellFriendsPricesExpectedBuyDirect"
+                            ]
+                        },
+                        "AutoSellFriendsPricesExpectedBuyBackToSellGoodsSuccess": {
+                            "next": [
+                                "AutoSellBudgetPrice",
+                                "AutoSellFriendsPricesExpectedNeedSlide",
+                                "AutoSellFriendsPricesExpectedBuyDirect"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "AutoSellLocalPriceExpected": {
+                            "next": [
+                                "AutoSellFriendsPricesExpectedNeedSlide",
+                                "AutoSellFriendsPricesExpectedBuyDirect"
+                            ]
+                        },
+                        "AutoSellFriendsPricesExpectedBuyBackToSellGoodsSuccess": {
+                            "next": [
+                                "AutoSellFriendsPricesExpectedNeedSlide",
+                                "AutoSellFriendsPricesExpectedBuyDirect"
+                            ]
+                        }
+                    }
+                }
+            ],
+            "default_case": "Yes"
+        },
         "AutoSellValleyIV": {
             "type": "switch",
             "label": "$global.region.ValleyIV",

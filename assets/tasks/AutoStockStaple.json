@@ -23,6 +23,7 @@
             "option": [
                 "AutoStockStapleSchedule",
                 "AutoStockStapleStashBackpackSubTask",
+                "AutoStockStapleOverLimitFlow",
                 "AutoStockStapleValleyIV",
                 "AutoStockStapleWuling"
             ]
@@ -120,6 +121,36 @@
                 "AutoStockStapleScheduleSaturday",
                 "AutoStockStapleScheduleSunday"
             ]
+        },
+        "AutoStockStapleOverLimitFlow": {
+            "type": "switch",
+            "label": "$task.AutoStockStaple.option.AutoStockStapleOverLimitFlow.label",
+            "description": "$task.AutoStockStaple.option.AutoStockStapleOverLimitFlow.description",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "AutoStockBuyEngravingPermitSpend": {
+                            "enabled": true
+                        },
+                        "AutoStockBuyAnyItemSpend": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "AutoStockBuyEngravingPermitSpend": {
+                            "enabled": false
+                        },
+                        "AutoStockBuyAnyItemSpend": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ],
+            "default_case": "Yes"
         },
         "AutoStockStapleValleyIV": {
             "type": "switch",
