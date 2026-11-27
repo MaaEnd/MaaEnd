@@ -1,0 +1,13 @@
+{
+    "task": [
+        {
+            "name": "ExclusionZoneRebuilding",
+            "label": "$task.ExclusionZoneRebuilding.label",
+            "entry": "ExclusionZoneRebuildingEntry",
+            "description": "$task.ExclusionZoneRebuilding.description",
+            "group": [
+                "regional_development"
+            ]
+        }
+    ]
+}

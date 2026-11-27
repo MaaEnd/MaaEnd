@@ -594,27 +594,42 @@
             ]
         }
     },
-    "__ScenePrivateMenuRegionalDevelopmentWulingEnterRebuildExclusionZone": {
+    "__ScenePrivateMenuRegionalDevelopmentWulingExclusionZoneRebuildingLocked": {
+        "desc": "重建禁区菜单未解锁",
+        "recognition": "And",
+        "all_of": [
+            "InRegionalDevelopment",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    754,
+                    534,
+                    177,
+                    75
+                ],
+                "expected": [
+                    "暂未解锁",
+                    "尚未解鎖",
+                    "Not Yet Unlocked",
+                    "未解放",
+                    "미해제"
+                ]
+            }
+        ],
+        "action": "Custom",
+        "custom_action": "FalseAction",
+        "focus": {
+            "Node.Recognition.Succeeded": "重建禁区菜单未解锁"
+        }
+    },
+    "__ScenePrivateMenuRegionalDevelopmentWulingEnterExclusionZoneRebuilding": {
         "desc": "点击武陵地区建设界面的重建禁区入口",
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
                     "InRegionalDevelopmentWuling",
-                    {
-                        "recognition": "OCR",
-                        "roi": [
-                            759,
-                            540,
-                            143,
-                            44
-                        ],
-                        "expected": [
-                            "重建禁区",
-                            "重建禁區"
-                        ],
-                        "only_rec": true
-                    }
+                    "__ScenePrivateMenuRegionalDevelopmentWulingExclusionZoneRebuildingEntryText"
                 ],
                 "box_index": 1
             }
@@ -624,8 +639,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "InRegionalDevelopmentWulingRebuildExclusionZone",
-            "[JumpBack]SceneWaitLoadingExit"
+            "InRegionalDevelopmentWulingExclusionZoneRebuilding"
         ]
     },
     "__ScenePrivateMenuRegionalDevelopmentValleyIVEnterOverview": {
@@ -684,6 +698,25 @@
             "time": 80,
             "target": "__ScenePrivateMenuRegionalOverviewFullRegion"
         },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__ScenePrivateMenuRegionalDevelopmentWulingExclusionZoneRebuildingEntryText": {
+        "recognition": "OCR",
+        "roi": [
+            759,
+            540,
+            143,
+            44
+        ],
+        "expected": [
+            "重建禁区",
+            "重建禁區",
+            "(?i)Exclusion\\s*Zone\\s*Rebuilding",
+            "封鎖区域再建"
+        ],
+        "only_rec": true,
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0

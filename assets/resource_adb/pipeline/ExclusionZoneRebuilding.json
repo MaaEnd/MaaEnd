@@ -1,0 +1,53 @@
+{
+    "ExclusionZoneRebuildingConstructionStage": {
+        "roi": [
+            970,
+            72,
+            170,
+            48
+        ]
+    },
+    "ExclusionZoneRebuildingPage": {
+        "roi": [
+            970,
+            72,
+            170,
+            48
+        ]
+    },
+    "ExclusionZoneRebuildingUnavailableButton": {
+        "roi": [
+            1105,
+            294,
+            140,
+            46
+        ]
+    },
+    "ExclusionZoneRebuildingClaimButton": {
+        "roi": [
+            1105,
+            294,
+            140,
+            46
+        ]
+    },
+    "ExclusionZoneRebuildingEmptyCount": {
+        "roi": [
+            815,
+            258,
+            260,
+            32
+        ]
+    },
+    "ExclusionZoneRebuildingCheckButton": {
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                815,
+                258,
+                430,
+                82
+            ]
+        }
+    }
+}

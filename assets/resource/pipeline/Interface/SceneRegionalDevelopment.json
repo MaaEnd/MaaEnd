@@ -115,15 +115,21 @@
             "[JumpBack]SceneEnterMenuRegionalDevelopmentWuling"
         ]
     },
-    "SceneEnterMenuRegionalDevelopmentWulingRebuildExclusionZone": {
+    "SceneEnterMenuRegionalDevelopmentWulingExclusionZoneRebuilding": {
         "desc": "进入地区建设-武陵-重建禁区",
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuRegionalDevelopmentWuling"
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "InRegionalDevelopmentWulingRebuildExclusionZone",
-            "__ScenePrivateMenuRegionalDevelopmentWulingEnterRebuildExclusionZone",
-            "[JumpBack]SceneEnterMenuRegionalDevelopmentWuling"
+            "__ScenePrivateMenuRegionalDevelopmentWulingExclusionZoneRebuildingLocked",
+            "__ScenePrivateMenuRegionalDevelopmentWulingEnterExclusionZoneRebuilding"
         ]
     },
     "SceneEnterMenuRegionalOverviewWuling": {
