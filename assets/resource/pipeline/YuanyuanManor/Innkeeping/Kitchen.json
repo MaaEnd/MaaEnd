@@ -1,0 +1,294 @@
+// 客栈经营-营业设定（安排厨房）
+{
+    "InnkeepingResetChefs": {
+        "desc": "在营业设定界面，点击重置菜单",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InnkeepingResetChefsButton"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 100,
+        "next": [
+            "InnkeepingResetChefsSuccess"
+        ]
+    },
+    "InnkeepingResetChefsSuccess": {
+        "desc": "在营业设定界面，点击重置菜单成功",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InnkeepingChefsClear"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "[JumpBack]InnkeepingOpenKitchen1",
+            "[JumpBack]InnkeepingOpenKitchen2",
+            "[JumpBack]InnkeepingOpenKitchen3",
+            "InnkeepingOpenMenuDesign"
+        ]
+    },
+    // =========================================================================
+    // 依次打开三个厨房
+    // =========================================================================
+    "InnkeepingOpenKitchen1": {
+        "desc": "点开 1 号厨房",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InnkeepingKitchen1Clear"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 100,
+        "next": [
+            "InnkeepingOpenKitchenSuccess"
+        ]
+    },
+    "InnkeepingOpenKitchen2": {
+        "desc": "点开 2 号厨房",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InnkeepingKitchen2Clear"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 100,
+        "next": [
+            "InnkeepingOpenKitchenSuccess"
+        ]
+    },
+    "InnkeepingOpenKitchen3": {
+        "desc": "点开 3 号厨房",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InnkeepingKitchen3Clear"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 100,
+        "next": [
+            "InnkeepingOpenKitchenSuccess"
+        ]
+    },
+    "InnkeepingOpenKitchenSuccess": {
+        "desc": "点开厨房成功",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InnkeepingInKitchen"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "InnkeepingKitchenPickFirst"
+        ]
+    },
+    // =========================================================================
+    // 依次选中两名干员当作厨师
+    // =========================================================================
+    "InnkeepingKitchenPickFirst": {
+        "desc": "厨房内选中第一位干员",
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    75,
+                    182
+                ]
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 100,
+        "next": [
+            "InnkeepingKitchenPickFirstSuccess"
+        ]
+    },
+    "InnkeepingKitchenPickFirstSuccess": {
+        "desc": "厨房内选中第一位干员成功",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InnkeepingKitchenOperatorCount1"
+                ]
+            }
+        },
+        "pre_delay": 100,
+        "post_delay": 0,
+        "next": [
+            "InnkeepingKitchenPickSecond"
+        ]
+    },
+    "InnkeepingKitchenPickSecond": {
+        "desc": "厨房内选中第二位干员",
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    165,
+                    182
+                ]
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 100,
+        "next": [
+            "InnkeepingKitchenPickSecondSuccess"
+        ]
+    },
+    "InnkeepingKitchenPickSecondSuccess": {
+        "desc": "厨房内选中第二位干员成功",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InnkeepingKitchenOperatorCount2"
+                ]
+            }
+        },
+        "pre_delay": 100,
+        "post_delay": 0,
+        "next": [
+            "InnkeepingKitchenConfirm"
+        ]
+    },
+    // =========================================================================
+    // 从厨房返回营业设定界面
+    // =========================================================================
+    "InnkeepingKitchenConfirm": {
+        "desc": "点击厨房右下角的确认",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "WhiteConfirmButtonType2"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 100,
+        "next": [
+            "InnkeepingKitchenConfirmSuccess"
+        ]
+    },
+    "InnkeepingKitchenConfirmSuccess": {
+        "desc": "点击厨房右下角的确认成功，回到经营设定界面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InnkeepingInInnSetting"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    // =========================================================================
+    // 进入菜单设定界面
+    // =========================================================================
+    "InnkeepingOpenMenuDesign": {
+        "desc": "点击设定菜单",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InnkeepingOpenMenuDesignButtonText"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 100,
+        "next": [
+            "InnkeepingOpenMenuDesignSuccess"
+        ]
+    },
+    "InnkeepingOpenMenuDesignSuccess": {
+        "desc": "点击设定菜单成功，进入菜单设定界面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InnkeepingInMenuDesign"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "RestaurantMenuInitialize"
+        ]
+    }
+}

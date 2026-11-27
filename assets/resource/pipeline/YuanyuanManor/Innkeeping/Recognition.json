@@ -134,5 +134,202 @@
                 ]
             }
         }
+    },
+    "InnkeepingResetChefsButton": {
+        "desc": "营业设定界面右下角的重置菜单按钮",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    916,
+                    601,
+                    119,
+                    119
+                ],
+                "template": [
+                    "YuanyuanManor/Innkeeping/ResetChefs.png"
+                ],
+                "threshold": 0.9
+            }
+        }
+    },
+    "InnkeepingOpenMenuDesignButtonText": {
+        "desc": "营业设定界面右下角的设定菜单按钮文本",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1010,
+                    640,
+                    210,
+                    45
+                ],
+                "expected": [
+                    "设定菜单",
+                    "Set Menu",
+                    "メニューを設定",
+                    "메뉴 설정",
+                    "設定菜單"
+                ]
+            }
+        }
+    },
+    "InnkeepingChefsClear": {
+        "desc": "在营业设定界面，三个厨房内均没有干员",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InnkeepingKitchen1Clear",
+                    "InnkeepingKitchen2Clear",
+                    "InnkeepingKitchen3Clear"
+                ]
+            }
+        }
+    },
+    "InnkeepingKitchen1Clear": {
+        "desc": "在营业设定界面，1 号厨房内没有干员",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    552,
+                    362,
+                    200,
+                    42
+                ],
+                "expected": [
+                    "安排干员",
+                    "Assign Operator",
+                    "メンバー追加",
+                    "오퍼레이터 배치",
+                    "安排幹員"
+                ]
+            }
+        }
+    },
+    "InnkeepingKitchen2Clear": {
+        "desc": "在营业设定界面，2 号厨房内没有干员",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    775,
+                    362,
+                    200,
+                    42
+                ],
+                "expected": [
+                    "安排干员",
+                    "Assign Operator",
+                    "メンバー追加",
+                    "오퍼레이터 배치",
+                    "安排幹員"
+                ]
+            }
+        }
+    },
+    "InnkeepingKitchen3Clear": {
+        "desc": "在营业设定界面，3 号厨房内没有干员",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1001,
+                    362,
+                    200,
+                    42
+                ],
+                "expected": [
+                    "安排干员",
+                    "Assign Operator",
+                    "メンバー追加",
+                    "오퍼레이터 배치",
+                    "安排幹員"
+                ]
+            }
+        }
+    },
+    // =========================================================================
+    // 营业设定-厨房
+    // =========================================================================
+    "InnkeepingInKitchen": {
+        "desc": "在营业设定的二级界面厨房内",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    25,
+                    640,
+                    135,
+                    35
+                ],
+                "expected": [
+                    "厨房进驻干员",
+                    "Operator Chefs",
+                    "キッチン配属",
+                    "주방에 배치한 오퍼레이터",
+                    "廚房進駐幹員"
+                ]
+            }
+        }
+    },
+    "InnkeepingKitchenOperatorCount1": {
+        "desc": "厨房界面左下角干员数量 1/2",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    170,
+                    640,
+                    110,
+                    40
+                ],
+                "expected": [
+                    "1/2"
+                ]
+            }
+        }
+    },
+    "InnkeepingKitchenOperatorCount2": {
+        "desc": "厨房界面左下角干员数量 2/2",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    170,
+                    640,
+                    110,
+                    40
+                ],
+                "expected": [
+                    "2/2"
+                ]
+            }
+        }
+    },
+    // =========================================================================
+    // 菜单设定界面
+    // =========================================================================
+    "InnkeepingInMenuDesign": {
+        "desc": "在菜单设定界面",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    48,
+                    105,
+                    470,
+                    32
+                ],
+                "expected": [
+                    "菜单要求",
+                    "Menu REQ",
+                    "メニュー要件",
+                    "메뉴 요구 사항",
+                    "菜單要求"
+                ]
+            }
+        }
     }
 }
