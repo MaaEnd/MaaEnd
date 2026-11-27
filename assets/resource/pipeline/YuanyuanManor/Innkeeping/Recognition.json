@@ -22,5 +22,117 @@
                 ]
             }
         }
+    },
+    "InnkeepingPatronCount": {
+        "desc": "右上角客源数量",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1083,
+                    15,
+                    111,
+                    29
+                ],
+                // 完整数值格式为当前客源/客源上限，例如 310/1000。
+                "expected": [
+                    // @i18n-skip
+                    "^\\s*[0-9]+\\s*/\\s*[0-9]+\\s*$"
+                ]
+            }
+        }
+    },
+    "InnkeepingTargetTheme": {
+        "desc": "在主题设定界面，找到左侧列表中的目标主题",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    70,
+                    90,
+                    430,
+                    590
+                ],
+                "roi_offset": [
+                    0,
+                    0,
+                    0,
+                    -40
+                ],
+                "expected": [
+                    "席间小酌",
+                    "Drinking Social",
+                    "宴に一献",
+                    "반주 한 잔",
+                    "席間小酌"
+                ]
+            }
+        }
+    },
+    "InnkeepingTargetThemeSelected": {
+        "desc": "在主题设定界面，确认目标主题已选中",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    510,
+                    80,
+                    200,
+                    60
+                ],
+                "expected": [
+                    "席间小酌",
+                    "Drinking Social",
+                    "宴に一献",
+                    "반주 한 잔",
+                    "席間小酌"
+                ]
+            }
+        }
+    },
+    "InnkeepingOpenInnSettingsButtonText": {
+        "desc": "主题设定界面右下角的「正式经营」按钮文本",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1000,
+                    640,
+                    210,
+                    45
+                ],
+                "expected": [
+                    "正式经营",
+                    "Open the Inn",
+                    "営業開始",
+                    "정식 운영",
+                    "正式經營"
+                ]
+            }
+        }
+    },
+    // =========================================================================
+    // 营业设定界面
+    // =========================================================================
+    "InnkeepingInInnSetting": {
+        "desc": "在营业设定界面",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    200,
+                    60
+                ],
+                "expected": [
+                    "营业设定",
+                    "(?i)Inn\\s*Settings",
+                    "営業管理",
+                    "운영 설정",
+                    "營業設定"
+                ]
+            }
+        }
     }
 }
