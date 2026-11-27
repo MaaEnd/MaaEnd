@@ -72,6 +72,9 @@ class StockPanelPollingTest(unittest.TestCase):
             area = registry.StockArea((0, 0), icon, template, "SceneEnterMapTestRegion")
             nodes = registry.stock_nodes(route, "Test Route", route.region, area)
             with self.subTest(icon=icon):
+                find = f"__AutoCollect{route.id}StockFind"
+                self.assertEqual(nodes[find]["next"], [f"{panel}Open"])
+                self.assertEqual(nodes[f"{panel}Open"]["action"]["param"]["target"], find)
                 self.assertEqual(nodes[f"{panel}Empty"]["all_of"], ["AutoCollectStockPanelEmpty"])
                 self.assertEqual(nodes[f"{panel}Pick"]["all_of"], [list_node])
                 self.assertEqual(shared[list_node]["recognition"]["param"]["template"], [template])

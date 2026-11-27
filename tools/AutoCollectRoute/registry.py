@@ -36,7 +36,6 @@ HAND_WRITTEN_OPTIONS = (
     "AutoCollectTargetInventory",
     "AutoCollectSkipEmptyStock",
 )
-# 稀有采集物区（兔耳图标）与稀有矿物区（矿石图标）：大地图上带存量角标（1~10），采空后不显示角标。
 # 点位类型前缀 -> (MapIcons 图标名, 图标重叠时选择列表项的模板)
 STOCK_AREA_KINDS = {
     "int_doodad_core_plant_rabbithole": ("RareCollectArea", "AutoCollect/RareCollectListEntry.png"),
@@ -49,7 +48,7 @@ STOCK_PANEL_COUNT_ROI = [1120, 160, 105, 40]
 STOCK_PANEL_TIMEOUT_MS = 5000
 STOCK_PANEL_RATE_LIMIT_MS = 250
 STOCK_PANEL_EXIT = ["AutoCollectStockPanelClose", "AutoCollectStockPanelLeave"]
-# 打开地图或读角标失败时，照常执行路线并返回调度。
+# 打开地图或停用路线失败时，照常执行路线并返回调度。
 STOCK_ABORTED = "AutoCollectStockCheckAborted"
 HAND_WRITTEN_KEYS = (
     "option.AutoCollectMode.",
@@ -643,32 +642,8 @@ def stock_panel_shared_nodes() -> dict[str, Any]:
     }
 
 
-def stock_digit_node(name: str, find_node: str, roi_offset: list[int], note: str) -> dict[str, Any]:
-    """读到存量角标数字即命中，照常执行路线。"""
-    return {
-        "desc": f"路线 {name} 存量检查：读到存量角标，照常执行（{note}）",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": find_node,
-                "roi_offset": roi_offset,
-                "expected": ["^\\d+$"],
-                "replace": [["\\D", ""]],
-                "only_rec": True,
-                # 只在读得很确定时直接放行；没读到或不够确定时交给详情面板确认。
-                # 实测有角标时两个框的较高置信度通常在 0.95 以上，被滑索架压住时约 0.76，会改走详情面板
-                "threshold": 0.9,
-            },
-        },
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-    }
-
-
 def stock_nodes(route: Route, name: str, region: str, stock: StockArea) -> dict[str, Any]:
-    """传送前打开同一张子区域地图，读稀有采集物区 / 稀有矿物区的存量角标；只有详情面板确认为 0 才停用本轮的路线执行。"""
+    """传送前在区域详情面板读取存量，确认为 0 时停用本轮路线。"""
     node = f"__AutoCollect{route.id}"
     find_node = f"{node}StockFind"
     panel_states = [f"{node}StockPanelEmpty", "AutoCollectStockPanelStocked"]
@@ -706,24 +681,7 @@ def stock_nodes(route: Route, name: str, region: str, stock: StockArea) -> dict[
             "action": "DoNothing",
             "post_delay": 0,
             "rate_limit": 0,
-            "next": [f"{node}StockDigit", f"{node}StockDigitWide", f"{node}StockRecheck"],
-        },
-        # 存量为 0 时不显示角标。两个框任一读到数字就照常执行；两帧都读不到时再打开详情面板。
-        f"{node}StockDigit": stock_digit_node(name, find_node, [9, -12, 10, 12], "只框角标本身"),
-        f"{node}StockDigitWide": stock_digit_node(
-            name, find_node, [9, -13, 13, 14], "向右与上下放宽，容忍遮挡与偏移；不向左放宽，避开图标本体"
-        ),
-        f"{node}StockRecheck": {
-            "desc": f"路线 {name} 存量检查：首帧没读到角标，画面静止后再读一次",
-            "recognition": "DirectHit",
-            # MapFind 返回图标上的一点。等待区域覆盖图标与两个 OCR 框，角标消失时仍有可匹配的内容。
-            "pre_wait_freezes": {"time": 300, "target": find_node, "target_offset": [0, -13, 22, 22]},
-            "pre_delay": 0,
-            "action": "DoNothing",
-            "post_delay": 0,
-            "rate_limit": 0,
-            "next": [f"{node}StockDigit", f"{node}StockDigitWide", f"{node}StockPanelOpen"],
-            "on_error": [STOCK_ABORTED],
+            "next": [f"{node}StockPanelOpen"],
         },
         # 点开区域后轮询存量读数或重叠图标的选择列表，滑入期间未命中时继续识别。
         f"{node}StockPanelOpen": {
