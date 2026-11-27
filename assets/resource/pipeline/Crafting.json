@@ -1,6 +1,7 @@
 {
     "CraftingStart": {
         "desc": "简易制作任务入口",
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -8,6 +9,8 @@
                 "SceneEnterMenuBackpackWithDepot"
             ]
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "CraftingEnterMenu"
         ]
@@ -32,9 +35,12 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Click"
         },
+        "post_delay": 0,
+        "rate_limit": 100,
         "next": [
             "CraftingEnterInMenu"
         ]
@@ -46,7 +52,7 @@
             "InCrafting"
         ],
         "pre_wait_freezes": {
-            "time": 400,
+            "time": 100,
             "target": [
                 30,
                 145,
@@ -54,6 +60,9 @@
                 490
             ]
         },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "CraftingSelectCategory"
         ]
@@ -75,7 +84,10 @@
             "応急食品・薬",
             "응급\\s*식품\\s*및\\s*약품"
         ],
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 100,
         "next": [
             "CraftingCategorySelected"
         ]
@@ -109,7 +121,7 @@
             }
         ],
         "pre_wait_freezes": {
-            "time": 300,
+            "time": 100,
             "target": [
                 30,
                 145,
@@ -117,6 +129,9 @@
                 490
             ]
         },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "CraftingTaskSearchItem"
         ]
@@ -125,6 +140,7 @@
         "desc": "开始在物品列表中查找目标物品",
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "CraftingTaskFindItem",
             "CraftingTaskItemListEnd",
@@ -148,7 +164,10 @@
             "(?i)^Yazhen\\s*Powder$",
             "^야침\\s*가루$"
         ],
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 100,
         "next": [
             "CraftingTaskItemSelected"
         ]
@@ -172,16 +191,18 @@
         ],
         // 切换物品后当前制作、右侧详情和份数区域有渐变动画
         "pre_wait_freezes": {
-            "time": 300,
+            "time": 100,
             "target": [
                 -590,
                 110,
                 590,
                 520
-            ]
+            ],
+            "threshold": 0.98
         },
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "CraftingTaskRound",
             "CraftingTaskFinish"
@@ -202,8 +223,9 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
-            "CraftingTaskFinish"
+            "FailedNode"
         ],
         "attach": {
             "ready": false
@@ -215,6 +237,7 @@
         "all_of": [
             "InCrafting"
         ],
+        "pre_delay": 0,
         "action": "Swipe",
         "begin": [
             140,
@@ -228,27 +251,27 @@
             20,
             10
         ],
-        "end_hold": 1000,
+        "end_hold": 600,
         "duration": 300,
         "post_wait_freezes": {
-            "time": 300,
+            "time": 100,
             "target": [
                 30,
                 145,
                 250,
                 490
-            ]
-        }
+            ],
+            "threshold": 0.98
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "CraftingTaskRound": {
         "desc": "开始一轮制作",
         "max_hit": 1,
-        "recognition": "And",
-        "all_of": [
-            "InCrafting"
-        ],
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "CraftingTaskMaterialInsufficient",
             "CraftingTaskClickMax",
@@ -274,6 +297,7 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "CraftingTaskFinish"
         ]
@@ -289,7 +313,10 @@
         ],
         "template": "Crafting/MaxProductionBtn.png",
         "threshold": 0.95,
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 100,
+        "rate_limit": 0,
         "next": [
             "CraftingTaskClickProduce"
         ]
@@ -309,10 +336,13 @@
             "(?i)Craft",
             "確定"
         ],
+        "pre_delay": 0,
         "action": "Click",
         "anchor": {
             "SceneNoticeRewardsConfirmNextAnchor": "CraftingTaskProduceDone"
         },
+        "post_delay": 0,
+        "rate_limit": 100,
         "next": [
             "SceneNoticeRewardsConfirmWithAnchor"
         ]
@@ -323,8 +353,19 @@
         "all_of": [
             "InCrafting"
         ],
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ],
+            "threshold": 0.95
+        },
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "CraftingTaskRound",
             "CraftingTaskFinish"
@@ -333,6 +374,7 @@
     "CraftingTaskFinish": {
         "desc": "制作结束",
         "pre_delay": 0,
-        "post_delay": 0
+        "post_delay": 0,
+        "rate_limit": 0
     }
 }
