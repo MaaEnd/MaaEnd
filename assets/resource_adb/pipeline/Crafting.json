@@ -1,4 +1,15 @@
 {
+    "CraftingEnterInMenu": {
+        "pre_wait_freezes": {
+            "time": 400,
+            "target": [
+                35,
+                185,
+                310,
+                430
+            ]
+        }
+    },
     "CraftingSelectCategory": {
         "roi": [
             40,
@@ -8,7 +19,7 @@
         ]
     },
     "CraftingCategorySelected": {
-        "post_wait_freezes": {
+        "pre_wait_freezes": {
             "time": 300,
             "target": [
                 35,
@@ -25,16 +36,7 @@
             190,
             230,
             395
-        ],
-        "pre_wait_freezes": {
-            "time": 300,
-            "target": [
-                35,
-                185,
-                310,
-                430
-            ]
-        }
+        ]
     },
     "CraftingTaskItemListEnd": {
         "roi": [

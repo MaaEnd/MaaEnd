@@ -48,54 +48,15 @@
         "pre_wait_freezes": {
             "time": 400,
             "target": [
-                0,
-                0,
-                240,
-                100
+                30,
+                145,
+                250,
+                490
             ]
         },
         "next": [
             "CraftingSelectCategory"
         ]
-    },
-    "CraftingCheckMaterialEnough": {
-        "desc": "检测背包是否已满，背包已满直接结束",
-        "recognition": "OCR",
-        "roi": [
-            409,
-            81,
-            439,
-            82
-        ],
-        "expected": [
-            "空间已满",
-            "空間已滿",
-            "可销毁或丢弃部分",
-            "可銷毀或丟棄部分"
-        ],
-        "next": [
-            "CraftingCreationFinish",
-            "[JumpBack]SceneAnyEnterWorld"
-        ]
-    },
-    "CraftingCreationFinish": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    -200,
-                    0,
-                    200,
-                    200
-                ],
-                "template": [
-                    "SceneManager/WorldMenu.png"
-                ],
-                "green_mask": true
-            }
-        },
-        "pre_delay": 0,
-        "post_delay": 0
     },
     "CraftingSelectCategory": {
         "desc": "点击选中的制作类别标签",
@@ -147,7 +108,7 @@
                 "count": 150
             }
         ],
-        "post_wait_freezes": {
+        "pre_wait_freezes": {
             "time": 300,
             "target": [
                 30,
@@ -187,15 +148,6 @@
             "(?i)^Yazhen\\s*Powder$",
             "^야침\\s*가루$"
         ],
-        "pre_wait_freezes": {
-            "time": 300,
-            "target": [
-                30,
-                145,
-                250,
-                490
-            ]
-        },
         "action": "Click",
         "next": [
             "CraftingTaskItemSelected"
@@ -371,7 +323,6 @@
             "SceneNoticeRewardsConfirmNextAnchor": "CraftingTaskProduceDone"
         },
         "next": [
-            "CraftingCheckMaterialEnough",
             "SceneNoticeRewardsConfirmWithAnchor"
         ]
     },
@@ -389,12 +340,8 @@
         ]
     },
     "CraftingTaskFinish": {
-        "desc": "制作结束，返回大世界",
+        "desc": "制作结束",
         "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "CraftingCreationFinish",
-            "[JumpBack]SceneAnyEnterWorld"
-        ]
+        "post_delay": 0
     }
 }
