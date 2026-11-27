@@ -25,18 +25,18 @@ const (
 	attachKeyTargetQuantity = "TargetQuantity"
 )
 
-// budgetLog 是带上 component 字段的包级 logger，避免每条日志重复拼字段。
+// budgetLog 是带上 component 字段的包级 logger。
 var budgetLog = log.With().Str("component", actionName).Logger()
 
 // budgetParam 是调用节点 attach 里的参数。
-// 数值字段用 any 保留 JSON 原始形态（number 或 OCR 节点名字符串）。
+// 数值字段保留 JSON 原始形态：number 直接取用，string 按 OCR 节点名解析。
 type budgetParam struct {
-	Mode       *string `json:"mode"`
-	Balance    any     `json:"balance"`
-	UnitPrice  any     `json:"unit_price"`
-	Limit      any     `json:"limit"`
-	TargetNode *string `json:"target_node"`
-	EmptyNode  *string `json:"empty_node"`
+	Mode       string `json:"mode"`
+	Balance    any    `json:"balance"`
+	UnitPrice  any    `json:"unit_price"`
+	Limit      any    `json:"limit"`
+	TargetNode string `json:"target_node"`
+	EmptyNode  string `json:"empty_node"`
 }
 
 // QuantityBudgetAction 按预算反推滑条目标数量，并覆写目标 BetterSliding 节点。
@@ -48,35 +48,27 @@ type QuantityBudgetAction struct{}
 var _ maa.CustomActionRunner = &QuantityBudgetAction{}
 
 func (a *QuantityBudgetAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-	if ctx == nil {
-		budgetLog.Error().Msg("context is nil")
-		return false
-	}
-	if arg == nil {
-		budgetLog.Error().Msg("custom action arg is nil")
+	if ctx == nil || arg == nil {
+		budgetLog.Error().Msg("context or custom action arg is nil")
 		return false
 	}
 
 	param, err := readParam(ctx, arg.CurrentTaskName)
 	if err != nil {
-		budgetLog.Error().
-			Err(err).
-			Str("node", arg.CurrentTaskName).
-			Msg("failed to read attach params")
+		budgetLog.Error().Err(err).Str("node", arg.CurrentTaskName).Msg("failed to read attach params")
 		return false
 	}
 
-	mode, err := normalizeMode(*param.Mode)
+	mode, err := normalizeMode(param.Mode)
 	if err != nil {
-		budgetLog.Error().Err(err).Str("mode", *param.Mode).Msg("invalid mode")
+		budgetLog.Error().Err(err).Str("mode", param.Mode).Msg("invalid mode")
 		return false
 	}
 
 	// 三个值都是数字时不需要截图。
 	var img image.Image
 	if needsFrame(param.Balance) || needsFrame(param.UnitPrice) || needsFrame(param.Limit) {
-		img, err = captureImage(ctx)
-		if err != nil {
+		if img, err = captureImage(ctx); err != nil {
 			budgetLog.Error().Err(err).Msg("failed to capture current image")
 			return false
 		}
@@ -84,114 +76,64 @@ func (a *QuantityBudgetAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 
 	balance, err := resolveIntSource(ctx, img, attachKeyBalance, param.Balance)
 	if err != nil {
-		budgetLog.Error().Err(err).Interface("value", param.Balance).Msg("failed to resolve balance")
+		budgetLog.Error().Err(err).Msg("failed to resolve balance")
 		return false
 	}
-
 	unitPrice, err := resolveIntSource(ctx, img, attachKeyUnitPrice, param.UnitPrice)
 	if err != nil {
-		budgetLog.Error().Err(err).Interface("value", param.UnitPrice).Msg("failed to resolve unit price")
+		budgetLog.Error().Err(err).Msg("failed to resolve unit price")
 		return false
 	}
-
 	limit, err := resolveIntSource(ctx, img, attachKeyLimit, param.Limit)
 	if err != nil {
-		budgetLog.Error().Err(err).Interface("value", param.Limit).Msg("failed to resolve target balance")
+		budgetLog.Error().Err(err).Msg("failed to resolve target balance")
 		return false
 	}
 
 	target, err := resolveBudgetTarget(mode, balance, limit, unitPrice)
 	if err != nil {
-		budgetLog.Error().
-			Err(err).
-			Str("mode", mode).
-			Int("balance", balance).
-			Int("unit_price", unitPrice).
-			Int("limit", limit).
-			Msg("failed to resolve target quantity from budget")
+		budgetLog.Error().Err(err).Str("mode", mode).Int("balance", balance).Int("unit_price", unitPrice).Int("limit", limit).Msg("failed to resolve target quantity")
 		return false
-	}
-
-	targetNode := strings.TrimSpace(*param.TargetNode)
-	emptyNode := ""
-	if param.EmptyNode != nil {
-		emptyNode = strings.TrimSpace(*param.EmptyNode)
 	}
 
 	if target > 0 {
 		if err := ctx.OverridePipeline(map[string]any{
-			targetNode: map[string]any{
+			param.TargetNode: map[string]any{
 				"enabled": true,
-				"attach": map[string]any{
-					attachKeyTargetQuantity: target,
-				},
+				"attach":  map[string]any{attachKeyTargetQuantity: target},
 			},
 		}); err != nil {
-			budgetLog.Error().
-				Err(err).
-				Str("target_node", targetNode).
-				Int("target_quantity", target).
-				Msg("failed to override target node")
+			budgetLog.Error().Err(err).Str("target_node", param.TargetNode).Int("target_quantity", target).Msg("failed to override target node")
 			return false
 		}
 
-		budgetLog.Info().
-			Str("target_node", targetNode).
-			Str("mode", mode).
-			Int("balance", balance).
-			Int("unit_price", unitPrice).
-			Int("limit", limit).
-			Int("target_quantity", target).
-			Msg("budget resolved and target quantity overridden")
+		budgetLog.Info().Str("target_node", param.TargetNode).Str("mode", mode).Int("balance", balance).Int("unit_price", unitPrice).Int("limit", limit).Int("target_quantity", target).Msg("budget resolved and target quantity overridden")
 		return true
 	}
 
 	// 目标数量不为正：本轮不需要调整数量。
-	if emptyNode == "" {
-		budgetLog.Error().
-			Str("mode", mode).
-			Int("balance", balance).
-			Int("unit_price", unitPrice).
-			Int("limit", limit).
-			Msg("target quantity is not positive but empty_node is not configured")
+	if param.EmptyNode == "" {
+		budgetLog.Error().Str("mode", mode).Int("balance", balance).Int("unit_price", unitPrice).Int("limit", limit).Msg("target quantity is not positive but empty_node is not configured")
 		return false
 	}
-
-	if emptyNode == targetNode {
-		budgetLog.Error().
-			Str("target_node", targetNode).
-			Msg("empty_node must differ from target_node")
+	if param.EmptyNode == param.TargetNode {
+		budgetLog.Error().Str("target_node", param.TargetNode).Msg("empty_node must differ from target_node")
 		return false
 	}
 
 	if err := ctx.OverridePipeline(map[string]any{
-		emptyNode: map[string]any{
-			"enabled": true,
-		},
-		targetNode: map[string]any{
-			"enabled": false,
-		},
+		param.EmptyNode:  map[string]any{"enabled": true},
+		param.TargetNode: map[string]any{"enabled": false},
 	}); err != nil {
-		budgetLog.Error().
-			Err(err).
-			Str("empty_node", emptyNode).
-			Str("target_node", targetNode).
-			Msg("failed to route empty budget branch")
+		budgetLog.Error().Err(err).Str("empty_node", param.EmptyNode).Str("target_node", param.TargetNode).Msg("failed to route empty budget branch")
 		return false
 	}
 
-	budgetLog.Info().
-		Str("empty_node", emptyNode).
-		Str("target_node", targetNode).
-		Str("mode", mode).
-		Int("balance", balance).
-		Int("unit_price", unitPrice).
-		Int("limit", limit).
-		Msg("budget requires no adjustment, empty branch enabled")
+	budgetLog.Info().Str("empty_node", param.EmptyNode).Str("target_node", param.TargetNode).Str("mode", mode).Int("balance", balance).Int("unit_price", unitPrice).Int("limit", limit).Msg("budget requires no adjustment, empty branch enabled")
 	return true
 }
 
-// readParam 读取并校验调用节点 attach 里的参数。
+// readParam 读取并校验调用节点 attach 里的参数，顺带去掉字符串字段的首尾空白。
 func readParam(ctx *maa.Context, nodeName string) (budgetParam, error) {
 	raw, err := ctx.GetNodeJSON(nodeName)
 	if err != nil {
@@ -208,27 +150,31 @@ func readParam(ctx *maa.Context, nodeName string) (budgetParam, error) {
 		return budgetParam{}, fmt.Errorf("unmarshal node json of %s: %w", nodeName, err)
 	}
 
-	missing := make([]string, 0, 4)
-	if node.Attach.Mode == nil {
-		missing = append(missing, attachKeyMode)
-	}
-	if node.Attach.Balance == nil {
-		missing = append(missing, attachKeyBalance)
-	}
-	if node.Attach.UnitPrice == nil {
-		missing = append(missing, attachKeyUnitPrice)
-	}
-	if node.Attach.Limit == nil {
-		missing = append(missing, attachKeyLimit)
-	}
-	if node.Attach.TargetNode == nil || strings.TrimSpace(*node.Attach.TargetNode) == "" {
-		missing = append(missing, attachKeyTargetNode)
+	attach := node.Attach
+	attach.Mode = strings.TrimSpace(attach.Mode)
+	attach.TargetNode = strings.TrimSpace(attach.TargetNode)
+	attach.EmptyNode = strings.TrimSpace(attach.EmptyNode)
+
+	missing := make([]string, 0, 5)
+	for _, check := range []struct {
+		key     string
+		present bool
+	}{
+		{attachKeyMode, attach.Mode != ""},
+		{attachKeyBalance, attach.Balance != nil},
+		{attachKeyUnitPrice, attach.UnitPrice != nil},
+		{attachKeyLimit, attach.Limit != nil},
+		{attachKeyTargetNode, attach.TargetNode != ""},
+	} {
+		if !check.present {
+			missing = append(missing, check.key)
+		}
 	}
 	if len(missing) > 0 {
 		return budgetParam{}, fmt.Errorf("attach is missing %s", strings.Join(missing, ", "))
 	}
 
-	return node.Attach, nil
+	return attach, nil
 }
 
 // needsFrame 判断该取值是否依赖识别结果。数字形态不需要截图。
@@ -243,47 +189,30 @@ func captureImage(ctx *maa.Context) (image.Image, error) {
 	if tasker == nil {
 		return nil, fmt.Errorf("tasker is nil")
 	}
-
 	controller := tasker.GetController()
 	if controller == nil {
 		return nil, fmt.Errorf("controller is nil")
 	}
 
 	controller.PostScreencap().Wait()
-
-	img, err := controller.CacheImage()
-	if err != nil {
-		return nil, fmt.Errorf("cache image: %w", err)
-	}
-	if img == nil {
-		return nil, fmt.Errorf("cached image is nil")
-	}
-
-	return img, nil
+	return controller.CacheImage()
 }
 
 // resolveIntSource 把单个取值来源解析成整数：JSON number 直接取用，
-// 字符串按 OCR 节点名识别后解析。field 只用于错误信息定位是哪一个参数。
+// 字符串按 OCR 节点名识别后解析。三种取值共用同一帧。
 func resolveIntSource(ctx *maa.Context, img image.Image, field string, raw any) (int, error) {
-	switch value := raw.(type) {
-	case float64:
-		if math.Trunc(value) != value {
-			return 0, fmt.Errorf("%s: %v is not an integer", field, value)
+	if number, ok := raw.(float64); ok {
+		if math.Trunc(number) != number || number <= float64(math.MinInt) || number >= float64(math.MaxInt) {
+			return 0, fmt.Errorf("%s: %v is not an integer in range", field, number)
 		}
-		if value >= float64(math.MaxInt) || value <= float64(math.MinInt) {
-			return 0, fmt.Errorf("%s: %v is out of int range", field, value)
-		}
-		return int(value), nil
-	case string:
-		return resolveIntSourceFromNode(ctx, img, field, value)
-	default:
+		return int(number), nil
+	}
+
+	nodeName, ok := raw.(string)
+	if !ok {
 		return 0, fmt.Errorf("%s: expected a number or an OCR node name, got %T", field, raw)
 	}
-}
-
-// resolveIntSourceFromNode 跑一个已有识别节点并解析出的数值。
-func resolveIntSourceFromNode(ctx *maa.Context, img image.Image, field string, rawNodeName string) (int, error) {
-	nodeName := strings.TrimSpace(rawNodeName)
+	nodeName = strings.TrimSpace(nodeName)
 	if nodeName == "" {
 		return 0, fmt.Errorf("%s: node name is empty", field)
 	}
@@ -301,7 +230,7 @@ func resolveIntSourceFromNode(ctx *maa.Context, img image.Image, field string, r
 
 	selected, err := recogtarget.SelectDetail(ctx, nodeName, detail)
 	if err != nil {
-		return 0, fmt.Errorf("%s: select recognition detail of %s: %w", field, nodeName, err)
+		return 0, fmt.Errorf("%s: select detail of %s: %w", field, nodeName, err)
 	}
 
 	number, err := ocrnum.Extract(selected)

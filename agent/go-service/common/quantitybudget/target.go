@@ -7,7 +7,6 @@
 package quantitybudget
 
 import (
-	"errors"
 	"fmt"
 	"math"
 	"strings"
@@ -21,19 +20,6 @@ const (
 	ModeSell = "sell"
 )
 
-var (
-	// ErrInvalidMode 表示模式既不是 buy 也不是 sell。
-	ErrInvalidMode = errors.New("invalid mode")
-	// ErrInvalidLimit 表示目标余额不是正数。
-	ErrInvalidLimit = errors.New("target balance must be positive")
-	// ErrInvalidPrice 表示单价不是正数。
-	ErrInvalidPrice = errors.New("unit price must be positive")
-	// ErrInvalidBalance 表示当前余额为负数。
-	ErrInvalidBalance = errors.New("balance must not be negative")
-	// ErrTargetOverflow 表示算出的目标数量超出滑条支持的范围。
-	ErrTargetOverflow = errors.New("target quantity out of supported range")
-)
-
 // maxTargetQuantity 是目标数量上限：超过它的值不可能是真实档位，按配置错误处理。
 const maxTargetQuantity = math.MaxInt32
 
@@ -45,29 +31,30 @@ func normalizeMode(raw string) (string, error) {
 	case ModeSell:
 		return ModeSell, nil
 	default:
-		return "", fmt.Errorf("%w: %q, expected %q or %q", ErrInvalidMode, raw, ModeBuy, ModeSell)
+		return "", fmt.Errorf("invalid mode %q, expected %q or %q", raw, ModeBuy, ModeSell)
 	}
 }
 
 // resolveBudgetTarget 按预算反推滑条目标数量。
 //
-// 购买：ceil((余额-目标余额)/单价)。向上取整保证花完余额严格低于目标余额，
-// 且超出量小于一个单价；余额不高于目标余额时返回 0，表示本轮无需购买。
-// 出售：floor((目标余额-余额)/单价)。向下取整保证卖完不越过目标余额；
-// 剩余空间不足一个单价时返回 0，表示本轮无需出售。
+// 购买：ceil((余额-目标余额)/单价)。向上取整保证花完余额低于目标余额，且超出量
+// 小于一个单价；整除时正好落在目标余额，不额外多买一档。余额不高于目标余额时
+// 返回 0，表示本轮无需购买。
+// 出售：floor((目标余额-余额)/单价)。向下取整保证卖完不越过目标余额；剩余空间
+// 不足一个单价时返回 0，表示本轮无需出售。
 func resolveBudgetTarget(mode string, balance int, limit int, unitPrice int) (int, error) {
 	normalizedMode, err := normalizeMode(mode)
 	if err != nil {
 		return 0, err
 	}
-	if limit <= 0 {
-		return 0, fmt.Errorf("%w: %d", ErrInvalidLimit, limit)
-	}
-	if unitPrice <= 0 {
-		return 0, fmt.Errorf("%w: %d", ErrInvalidPrice, unitPrice)
-	}
-	if balance < 0 {
-		return 0, fmt.Errorf("%w: %d", ErrInvalidBalance, balance)
+
+	switch {
+	case limit <= 0:
+		return 0, fmt.Errorf("target balance must be positive, got %d", limit)
+	case unitPrice <= 0:
+		return 0, fmt.Errorf("unit price must be positive, got %d", unitPrice)
+	case balance < 0:
+		return 0, fmt.Errorf("balance must not be negative, got %d", balance)
 	}
 
 	// 统一用 int64 计算，避免 32 位平台上 int 溢出。
@@ -95,7 +82,7 @@ func resolveBudgetTarget(mode string, balance int, limit int, unitPrice int) (in
 	}
 
 	if target > int64(maxTargetQuantity) {
-		return 0, fmt.Errorf("%w: %d", ErrTargetOverflow, target)
+		return 0, fmt.Errorf("target quantity %d out of supported range", target)
 	}
 
 	return int(target), nil
