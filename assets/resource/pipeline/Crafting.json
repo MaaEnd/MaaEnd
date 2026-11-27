@@ -309,15 +309,6 @@
             "(?i)Craft",
             "確定"
         ],
-        "pre_wait_freezes": {
-            "time": 300,
-            "target": [
-                -320,
-                -180,
-                320,
-                180
-            ]
-        },
         "action": "Click",
         "anchor": {
             "SceneNoticeRewardsConfirmNextAnchor": "CraftingTaskProduceDone"
