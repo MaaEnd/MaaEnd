@@ -1282,7 +1282,11 @@
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "AutoAltClickAction"
+                "custom_action": "RepeatUntilNotFoundAction",
+                "custom_action_param": {
+                    "custom_action": "AutoAltClickAction",
+                    "wait_node": "AutoEssenceClickObtainButtonRecheck"
+                }
             }
         },
         "next": [
