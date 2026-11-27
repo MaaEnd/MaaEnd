@@ -8,14 +8,14 @@ class TeleportSceneTest(unittest.TestCase):
     def setUp(self) -> None:
         self.route = registry.Route(id="TestRoute1", region="TestRegion", items=(), number=1)
         self.teleport = "SceneEnterWorldTestAnchor"
-        route_document = {
+        self.route_document = {
             "AutoCollectTestRoute1Start": {
                 "action": "Custom",
                 "custom_action": "SubTask",
                 "custom_action_param": {"sub": [self.teleport]},
             },
         }
-        self.enterContext(patch.object(registry, "read_jsonc", return_value=route_document))
+        self.enterContext(patch.object(registry, "read_jsonc", return_value=self.route_document))
 
     def test_read_supported_next_forms(self) -> None:
         expected = "SceneEnterMapTestRegion"
@@ -33,24 +33,58 @@ class TeleportSceneTest(unittest.TestCase):
     def test_missing_map_scene(self) -> None:
         self.assertIsNone(registry.teleport_scene(self.route, {}))
 
+    def test_multiple_start_subtasks_do_not_select_stock_area(self) -> None:
+        self.route_document["AutoCollectTestRoute1Start"]["custom_action_param"]["sub"].append("CollectInAnotherArea")
+        scenes = {self.teleport: {"next": "[JumpBack]SceneEnterMapTestRegion"}}
+        self.assertIsNone(registry.teleport_scene(self.route, scenes))
+
+
+class RouteCollectPointsTest(unittest.TestCase):
+    def test_schema_metadata_preserves_collect_points(self) -> None:
+        route = registry.Route(id="TestRoute1", region="Wuling", items=(), number=1)
+        document = {
+            "$schema": "../../../../../tools/schema/pipeline.schema.json",
+            "AutoCollectTestRoute1Goto": {
+                "action": "Custom",
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {"path": [{"action": "ZONE", "zone_id": "Wuling_Base"}, [10, 20, "COLLECT"]]},
+            },
+        }
+        with patch.object(registry, "read_jsonc", return_value=document):
+            self.assertEqual(registry.route_collect_points(route), [(10, 20)])
+
 
 class StockPanelPollingTest(unittest.TestCase):
-    def test_clicks_poll_only_for_the_expected_panel_states(self) -> None:
+    def test_clicks_poll_before_trying_to_close_the_panel(self) -> None:
         route = registry.Route(id="TestRoute1", region="TestRegion", items=(), number=1)
-        area = registry.StockArea((0, 0), "RareCollectArea", "ListEntry.png", "SceneEnterMapTestRegion")
-        nodes = registry.stock_nodes(route, "Test Route", route.region, area)
         panel = f"__AutoCollect{route.id}StockPanel"
-        recognition_types = {"Empty": "OCR", "Stocked": "OCR", "Pick": "TemplateMatch"}
+        panel_states = [f"{panel}Empty", "AutoCollectStockPanelStocked"]
+        exit_nodes = ["AutoCollectStockPanelClose", "AutoCollectStockPanelLeave"]
+        shared = registry.stock_panel_shared_nodes()
+        self.assertEqual(shared["AutoCollectStockPanelStocked"]["next"], exit_nodes)
+        self.assertEqual(shared["AutoCollectStockPanelClose"]["on_error"], [exit_nodes[1]])
+        self.assertEqual(shared["AutoCollectStockPanelLeave"]["recognition"], "DirectHit")
 
-        for step, candidates in (
-            ("Open", ["Empty", "Stocked", "Pick"]),
-            ("Pick", ["Empty", "Stocked"]),
+        for icon, template, list_node in (
+            ("RareCollectArea", "AutoCollect/RareCollectListEntry.png", "AutoCollectStockPanelRareCollectListEntry"),
+            ("RareMineralArea", "AutoCollect/RareMineralListEntry.png", "AutoCollectStockPanelRareMineralListEntry"),
         ):
-            with self.subTest(step=step):
-                click = nodes[f"{panel}{step}"]
-                self.assertEqual(click["next"], [f"{panel}{state}" for state in candidates])
-                self.assertEqual(click["on_error"], [registry.STOCK_ABORTED])
-                self.assertEqual(click["timeout"], 5_000)
-                self.assertGreater(click["timeout"], click["rate_limit"])
-                for state in candidates:
-                    self.assertEqual(nodes[f"{panel}{state}"]["recognition"]["type"], recognition_types[state])
+            area = registry.StockArea((0, 0), icon, template, "SceneEnterMapTestRegion")
+            nodes = registry.stock_nodes(route, "Test Route", route.region, area)
+            with self.subTest(icon=icon):
+                self.assertEqual(nodes[f"{panel}Empty"]["all_of"], ["AutoCollectStockPanelEmpty"])
+                self.assertEqual(nodes[f"{panel}Pick"]["all_of"], [list_node])
+                self.assertEqual(shared[list_node]["recognition"]["param"]["template"], [template])
+                for step, candidates in (("Open", [*panel_states, f"{panel}Pick"]), ("Pick", panel_states)):
+                    click = nodes[f"{panel}{step}"]
+                    self.assertEqual(click["next"], candidates)
+                    self.assertEqual(click["on_error"], exit_nodes)
+                    self.assertEqual(click["timeout"], 5_000)
+                    self.assertGreater(click["timeout"], click["rate_limit"])
+
+    def test_screenshot_nodes_remain_when_no_route_checks_stock(self) -> None:
+        cases = registry.read_jsonc(registry.PROJECT_ROOT / "tests" / "AutoCollect" / "test_stock_panel.json")["cases"]
+        screenshot_nodes = {hit if isinstance(hit, str) else hit["node"] for case in cases for hit in case["hits"]}
+        document = registry.dispatch_document([], [], {}, {})
+        self.assertTrue(screenshot_nodes)
+        self.assertEqual(screenshot_nodes - document.keys(), set())

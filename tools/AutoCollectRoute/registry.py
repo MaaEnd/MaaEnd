@@ -48,7 +48,8 @@ STOCK_COLLECT_ACTIONS = ("COLLECT", "DIG")
 STOCK_PANEL_COUNT_ROI = [1120, 160, 105, 40]
 STOCK_PANEL_TIMEOUT_MS = 5000
 STOCK_PANEL_RATE_LIMIT_MS = 250
-# 检查节点的动作失败或面板识别超时后，照常执行路线并返回调度。
+STOCK_PANEL_EXIT = ["AutoCollectStockPanelClose", "AutoCollectStockPanelLeave"]
+# 打开地图或读角标失败时，照常执行路线并返回调度。
 STOCK_ABORTED = "AutoCollectStockCheckAborted"
 HAND_WRITTEN_KEYS = (
     "option.AutoCollectMode.",
@@ -185,7 +186,7 @@ def read_jsonc(path: Path) -> Any:
 
 
 def write_json(path: Path, data: Any) -> None:
-    path.write_text(json.dumps(data, ensure_ascii=False, indent=4) + "\n", encoding="utf-8")
+    path.write_text(json.dumps(data, ensure_ascii=False, indent=4) + "\n", encoding="utf-8", newline="\n")
 
 
 def to_pascal(text: str) -> str:
@@ -316,6 +317,8 @@ def route_collect_points(route: Route) -> list[tuple[float, float]] | None:
     """
     points = []
     for name, node in read_jsonc(route_file(route.region, route.id)).items():
+        if name.startswith("$"):
+            continue
         action, param = node_custom_action(node)
         if action == "SubTask" and name != f"AutoCollect{route.id}Start":
             return None
@@ -331,13 +334,16 @@ def route_collect_points(route: Route) -> list[tuple[float, float]] | None:
 
 
 def teleport_scene(route: Route, scenes: dict[str, Any]) -> str | None:
-    """路线起点传送入口在传送前打开的子区域地图入口 SceneEnterMap<子区域>。"""
+    """起点只执行一次传送时，返回传送前打开的子区域地图入口 SceneEnterMap<子区域>。"""
     start = read_jsonc(route_file(route.region, route.id))[f"AutoCollect{route.id}Start"]
     action, param = node_custom_action(start)
     if action != "SubTask":
         return None
-    teleport = next(iter(param.get("sub", [])), None)
-    value = scenes.get(teleport, {}).get("next", [])
+    match param.get("sub"):
+        case [str() as teleport]:
+            value = scenes.get(teleport, {}).get("next", [])
+        case _:
+            return None
     entries = [value] if isinstance(value, (str, dict)) else value
     # next 条目可写成 "[JumpBack]节点名" 或对象 {"name": "节点名", "jump_back": true}
     names = (entry.get("name", "") if isinstance(entry, dict) else entry for entry in entries)
@@ -572,12 +578,39 @@ def stock_panel_count(expected: str, threshold: float | None = None) -> dict[str
     return {"type": "OCR", "param": param}
 
 
+def stock_panel_list_node(template: str) -> str:
+    return f"AutoCollectStockPanel{Path(template).stem}"
+
+
 def stock_panel_shared_nodes() -> dict[str, Any]:
-    """各路线共用：确认详情面板仍开着再点面板右上角的 X 关闭，地图保持打开供随后的传送使用。"""
+    """各路线共用的详情面板、重叠列表项识别与退出流程。"""
     return {
         "AutoCollectStockPanelCount": {
             "desc": "稀有采集物区 / 稀有矿物区详情面板：右上角的「存量/上限」",
             "recognition": stock_panel_count(r"^\d+/\d+$"),
+        },
+        "AutoCollectStockPanelEmpty": {
+            "desc": "详情面板存量为 0，低置信度时继续轮询",
+            "recognition": stock_panel_count(r"^0/\d+$", threshold=0.9),
+        },
+        "AutoCollectStockPanelStocked": {
+            "desc": "详情面板存量不为 0，照常执行路线",
+            "recognition": stock_panel_count(r"^[1-9]\d*/\d+$"),
+            "pre_delay": 0,
+            "action": "DoNothing",
+            "post_delay": 0,
+            "rate_limit": 0,
+            "next": STOCK_PANEL_EXIT,
+        },
+        **{
+            stock_panel_list_node(template): {
+                "desc": "重叠地图图标选择列表中的存量区域",
+                "recognition": {
+                    "type": "TemplateMatch",
+                    "param": {"roi": [860, 300, 140, 360], "template": [template], "threshold": 0.8},
+                },
+            }
+            for _, template in STOCK_AREA_KINDS.values()
         },
         "AutoCollectStockPanelClose": {
             "desc": "关闭稀有采集物区 / 稀有矿物区详情面板：面板仍开着时才点右上角 X，避免误关地图",
@@ -592,7 +625,7 @@ def stock_panel_shared_nodes() -> dict[str, Any]:
             "on_error": ["AutoCollectStockPanelLeave"],
         },
         STOCK_ABORTED: {
-            "desc": "存量检查：动作失败或面板识别超时，照常执行并返回调度",
+            "desc": "存量检查：动作失败，照常执行并返回调度",
             "recognition": "DirectHit",
             "pre_delay": 0,
             "action": "DoNothing",
@@ -619,9 +652,9 @@ def stock_digit_node(name: str, find_node: str, roi_offset: list[int], note: str
             "param": {
                 "roi": find_node,
                 "roi_offset": roi_offset,
-                "only_rec": True,
-                "replace": [["\\D", ""]],
                 "expected": ["^\\d+$"],
+                "replace": [["\\D", ""]],
+                "only_rec": True,
                 # 只在读得很确定时直接放行；没读到或不够确定时交给详情面板确认。
                 # 实测有角标时两个框的较高置信度通常在 0.95 以上，被滑索架压住时约 0.76，会改走详情面板
                 "threshold": 0.9,
@@ -638,7 +671,7 @@ def stock_nodes(route: Route, name: str, region: str, stock: StockArea) -> dict[
     """传送前打开同一张子区域地图，读稀有采集物区 / 稀有矿物区的存量角标；只有详情面板确认为 0 才停用本轮的路线执行。"""
     node = f"__AutoCollect{route.id}"
     find_node = f"{node}StockFind"
-    panel_states = [f"{node}StockPanelEmpty", f"{node}StockPanelStocked"]
+    panel_states = [f"{node}StockPanelEmpty", "AutoCollectStockPanelStocked"]
     return {
         f"{node}StockCheck": {
             "desc": f"路线 {name} 存量检查：打开传送所在的子区域地图",
@@ -699,29 +732,27 @@ def stock_nodes(route: Route, name: str, region: str, stock: StockArea) -> dict[
             "pre_delay": 0,
             "action": {"type": "Click", "param": {"target": find_node}},
             "post_delay": 0,
-            "rate_limit": STOCK_PANEL_RATE_LIMIT_MS,
             "timeout": STOCK_PANEL_TIMEOUT_MS,
+            "rate_limit": STOCK_PANEL_RATE_LIMIT_MS,
             "next": [*panel_states, f"{node}StockPanelPick"],
-            "on_error": [STOCK_ABORTED],
+            "on_error": STOCK_PANEL_EXIT,
         },
         f"{node}StockPanelPick": {
             "desc": f"路线 {name} 存量检查：图标重叠时在选择列表中点选存量区域",
-            "recognition": {
-                "type": "TemplateMatch",
-                "param": {"roi": [860, 300, 140, 360], "template": [stock.list_entry], "threshold": 0.8},
-            },
+            "recognition": "And",
+            "all_of": [stock_panel_list_node(stock.list_entry)],
             "pre_delay": 0,
             "action": "Click",
             "post_delay": 0,
-            "rate_limit": STOCK_PANEL_RATE_LIMIT_MS,
             "timeout": STOCK_PANEL_TIMEOUT_MS,
+            "rate_limit": STOCK_PANEL_RATE_LIMIT_MS,
             "next": panel_states,
-            "on_error": [STOCK_ABORTED],
+            "on_error": STOCK_PANEL_EXIT,
         },
         f"{node}StockPanelEmpty": {
             "desc": f"路线 {name} 存量检查：详情面板存量为 0，停用本轮执行",
-            # 这是唯一会跳过路线的识别。置信度不足时继续轮询，实测 0/8 置信度约 0.99。
-            "recognition": stock_panel_count(r"^0/\d+$", threshold=0.9),
+            "recognition": "And",
+            "all_of": ["AutoCollectStockPanelEmpty"],
             "pre_delay": 0,
             "action": {
                 "type": "Custom",
@@ -732,19 +763,10 @@ def stock_nodes(route: Route, name: str, region: str, stock: StockArea) -> dict[
             },
             "post_delay": 0,
             "rate_limit": 0,
-            "next": ["AutoCollectStockPanelClose", "AutoCollectStockPanelLeave"],
+            "next": STOCK_PANEL_EXIT,
             "on_error": [STOCK_ABORTED],
             # 停用成功后才提示跳过；停用失败时走 on_error 照常执行，不误报
             "focus": {"Node.Action.Succeeded": f"$task.AutoCollect.route.{route.id}.stock_empty"},
-        },
-        f"{node}StockPanelStocked": {
-            "desc": f"路线 {name} 存量检查：详情面板存量不为 0，照常执行",
-            "recognition": stock_panel_count(r"^[1-9]\d*/\d+$"),
-            "pre_delay": 0,
-            "action": "DoNothing",
-            "post_delay": 0,
-            "rate_limit": 0,
-            "next": ["AutoCollectStockPanelClose", "AutoCollectStockPanelLeave"],
         },
         f"{node}StockKept": {
             "desc": f"路线 {name} 存量检查：未找到区域图标，照常执行",
@@ -805,8 +827,7 @@ def dispatch_document(
         document.update(route_nodes(route, names[route.id]["zh_cn"]))
         if route.id in stocks:
             document.update(stock_nodes(route, names[route.id]["zh_cn"], route.region, stocks[route.id]))
-    if stocks:
-        document.update(stock_panel_shared_nodes())
+    document.update(stock_panel_shared_nodes())
     return document
 
 

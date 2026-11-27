@@ -12,7 +12,7 @@
             "hits": [
                 "AutoCollectStockPanelCount",
                 "AutoCollectStockPanelClose",
-                "__AutoCollectWulingFalseAggela1StockPanelEmpty"
+                "AutoCollectStockPanelEmpty"
             ]
         },
         {
@@ -30,7 +30,7 @@
             "hits": [
                 "AutoCollectStockPanelCount",
                 "AutoCollectStockPanelClose",
-                "__AutoCollectWulingFalseAggela1StockPanelStocked"
+                "AutoCollectStockPanelStocked"
             ]
         },
         {
@@ -39,7 +39,7 @@
             "hits": [
                 "AutoCollectStockPanelCount",
                 "AutoCollectStockPanelClose",
-                "__AutoCollectWulingFalseAggela1StockPanelStocked"
+                "AutoCollectStockPanelStocked"
             ]
         },
         {
@@ -47,7 +47,7 @@
             "image": "武陵城_图标重叠选择列表_稀有采集物区.png",
             "hits": [
                 {
-                    "node": "__AutoCollectWulingFalseAggela1StockPanelPick",
+                    "node": "AutoCollectStockPanelRareCollectListEntry",
                     "box": [
                         896,
                         412,
@@ -62,7 +62,7 @@
             "image": "武陵_图标重叠选择列表_稀有矿物区.png",
             "hits": [
                 {
-                    "node": "__AutoCollectWulingIgneosite1StockPanelPick",
+                    "node": "AutoCollectStockPanelRareMineralListEntry",
                     "box": [
                         896,
                         412,
