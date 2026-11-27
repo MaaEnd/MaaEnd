@@ -1,6 +1,52 @@
 {
+    "AutoStockStapleSpendBillLimitColorValleyIV": {
+        "desc": "四号谷地：调度券上限数字的浅灰文字（颜色锚点，GRAY 140~255）",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    1136,
+                    16,
+                    64,
+                    24
+                ],
+                "method": 6,
+                "lower": [
+                    140
+                ],
+                "upper": [
+                    255
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoStockStapleSpendBillLimitTextValleyIV": {
+        "desc": "四号谷地：在颜色锚点区域内 OCR 调度券上限（右上角「余额/上限」的右半边）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "AutoStockStapleSpendBillLimitColorValleyIV",
+                "roi_offset": [
+                    -2,
+                    -2,
+                    4,
+                    4
+                ],
+                "expected": [
+                    "\\d+"
+                ],
+                "only_rec": true
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
     "AutoStockStapleSpendBillLimitInitValleyIV": {
-        "desc": "四号谷地：进入区域时把调度券上限写进 IMS 的 scratch_autostaple_spend_limit_valleyiv（A4 入口，把 value 换成实际取值；max_hit=1 只跑一次，之后不变）",
+        "desc": "四号谷地：进入区域时读一次调度券上限写进 IMS 的 scratch_autostaple_spend_limit_valleyiv（颜色锚点+OCR，max_hit=1）",
         "max_hit": 1,
         "recognition": {
             "type": "And",
@@ -8,8 +54,10 @@
                 "all_of": [
                     "InValleyIVText",
                     "InStapleColor",
-                    "InStockStaple"
-                ]
+                    "InStockStaple",
+                    "AutoStockStapleSpendBillLimitTextValleyIV"
+                ],
+                "box_index": 3
             }
         },
         "pre_delay": 0,
@@ -18,8 +66,7 @@
             "param": {
                 "custom_action": "SetItemQuantity",
                 "custom_action_param": {
-                    "item": "scratch_autostaple_spend_limit_valleyiv",
-                    "value": 45000000
+                    "item": "scratch_autostaple_spend_limit_valleyiv"
                 }
             }
         },
@@ -92,7 +139,7 @@
             "param": {
                 "custom_recognition": "ItemQuantitySatisfied",
                 "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_limit_valleyiv} >= 1 && {scratch_autostaple_spend_balance_valleyiv} > {scratch_autostaple_spend_limit_valleyiv}"
+                    "expression": "{scratch_autostaple_spend_limit_valleyiv} >= 1000000 && {scratch_autostaple_spend_balance_valleyiv} > {scratch_autostaple_spend_limit_valleyiv}"
                 }
             }
         },
@@ -892,8 +939,54 @@
         "post_delay": 0,
         "rate_limit": 0
     },
+    "AutoStockStapleSpendBillLimitColorWuling": {
+        "desc": "武陵：调度券上限数字的浅灰文字（颜色锚点，GRAY 140~255）",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    1136,
+                    16,
+                    64,
+                    24
+                ],
+                "method": 6,
+                "lower": [
+                    140
+                ],
+                "upper": [
+                    255
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoStockStapleSpendBillLimitTextWuling": {
+        "desc": "武陵：在颜色锚点区域内 OCR 调度券上限（右上角「余额/上限」的右半边）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "AutoStockStapleSpendBillLimitColorWuling",
+                "roi_offset": [
+                    -2,
+                    -2,
+                    4,
+                    4
+                ],
+                "expected": [
+                    "\\d+"
+                ],
+                "only_rec": true
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
     "AutoStockStapleSpendBillLimitInitWuling": {
-        "desc": "武陵：进入区域时把调度券上限写进 IMS 的 scratch_autostaple_spend_limit_wuling（A4 入口，把 value 换成实际取值；max_hit=1 只跑一次，之后不变）",
+        "desc": "武陵：进入区域时读一次调度券上限写进 IMS 的 scratch_autostaple_spend_limit_wuling（颜色锚点+OCR，max_hit=1）",
         "max_hit": 1,
         "recognition": {
             "type": "And",
@@ -901,8 +994,10 @@
                 "all_of": [
                     "InWulingText",
                     "InStapleColor",
-                    "InStockStaple"
-                ]
+                    "InStockStaple",
+                    "AutoStockStapleSpendBillLimitTextWuling"
+                ],
+                "box_index": 3
             }
         },
         "pre_delay": 0,
@@ -911,8 +1006,7 @@
             "param": {
                 "custom_action": "SetItemQuantity",
                 "custom_action_param": {
-                    "item": "scratch_autostaple_spend_limit_wuling",
-                    "value": 45000000
+                    "item": "scratch_autostaple_spend_limit_wuling"
                 }
             }
         },
@@ -985,7 +1079,7 @@
             "param": {
                 "custom_recognition": "ItemQuantitySatisfied",
                 "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_limit_wuling} >= 1 && {scratch_autostaple_spend_balance_wuling} > {scratch_autostaple_spend_limit_wuling}"
+                    "expression": "{scratch_autostaple_spend_limit_wuling} >= 1000000 && {scratch_autostaple_spend_balance_wuling} > {scratch_autostaple_spend_limit_wuling}"
                 }
             }
         },
