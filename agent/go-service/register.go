@@ -34,6 +34,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/listcomplete"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/pipelineoverride"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/poststop"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/quantitybudget"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/repeataction"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/schedule"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/sprayscan"
@@ -84,6 +85,7 @@ func registerAll() {
 	closecloudshell.Register()
 	exitlauncher.Register()
 	pipelineoverride.Register()
+	quantitybudget.Register()
 	expressionrecognition.Register()
 	focusocr.Register()
 	listcomplete.Register()
