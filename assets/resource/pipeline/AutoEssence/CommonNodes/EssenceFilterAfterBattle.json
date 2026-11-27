@@ -1,6 +1,7 @@
 {
     "EssenceFilterAfterBattleStart": {
-        "desc": "识别领奖界面，交给战后筛选逐格读取",
+        "desc": "识别领奖界面，交给战后筛选逐格读取；默认关闭，只有目标模式开启",
+        "enabled": false,
         "recognition": {
             "type": "Or",
             "param": {
