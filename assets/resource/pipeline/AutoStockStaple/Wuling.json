@@ -21,7 +21,7 @@
             "[JumpBack]AutoStockBuyItemWulingTaskDaily",
             "[JumpBack]AutoStockBuyItemWulingTaskIndustrial",
             "[JumpBack]AutoStockBuyItemWulingTaskCultural",
-            "SoldOut",
+            "AutoStockSoldOutWuling",
             "[JumpBack]AutoStockSwipeWuling",
             "AutoStockNoMoreTargetWuling"
         ]

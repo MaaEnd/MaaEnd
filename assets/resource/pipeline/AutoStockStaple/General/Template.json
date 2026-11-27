@@ -1,36 +1,4 @@
 {
-    "SoldOut": {
-        "desc": "识别到已售罄区域：先尝试花掉超上限的调度券，未命中再真正退出",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    0,
-                    0,
-                    274,
-                    720
-                ],
-                "expected": [
-                    "已售罄",
-                    "已售完",
-                    "(?i)Sold\\s*Out",
-                    "完売"
-                ],
-                "replace": [
-                    "馨",
-                    "罄"
-                ]
-            }
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoStockBuyValuableItemSpend",
-            "AutoStockBuyAnyItemSpend",
-            "EmptyNode"
-        ]
-    },
     "ConfirmBuyText": {
         "desc": "识别当前确认购买按钮文本",
         "recognition": {

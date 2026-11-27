@@ -20,7 +20,7 @@
             "[JumpBack]AutoStockBuyItemValleyIVTaskDaily",
             "[JumpBack]AutoStockBuyItemValleyIVTaskIndustrial",
             "[JumpBack]AutoStockBuyItemValleyIVTaskCultural",
-            "SoldOut",
+            "AutoStockSoldOutValleyIV",
             "[JumpBack]AutoStockSwipeValleyIV",
             "AutoStockNoMoreTargetValleyIV"
         ]
