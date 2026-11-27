@@ -594,6 +594,40 @@
             ]
         }
     },
+    "__ScenePrivateMenuRegionalDevelopmentWulingEnterRebuildExclusionZone": {
+        "desc": "点击武陵地区建设界面的重建禁区入口",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InRegionalDevelopmentWuling",
+                    {
+                        "recognition": "OCR",
+                        "roi": [
+                            759,
+                            540,
+                            143,
+                            44
+                        ],
+                        "expected": [
+                            "重建禁区",
+                            "重建禁區"
+                        ],
+                        "only_rec": true
+                    }
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "InRegionalDevelopmentWulingRebuildExclusionZone",
+            "[JumpBack]SceneWaitLoadingExit"
+        ]
+    },
     "__ScenePrivateMenuRegionalDevelopmentValleyIVEnterOverview": {
         "desc": "在四号谷地地区建设界面，进入事务总览界面",
         "recognition": "And",

@@ -2754,6 +2754,8 @@
     "task.ReadAllWiki.label": "📖 Mark Encyclopedia as Read",
     "task.RealTimeTask.description": "Runs continuously, monitors the game screen in real time, and presses required keys automatically. Cannot run simultaneously with other tasks.",
     "task.RealTimeTask.label": "🤖 Real-time Assist",
+    "task.RebuildMaintenanceRewards.description": "Open the reconstruction area in Wuling and claim its ongoing maintenance rewards",
+    "task.RebuildMaintenanceRewards.label": "🛠️Claim Reconstruction Maintenance Rewards",
     "task.ReceiveProdManual.description": "Claim all simple crafting manual rewards.",
     "task.ReceiveProdManual.label": "📒 Claim Simple Crafting Manual Rewards",
     "task.ResourceRecycleStation.description": "Automatically collect resources from Resource Recycle Stations in Wuling and Valley IV",

@@ -1,0 +1,13 @@
+{
+    "task": [
+        {
+            "name": "RebuildMaintenanceRewards",
+            "label": "$task.RebuildMaintenanceRewards.label",
+            "entry": "RebuildMaintenanceRewardsEntry",
+            "description": "$task.RebuildMaintenanceRewards.description",
+            "group": [
+                "regional_development"
+            ]
+        }
+    ]
+}

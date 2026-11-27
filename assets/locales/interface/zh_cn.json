@@ -2754,6 +2754,8 @@
     "task.ReadAllWiki.label": "📖百科已读",
     "task.RealTimeTask.description": "该任务会一直执行，实时监控识别游戏画面，自动按下需要的按键。不支持与其他任务同时运行",
     "task.RealTimeTask.label": "🤖实时开荒辅助",
+    "task.RebuildMaintenanceRewards.description": "进入武陵的重建禁区，领取持续维护阶段的奖励",
+    "task.RebuildMaintenanceRewards.label": "🛠️领取重建禁区维护奖励",
     "task.ReceiveProdManual.description": "领取所有简制手册奖励",
     "task.ReceiveProdManual.label": "📒简制手册领取",
     "task.ResourceRecycleStation.description": "自动收取武陵和四号谷地的资源回收站物资",

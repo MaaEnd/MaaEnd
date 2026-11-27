@@ -115,6 +115,17 @@
             "[JumpBack]SceneEnterMenuRegionalDevelopmentWuling"
         ]
     },
+    "SceneEnterMenuRegionalDevelopmentWulingRebuildExclusionZone": {
+        "desc": "进入地区建设-武陵-重建禁区",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "InRegionalDevelopmentWulingRebuildExclusionZone",
+            "__ScenePrivateMenuRegionalDevelopmentWulingEnterRebuildExclusionZone",
+            "[JumpBack]SceneEnterMenuRegionalDevelopmentWuling"
+        ]
+    },
     "SceneEnterMenuRegionalOverviewWuling": {
         "desc": "进入地区建设-武陵-事务总览",
         "pre_delay": 0,
