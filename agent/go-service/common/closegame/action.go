@@ -138,12 +138,14 @@ func (a *CloseGameAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 
 	// 先关启动器，再关游戏：启动器若仍在运行可能会重新拉起游戏进程。
 	if params.CloseLauncher {
-		if !closeLaunchers() {
-			return false
+		for _, name := range launcherProcessNames {
+			if !killByName(name, true) {
+				return false
+			}
 		}
 	}
 
-	if !killByName(gameProcessName) {
+	if !killByName(gameProcessName, false) {
 		return false
 	}
 	if !waitEndfieldExit(ctx, 5*time.Second) {
@@ -272,8 +274,9 @@ func isEndfieldRunning() (bool, error) {
 }
 
 // killByName 结束所有匹配进程名的进程；未找到视为成功。
-// 枚举或 Kill 失败返回 false，由调用方终止整个 Action。
-func killByName(name string) bool {
+// withChildren 为 true 时先结束其直接子进程：启动器被强杀后，其 QtWebEngineProcess 子进程会残留并持续占用内存。
+// 枚举失败返回 false，由调用方终止整个 Action；Kill 失败仅记录警告（进程可能已随父进程结束而处于退出中），由后续等待退出逻辑兜底。
+func killByName(name string, withChildren bool) bool {
 	procs, err := process.Processes()
 	if err != nil {
 		log.Error().Err(err).Str("process", name).Msg("CloseGameAction failed to enumerate processes")
@@ -288,9 +291,11 @@ func killByName(name string) bool {
 		}
 
 		killedAny = true
+		if withChildren {
+			killChildren(p, name)
+		}
 		if err := p.Kill(); err != nil {
-			log.Error().Err(err).Str("process", name).Msg("CloseGameAction failed to kill process")
-			return false
+			log.Warn().Err(err).Str("process", name).Int32("pid", p.Pid).Msg("CloseGameAction failed to kill process")
 		}
 	}
 
@@ -300,4 +305,22 @@ func killByName(name string) bool {
 		log.Info().Str("process", name).Msg("CloseGameAction: process not running")
 	}
 	return true
+}
+
+// killChildren 结束 parent 的直接子进程；失败仅记录警告，不影响结束父进程。
+func killChildren(parent *process.Process, parentName string) {
+	children, err := parent.Children()
+	if err != nil {
+		log.Warn().Err(err).Str("process", parentName).Int32("pid", parent.Pid).Msg("CloseGameAction failed to list child processes")
+		return
+	}
+
+	for _, c := range children {
+		childName, _ := c.Name()
+		if err := c.Kill(); err != nil {
+			log.Warn().Err(err).Str("process", parentName).Int32("child_pid", c.Pid).Str("child", childName).Msg("CloseGameAction failed to kill child process")
+			continue
+		}
+		log.Info().Str("process", parentName).Int32("child_pid", c.Pid).Str("child", childName).Msg("CloseGameAction: child process killed")
+	}
 }
