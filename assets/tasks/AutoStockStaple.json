@@ -130,16 +130,10 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "AutoStockBuyValuableItemSpendValleyIV": {
+                        "AutoStockStapleSpendBillOverLimitValleyIV": {
                             "enabled": true
                         },
-                        "AutoStockBuyAnyItemSpendValleyIV": {
-                            "enabled": true
-                        },
-                        "AutoStockBuyValuableItemSpendWuling": {
-                            "enabled": true
-                        },
-                        "AutoStockBuyAnyItemSpendWuling": {
+                        "AutoStockStapleSpendBillOverLimitWuling": {
                             "enabled": true
                         }
                     }
@@ -147,16 +141,10 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "AutoStockBuyValuableItemSpendValleyIV": {
+                        "AutoStockStapleSpendBillOverLimitValleyIV": {
                             "enabled": false
                         },
-                        "AutoStockBuyAnyItemSpendValleyIV": {
-                            "enabled": false
-                        },
-                        "AutoStockBuyValuableItemSpendWuling": {
-                            "enabled": false
-                        },
-                        "AutoStockBuyAnyItemSpendWuling": {
+                        "AutoStockStapleSpendBillOverLimitWuling": {
                             "enabled": false
                         }
                     }

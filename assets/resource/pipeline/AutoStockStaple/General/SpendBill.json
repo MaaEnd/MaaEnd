@@ -1,6 +1,6 @@
 {
     "AutoStockSoldOutValleyIV": {
-        "desc": "四号谷地：识别到已售罄区域，先尝试花掉超上限的调度券，未命中再退出",
+        "desc": "四号谷地：识别到已售罄区域，进入超限判定",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -26,79 +26,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockBuyValuableItemSpendValleyIV",
-            "AutoStockBuyAnyItemSpendValleyIV",
-            "EmptyNode"
+            "AutoStockStapleSpendBillOverLimitValleyIV"
         ]
     },
-    "AutoStockStapleCurrencyUnitPriceFilterValleyIV": {
-        "desc": "购买商品弹窗里售价区域的纯黑文字（排除划线原价与折扣标签）",
-        "recognition": {
-            "type": "ColorMatch",
-            "param": {
-                "roi": [
-                    888,
-                    236,
-                    147,
-                    30
-                ],
-                "method": 6,
-                "lower": [
-                    0
-                ],
-                "upper": [
-                    120
-                ]
-            }
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "AutoStockStapleCurrencyUnitPriceValleyIV": {
-        "desc": "识别购买商品弹窗里的折后单价（颜色过滤掉划线原价与折扣标签）",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": "AutoStockStapleCurrencyUnitPriceFilterValleyIV",
-                "only_rec": true,
-                "color_filter": "AutoStockStapleCurrencyUnitPriceFilterValleyIV"
-            }
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "AutoStockStapleAnyItemDiscountValleyIV": {
-        "desc": "命中任意商品卡片的折扣区域，不限制折扣力度",
-        "recognition": {
-            "type": "ColorMatch",
-            "param": {
-                "roi": "AutoStockInStapleItemNameLabelColor",
-                "roi_offset": [
-                    37,
-                    -190,
-                    10,
-                    28
-                ],
-                "lower": [
-                    0,
-                    0,
-                    0
-                ],
-                "upper": [
-                    255,
-                    255,
-                    255
-                ]
-            }
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
     "AutoStockStapleSpendBillOverLimitValleyIV": {
-        "desc": "当前调度券余额超过上限",
+        "desc": "四号谷地：当前调度券余额超过上限 45000000（条件识别器，上限是常量，不随后续变化）",
         "recognition": {
             "type": "Custom",
             "param": {
@@ -110,10 +42,53 @@
         },
         "pre_delay": 0,
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleSpendBillCloseShopValleyIV"
+        ]
     },
-    "AutoStockStapleSpendBillValuableItemNameValleyIV": {
-        "desc": "识别刻写券/精锻助剂名称，不受任务选项里的勾选影响",
+    "AutoStockStapleSpendBillCloseShopValleyIV": {
+        "desc": "四号谷地：超限时关闭采购中心",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseButtonType1"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleSpendBillReenterValleyIV"
+        ]
+    },
+    "AutoStockStapleSpendBillReenterValleyIV": {
+        "desc": "四号谷地：重新进入采购中心（列表回到顶部），随后走固定物品购买",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "SceneEnterMenuRegionalDevelopmentValleyIVStockRedistribution"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockBuyValuableItemSpendValleyIV"
+        ]
+    },
+    "AutoStockStapleSpendBillValuableNameValleyIV": {
+        "desc": "四号谷地：识别刻写券/精锻助剂名称",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -149,15 +124,43 @@
         "post_delay": 0,
         "rate_limit": 0
     },
+    "AutoStockStapleAnyItemDiscountValleyIV": {
+        "desc": "四号谷地：命中任意商品卡片的折扣区域，不限制折扣力度",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "AutoStockInStapleItemNameLabelColor",
+                "roi_offset": [
+                    37,
+                    -190,
+                    10,
+                    28
+                ],
+                "lower": [
+                    0,
+                    0,
+                    0
+                ],
+                "upper": [
+                    255,
+                    255,
+                    255
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
     "AutoStockBuyValuableItemSpendValleyIV": {
-        "desc": "额度超限：点击刻写券/精锻助剂，折扣任意、不校验库存数量",
+        "desc": "四号谷地：超限购买固定物品（刻写券/精锻助剂），折扣任意、不校验库存数量",
         "max_hit": 1,
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
                     "AutoStockInStapleItem",
-                    "AutoStockStapleSpendBillValuableItemNameValleyIV",
+                    "AutoStockStapleSpendBillValuableNameValleyIV",
                     "AutoStockStapleAnyItemDiscountValleyIV",
                     "AutoStockStapleSpendBillOverLimitValleyIV"
                 ],
@@ -186,50 +189,54 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleSpendBillApplyValleyIV"
+            "AutoStockStapleSpendBillCalcValleyIV"
         ]
     },
-    "AutoStockBuyAnyItemSpendValleyIV": {
-        "desc": "额度超限：点击任意物品，折扣任意、不校验库存数量",
-        "max_hit": 1,
+    "AutoStockStapleCurrencyUnitPriceValleyIV": {
+        "desc": "四号谷地：购买弹窗里的折后单价（供 Calc 取值使用）",
         "recognition": {
-            "type": "And",
+            "type": "OCR",
             "param": {
-                "all_of": [
-                    "AutoStockInStapleItem",
-                    "AutoStockStapleAnyItemDiscountValleyIV",
-                    "AutoStockStapleSpendBillOverLimitValleyIV"
+                "roi": [
+                    888,
+                    236,
+                    147,
+                    30
                 ],
-                "box_index": 1
+                "only_rec": true,
+                "color_filter": "AutoStockStapleCurrencyUnitPriceFilterValleyIV"
             }
         },
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoStockStapleCurrencyUnitPriceFilterValleyIV": {
+        "desc": "四号谷地：售价区域的纯黑文字（排除划线原价与折扣标签）",
+        "recognition": {
+            "type": "ColorMatch",
             "param": {
-                "custom_action": "RepeatUntilFoundAction",
-                "custom_action_param": {
-                    "action": "Click",
-                    "wait_nodes": [
-                        "AutoStockStapleQuantityControl"
-                    ]
-                },
-                "target_offset": [
-                    -45,
-                    85,
-                    -30,
+                "roi": [
+                    888,
+                    236,
+                    147,
+                    30
+                ],
+                "method": 6,
+                "lower": [
                     0
+                ],
+                "upper": [
+                    120
                 ]
             }
         },
+        "pre_delay": 0,
         "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoStockStapleSpendBillApplyValleyIV"
-        ]
+        "rate_limit": 0
     },
-    "AutoStockStapleSpendBillApplyValleyIV": {
-        "desc": "额度超限：购买弹窗已打开，进入按预算计算数量",
+    "AutoStockStapleSpendBillCalcValleyIV": {
+        "desc": "四号谷地：计算入口——在这里用 IMS/表达式把本次购买的百分比写进 scratch_autostaple_spend_pct_valleyiv（当前占位写 0，等于不买）",
         "recognition": {
             "type": "And",
             "param": {
@@ -238,162 +245,401 @@
                 ]
             }
         },
-        "next": [
-            "AutoStockStapleSpendBillBalanceValleyIV"
-        ]
-    },
-    "AutoStockStapleSpendBillBalanceValleyIV": {
-        "desc": "额度超限：读当前调度券余额写进 IMS（取值入口，换识别节点或 scratch 键只改这里）",
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "AutoStockCurrentStockBill"
-                ]
-            }
-        },
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
                 "custom_action": "SetItemQuantity",
                 "custom_action_param": {
-                    "item": "scratch_autostaple_spend_balance_valleyiv"
+                    "item": "scratch_autostaple_spend_pct_valleyiv",
+                    "value": 0
                 }
             }
         },
-        "next": [
-            "AutoStockStapleSpendBillPriceValleyIV"
-        ]
-    },
-    "AutoStockStapleSpendBillPriceValleyIV": {
-        "desc": "额度超限：读购买弹窗里的折后单价写进 IMS（取值入口，同上）",
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "AutoStockStapleCurrencyUnitPriceValleyIV"
-                ]
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "SetItemQuantity",
-                "custom_action_param": {
-                    "item": "scratch_autostaple_spend_price_valleyiv"
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillLimitValleyIV"
-        ]
-    },
-    "AutoStockStapleSpendBillLimitValleyIV": {
-        "desc": "额度超限：写入目标余额 45000000（取值入口，改这个数字或换成 IMS 取值）",
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "SetItemQuantity",
-                "custom_action_param": {
-                    "item": "scratch_autostaple_spend_limit_valleyiv",
-                    "value": 45000000
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillQuantityValleyIV"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantityValleyIV": {
-        "desc": "额度超限：算本次购买数量 ceil((余额-目标余额)/单价)，再按 32 件向上取整",
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "SetItemQuantity",
-                "custom_action_param": {
-                    "item": "scratch_autostaple_spend_quantity_valleyiv",
-                    "value": "(({scratch_autostaple_spend_balance_valleyiv}-{scratch_autostaple_spend_limit_valleyiv})+{scratch_autostaple_spend_price_valleyiv}-1)/{scratch_autostaple_spend_price_valleyiv}"
-                }
-            }
-        },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "AutoStockStapleSpendBillDispatchValleyIV"
         ]
     },
     "AutoStockStapleSpendBillDispatchValleyIV": {
-        "desc": "额度超限：数量派发；1..32 逐件、之后每 32 件一档（PipelineOverride 只能写静态值）",
+        "desc": "四号谷地：按百分比派发（10% 一档，降序命中即向下取整）",
         "next": [
             "AutoStockStapleSpendBillSkipValleyIV",
-            "AutoStockStapleSpendBillQuantity001ValleyIV",
-            "AutoStockStapleSpendBillQuantity002ValleyIV",
-            "AutoStockStapleSpendBillQuantity003ValleyIV",
-            "AutoStockStapleSpendBillQuantity004ValleyIV",
-            "AutoStockStapleSpendBillQuantity005ValleyIV",
-            "AutoStockStapleSpendBillQuantity006ValleyIV",
-            "AutoStockStapleSpendBillQuantity007ValleyIV",
-            "AutoStockStapleSpendBillQuantity008ValleyIV",
-            "AutoStockStapleSpendBillQuantity009ValleyIV",
-            "AutoStockStapleSpendBillQuantity010ValleyIV",
-            "AutoStockStapleSpendBillQuantity011ValleyIV",
-            "AutoStockStapleSpendBillQuantity012ValleyIV",
-            "AutoStockStapleSpendBillQuantity013ValleyIV",
-            "AutoStockStapleSpendBillQuantity014ValleyIV",
-            "AutoStockStapleSpendBillQuantity015ValleyIV",
-            "AutoStockStapleSpendBillQuantity016ValleyIV",
-            "AutoStockStapleSpendBillQuantity017ValleyIV",
-            "AutoStockStapleSpendBillQuantity018ValleyIV",
-            "AutoStockStapleSpendBillQuantity019ValleyIV",
-            "AutoStockStapleSpendBillQuantity020ValleyIV",
-            "AutoStockStapleSpendBillQuantity021ValleyIV",
-            "AutoStockStapleSpendBillQuantity022ValleyIV",
-            "AutoStockStapleSpendBillQuantity023ValleyIV",
-            "AutoStockStapleSpendBillQuantity024ValleyIV",
-            "AutoStockStapleSpendBillQuantity025ValleyIV",
-            "AutoStockStapleSpendBillQuantity026ValleyIV",
-            "AutoStockStapleSpendBillQuantity027ValleyIV",
-            "AutoStockStapleSpendBillQuantity028ValleyIV",
-            "AutoStockStapleSpendBillQuantity029ValleyIV",
-            "AutoStockStapleSpendBillQuantity030ValleyIV",
-            "AutoStockStapleSpendBillQuantity031ValleyIV",
-            "AutoStockStapleSpendBillQuantity032ValleyIV",
-            "AutoStockStapleSpendBillQuantity064ValleyIV",
-            "AutoStockStapleSpendBillQuantity096ValleyIV",
-            "AutoStockStapleSpendBillQuantity128ValleyIV",
-            "AutoStockStapleSpendBillQuantity160ValleyIV",
-            "AutoStockStapleSpendBillQuantity192ValleyIV",
-            "AutoStockStapleSpendBillQuantity224ValleyIV",
-            "AutoStockStapleSpendBillQuantity256ValleyIV",
-            "AutoStockStapleSpendBillQuantity288ValleyIV",
-            "AutoStockStapleSpendBillQuantity320ValleyIV",
-            "AutoStockStapleSpendBillClampValleyIV"
+            "AutoStockStapleSpendBillPct100ValleyIV",
+            "AutoStockStapleSpendBillPct090ValleyIV",
+            "AutoStockStapleSpendBillPct080ValleyIV",
+            "AutoStockStapleSpendBillPct070ValleyIV",
+            "AutoStockStapleSpendBillPct060ValleyIV",
+            "AutoStockStapleSpendBillPct050ValleyIV",
+            "AutoStockStapleSpendBillPct040ValleyIV",
+            "AutoStockStapleSpendBillPct030ValleyIV",
+            "AutoStockStapleSpendBillPct020ValleyIV",
+            "AutoStockStapleSpendBillPct010ValleyIV"
+        ]
+    },
+    "AutoStockStapleSpendBillPct100ValleyIV": {
+        "desc": "四号谷地：目标百分比 ≥ 100% 时按 100% 滑",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{scratch_autostaple_spend_pct_valleyiv} >= 100"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockStapleSpendBillSlidingValleyIV": {
+                            "enabled": true,
+                            "attach": {
+                                "TargetQuantity": 100,
+                                "TargetQuantityType": "Percentage"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleSpendBillSlidingValleyIV"
+        ]
+    },
+    "AutoStockStapleSpendBillPct090ValleyIV": {
+        "desc": "四号谷地：目标百分比 ≥ 90% 时按 90% 滑",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{scratch_autostaple_spend_pct_valleyiv} >= 90"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockStapleSpendBillSlidingValleyIV": {
+                            "enabled": true,
+                            "attach": {
+                                "TargetQuantity": 90,
+                                "TargetQuantityType": "Percentage"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleSpendBillSlidingValleyIV"
+        ]
+    },
+    "AutoStockStapleSpendBillPct080ValleyIV": {
+        "desc": "四号谷地：目标百分比 ≥ 80% 时按 80% 滑",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{scratch_autostaple_spend_pct_valleyiv} >= 80"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockStapleSpendBillSlidingValleyIV": {
+                            "enabled": true,
+                            "attach": {
+                                "TargetQuantity": 80,
+                                "TargetQuantityType": "Percentage"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleSpendBillSlidingValleyIV"
+        ]
+    },
+    "AutoStockStapleSpendBillPct070ValleyIV": {
+        "desc": "四号谷地：目标百分比 ≥ 70% 时按 70% 滑",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{scratch_autostaple_spend_pct_valleyiv} >= 70"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockStapleSpendBillSlidingValleyIV": {
+                            "enabled": true,
+                            "attach": {
+                                "TargetQuantity": 70,
+                                "TargetQuantityType": "Percentage"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleSpendBillSlidingValleyIV"
+        ]
+    },
+    "AutoStockStapleSpendBillPct060ValleyIV": {
+        "desc": "四号谷地：目标百分比 ≥ 60% 时按 60% 滑",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{scratch_autostaple_spend_pct_valleyiv} >= 60"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockStapleSpendBillSlidingValleyIV": {
+                            "enabled": true,
+                            "attach": {
+                                "TargetQuantity": 60,
+                                "TargetQuantityType": "Percentage"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleSpendBillSlidingValleyIV"
+        ]
+    },
+    "AutoStockStapleSpendBillPct050ValleyIV": {
+        "desc": "四号谷地：目标百分比 ≥ 50% 时按 50% 滑",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{scratch_autostaple_spend_pct_valleyiv} >= 50"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockStapleSpendBillSlidingValleyIV": {
+                            "enabled": true,
+                            "attach": {
+                                "TargetQuantity": 50,
+                                "TargetQuantityType": "Percentage"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleSpendBillSlidingValleyIV"
+        ]
+    },
+    "AutoStockStapleSpendBillPct040ValleyIV": {
+        "desc": "四号谷地：目标百分比 ≥ 40% 时按 40% 滑",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{scratch_autostaple_spend_pct_valleyiv} >= 40"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockStapleSpendBillSlidingValleyIV": {
+                            "enabled": true,
+                            "attach": {
+                                "TargetQuantity": 40,
+                                "TargetQuantityType": "Percentage"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleSpendBillSlidingValleyIV"
+        ]
+    },
+    "AutoStockStapleSpendBillPct030ValleyIV": {
+        "desc": "四号谷地：目标百分比 ≥ 30% 时按 30% 滑",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{scratch_autostaple_spend_pct_valleyiv} >= 30"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockStapleSpendBillSlidingValleyIV": {
+                            "enabled": true,
+                            "attach": {
+                                "TargetQuantity": 30,
+                                "TargetQuantityType": "Percentage"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleSpendBillSlidingValleyIV"
+        ]
+    },
+    "AutoStockStapleSpendBillPct020ValleyIV": {
+        "desc": "四号谷地：目标百分比 ≥ 20% 时按 20% 滑",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{scratch_autostaple_spend_pct_valleyiv} >= 20"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockStapleSpendBillSlidingValleyIV": {
+                            "enabled": true,
+                            "attach": {
+                                "TargetQuantity": 20,
+                                "TargetQuantityType": "Percentage"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleSpendBillSlidingValleyIV"
+        ]
+    },
+    "AutoStockStapleSpendBillPct010ValleyIV": {
+        "desc": "四号谷地：目标百分比 ≥ 10% 时按 10% 滑",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{scratch_autostaple_spend_pct_valleyiv} >= 10"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockStapleSpendBillSlidingValleyIV": {
+                            "enabled": true,
+                            "attach": {
+                                "TargetQuantity": 10,
+                                "TargetQuantityType": "Percentage"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleSpendBillSlidingValleyIV"
         ]
     },
     "AutoStockStapleSpendBillSkipValleyIV": {
-        "desc": "额度超限：余额未超上限，不购买，关闭购买窗口",
+        "desc": "四号谷地：算出的百分比不足一档，关闭滑条节点、不做操作",
         "recognition": {
             "type": "Custom",
             "param": {
                 "custom_recognition": "ItemQuantitySatisfied",
                 "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_valleyiv} <= 0"
+                    "expression": "{scratch_autostaple_spend_pct_valleyiv} < 10"
                 }
             }
         },
-        "next": [
-            "AutoStockStapleSpendBillDoneValleyIV"
-        ]
-    },
-    "AutoStockStapleSpendBillClampValleyIV": {
-        "desc": "额度超限：数量超过 320，按 320 件买（滑条会再按库存上限收敛）",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_valleyiv} > 320"
-                }
-            }
-        },
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
@@ -401,1250 +647,20 @@
                 "custom_action_param": {
                     "patch": {
                         "AutoStockStapleSpendBillSlidingValleyIV": {
-                            "attach": {
-                                "TargetQuantity": 320
-                            }
+                            "enabled": false
                         }
                     }
                 }
             }
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
-            "AutoStockStapleSpendBillSlidingValleyIV"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity001ValleyIV": {
-        "desc": "额度超限：数量 ≤ 1 时买 1 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_valleyiv} <= 1"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingValleyIV": {
-                            "attach": {
-                                "TargetQuantity": 1
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingValleyIV"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity002ValleyIV": {
-        "desc": "额度超限：数量 ≤ 2 时买 2 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_valleyiv} <= 2"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingValleyIV": {
-                            "attach": {
-                                "TargetQuantity": 2
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingValleyIV"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity003ValleyIV": {
-        "desc": "额度超限：数量 ≤ 3 时买 3 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_valleyiv} <= 3"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingValleyIV": {
-                            "attach": {
-                                "TargetQuantity": 3
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingValleyIV"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity004ValleyIV": {
-        "desc": "额度超限：数量 ≤ 4 时买 4 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_valleyiv} <= 4"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingValleyIV": {
-                            "attach": {
-                                "TargetQuantity": 4
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingValleyIV"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity005ValleyIV": {
-        "desc": "额度超限：数量 ≤ 5 时买 5 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_valleyiv} <= 5"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingValleyIV": {
-                            "attach": {
-                                "TargetQuantity": 5
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingValleyIV"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity006ValleyIV": {
-        "desc": "额度超限：数量 ≤ 6 时买 6 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_valleyiv} <= 6"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingValleyIV": {
-                            "attach": {
-                                "TargetQuantity": 6
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingValleyIV"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity007ValleyIV": {
-        "desc": "额度超限：数量 ≤ 7 时买 7 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_valleyiv} <= 7"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingValleyIV": {
-                            "attach": {
-                                "TargetQuantity": 7
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingValleyIV"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity008ValleyIV": {
-        "desc": "额度超限：数量 ≤ 8 时买 8 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_valleyiv} <= 8"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingValleyIV": {
-                            "attach": {
-                                "TargetQuantity": 8
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingValleyIV"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity009ValleyIV": {
-        "desc": "额度超限：数量 ≤ 9 时买 9 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_valleyiv} <= 9"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingValleyIV": {
-                            "attach": {
-                                "TargetQuantity": 9
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingValleyIV"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity010ValleyIV": {
-        "desc": "额度超限：数量 ≤ 10 时买 10 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_valleyiv} <= 10"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingValleyIV": {
-                            "attach": {
-                                "TargetQuantity": 10
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingValleyIV"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity011ValleyIV": {
-        "desc": "额度超限：数量 ≤ 11 时买 11 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_valleyiv} <= 11"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingValleyIV": {
-                            "attach": {
-                                "TargetQuantity": 11
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingValleyIV"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity012ValleyIV": {
-        "desc": "额度超限：数量 ≤ 12 时买 12 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_valleyiv} <= 12"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingValleyIV": {
-                            "attach": {
-                                "TargetQuantity": 12
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingValleyIV"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity013ValleyIV": {
-        "desc": "额度超限：数量 ≤ 13 时买 13 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_valleyiv} <= 13"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingValleyIV": {
-                            "attach": {
-                                "TargetQuantity": 13
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingValleyIV"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity014ValleyIV": {
-        "desc": "额度超限：数量 ≤ 14 时买 14 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_valleyiv} <= 14"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingValleyIV": {
-                            "attach": {
-                                "TargetQuantity": 14
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingValleyIV"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity015ValleyIV": {
-        "desc": "额度超限：数量 ≤ 15 时买 15 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_valleyiv} <= 15"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingValleyIV": {
-                            "attach": {
-                                "TargetQuantity": 15
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingValleyIV"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity016ValleyIV": {
-        "desc": "额度超限：数量 ≤ 16 时买 16 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_valleyiv} <= 16"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingValleyIV": {
-                            "attach": {
-                                "TargetQuantity": 16
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingValleyIV"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity017ValleyIV": {
-        "desc": "额度超限：数量 ≤ 17 时买 17 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_valleyiv} <= 17"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingValleyIV": {
-                            "attach": {
-                                "TargetQuantity": 17
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingValleyIV"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity018ValleyIV": {
-        "desc": "额度超限：数量 ≤ 18 时买 18 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_valleyiv} <= 18"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingValleyIV": {
-                            "attach": {
-                                "TargetQuantity": 18
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingValleyIV"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity019ValleyIV": {
-        "desc": "额度超限：数量 ≤ 19 时买 19 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_valleyiv} <= 19"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingValleyIV": {
-                            "attach": {
-                                "TargetQuantity": 19
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingValleyIV"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity020ValleyIV": {
-        "desc": "额度超限：数量 ≤ 20 时买 20 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_valleyiv} <= 20"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingValleyIV": {
-                            "attach": {
-                                "TargetQuantity": 20
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingValleyIV"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity021ValleyIV": {
-        "desc": "额度超限：数量 ≤ 21 时买 21 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_valleyiv} <= 21"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingValleyIV": {
-                            "attach": {
-                                "TargetQuantity": 21
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingValleyIV"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity022ValleyIV": {
-        "desc": "额度超限：数量 ≤ 22 时买 22 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_valleyiv} <= 22"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingValleyIV": {
-                            "attach": {
-                                "TargetQuantity": 22
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingValleyIV"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity023ValleyIV": {
-        "desc": "额度超限：数量 ≤ 23 时买 23 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_valleyiv} <= 23"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingValleyIV": {
-                            "attach": {
-                                "TargetQuantity": 23
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingValleyIV"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity024ValleyIV": {
-        "desc": "额度超限：数量 ≤ 24 时买 24 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_valleyiv} <= 24"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingValleyIV": {
-                            "attach": {
-                                "TargetQuantity": 24
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingValleyIV"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity025ValleyIV": {
-        "desc": "额度超限：数量 ≤ 25 时买 25 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_valleyiv} <= 25"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingValleyIV": {
-                            "attach": {
-                                "TargetQuantity": 25
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingValleyIV"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity026ValleyIV": {
-        "desc": "额度超限：数量 ≤ 26 时买 26 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_valleyiv} <= 26"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingValleyIV": {
-                            "attach": {
-                                "TargetQuantity": 26
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingValleyIV"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity027ValleyIV": {
-        "desc": "额度超限：数量 ≤ 27 时买 27 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_valleyiv} <= 27"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingValleyIV": {
-                            "attach": {
-                                "TargetQuantity": 27
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingValleyIV"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity028ValleyIV": {
-        "desc": "额度超限：数量 ≤ 28 时买 28 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_valleyiv} <= 28"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingValleyIV": {
-                            "attach": {
-                                "TargetQuantity": 28
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingValleyIV"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity029ValleyIV": {
-        "desc": "额度超限：数量 ≤ 29 时买 29 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_valleyiv} <= 29"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingValleyIV": {
-                            "attach": {
-                                "TargetQuantity": 29
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingValleyIV"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity030ValleyIV": {
-        "desc": "额度超限：数量 ≤ 30 时买 30 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_valleyiv} <= 30"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingValleyIV": {
-                            "attach": {
-                                "TargetQuantity": 30
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingValleyIV"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity031ValleyIV": {
-        "desc": "额度超限：数量 ≤ 31 时买 31 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_valleyiv} <= 31"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingValleyIV": {
-                            "attach": {
-                                "TargetQuantity": 31
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingValleyIV"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity032ValleyIV": {
-        "desc": "额度超限：数量 ≤ 32 时买 32 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_valleyiv} <= 32"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingValleyIV": {
-                            "attach": {
-                                "TargetQuantity": 32
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingValleyIV"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity064ValleyIV": {
-        "desc": "额度超限：数量 ≤ 64 时买 64 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_valleyiv} <= 64"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingValleyIV": {
-                            "attach": {
-                                "TargetQuantity": 64
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingValleyIV"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity096ValleyIV": {
-        "desc": "额度超限：数量 ≤ 96 时买 96 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_valleyiv} <= 96"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingValleyIV": {
-                            "attach": {
-                                "TargetQuantity": 96
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingValleyIV"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity128ValleyIV": {
-        "desc": "额度超限：数量 ≤ 128 时买 128 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_valleyiv} <= 128"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingValleyIV": {
-                            "attach": {
-                                "TargetQuantity": 128
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingValleyIV"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity160ValleyIV": {
-        "desc": "额度超限：数量 ≤ 160 时买 160 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_valleyiv} <= 160"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingValleyIV": {
-                            "attach": {
-                                "TargetQuantity": 160
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingValleyIV"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity192ValleyIV": {
-        "desc": "额度超限：数量 ≤ 192 时买 192 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_valleyiv} <= 192"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingValleyIV": {
-                            "attach": {
-                                "TargetQuantity": 192
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingValleyIV"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity224ValleyIV": {
-        "desc": "额度超限：数量 ≤ 224 时买 224 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_valleyiv} <= 224"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingValleyIV": {
-                            "attach": {
-                                "TargetQuantity": 224
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingValleyIV"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity256ValleyIV": {
-        "desc": "额度超限：数量 ≤ 256 时买 256 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_valleyiv} <= 256"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingValleyIV": {
-                            "attach": {
-                                "TargetQuantity": 256
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingValleyIV"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity288ValleyIV": {
-        "desc": "额度超限：数量 ≤ 288 时买 288 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_valleyiv} <= 288"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingValleyIV": {
-                            "attach": {
-                                "TargetQuantity": 288
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingValleyIV"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity320ValleyIV": {
-        "desc": "额度超限：数量 ≤ 320 时买 320 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_valleyiv} <= 320"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingValleyIV": {
-                            "attach": {
-                                "TargetQuantity": 320
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingValleyIV"
+            "AutoStockStapleSpendBillExitValleyIV"
         ]
     },
     "AutoStockStapleSpendBillSlidingValleyIV": {
-        "desc": "额度超限专用滑条：滑到算出的数量",
+        "desc": "四号谷地：超限专用滑条，按派发下来的百分比滑",
         "pre_delay": 0,
         "action": {
             "type": "Custom",
@@ -1659,6 +675,7 @@
                     "IncreaseButton": {
                         "template": "AutoStockpile/IncreaseButton.png"
                     },
+                    "ResetBeforeFindStart": true,
                     "SliderQuantity": {
                         "roi": [
                             375,
@@ -1677,28 +694,12 @@
             "AutoStockStapleSpendBillConfirmBuyValleyIV"
         ],
         "attach": {
-            "TargetQuantity": 1
+            "TargetQuantity": 10,
+            "TargetQuantityType": "Percentage"
         }
     },
-    "AutoStockStapleSpendBillDoneValleyIV": {
-        "desc": "额度超限：余额已低于上限，无需调整，关闭购买窗口",
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "CloseButtonType1"
-                ]
-            }
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "Click"
-        },
-        "post_delay": 0,
-        "rate_limit": 0
-    },
     "AutoStockStapleSpendBillConfirmBuyValleyIV": {
-        "desc": "额度超限：确认购买",
+        "desc": "四号谷地：确认购买",
         "recognition": {
             "type": "And",
             "param": {
@@ -1729,7 +730,7 @@
         ]
     },
     "AutoStockStapleSpendBillCloseRewardsValleyIV": {
-        "desc": "额度超限：奖励窗口静止后由 IMS A3 累加本次购买",
+        "desc": "四号谷地：奖励窗口静止后由 IMS A3 累加本次购买",
         "recognition": {
             "type": "And",
             "param": {
@@ -1770,7 +771,7 @@
         ]
     },
     "AutoStockStapleSpendBillCloseRewardsButtonValleyIV": {
-        "desc": "额度超限：关闭奖励窗口",
+        "desc": "四号谷地：关闭奖励窗口",
         "recognition": {
             "type": "And",
             "param": {
@@ -1786,141 +787,17 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleSpendBillExitShopValleyIV"
+            "AutoStockStapleSpendBillExitValleyIV"
         ]
     },
-    "AutoStockStapleSpendBillExitShopValleyIV": {
-        "desc": "额度超限：四号谷地关闭采购中心，准备重新进入让商品列表回到顶部",
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "InStockStaple",
-                    "InValleyIVText",
-                    "CloseButtonType1"
-                ],
-                "box_index": 2
-            }
-        },
-        "pre_wait_freezes": {
-            "time": 100,
-            "target": [
-                0,
-                0,
-                1280,
-                720
-            ],
-            "threshold": 0.97,
-            "timeout": 1500
-        },
+    "AutoStockStapleSpendBillExitValleyIV": {
+        "desc": "四号谷地：特制退出——不做任何操作，直接结束（没有 next）",
         "pre_delay": 0,
-        "action": {
-            "type": "Click"
-        },
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                0,
-                0,
-                1280,
-                720
-            ],
-            "threshold": 0.97,
-            "timeout": 1500
-        },
         "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoStockStapleSpendBillReenterValleyIV"
-        ]
-    },
-    "AutoStockStapleSpendBillExitShopWuling": {
-        "desc": "额度超限：武陵关闭采购中心，准备重新进入让商品列表回到顶部",
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "InStockStaple",
-                    "InWulingText",
-                    "CloseButtonType1"
-                ],
-                "box_index": 2
-            }
-        },
-        "pre_wait_freezes": {
-            "time": 100,
-            "target": [
-                0,
-                0,
-                1280,
-                720
-            ],
-            "threshold": 0.97,
-            "timeout": 1500
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "Click"
-        },
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                0,
-                0,
-                1280,
-                720
-            ],
-            "threshold": 0.97,
-            "timeout": 1500
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoStockStapleSpendBillReenterWuling"
-        ]
-    },
-    "AutoStockStapleSpendBillReenterValleyIV": {
-        "desc": "额度超限：四号谷地重新进入采购中心，回到列表顶部",
-        "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "SubTask",
-                "custom_action_param": {
-                    "sub": [
-                        "SceneEnterMenuRegionalDevelopmentValleyIVStockRedistribution"
-                    ]
-                }
-            }
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoStockInStapleValleyIV"
-        ]
-    },
-    "AutoStockStapleSpendBillReenterWuling": {
-        "desc": "额度超限：武陵重新进入采购中心，回到列表顶部",
-        "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "SubTask",
-                "custom_action_param": {
-                    "sub": [
-                        "SceneEnterMenuRegionalDevelopmentWulingStockRedistribution"
-                    ]
-                }
-            }
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoStockInStapleWuling"
-        ]
+        "rate_limit": 0
     },
     "AutoStockSoldOutWuling": {
-        "desc": "武陵：识别到已售罄区域，先尝试花掉超上限的调度券，未命中再退出",
+        "desc": "武陵：识别到已售罄区域，进入超限判定",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -1946,79 +823,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockBuyValuableItemSpendWuling",
-            "AutoStockBuyAnyItemSpendWuling",
-            "EmptyNode"
+            "AutoStockStapleSpendBillOverLimitWuling"
         ]
     },
-    "AutoStockStapleCurrencyUnitPriceFilterWuling": {
-        "desc": "购买商品弹窗里售价区域的纯黑文字（排除划线原价与折扣标签）",
-        "recognition": {
-            "type": "ColorMatch",
-            "param": {
-                "roi": [
-                    888,
-                    236,
-                    147,
-                    30
-                ],
-                "method": 6,
-                "lower": [
-                    0
-                ],
-                "upper": [
-                    120
-                ]
-            }
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "AutoStockStapleCurrencyUnitPriceWuling": {
-        "desc": "识别购买商品弹窗里的折后单价（颜色过滤掉划线原价与折扣标签）",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": "AutoStockStapleCurrencyUnitPriceFilterWuling",
-                "only_rec": true,
-                "color_filter": "AutoStockStapleCurrencyUnitPriceFilterWuling"
-            }
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "AutoStockStapleAnyItemDiscountWuling": {
-        "desc": "命中任意商品卡片的折扣区域，不限制折扣力度",
-        "recognition": {
-            "type": "ColorMatch",
-            "param": {
-                "roi": "AutoStockInStapleItemNameLabelColor",
-                "roi_offset": [
-                    37,
-                    -190,
-                    10,
-                    28
-                ],
-                "lower": [
-                    0,
-                    0,
-                    0
-                ],
-                "upper": [
-                    255,
-                    255,
-                    255
-                ]
-            }
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
     "AutoStockStapleSpendBillOverLimitWuling": {
-        "desc": "当前调度券余额超过上限",
+        "desc": "武陵：当前调度券余额超过上限 45000000（条件识别器，上限是常量，不随后续变化）",
         "recognition": {
             "type": "Custom",
             "param": {
@@ -2030,10 +839,53 @@
         },
         "pre_delay": 0,
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleSpendBillCloseShopWuling"
+        ]
     },
-    "AutoStockStapleSpendBillValuableItemNameWuling": {
-        "desc": "识别刻写券/精锻助剂名称，不受任务选项里的勾选影响",
+    "AutoStockStapleSpendBillCloseShopWuling": {
+        "desc": "武陵：超限时关闭采购中心",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseButtonType1"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleSpendBillReenterWuling"
+        ]
+    },
+    "AutoStockStapleSpendBillReenterWuling": {
+        "desc": "武陵：重新进入采购中心（列表回到顶部），随后走固定物品购买",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "SceneEnterMenuRegionalDevelopmentWulingStockRedistribution"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockBuyValuableItemSpendWuling"
+        ]
+    },
+    "AutoStockStapleSpendBillValuableNameWuling": {
+        "desc": "武陵：识别刻写券/精锻助剂名称",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -2069,15 +921,43 @@
         "post_delay": 0,
         "rate_limit": 0
     },
+    "AutoStockStapleAnyItemDiscountWuling": {
+        "desc": "武陵：命中任意商品卡片的折扣区域，不限制折扣力度",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "AutoStockInStapleItemNameLabelColor",
+                "roi_offset": [
+                    37,
+                    -190,
+                    10,
+                    28
+                ],
+                "lower": [
+                    0,
+                    0,
+                    0
+                ],
+                "upper": [
+                    255,
+                    255,
+                    255
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
     "AutoStockBuyValuableItemSpendWuling": {
-        "desc": "额度超限：点击刻写券/精锻助剂，折扣任意、不校验库存数量",
+        "desc": "武陵：超限购买固定物品（刻写券/精锻助剂），折扣任意、不校验库存数量",
         "max_hit": 1,
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
                     "AutoStockInStapleItem",
-                    "AutoStockStapleSpendBillValuableItemNameWuling",
+                    "AutoStockStapleSpendBillValuableNameWuling",
                     "AutoStockStapleAnyItemDiscountWuling",
                     "AutoStockStapleSpendBillOverLimitWuling"
                 ],
@@ -2106,50 +986,54 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleSpendBillApplyWuling"
+            "AutoStockStapleSpendBillCalcWuling"
         ]
     },
-    "AutoStockBuyAnyItemSpendWuling": {
-        "desc": "额度超限：点击任意物品，折扣任意、不校验库存数量",
-        "max_hit": 1,
+    "AutoStockStapleCurrencyUnitPriceWuling": {
+        "desc": "武陵：购买弹窗里的折后单价（供 Calc 取值使用）",
         "recognition": {
-            "type": "And",
+            "type": "OCR",
             "param": {
-                "all_of": [
-                    "AutoStockInStapleItem",
-                    "AutoStockStapleAnyItemDiscountWuling",
-                    "AutoStockStapleSpendBillOverLimitWuling"
+                "roi": [
+                    888,
+                    236,
+                    147,
+                    30
                 ],
-                "box_index": 1
+                "only_rec": true,
+                "color_filter": "AutoStockStapleCurrencyUnitPriceFilterWuling"
             }
         },
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoStockStapleCurrencyUnitPriceFilterWuling": {
+        "desc": "武陵：售价区域的纯黑文字（排除划线原价与折扣标签）",
+        "recognition": {
+            "type": "ColorMatch",
             "param": {
-                "custom_action": "RepeatUntilFoundAction",
-                "custom_action_param": {
-                    "action": "Click",
-                    "wait_nodes": [
-                        "AutoStockStapleQuantityControl"
-                    ]
-                },
-                "target_offset": [
-                    -45,
-                    85,
-                    -30,
+                "roi": [
+                    888,
+                    236,
+                    147,
+                    30
+                ],
+                "method": 6,
+                "lower": [
                     0
+                ],
+                "upper": [
+                    120
                 ]
             }
         },
+        "pre_delay": 0,
         "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoStockStapleSpendBillApplyWuling"
-        ]
+        "rate_limit": 0
     },
-    "AutoStockStapleSpendBillApplyWuling": {
-        "desc": "额度超限：购买弹窗已打开，进入按预算计算数量",
+    "AutoStockStapleSpendBillCalcWuling": {
+        "desc": "武陵：计算入口——在这里用 IMS/表达式把本次购买的百分比写进 scratch_autostaple_spend_pct_wuling（当前占位写 0，等于不买）",
         "recognition": {
             "type": "And",
             "param": {
@@ -2158,162 +1042,401 @@
                 ]
             }
         },
-        "next": [
-            "AutoStockStapleSpendBillBalanceWuling"
-        ]
-    },
-    "AutoStockStapleSpendBillBalanceWuling": {
-        "desc": "额度超限：读当前调度券余额写进 IMS（取值入口，换识别节点或 scratch 键只改这里）",
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "AutoStockCurrentStockBill"
-                ]
-            }
-        },
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
                 "custom_action": "SetItemQuantity",
                 "custom_action_param": {
-                    "item": "scratch_autostaple_spend_balance_wuling"
+                    "item": "scratch_autostaple_spend_pct_wuling",
+                    "value": 0
                 }
             }
         },
-        "next": [
-            "AutoStockStapleSpendBillPriceWuling"
-        ]
-    },
-    "AutoStockStapleSpendBillPriceWuling": {
-        "desc": "额度超限：读购买弹窗里的折后单价写进 IMS（取值入口，同上）",
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "AutoStockStapleCurrencyUnitPriceWuling"
-                ]
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "SetItemQuantity",
-                "custom_action_param": {
-                    "item": "scratch_autostaple_spend_price_wuling"
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillLimitWuling"
-        ]
-    },
-    "AutoStockStapleSpendBillLimitWuling": {
-        "desc": "额度超限：写入目标余额 45000000（取值入口，改这个数字或换成 IMS 取值）",
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "SetItemQuantity",
-                "custom_action_param": {
-                    "item": "scratch_autostaple_spend_limit_wuling",
-                    "value": 45000000
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillQuantityWuling"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantityWuling": {
-        "desc": "额度超限：算本次购买数量 ceil((余额-目标余额)/单价)，再按 32 件向上取整",
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "SetItemQuantity",
-                "custom_action_param": {
-                    "item": "scratch_autostaple_spend_quantity_wuling",
-                    "value": "(({scratch_autostaple_spend_balance_wuling}-{scratch_autostaple_spend_limit_wuling})+{scratch_autostaple_spend_price_wuling}-1)/{scratch_autostaple_spend_price_wuling}"
-                }
-            }
-        },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "AutoStockStapleSpendBillDispatchWuling"
         ]
     },
     "AutoStockStapleSpendBillDispatchWuling": {
-        "desc": "额度超限：数量派发；1..32 逐件、之后每 32 件一档（PipelineOverride 只能写静态值）",
+        "desc": "武陵：按百分比派发（10% 一档，降序命中即向下取整）",
         "next": [
             "AutoStockStapleSpendBillSkipWuling",
-            "AutoStockStapleSpendBillQuantity001Wuling",
-            "AutoStockStapleSpendBillQuantity002Wuling",
-            "AutoStockStapleSpendBillQuantity003Wuling",
-            "AutoStockStapleSpendBillQuantity004Wuling",
-            "AutoStockStapleSpendBillQuantity005Wuling",
-            "AutoStockStapleSpendBillQuantity006Wuling",
-            "AutoStockStapleSpendBillQuantity007Wuling",
-            "AutoStockStapleSpendBillQuantity008Wuling",
-            "AutoStockStapleSpendBillQuantity009Wuling",
-            "AutoStockStapleSpendBillQuantity010Wuling",
-            "AutoStockStapleSpendBillQuantity011Wuling",
-            "AutoStockStapleSpendBillQuantity012Wuling",
-            "AutoStockStapleSpendBillQuantity013Wuling",
-            "AutoStockStapleSpendBillQuantity014Wuling",
-            "AutoStockStapleSpendBillQuantity015Wuling",
-            "AutoStockStapleSpendBillQuantity016Wuling",
-            "AutoStockStapleSpendBillQuantity017Wuling",
-            "AutoStockStapleSpendBillQuantity018Wuling",
-            "AutoStockStapleSpendBillQuantity019Wuling",
-            "AutoStockStapleSpendBillQuantity020Wuling",
-            "AutoStockStapleSpendBillQuantity021Wuling",
-            "AutoStockStapleSpendBillQuantity022Wuling",
-            "AutoStockStapleSpendBillQuantity023Wuling",
-            "AutoStockStapleSpendBillQuantity024Wuling",
-            "AutoStockStapleSpendBillQuantity025Wuling",
-            "AutoStockStapleSpendBillQuantity026Wuling",
-            "AutoStockStapleSpendBillQuantity027Wuling",
-            "AutoStockStapleSpendBillQuantity028Wuling",
-            "AutoStockStapleSpendBillQuantity029Wuling",
-            "AutoStockStapleSpendBillQuantity030Wuling",
-            "AutoStockStapleSpendBillQuantity031Wuling",
-            "AutoStockStapleSpendBillQuantity032Wuling",
-            "AutoStockStapleSpendBillQuantity064Wuling",
-            "AutoStockStapleSpendBillQuantity096Wuling",
-            "AutoStockStapleSpendBillQuantity128Wuling",
-            "AutoStockStapleSpendBillQuantity160Wuling",
-            "AutoStockStapleSpendBillQuantity192Wuling",
-            "AutoStockStapleSpendBillQuantity224Wuling",
-            "AutoStockStapleSpendBillQuantity256Wuling",
-            "AutoStockStapleSpendBillQuantity288Wuling",
-            "AutoStockStapleSpendBillQuantity320Wuling",
-            "AutoStockStapleSpendBillClampWuling"
+            "AutoStockStapleSpendBillPct100Wuling",
+            "AutoStockStapleSpendBillPct090Wuling",
+            "AutoStockStapleSpendBillPct080Wuling",
+            "AutoStockStapleSpendBillPct070Wuling",
+            "AutoStockStapleSpendBillPct060Wuling",
+            "AutoStockStapleSpendBillPct050Wuling",
+            "AutoStockStapleSpendBillPct040Wuling",
+            "AutoStockStapleSpendBillPct030Wuling",
+            "AutoStockStapleSpendBillPct020Wuling",
+            "AutoStockStapleSpendBillPct010Wuling"
+        ]
+    },
+    "AutoStockStapleSpendBillPct100Wuling": {
+        "desc": "武陵：目标百分比 ≥ 100% 时按 100% 滑",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{scratch_autostaple_spend_pct_wuling} >= 100"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockStapleSpendBillSlidingWuling": {
+                            "enabled": true,
+                            "attach": {
+                                "TargetQuantity": 100,
+                                "TargetQuantityType": "Percentage"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleSpendBillSlidingWuling"
+        ]
+    },
+    "AutoStockStapleSpendBillPct090Wuling": {
+        "desc": "武陵：目标百分比 ≥ 90% 时按 90% 滑",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{scratch_autostaple_spend_pct_wuling} >= 90"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockStapleSpendBillSlidingWuling": {
+                            "enabled": true,
+                            "attach": {
+                                "TargetQuantity": 90,
+                                "TargetQuantityType": "Percentage"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleSpendBillSlidingWuling"
+        ]
+    },
+    "AutoStockStapleSpendBillPct080Wuling": {
+        "desc": "武陵：目标百分比 ≥ 80% 时按 80% 滑",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{scratch_autostaple_spend_pct_wuling} >= 80"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockStapleSpendBillSlidingWuling": {
+                            "enabled": true,
+                            "attach": {
+                                "TargetQuantity": 80,
+                                "TargetQuantityType": "Percentage"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleSpendBillSlidingWuling"
+        ]
+    },
+    "AutoStockStapleSpendBillPct070Wuling": {
+        "desc": "武陵：目标百分比 ≥ 70% 时按 70% 滑",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{scratch_autostaple_spend_pct_wuling} >= 70"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockStapleSpendBillSlidingWuling": {
+                            "enabled": true,
+                            "attach": {
+                                "TargetQuantity": 70,
+                                "TargetQuantityType": "Percentage"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleSpendBillSlidingWuling"
+        ]
+    },
+    "AutoStockStapleSpendBillPct060Wuling": {
+        "desc": "武陵：目标百分比 ≥ 60% 时按 60% 滑",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{scratch_autostaple_spend_pct_wuling} >= 60"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockStapleSpendBillSlidingWuling": {
+                            "enabled": true,
+                            "attach": {
+                                "TargetQuantity": 60,
+                                "TargetQuantityType": "Percentage"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleSpendBillSlidingWuling"
+        ]
+    },
+    "AutoStockStapleSpendBillPct050Wuling": {
+        "desc": "武陵：目标百分比 ≥ 50% 时按 50% 滑",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{scratch_autostaple_spend_pct_wuling} >= 50"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockStapleSpendBillSlidingWuling": {
+                            "enabled": true,
+                            "attach": {
+                                "TargetQuantity": 50,
+                                "TargetQuantityType": "Percentage"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleSpendBillSlidingWuling"
+        ]
+    },
+    "AutoStockStapleSpendBillPct040Wuling": {
+        "desc": "武陵：目标百分比 ≥ 40% 时按 40% 滑",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{scratch_autostaple_spend_pct_wuling} >= 40"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockStapleSpendBillSlidingWuling": {
+                            "enabled": true,
+                            "attach": {
+                                "TargetQuantity": 40,
+                                "TargetQuantityType": "Percentage"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleSpendBillSlidingWuling"
+        ]
+    },
+    "AutoStockStapleSpendBillPct030Wuling": {
+        "desc": "武陵：目标百分比 ≥ 30% 时按 30% 滑",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{scratch_autostaple_spend_pct_wuling} >= 30"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockStapleSpendBillSlidingWuling": {
+                            "enabled": true,
+                            "attach": {
+                                "TargetQuantity": 30,
+                                "TargetQuantityType": "Percentage"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleSpendBillSlidingWuling"
+        ]
+    },
+    "AutoStockStapleSpendBillPct020Wuling": {
+        "desc": "武陵：目标百分比 ≥ 20% 时按 20% 滑",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{scratch_autostaple_spend_pct_wuling} >= 20"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockStapleSpendBillSlidingWuling": {
+                            "enabled": true,
+                            "attach": {
+                                "TargetQuantity": 20,
+                                "TargetQuantityType": "Percentage"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleSpendBillSlidingWuling"
+        ]
+    },
+    "AutoStockStapleSpendBillPct010Wuling": {
+        "desc": "武陵：目标百分比 ≥ 10% 时按 10% 滑",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{scratch_autostaple_spend_pct_wuling} >= 10"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockStapleSpendBillSlidingWuling": {
+                            "enabled": true,
+                            "attach": {
+                                "TargetQuantity": 10,
+                                "TargetQuantityType": "Percentage"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleSpendBillSlidingWuling"
         ]
     },
     "AutoStockStapleSpendBillSkipWuling": {
-        "desc": "额度超限：余额未超上限，不购买，关闭购买窗口",
+        "desc": "武陵：算出的百分比不足一档，关闭滑条节点、不做操作",
         "recognition": {
             "type": "Custom",
             "param": {
                 "custom_recognition": "ItemQuantitySatisfied",
                 "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_wuling} <= 0"
+                    "expression": "{scratch_autostaple_spend_pct_wuling} < 10"
                 }
             }
         },
-        "next": [
-            "AutoStockStapleSpendBillDoneWuling"
-        ]
-    },
-    "AutoStockStapleSpendBillClampWuling": {
-        "desc": "额度超限：数量超过 320，按 320 件买（滑条会再按库存上限收敛）",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_wuling} > 320"
-                }
-            }
-        },
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
@@ -2321,1250 +1444,20 @@
                 "custom_action_param": {
                     "patch": {
                         "AutoStockStapleSpendBillSlidingWuling": {
-                            "attach": {
-                                "TargetQuantity": 320
-                            }
+                            "enabled": false
                         }
                     }
                 }
             }
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
-            "AutoStockStapleSpendBillSlidingWuling"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity001Wuling": {
-        "desc": "额度超限：数量 ≤ 1 时买 1 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_wuling} <= 1"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingWuling": {
-                            "attach": {
-                                "TargetQuantity": 1
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingWuling"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity002Wuling": {
-        "desc": "额度超限：数量 ≤ 2 时买 2 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_wuling} <= 2"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingWuling": {
-                            "attach": {
-                                "TargetQuantity": 2
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingWuling"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity003Wuling": {
-        "desc": "额度超限：数量 ≤ 3 时买 3 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_wuling} <= 3"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingWuling": {
-                            "attach": {
-                                "TargetQuantity": 3
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingWuling"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity004Wuling": {
-        "desc": "额度超限：数量 ≤ 4 时买 4 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_wuling} <= 4"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingWuling": {
-                            "attach": {
-                                "TargetQuantity": 4
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingWuling"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity005Wuling": {
-        "desc": "额度超限：数量 ≤ 5 时买 5 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_wuling} <= 5"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingWuling": {
-                            "attach": {
-                                "TargetQuantity": 5
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingWuling"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity006Wuling": {
-        "desc": "额度超限：数量 ≤ 6 时买 6 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_wuling} <= 6"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingWuling": {
-                            "attach": {
-                                "TargetQuantity": 6
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingWuling"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity007Wuling": {
-        "desc": "额度超限：数量 ≤ 7 时买 7 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_wuling} <= 7"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingWuling": {
-                            "attach": {
-                                "TargetQuantity": 7
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingWuling"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity008Wuling": {
-        "desc": "额度超限：数量 ≤ 8 时买 8 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_wuling} <= 8"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingWuling": {
-                            "attach": {
-                                "TargetQuantity": 8
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingWuling"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity009Wuling": {
-        "desc": "额度超限：数量 ≤ 9 时买 9 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_wuling} <= 9"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingWuling": {
-                            "attach": {
-                                "TargetQuantity": 9
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingWuling"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity010Wuling": {
-        "desc": "额度超限：数量 ≤ 10 时买 10 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_wuling} <= 10"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingWuling": {
-                            "attach": {
-                                "TargetQuantity": 10
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingWuling"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity011Wuling": {
-        "desc": "额度超限：数量 ≤ 11 时买 11 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_wuling} <= 11"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingWuling": {
-                            "attach": {
-                                "TargetQuantity": 11
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingWuling"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity012Wuling": {
-        "desc": "额度超限：数量 ≤ 12 时买 12 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_wuling} <= 12"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingWuling": {
-                            "attach": {
-                                "TargetQuantity": 12
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingWuling"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity013Wuling": {
-        "desc": "额度超限：数量 ≤ 13 时买 13 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_wuling} <= 13"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingWuling": {
-                            "attach": {
-                                "TargetQuantity": 13
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingWuling"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity014Wuling": {
-        "desc": "额度超限：数量 ≤ 14 时买 14 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_wuling} <= 14"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingWuling": {
-                            "attach": {
-                                "TargetQuantity": 14
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingWuling"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity015Wuling": {
-        "desc": "额度超限：数量 ≤ 15 时买 15 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_wuling} <= 15"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingWuling": {
-                            "attach": {
-                                "TargetQuantity": 15
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingWuling"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity016Wuling": {
-        "desc": "额度超限：数量 ≤ 16 时买 16 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_wuling} <= 16"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingWuling": {
-                            "attach": {
-                                "TargetQuantity": 16
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingWuling"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity017Wuling": {
-        "desc": "额度超限：数量 ≤ 17 时买 17 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_wuling} <= 17"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingWuling": {
-                            "attach": {
-                                "TargetQuantity": 17
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingWuling"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity018Wuling": {
-        "desc": "额度超限：数量 ≤ 18 时买 18 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_wuling} <= 18"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingWuling": {
-                            "attach": {
-                                "TargetQuantity": 18
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingWuling"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity019Wuling": {
-        "desc": "额度超限：数量 ≤ 19 时买 19 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_wuling} <= 19"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingWuling": {
-                            "attach": {
-                                "TargetQuantity": 19
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingWuling"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity020Wuling": {
-        "desc": "额度超限：数量 ≤ 20 时买 20 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_wuling} <= 20"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingWuling": {
-                            "attach": {
-                                "TargetQuantity": 20
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingWuling"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity021Wuling": {
-        "desc": "额度超限：数量 ≤ 21 时买 21 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_wuling} <= 21"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingWuling": {
-                            "attach": {
-                                "TargetQuantity": 21
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingWuling"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity022Wuling": {
-        "desc": "额度超限：数量 ≤ 22 时买 22 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_wuling} <= 22"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingWuling": {
-                            "attach": {
-                                "TargetQuantity": 22
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingWuling"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity023Wuling": {
-        "desc": "额度超限：数量 ≤ 23 时买 23 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_wuling} <= 23"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingWuling": {
-                            "attach": {
-                                "TargetQuantity": 23
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingWuling"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity024Wuling": {
-        "desc": "额度超限：数量 ≤ 24 时买 24 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_wuling} <= 24"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingWuling": {
-                            "attach": {
-                                "TargetQuantity": 24
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingWuling"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity025Wuling": {
-        "desc": "额度超限：数量 ≤ 25 时买 25 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_wuling} <= 25"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingWuling": {
-                            "attach": {
-                                "TargetQuantity": 25
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingWuling"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity026Wuling": {
-        "desc": "额度超限：数量 ≤ 26 时买 26 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_wuling} <= 26"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingWuling": {
-                            "attach": {
-                                "TargetQuantity": 26
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingWuling"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity027Wuling": {
-        "desc": "额度超限：数量 ≤ 27 时买 27 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_wuling} <= 27"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingWuling": {
-                            "attach": {
-                                "TargetQuantity": 27
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingWuling"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity028Wuling": {
-        "desc": "额度超限：数量 ≤ 28 时买 28 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_wuling} <= 28"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingWuling": {
-                            "attach": {
-                                "TargetQuantity": 28
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingWuling"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity029Wuling": {
-        "desc": "额度超限：数量 ≤ 29 时买 29 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_wuling} <= 29"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingWuling": {
-                            "attach": {
-                                "TargetQuantity": 29
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingWuling"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity030Wuling": {
-        "desc": "额度超限：数量 ≤ 30 时买 30 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_wuling} <= 30"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingWuling": {
-                            "attach": {
-                                "TargetQuantity": 30
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingWuling"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity031Wuling": {
-        "desc": "额度超限：数量 ≤ 31 时买 31 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_wuling} <= 31"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingWuling": {
-                            "attach": {
-                                "TargetQuantity": 31
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingWuling"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity032Wuling": {
-        "desc": "额度超限：数量 ≤ 32 时买 32 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_wuling} <= 32"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingWuling": {
-                            "attach": {
-                                "TargetQuantity": 32
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingWuling"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity064Wuling": {
-        "desc": "额度超限：数量 ≤ 64 时买 64 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_wuling} <= 64"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingWuling": {
-                            "attach": {
-                                "TargetQuantity": 64
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingWuling"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity096Wuling": {
-        "desc": "额度超限：数量 ≤ 96 时买 96 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_wuling} <= 96"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingWuling": {
-                            "attach": {
-                                "TargetQuantity": 96
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingWuling"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity128Wuling": {
-        "desc": "额度超限：数量 ≤ 128 时买 128 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_wuling} <= 128"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingWuling": {
-                            "attach": {
-                                "TargetQuantity": 128
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingWuling"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity160Wuling": {
-        "desc": "额度超限：数量 ≤ 160 时买 160 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_wuling} <= 160"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingWuling": {
-                            "attach": {
-                                "TargetQuantity": 160
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingWuling"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity192Wuling": {
-        "desc": "额度超限：数量 ≤ 192 时买 192 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_wuling} <= 192"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingWuling": {
-                            "attach": {
-                                "TargetQuantity": 192
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingWuling"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity224Wuling": {
-        "desc": "额度超限：数量 ≤ 224 时买 224 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_wuling} <= 224"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingWuling": {
-                            "attach": {
-                                "TargetQuantity": 224
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingWuling"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity256Wuling": {
-        "desc": "额度超限：数量 ≤ 256 时买 256 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_wuling} <= 256"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingWuling": {
-                            "attach": {
-                                "TargetQuantity": 256
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingWuling"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity288Wuling": {
-        "desc": "额度超限：数量 ≤ 288 时买 288 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_wuling} <= 288"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingWuling": {
-                            "attach": {
-                                "TargetQuantity": 288
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingWuling"
-        ]
-    },
-    "AutoStockStapleSpendBillQuantity320Wuling": {
-        "desc": "额度超限：数量 ≤ 320 时买 320 件",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_quantity_wuling} <= 320"
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockStapleSpendBillSlidingWuling": {
-                            "attach": {
-                                "TargetQuantity": 320
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "AutoStockStapleSpendBillSlidingWuling"
+            "AutoStockStapleSpendBillExitWuling"
         ]
     },
     "AutoStockStapleSpendBillSlidingWuling": {
-        "desc": "额度超限专用滑条：滑到算出的数量",
+        "desc": "武陵：超限专用滑条，按派发下来的百分比滑",
         "pre_delay": 0,
         "action": {
             "type": "Custom",
@@ -3579,6 +1472,7 @@
                     "IncreaseButton": {
                         "template": "AutoStockpile/IncreaseButton.png"
                     },
+                    "ResetBeforeFindStart": true,
                     "SliderQuantity": {
                         "roi": [
                             375,
@@ -3597,28 +1491,12 @@
             "AutoStockStapleSpendBillConfirmBuyWuling"
         ],
         "attach": {
-            "TargetQuantity": 1
+            "TargetQuantity": 10,
+            "TargetQuantityType": "Percentage"
         }
     },
-    "AutoStockStapleSpendBillDoneWuling": {
-        "desc": "额度超限：余额已低于上限，无需调整，关闭购买窗口",
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "CloseButtonType1"
-                ]
-            }
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "Click"
-        },
-        "post_delay": 0,
-        "rate_limit": 0
-    },
     "AutoStockStapleSpendBillConfirmBuyWuling": {
-        "desc": "额度超限：确认购买",
+        "desc": "武陵：确认购买",
         "recognition": {
             "type": "And",
             "param": {
@@ -3649,7 +1527,7 @@
         ]
     },
     "AutoStockStapleSpendBillCloseRewardsWuling": {
-        "desc": "额度超限：奖励窗口静止后由 IMS A3 累加本次购买",
+        "desc": "武陵：奖励窗口静止后由 IMS A3 累加本次购买",
         "recognition": {
             "type": "And",
             "param": {
@@ -3690,7 +1568,7 @@
         ]
     },
     "AutoStockStapleSpendBillCloseRewardsButtonWuling": {
-        "desc": "额度超限：关闭奖励窗口",
+        "desc": "武陵：关闭奖励窗口",
         "recognition": {
             "type": "And",
             "param": {
@@ -3706,7 +1584,13 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleSpendBillExitShopWuling"
+            "AutoStockStapleSpendBillExitWuling"
         ]
+    },
+    "AutoStockStapleSpendBillExitWuling": {
+        "desc": "武陵：特制退出——不做任何操作，直接结束（没有 next）",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     }
 }
