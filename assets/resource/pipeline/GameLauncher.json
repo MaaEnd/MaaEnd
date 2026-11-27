@@ -187,6 +187,56 @@
     },
     "GameLauncherInGame": {
         "desc": "右下角按钮显示游戏中，启动成功",
+        "recognition": "Or",
+        "any_of": [
+            "GameLauncherInGameText",
+            "GameLauncherInGameGray"
+        ]
+    },
+    "GameLauncherMenuButton": {
+        "desc": "右下角开始游戏按钮右侧的三横线菜单按钮",
+        "recognition": "TemplateMatch",
+        "roi": [
+            -320,
+            -140,
+            320,
+            140
+        ],
+        "template": "GameLauncher/MenuButton.png"
+    },
+    "GameLauncherInGameGray": {
+        "desc": "右下角游戏中按钮的灰色底",
+        // 实测不同机器上按钮灰度为 136~160；OCR 偶尔会把"游戏中"漏读成"游中"
+        // 背景是动态画面，以三横线按钮为锚点只看其左侧的按钮主体
+        "recognition": "And",
+        "all_of": [
+            "GameLauncherMenuButton",
+            {
+                "recognition": "ColorMatch",
+                "roi": "GameLauncherMenuButton",
+                "roi_offset": [
+                    -163,
+                    -7,
+                    120,
+                    20
+                ],
+                "lower": [
+                    120,
+                    120,
+                    120
+                ],
+                "upper": [
+                    180,
+                    180,
+                    180
+                ],
+                "connected": true,
+                "count": 6000
+            }
+        ]
+    },
+    "GameLauncherInGameText": {
+        "desc": "右下角游戏中按钮",
         "recognition": "OCR",
         "roi": [
             -320,
