@@ -130,7 +130,7 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "AutoStockBuyEngravingPermitSpend": {
+                        "AutoStockBuyValuableItemSpend": {
                             "enabled": true
                         },
                         "AutoStockBuyAnyItemSpend": {
@@ -141,7 +141,7 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "AutoStockBuyEngravingPermitSpend": {
+                        "AutoStockBuyValuableItemSpend": {
                             "enabled": false
                         },
                         "AutoStockBuyAnyItemSpend": {

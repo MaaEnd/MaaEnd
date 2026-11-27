@@ -80,8 +80,8 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "AutoStockStapleSpendBillEngravingPermitName": {
-        "desc": "识别谷地/武陵刻写券名称，不受任务选项里的刻写券勾选影响",
+    "AutoStockStapleSpendBillValuableItemName": {
+        "desc": "识别刻写券/精锻助剂名称，不受任务选项里的勾选影响",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -102,7 +102,12 @@
                     "武陵刻寫券",
                     "Wuling Engraving Permit",
                     "武陵刻印券",
-                    "무릉 각인권"
+                    "무릉 각인권",
+                    "武陵精锻助剂",
+                    "武陵精鍛助劑",
+                    "(?i)Wuling\\s*Artificing\\s*Catalyst",
+                    "武陵加工強化剤",
+                    "월릉 정련 도움제"
                 ],
                 "only_rec": true,
                 "order_by": "Vertical"
@@ -112,15 +117,15 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "AutoStockBuyEngravingPermitSpend": {
-        "desc": "额度超限：点击谷地/武陵刻写券，折扣任意、不校验库存数量",
+    "AutoStockBuyValuableItemSpend": {
+        "desc": "额度超限：点击刻写券/精锻助剂，折扣任意、不校验库存数量",
         "max_hit": 1,
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
                     "AutoStockInStapleItem",
-                    "AutoStockStapleSpendBillEngravingPermitName",
+                    "AutoStockStapleSpendBillValuableItemName",
                     "AutoStockStapleAnyItemDiscount",
                     "AutoStockStapleSpendBillOverLimit"
                 ],
