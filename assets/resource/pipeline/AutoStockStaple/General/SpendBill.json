@@ -133,13 +133,13 @@
         ]
     },
     "AutoStockStapleSpendBillOverLimitValleyIV": {
-        "desc": "四号谷地：超限条件——上限已初始化且余额 > 上限",
+        "desc": "四号谷地：超限条件——余额 > 上限",
         "recognition": {
             "type": "Custom",
             "param": {
                 "custom_recognition": "ItemQuantitySatisfied",
                 "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_limit_valleyiv} >= 1000000 && {scratch_autostaple_spend_balance_valleyiv} > {scratch_autostaple_spend_limit_valleyiv}"
+                    "expression": "{scratch_autostaple_spend_balance_valleyiv} > {scratch_autostaple_spend_limit_valleyiv}"
                 }
             }
         },
@@ -1073,13 +1073,13 @@
         ]
     },
     "AutoStockStapleSpendBillOverLimitWuling": {
-        "desc": "武陵：超限条件——上限已初始化且余额 > 上限",
+        "desc": "武陵：超限条件——余额 > 上限",
         "recognition": {
             "type": "Custom",
             "param": {
                 "custom_recognition": "ItemQuantitySatisfied",
                 "custom_recognition_param": {
-                    "expression": "{scratch_autostaple_spend_limit_wuling} >= 1000000 && {scratch_autostaple_spend_balance_wuling} > {scratch_autostaple_spend_limit_wuling}"
+                    "expression": "{scratch_autostaple_spend_balance_wuling} > {scratch_autostaple_spend_limit_wuling}"
                 }
             }
         },
