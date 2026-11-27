@@ -1,4 +1,34 @@
 {
+    "AutoStockStapleSpendBillLimitInitValleyIV": {
+        "desc": "四号谷地：进入区域时把调度券上限写进 IMS 的 scratch_autostaple_spend_limit_valleyiv（A4 入口，把 value 换成实际取值；max_hit=1 只跑一次，之后不变）",
+        "max_hit": 1,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InValleyIVText",
+                    "InStapleColor",
+                    "InStockStaple"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SetItemQuantity",
+                "custom_action_param": {
+                    "item": "scratch_autostaple_spend_limit_valleyiv",
+                    "value": 45000000
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockInStapleValleyIV"
+        ]
+    },
     "AutoStockSoldOutValleyIV": {
         "desc": "四号谷地：识别到已售罄区域，进入超限判定",
         "recognition": {
@@ -26,17 +56,43 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "AutoStockStapleSpendBillBalanceValleyIV"
+        ]
+    },
+    "AutoStockStapleSpendBillBalanceValleyIV": {
+        "desc": "四号谷地：把当前调度券余额写进 IMS 的 scratch_autostaple_spend_balance_valleyiv，供超限条件比较",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockCurrentStockBill"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SetItemQuantity",
+                "custom_action_param": {
+                    "item": "scratch_autostaple_spend_balance_valleyiv"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
             "AutoStockStapleSpendBillOverLimitValleyIV"
         ]
     },
     "AutoStockStapleSpendBillOverLimitValleyIV": {
-        "desc": "四号谷地：当前调度券余额超过上限 45000000（条件识别器，上限是常量，不随后续变化）",
+        "desc": "四号谷地：超限条件——上限已初始化且余额 > 上限",
         "recognition": {
             "type": "Custom",
             "param": {
-                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition": "ItemQuantitySatisfied",
                 "custom_recognition_param": {
-                    "expression": "{AutoStockCurrentStockBill} > 45000000"
+                    "expression": "{scratch_autostaple_spend_limit_valleyiv} >= 1 && {scratch_autostaple_spend_balance_valleyiv} > {scratch_autostaple_spend_limit_valleyiv}"
                 }
             }
         },
@@ -68,7 +124,7 @@
         ]
     },
     "AutoStockStapleSpendBillReenterValleyIV": {
-        "desc": "四号谷地：重新进入采购中心（列表回到顶部），随后走固定物品购买",
+        "desc": "四号谷地：重新进入采购中心（列表回到顶部），随后按两档固定顺序购买",
         "pre_delay": 0,
         "action": {
             "type": "Custom",
@@ -84,7 +140,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockBuyValuableItemSpendValleyIV"
+            "AutoStockBuyValuableItemSpendValleyIV",
+            "AutoStockBuyAnyItemSpendValleyIV"
         ]
     },
     "AutoStockStapleSpendBillValuableNameValleyIV": {
@@ -153,7 +210,7 @@
         "rate_limit": 0
     },
     "AutoStockBuyValuableItemSpendValleyIV": {
-        "desc": "四号谷地：超限购买固定物品（刻写券/精锻助剂），折扣任意、不校验库存数量",
+        "desc": "四号谷地：第一档——买高价值物品（刻写券/精锻助剂），折扣任意、不校验库存",
         "max_hit": 1,
         "recognition": {
             "type": "And",
@@ -192,24 +249,44 @@
             "AutoStockStapleSpendBillCalcValleyIV"
         ]
     },
-    "AutoStockStapleCurrencyUnitPriceValleyIV": {
-        "desc": "四号谷地：购买弹窗里的折后单价（供 Calc 取值使用）",
+    "AutoStockBuyAnyItemSpendValleyIV": {
+        "desc": "四号谷地：第二档——第一档没命中时买任意物品，折扣任意、不校验库存",
+        "max_hit": 1,
         "recognition": {
-            "type": "OCR",
+            "type": "And",
             "param": {
-                "roi": [
-                    888,
-                    236,
-                    147,
-                    30
+                "all_of": [
+                    "AutoStockInStapleItem",
+                    "AutoStockStapleAnyItemDiscountValleyIV",
+                    "AutoStockStapleSpendBillOverLimitValleyIV"
                 ],
-                "only_rec": true,
-                "color_filter": "AutoStockStapleCurrencyUnitPriceFilterValleyIV"
+                "box_index": 1
             }
         },
         "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "AutoStockStapleQuantityControl"
+                    ]
+                },
+                "target_offset": [
+                    -45,
+                    85,
+                    -30,
+                    0
+                ]
+            }
+        },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleSpendBillCalcValleyIV"
+        ]
     },
     "AutoStockStapleCurrencyUnitPriceFilterValleyIV": {
         "desc": "四号谷地：售价区域的纯黑文字（排除划线原价与折扣标签）",
@@ -235,8 +312,27 @@
         "post_delay": 0,
         "rate_limit": 0
     },
+    "AutoStockStapleCurrencyUnitPriceValleyIV": {
+        "desc": "四号谷地：购买弹窗里的折后单价（供 Calc 取值使用）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    888,
+                    236,
+                    147,
+                    30
+                ],
+                "only_rec": true,
+                "color_filter": "AutoStockStapleCurrencyUnitPriceFilterValleyIV"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
     "AutoStockStapleSpendBillCalcValleyIV": {
-        "desc": "四号谷地：计算入口——在这里用 IMS/表达式把本次购买的百分比写进 scratch_autostaple_spend_pct_valleyiv（当前占位写 0，等于不买）",
+        "desc": "四号谷地：计算入口——把本次购买的百分比写进 scratch_autostaple_spend_pct_valleyiv（当前占位 0 = 不买）",
         "recognition": {
             "type": "And",
             "param": {
@@ -796,6 +892,36 @@
         "post_delay": 0,
         "rate_limit": 0
     },
+    "AutoStockStapleSpendBillLimitInitWuling": {
+        "desc": "武陵：进入区域时把调度券上限写进 IMS 的 scratch_autostaple_spend_limit_wuling（A4 入口，把 value 换成实际取值；max_hit=1 只跑一次，之后不变）",
+        "max_hit": 1,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InWulingText",
+                    "InStapleColor",
+                    "InStockStaple"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SetItemQuantity",
+                "custom_action_param": {
+                    "item": "scratch_autostaple_spend_limit_wuling",
+                    "value": 45000000
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockInStapleWuling"
+        ]
+    },
     "AutoStockSoldOutWuling": {
         "desc": "武陵：识别到已售罄区域，进入超限判定",
         "recognition": {
@@ -823,17 +949,43 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "AutoStockStapleSpendBillBalanceWuling"
+        ]
+    },
+    "AutoStockStapleSpendBillBalanceWuling": {
+        "desc": "武陵：把当前调度券余额写进 IMS 的 scratch_autostaple_spend_balance_wuling，供超限条件比较",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockCurrentStockBill"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SetItemQuantity",
+                "custom_action_param": {
+                    "item": "scratch_autostaple_spend_balance_wuling"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
             "AutoStockStapleSpendBillOverLimitWuling"
         ]
     },
     "AutoStockStapleSpendBillOverLimitWuling": {
-        "desc": "武陵：当前调度券余额超过上限 45000000（条件识别器，上限是常量，不随后续变化）",
+        "desc": "武陵：超限条件——上限已初始化且余额 > 上限",
         "recognition": {
             "type": "Custom",
             "param": {
-                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition": "ItemQuantitySatisfied",
                 "custom_recognition_param": {
-                    "expression": "{AutoStockCurrentStockBill} > 45000000"
+                    "expression": "{scratch_autostaple_spend_limit_wuling} >= 1 && {scratch_autostaple_spend_balance_wuling} > {scratch_autostaple_spend_limit_wuling}"
                 }
             }
         },
@@ -865,7 +1017,7 @@
         ]
     },
     "AutoStockStapleSpendBillReenterWuling": {
-        "desc": "武陵：重新进入采购中心（列表回到顶部），随后走固定物品购买",
+        "desc": "武陵：重新进入采购中心（列表回到顶部），随后按两档固定顺序购买",
         "pre_delay": 0,
         "action": {
             "type": "Custom",
@@ -881,7 +1033,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockBuyValuableItemSpendWuling"
+            "AutoStockBuyValuableItemSpendWuling",
+            "AutoStockBuyAnyItemSpendWuling"
         ]
     },
     "AutoStockStapleSpendBillValuableNameWuling": {
@@ -950,7 +1103,7 @@
         "rate_limit": 0
     },
     "AutoStockBuyValuableItemSpendWuling": {
-        "desc": "武陵：超限购买固定物品（刻写券/精锻助剂），折扣任意、不校验库存数量",
+        "desc": "武陵：第一档——买高价值物品（刻写券/精锻助剂），折扣任意、不校验库存",
         "max_hit": 1,
         "recognition": {
             "type": "And",
@@ -989,24 +1142,44 @@
             "AutoStockStapleSpendBillCalcWuling"
         ]
     },
-    "AutoStockStapleCurrencyUnitPriceWuling": {
-        "desc": "武陵：购买弹窗里的折后单价（供 Calc 取值使用）",
+    "AutoStockBuyAnyItemSpendWuling": {
+        "desc": "武陵：第二档——第一档没命中时买任意物品，折扣任意、不校验库存",
+        "max_hit": 1,
         "recognition": {
-            "type": "OCR",
+            "type": "And",
             "param": {
-                "roi": [
-                    888,
-                    236,
-                    147,
-                    30
+                "all_of": [
+                    "AutoStockInStapleItem",
+                    "AutoStockStapleAnyItemDiscountWuling",
+                    "AutoStockStapleSpendBillOverLimitWuling"
                 ],
-                "only_rec": true,
-                "color_filter": "AutoStockStapleCurrencyUnitPriceFilterWuling"
+                "box_index": 1
             }
         },
         "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "AutoStockStapleQuantityControl"
+                    ]
+                },
+                "target_offset": [
+                    -45,
+                    85,
+                    -30,
+                    0
+                ]
+            }
+        },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleSpendBillCalcWuling"
+        ]
     },
     "AutoStockStapleCurrencyUnitPriceFilterWuling": {
         "desc": "武陵：售价区域的纯黑文字（排除划线原价与折扣标签）",
@@ -1032,8 +1205,27 @@
         "post_delay": 0,
         "rate_limit": 0
     },
+    "AutoStockStapleCurrencyUnitPriceWuling": {
+        "desc": "武陵：购买弹窗里的折后单价（供 Calc 取值使用）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    888,
+                    236,
+                    147,
+                    30
+                ],
+                "only_rec": true,
+                "color_filter": "AutoStockStapleCurrencyUnitPriceFilterWuling"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
     "AutoStockStapleSpendBillCalcWuling": {
-        "desc": "武陵：计算入口——在这里用 IMS/表达式把本次购买的百分比写进 scratch_autostaple_spend_pct_wuling（当前占位写 0，等于不买）",
+        "desc": "武陵：计算入口——把本次购买的百分比写进 scratch_autostaple_spend_pct_wuling（当前占位 0 = 不买）",
         "recognition": {
             "type": "And",
             "param": {
