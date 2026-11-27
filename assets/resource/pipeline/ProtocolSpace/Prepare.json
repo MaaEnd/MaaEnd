@@ -42,10 +42,16 @@
                 "index": 0
             }
         },
-        "pre_delay": 0,
         "action": "Click",
-        "post_delay": 0,
-        "rate_limit": 0,
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                20,
+                80,
+                280,
+                290
+            ]
+        },
         "next": [
             "ProtocolSpacePrepareLock",
             "ProtocolSpaceNormalPrepareChooseReward",
