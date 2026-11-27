@@ -1428,8 +1428,6 @@
     "option.AutoPick.label": "自動拾取",
     "option.AutoPuzzleSolving.description": "自動幫你通關拼圖小遊戲（等價於開啟⌈🧩解拼圖⌋任務的重複執行）",
     "option.AutoPuzzleSolving.label": "解拼圖",
-    "option.AutoSellMaxSellQuantity.inputs.AutoSellMaxSellQuantityValue.label": "最大售賣數量",
-    "option.AutoSellMaxSellQuantity.label": "單個物品最大售賣數量",
     "option.AutoSellPriceGlobal.inputs.AutoSellPriceGlobalValue.label": "最低售賣價格",
     "option.AutoSellPriceGlobal.label": "售賣價格",
     "option.AutoSellPricePerCategory.inputs.AutoSellPricePerCategoryLargePriceVolatilityValue.label": "價格變動較大物資最低售賣價格",
