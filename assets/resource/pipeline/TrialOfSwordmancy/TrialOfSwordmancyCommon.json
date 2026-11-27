@@ -3,20 +3,6 @@
     // ===========================================================================
     // 大世界
     // ===========================================================================
-    "TrialOfSwordmancyInSwordVaultDale": {
-        "desc": "确认在悬谷台传送点",
-        "recognition": "Custom",
-        "custom_recognition": "MapLocateAssertLocation",
-        "custom_recognition_param": {
-            "zone_id": "Wuling_Base",
-            "target": [
-                1925.69,
-                2861.39,
-                20.01,
-                18.34
-            ]
-        }
-    },
     "TrialOfSwordmancyTrialTrigger": {
         "desc": "大世界演武台交互按钮",
         "recognition": "TemplateMatch",
