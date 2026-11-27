@@ -1,6 +1,6 @@
 {
     "SoldOut": {
-        "desc": "识别到已售罄区域,需要退出",
+        "desc": "识别到已售罄区域：先尝试花掉超上限的调度券，未命中再真正退出",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -24,7 +24,12 @@
         },
         "pre_delay": 0,
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoStockBuyEngravingPermitSpend",
+            "AutoStockBuyAnyItemSpend",
+            "EmptyNode"
+        ]
     },
     "ConfirmBuyText": {
         "desc": "识别当前确认购买按钮文本",

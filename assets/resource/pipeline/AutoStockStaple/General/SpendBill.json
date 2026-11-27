@@ -1,0 +1,503 @@
+{
+    "AutoStockStapleCurrencyUnitPriceFilter": {
+        "desc": "购买商品弹窗里售价区域的纯黑文字（排除划线原价与折扣标签）",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    888,
+                    236,
+                    147,
+                    30
+                ],
+                "method": 6,
+                "lower": [
+                    0
+                ],
+                "upper": [
+                    120
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoStockStapleCurrencyUnitPrice": {
+        "desc": "识别购买商品弹窗里的折后单价（颜色过滤掉划线原价与折扣标签）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "AutoStockStapleCurrencyUnitPriceFilter",
+                "only_rec": true,
+                "color_filter": "AutoStockStapleCurrencyUnitPriceFilter"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoStockStapleAnyItemDiscount": {
+        "desc": "命中任意商品卡片的折扣区域，不限制折扣力度",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "AutoStockInStapleItemNameLabelColor",
+                "roi_offset": [
+                    37,
+                    -190,
+                    10,
+                    28
+                ],
+                "lower": [
+                    0,
+                    0,
+                    0
+                ],
+                "upper": [
+                    255,
+                    255,
+                    255
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoStockStapleSpendBillOverLimit": {
+        "desc": "当前调度券余额超过上限",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "{AutoStockCurrentStockBill} > 45000000"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoStockStapleSpendBillEngravingPermitName": {
+        "desc": "识别谷地/武陵刻写券名称，不受任务选项里的刻写券勾选影响",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "AutoStockInStapleItemNameTextColor",
+                "roi_offset": [
+                    -2,
+                    -2,
+                    4,
+                    4
+                ],
+                "expected": [
+                    "谷地刻写券",
+                    "谷地刻寫券",
+                    "Valley Engraving Permit",
+                    "谷地刻印券",
+                    "협곡 각인권",
+                    "武陵刻写券",
+                    "武陵刻寫券",
+                    "Wuling Engraving Permit",
+                    "武陵刻印券",
+                    "무릉 각인권"
+                ],
+                "only_rec": true,
+                "order_by": "Vertical"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoStockBuyEngravingPermitSpend": {
+        "desc": "额度超限：点击谷地/武陵刻写券，折扣任意、不校验库存数量",
+        "max_hit": 1,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockInStapleItem",
+                    "AutoStockStapleSpendBillEngravingPermitName",
+                    "AutoStockStapleAnyItemDiscount",
+                    "AutoStockStapleSpendBillOverLimit"
+                ],
+                "box_index": 2
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "AutoStockStapleQuantityControl"
+                    ]
+                },
+                "target_offset": [
+                    -45,
+                    85,
+                    -30,
+                    0
+                ]
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleSpendBillApply"
+        ]
+    },
+    "AutoStockBuyAnyItemSpend": {
+        "desc": "额度超限：点击任意物品，折扣任意、不校验库存数量",
+        "max_hit": 1,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockInStapleItem",
+                    "AutoStockStapleAnyItemDiscount",
+                    "AutoStockStapleSpendBillOverLimit"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "AutoStockStapleQuantityControl"
+                    ]
+                },
+                "target_offset": [
+                    -45,
+                    85,
+                    -30,
+                    0
+                ]
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleSpendBillApply"
+        ]
+    },
+    "AutoStockStapleSpendBillApply": {
+        "desc": "按调度券余额与单价算出本次购买数量，覆写专用滑条",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleQuantityControl"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "QuantityBudget"
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleSpendBillDone",
+            "AutoStockStapleCheckSliding",
+            "AutoStockStapleSpendBillSliding"
+        ],
+        "attach": {
+            "mode": "buy",
+            "balance": "AutoStockCurrentStockBill",
+            "unit_price": "AutoStockStapleCurrencyUnitPrice",
+            "limit": 45000000,
+            "target_node": "AutoStockStapleSpendBillSliding",
+            "empty_node": "AutoStockStapleSpendBillDone"
+        }
+    },
+    "AutoStockStapleSpendBillSliding": {
+        "desc": "额度超限专用滑条：滑到算出的数量",
+        "enabled": false,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "BetterSliding",
+                "custom_action_param": {
+                    "ClampTargetToSliderMax": true,
+                    "DecreaseButton": {
+                        "template": "AutoStockpile/DecreaseButton.png"
+                    },
+                    "Direction": "right",
+                    "IncreaseButton": {
+                        "template": "AutoStockpile/IncreaseButton.png"
+                    },
+                    "SliderQuantity": {
+                        "roi": [
+                            375,
+                            508,
+                            36,
+                            24
+                        ],
+                        "only_rec": true
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleSpendBillConfirmBuy"
+        ]
+    },
+    "AutoStockStapleSpendBillDone": {
+        "desc": "额度超限：余额已低于上限，无需调整，关闭购买窗口",
+        "enabled": false,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseButtonType1"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoStockStapleSpendBillConfirmBuy": {
+        "desc": "额度超限：确认购买",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleQuantityControl",
+                    "YellowConfirmButtonType1"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 100,
+            "target": [
+                339,
+                231,
+                602,
+                239
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleSpendBillCloseRewards"
+        ]
+    },
+    "AutoStockStapleSpendBillCloseRewards": {
+        "desc": "额度超限：奖励窗口静止后由 IMS A3 累加本次购买",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseRewardsButton"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                339,
+                231,
+                602,
+                239
+            ],
+            "threshold": 0.97,
+            "timeout": 1500
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AddItemData",
+                "custom_action_param": {
+                    "item_filters": [
+                        "Normal:Usable",
+                        "ValuableDepot:CommercialItem",
+                        "ValuableDepot:SpecialItem"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleSpendBillCloseRewardsButton"
+        ]
+    },
+    "AutoStockStapleSpendBillCloseRewardsButton": {
+        "desc": "额度超限：关闭奖励窗口",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseRewardsButton"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleSpendBillExitShopValleyIV",
+            "AutoStockStapleSpendBillExitShopWuling"
+        ]
+    },
+    "AutoStockStapleSpendBillExitShopValleyIV": {
+        "desc": "额度超限：四号谷地关闭采购中心，准备重新进入让商品列表回到顶部",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InStockStaple",
+                    "InValleyIVText",
+                    "CloseButtonType1"
+                ],
+                "box_index": 2
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                0,
+                0,
+                1280,
+                720
+            ],
+            "threshold": 0.97,
+            "timeout": 1500
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                0,
+                0,
+                1280,
+                720
+            ],
+            "threshold": 0.97,
+            "timeout": 1500
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleSpendBillReenterValleyIV"
+        ]
+    },
+    "AutoStockStapleSpendBillExitShopWuling": {
+        "desc": "额度超限：武陵关闭采购中心，准备重新进入让商品列表回到顶部",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InStockStaple",
+                    "InWulingText",
+                    "CloseButtonType1"
+                ],
+                "box_index": 2
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                0,
+                0,
+                1280,
+                720
+            ],
+            "threshold": 0.97,
+            "timeout": 1500
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                0,
+                0,
+                1280,
+                720
+            ],
+            "threshold": 0.97,
+            "timeout": 1500
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleSpendBillReenterWuling"
+        ]
+    },
+    "AutoStockStapleSpendBillReenterValleyIV": {
+        "desc": "额度超限：四号谷地重新进入采购中心，回到列表顶部",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "SceneEnterMenuRegionalDevelopmentValleyIVStockRedistribution"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockInStapleValleyIV"
+        ]
+    },
+    "AutoStockStapleSpendBillReenterWuling": {
+        "desc": "额度超限：武陵重新进入采购中心，回到列表顶部",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "SceneEnterMenuRegionalDevelopmentWulingStockRedistribution"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockInStapleWuling"
+        ]
+    }
+}

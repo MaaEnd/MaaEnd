@@ -2726,6 +2726,7 @@
     "task.ProtocolSpace.focus.not_unlocked": "Protocol Space not unlocked",
     "task.ProtocolSpace.focus.open_reward": "Open rewards",
     "task.ProtocolSpace.focus.operation_failed": "Operation failed",
+    "task.ProtocolSpace.focus.prerequisite_not_cleared": "Prerequisite level not cleared; stopping task",
     "task.ProtocolSpace.focus.sanity_low_continue": "Insufficient sanity; continue operation",
     "task.ProtocolSpace.focus.sanity_low_end": "Insufficient sanity; ending task",
     "task.ProtocolSpace.focus.sanity_low_skip_permit": "Insufficient sanity; try without sanity permit",

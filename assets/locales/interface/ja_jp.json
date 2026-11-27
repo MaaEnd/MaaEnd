@@ -2726,6 +2726,7 @@
     "task.ProtocolSpace.focus.not_unlocked": "プロトコル空間が未解放です",
     "task.ProtocolSpace.focus.open_reward": "報酬を開く",
     "task.ProtocolSpace.focus.operation_failed": "作戦失敗",
+    "task.ProtocolSpace.focus.prerequisite_not_cleared": "前提ステージ未クリアのため、タスクを停止します",
     "task.ProtocolSpace.focus.sanity_low_continue": "理智不足ですが、行動を続行します",
     "task.ProtocolSpace.focus.sanity_low_end": "理智不足のため、タスクを終了します",
     "task.ProtocolSpace.focus.sanity_low_skip_permit": "理智不足のため、理智消費許可証を使わずに試行します",

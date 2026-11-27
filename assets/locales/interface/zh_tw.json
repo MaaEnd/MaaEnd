@@ -2726,6 +2726,7 @@
     "task.ProtocolSpace.focus.not_unlocked": "協議空間未解鎖",
     "task.ProtocolSpace.focus.open_reward": "打開獎勵",
     "task.ProtocolSpace.focus.operation_failed": "行動失敗",
+    "task.ProtocolSpace.focus.prerequisite_not_cleared": "需通關前置關卡後解鎖，停止任務",
     "task.ProtocolSpace.focus.sanity_low_continue": "理智不足，繼續行動",
     "task.ProtocolSpace.focus.sanity_low_end": "理智不足，結束任務",
     "task.ProtocolSpace.focus.sanity_low_skip_permit": "理智不足，嘗試不使用理智消耗許可",
