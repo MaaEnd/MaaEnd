@@ -19,58 +19,14 @@
                 "Win32-Front"
             ],
             "option": [
-                "AutoSellOverLimitFlow",
                 "AutoSellValleyIV",
                 "AutoSellWuling",
-                "AutoSellPriceType"
+                "AutoSellPriceType",
+                "AutoSellMaxSellQuantity"
             ]
         }
     ],
     "option": {
-        "AutoSellOverLimitFlow": {
-            "type": "switch",
-            "label": "$option.AutoSellOverLimitFlow.label",
-            "description": "$option.AutoSellOverLimitFlow.description",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        "AutoSellLocalPriceExpected": {
-                            "next": [
-                                "AutoSellBudgetPrice",
-                                "AutoSellFriendsPricesExpectedNeedSlide",
-                                "AutoSellFriendsPricesExpectedBuyDirect"
-                            ]
-                        },
-                        "AutoSellFriendsPricesExpectedBuyBackToSellGoodsSuccess": {
-                            "next": [
-                                "AutoSellBudgetPrice",
-                                "AutoSellFriendsPricesExpectedNeedSlide",
-                                "AutoSellFriendsPricesExpectedBuyDirect"
-                            ]
-                        }
-                    }
-                },
-                {
-                    "name": "No",
-                    "pipeline_override": {
-                        "AutoSellLocalPriceExpected": {
-                            "next": [
-                                "AutoSellFriendsPricesExpectedNeedSlide",
-                                "AutoSellFriendsPricesExpectedBuyDirect"
-                            ]
-                        },
-                        "AutoSellFriendsPricesExpectedBuyBackToSellGoodsSuccess": {
-                            "next": [
-                                "AutoSellFriendsPricesExpectedNeedSlide",
-                                "AutoSellFriendsPricesExpectedBuyDirect"
-                            ]
-                        }
-                    }
-                }
-            ],
-            "default_case": "Yes"
-        },
         "AutoSellValleyIV": {
             "type": "switch",
             "label": "$global.region.ValleyIV",
@@ -194,6 +150,26 @@
                     "custom_recognition_param": {
                         "expression": "{AutoSellTicketOverflowWulingValue} < {AutoSellOwnTicketCountRecognition}",
                         "focus_matched_resolved_expression": true
+                    }
+                }
+            }
+        },
+        "AutoSellMaxSellQuantity": {
+            "type": "input",
+            "label": "$option.AutoSellMaxSellQuantity.label",
+            "inputs": [
+                {
+                    "name": "AutoSellMaxSellQuantityValue",
+                    "label": "$option.AutoSellMaxSellQuantity.inputs.AutoSellMaxSellQuantityValue.label",
+                    "default": "320",
+                    "pipeline_type": "int",
+                    "verify": "^[1-9]\\d{0,17}$"
+                }
+            ],
+            "pipeline_override": {
+                "AutoSellFriendsPricesExpectedBuySlide": {
+                    "attach": {
+                        "TargetQuantity": "{AutoSellMaxSellQuantityValue}"
                     }
                 }
             }

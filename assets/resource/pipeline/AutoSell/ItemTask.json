@@ -518,7 +518,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoSellBudgetPrice",
             "AutoSellFriendsPricesExpectedNeedSlide",
             "AutoSellFriendsPricesExpectedBuyDirect"
         ]
@@ -626,7 +625,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoSellBudgetPrice",
             "AutoSellFriendsPricesExpectedNeedSlide",
             "AutoSellFriendsPricesExpectedBuyDirect"
         ]
@@ -686,7 +684,6 @@
                     "IncreaseButton": {
                         "template": "AutoStockpile/IncreaseButton.png"
                     },
-                    "ResetBeforeFindStart": true,
                     "SliderQuantity": {
                         "roi": [
                             370,
@@ -705,7 +702,7 @@
             "AutoSellFriendsPricesExpectedBuyClick"
         ],
         "attach": {
-            "TargetQuantity": 320
+            "TargetQuantity": 100
         }
     },
     "AutoSellFriendsPricesExpectedBuyClick": {
