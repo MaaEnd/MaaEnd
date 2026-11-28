@@ -348,9 +348,11 @@ OCR is very unreliable about whitespace between English words: it may read sever
 
 1. Start the whole regex with `(?i)` to make it case-insensitive. In-game English titles are often all caps, and without `(?i)` matching fails.
 2. Replace every space in the English text with `\\s*`: in the regex it is `\s*`, and because a JSON string escapes backslashes, the file shows two of them.
-3. Copy every other character as is; in general no escaping is needed. If a regex metacharacter such as `(`, `)`, `+`, `[` or `]` does show up, escape it with a backslash.
+3. Copy every other character as is; in general no escaping is needed. If a regex metacharacter such as `(`, `)`, `+`, `[` or `]` needs to match literally, escape it with a backslash in the regex. Since this is also a JSON string, escape that backslash too: write two backslashes in the file so the regex receives one.
 
 Example: `Send Local Clues` → `(?i)Send\\s*Local\\s*Clues`.
+
+For example, to match the literal parentheses in `Mission (Hard)`, write `"(?i)Mission\\s*\\(Hard\\)"` in the JSONC file; the regex engine receives `(?i)Mission\s*\(Hard\)`.
 
 Punctuation needs separate handling: OCR often misses quotes, apostrophes, dots and hyphens, so replace each of them with an optional `.`.
 
