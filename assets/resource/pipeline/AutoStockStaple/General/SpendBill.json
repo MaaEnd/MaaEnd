@@ -129,7 +129,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleSpendBillOverLimitValleyIV"
+            "AutoStockStapleSpendBillOverLimitValleyIV",
+            "EmptyNode" //关闭超限流程或者超限条件不满足时后会直接结束
         ]
     },
     "AutoStockStapleSpendBillOverLimitValleyIV": {
@@ -1069,7 +1070,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleSpendBillOverLimitWuling"
+            "AutoStockStapleSpendBillOverLimitWuling",
+            "EmptyNode" //关闭超限流程或者超限条件不满足时后会直接结束
         ]
     },
     "AutoStockStapleSpendBillOverLimitWuling": {
