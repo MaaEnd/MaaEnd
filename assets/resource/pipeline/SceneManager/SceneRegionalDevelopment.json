@@ -111,6 +111,34 @@
             "Node.Recognition.Succeeded": "环境监测菜单未解锁"
         }
     },
+    "__ScenePrivateMenuRegionalDevelopmentWulingExclusionZoneRebuildingLocked": {
+        "desc": "重建禁区菜单未解锁",
+        "recognition": "And",
+        "all_of": [
+            "InRegionalDevelopmentWuling",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    752,
+                    500,
+                    485,
+                    150
+                ],
+                "expected": [
+                    "暂未解锁",
+                    "尚未解鎖",
+                    "Not Yet Unlocked",
+                    "未解放",
+                    "미해제"
+                ]
+            }
+        ],
+        "action": "Custom",
+        "custom_action": "FalseAction",
+        "focus": {
+            "Node.Recognition.Succeeded": "重建禁区菜单未解锁"
+        }
+    },
     "__ScenePrivateMenuRegionalDevelopmentView2EnterMenuRegionalDevelopment": {
         "desc": "从地区建设二级菜单退出到地区建设菜单",
         "recognition": "And",
@@ -594,53 +622,54 @@
             ]
         }
     },
-    "__ScenePrivateMenuRegionalDevelopmentWulingExclusionZoneRebuildingLocked": {
-        "desc": "重建禁区菜单未解锁",
+    "__ScenePrivateMenuRegionalDevelopmentWulingEnterExclusionZoneRebuilding": {
+        "desc": "在武陵地区建设界面，点击进入重建禁区",
         "recognition": "And",
         "all_of": [
-            "InRegionalDevelopment",
+            "InRegionalDevelopmentWuling",
             {
                 "recognition": "OCR",
                 "roi": [
-                    754,
-                    534,
-                    177,
-                    75
+                    752,
+                    500,
+                    485,
+                    150
                 ],
                 "expected": [
-                    "暂未解锁",
-                    "尚未解鎖",
-                    "Not Yet Unlocked",
-                    "未解放",
-                    "미해제"
+                    "重建禁区",
+                    "重建禁區",
+                    "(?i)Exclusion\\s*Zone\\s*Rebuilding",
+                    "封鎖区域再建"
                 ]
             }
         ],
-        "action": "Custom",
-        "custom_action": "FalseAction",
-        "focus": {
-            "Node.Recognition.Succeeded": "重建禁区菜单未解锁"
-        }
-    },
-    "__ScenePrivateMenuRegionalDevelopmentWulingEnterExclusionZoneRebuilding": {
-        "desc": "点击武陵地区建设界面的重建禁区入口",
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "InRegionalDevelopmentWuling",
-                    "__ScenePrivateMenuRegionalDevelopmentWulingExclusionZoneRebuildingEntryText"
-                ],
-                "box_index": 1
-            }
-        },
+        "box_index": 1,
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
-        "rate_limit": 0,
+        "rate_limit": 100,
         "next": [
-            "InRegionalDevelopmentWulingExclusionZoneRebuilding"
+            "__ScenePrivateMenuRegionalDevelopmentWulingEnterExclusionZoneRebuildingSuccess"
         ]
+    },
+    "__ScenePrivateMenuRegionalDevelopmentWulingEnterExclusionZoneRebuildingSuccess": {
+        "desc": "在武陵地区建设界面，点击进入重建禁区成功",
+        "recognition": "And",
+        "all_of": [
+            "InRegionalDevelopmentWulingExclusionZoneRebuilding"
+        ],
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                -400,
+                0,
+                400,
+                0
+            ],
+            "threshold": 0.95
+        },
+        "pre_delay": 0,
+        "post_delay": 0
     },
     "__ScenePrivateMenuRegionalDevelopmentValleyIVEnterOverview": {
         "desc": "在四号谷地地区建设界面，进入事务总览界面",
@@ -698,25 +727,6 @@
             "time": 80,
             "target": "__ScenePrivateMenuRegionalOverviewFullRegion"
         },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "__ScenePrivateMenuRegionalDevelopmentWulingExclusionZoneRebuildingEntryText": {
-        "recognition": "OCR",
-        "roi": [
-            759,
-            540,
-            143,
-            44
-        ],
-        "expected": [
-            "重建禁区",
-            "重建禁區",
-            "(?i)Exclusion\\s*Zone\\s*Rebuilding",
-            "封鎖区域再建"
-        ],
-        "only_rec": true,
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
