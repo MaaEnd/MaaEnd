@@ -41,7 +41,6 @@ With the current config:
 - `controller = "CloudWeb"` maps to `tests/MaaEndTestset/CloudWeb/`.
 - `controller = ["Win32", "ADB"]` runs the same cases once under each controller directory.
 - `resource = "官服"` maps to `tests/MaaEndTestset/*/Official_CN/`.
-- When `configs.imageRoot = "RestaurantDaily"`, images are read from `tests/MaaEndTestset/*/Official_CN/RestaurantDaily/`.
 - If either `controller` or `resource` is an array, tests are expanded as a Cartesian product.
 
 If you add a new resource server or controller enum, besides adding the test files, also update the mapping (`resourceMap` / `controllerMap`) in `tests/scripts/loader.mts`.
@@ -81,7 +80,6 @@ The file structure is validated by `tools/schema/test.schema.json`. The top leve
 - `name`: optional test group name; recommended because it makes CLI output easier to read.
 - `resource`: resource server name. It can be either a single string or an array of strings. The current repo uses `官服`.
 - `controller`: controller type. It can be either a single string or an array of strings. The current repo uses `Win32`, `ADB`, and `CloudADB`.
-- `imageRoot`: optional image subdirectory under the resource directory, such as `RestaurantDaily`.
 
 When `controller` or `resource` is an array, `tests/scripts/loader.mts` expands the file into multiple test groups using the Cartesian product of controller and resource values.
 

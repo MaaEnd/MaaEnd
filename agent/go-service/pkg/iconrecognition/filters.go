@@ -25,8 +25,8 @@ type ValuableDepotFilters struct {
 	Weapon         ItemFilter
 }
 
-// RestaurantFilters 提供 Restaurant 存储下的合法分类过滤器。
-type RestaurantFilters struct {
+// YuanyuanManorFilters 提供 YuanyuanManor 存储下的合法分类过滤器。
+type YuanyuanManorFilters struct {
 	Any   ItemFilter
 	Dish  ItemFilter
 	Drink ItemFilter
@@ -49,7 +49,7 @@ type IsolateFilters struct {
 type StorageFilters struct {
 	Normal        NormalFilters
 	ValuableDepot ValuableDepotFilters
-	Restaurant    RestaurantFilters
+	YuanyuanManor YuanyuanManorFilters
 	Isolate       IsolateFilters
 }
 
@@ -73,10 +73,10 @@ func StorageFilter() StorageFilters {
 			SpecialItem:    ItemFilter("ValuableDepot:SpecialItem"),
 			Weapon:         ItemFilter("ValuableDepot:Weapon"),
 		},
-		Restaurant: RestaurantFilters{
-			Any:   ItemFilter("Restaurant:*"),
-			Dish:  ItemFilter("Restaurant:Dish"),
-			Drink: ItemFilter("Restaurant:Drink"),
+		YuanyuanManor: YuanyuanManorFilters{
+			Any:   ItemFilter("YuanyuanManor:*"),
+			Dish:  ItemFilter("YuanyuanManor:Dish"),
+			Drink: ItemFilter("YuanyuanManor:Drink"),
 		},
 		Isolate: IsolateFilters{
 			Any:           ItemFilter("Isolate:*"),

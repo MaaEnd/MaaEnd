@@ -1,0 +1,120 @@
+{
+    "YuanyuanManorInPantryShop": {
+        "desc": "在堂头小铺界面内",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    200,
+                    60
+                ],
+                "expected": [
+                    "堂头小铺",
+                    "堂頭小鋪",
+                    "(?i)Pantry\\s*Shop",
+                    "給仕頭の八百屋",
+                    "열일 상점"
+                ]
+            }
+        }
+    },
+    "PantryShopStoreInRegionalDepotChecked": {
+        "desc": "「优先存入地区仓库」已勾选",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    43,
+                    631,
+                    233,
+                    63
+                ],
+                "template": [
+                    "YuanyuanManor/PantryShop/StoreInRegionChecked.png"
+                ],
+                "threshold": 0.85
+            }
+        }
+    },
+    "PantryShopStoreInRegionalDepotUnchecked": {
+        "desc": "「优先存入地区仓库」未勾选",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    43,
+                    631,
+                    233,
+                    63
+                ],
+                "template": [
+                    "YuanyuanManor/PantryShop/StoreInRegionUnchecked.png"
+                ],
+                "threshold": 0.85
+            }
+        }
+    },
+    "PantryShopItemDiscountText": {
+        // OCR 神力，直接全屏找带百分号的数字就足够了
+        "desc": "可购买物品右上角折扣文字",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    0,
+                    0
+                ],
+                "expected": [
+                    "-\\d+%"
+                ],
+                "order_by": "Horizontal"
+            }
+        }
+    },
+    "PantryShopItemAreaColor": {
+        // 根据物品区域整体灰度值，过滤掉已售罄的物品
+        "desc": "可购买物品整体背景颜色",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "PantryShopItemDiscountText",
+                "roi_offset": [
+                    -100,
+                    0,
+                    100,
+                    150
+                ],
+                "method": 6, // 要求区域内亮像素达到门槛
+                "lower": [
+                    120
+                ],
+                "upper": [
+                    255
+                ],
+                "count": 10000
+            }
+        }
+    },
+    "PantryShopRefreshButton": {
+        "desc": "右下角刷新按钮",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    891,
+                    626,
+                    354,
+                    71
+                ],
+                "template": [
+                    "YuanyuanManor/PantryShop/Refresh.png"
+                ],
+                "threshold": 0.9
+            }
+        }
+    }
+}

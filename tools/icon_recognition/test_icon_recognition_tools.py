@@ -846,17 +846,17 @@ class IconRecognitionToolsTest(unittest.TestCase):
                 (asset_image_root / "3" / "item_liquid_acid.png").exists()
             )
 
-    def test_restaurant_items_reach_catalog_and_locales(self) -> None:
+    def test_yuanyuan_manor_items_reach_catalog_and_locales(self) -> None:
         for category_type, category in (("Dish", "客栈菜品"), ("Drink", "客栈饮品")):
             with self.subTest(category_type=category_type), tempfile.TemporaryDirectory() as directory:
-                item_id = f"item_restaurant_{category_type.lower()}"
+                item_id = f"item_yuanyuan_manor_{category_type.lower()}"
                 names = {language: f"{category}-{language}" for language, _ in LOCALE_MAP.values()}
                 source = {
                     item_id: self._mini_item(
                         name=names["CN"],
                         names=names,
                         category=category,
-                        storageKind="Restaurant",
+                        storageKind="YuanyuanManor",
                         categoryType=category_type,
                         iconId=item_id,
                     )
@@ -875,7 +875,7 @@ class IconRecognitionToolsTest(unittest.TestCase):
                 jobs[0].destination.write_bytes(b"png")
                 catalog = build_catalog(items, image_root)
                 self.assertEqual(catalog[item_id]["category"], category)
-                self.assertEqual(catalog[item_id]["storageKind"], "Restaurant")
+                self.assertEqual(catalog[item_id]["storageKind"], "YuanyuanManor")
                 self.assertEqual(catalog[item_id]["categoryType"], category_type)
                 for language, _ in LOCALE_MAP.values():
                     self.assertEqual(
@@ -884,7 +884,7 @@ class IconRecognitionToolsTest(unittest.TestCase):
                     )
 
     def test_prepare_item_map_rejects_unknown_categories(self) -> None:
-        for storage_kind, category_type in (("FutureStorage", "Dish"), ("Restaurant", "FutureCategory")):
+        for storage_kind, category_type in (("FutureStorage", "Dish"), ("YuanyuanManor", "FutureCategory")):
             with (
                 self.subTest(storage_kind=storage_kind, category_type=category_type),
                 self.assertRaisesRegex(ValueError, f"未知物品分类: {storage_kind}:{category_type}"),

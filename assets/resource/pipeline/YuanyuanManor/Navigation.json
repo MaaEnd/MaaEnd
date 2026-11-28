@@ -1,0 +1,421 @@
+{
+    // =========================================================================
+    // 接口
+    // =========================================================================
+    "YuanyuanManorEnterMenuInnkeeping": {
+        "desc": "从任意界面进入客栈经营-主题设定",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "YuanyuanManorOpenTheInnSuccess",
+            "YuanyuanManorOpenTheInn",
+            "YuanyuanManorGotoTheInnStart"
+        ]
+    },
+    "YuanyuanManorEnterMenuPantryShop": {
+        "desc": "从任意界面进入堂头小铺",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "YuanyuanManorEnterPantryShopSuccess",
+            "YuanyuanManorPantryShopInteract",
+            "YuanyuanManorGotoPantryShopStart"
+        ]
+    },
+    // =========================================================================
+    // 寻路至缘缘庄客栈，进入客栈经营界面
+    // =========================================================================
+    "YuanyuanManorGotoTheInnStart": {
+        "desc": "开始导航到缘缘庄客栈",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "YuanyuanManorQuickTeleportStart"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "YuanyuanManorGotoTheInn"
+        ]
+    },
+    "YuanyuanManorGotoTheInn": {
+        "desc": "导航到缘缘庄客栈",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "heading_source": "camera",
+                    "path": [
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                142.6,
+                                138.01
+                            ],
+                            "target_tier": "Wuling_L10_468"
+                        }
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 100,
+        "next": [
+            "YuanyuanManorOpenTheInn"
+        ]
+    },
+    "YuanyuanManorOpenTheInn": {
+        "desc": "点击「开始经营」",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "YuanyuanManorOpenTheInnButton"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilNotFoundAction",
+                "custom_action_param": {
+                    "custom_action": "AutoAltClickAction",
+                    "wait_node": "InWorld"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 100,
+        "next": [
+            "YuanyuanManorOpenTheInnSuccess"
+        ]
+    },
+    "YuanyuanManorOpenTheInnSuccess": {
+        "desc": "点击「开始经营」成功，进入主题设定界面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InnkeepingInThemeSetting"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    // =========================================================================
+    // 寻路至缘缘庄堂头小铺，进入堂头小铺界面
+    // =========================================================================
+    "YuanyuanManorGotoPantryShopStart": {
+        "desc": "开始导航到缘缘庄堂头小铺",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "YuanyuanManorQuickTeleportStart"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "YuanyuanManorGotoPantryShop"
+        ]
+    },
+    "YuanyuanManorGotoPantryShop": {
+        "desc": "导航到缘缘庄堂头小铺",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "heading_source": "camera",
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_L10_468"
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                137.48,
+                                138.67
+                            ],
+                            "target_tier": "Wuling_L10_468",
+                            "required": true
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                136.44,
+                                133.13
+                            ],
+                            "target_tier": "Wuling_L10_468",
+                            "strict": true,
+                            "required": true
+                        }
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 100,
+        "next": [
+            "YuanyuanManorPantryShopInteract"
+        ]
+    },
+    "YuanyuanManorPantryShopInteract": {
+        "desc": "点击与「堂头小铺」交互对话",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "YuanyuanManorPantryShopInteractButton",
+                    "YuanyuanManorPantryShopInteractText"
+                ],
+                "box_index": 0
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilNotFoundAction",
+                "custom_action_param": {
+                    "custom_action": "AutoAltClickAction",
+                    "wait_node": "InWorld"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 100,
+        "next": [
+            "YuanyuanManorPantryShopInteractSuccess"
+        ]
+    },
+    "YuanyuanManorPantryShopInteractSuccess": {
+        "desc": "点击与「堂头小铺」交互对话成功，进入对话界面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "YuanyuanManorChatLogButton",
+                    "YuanyuanManorChatAutoButton"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 100,
+        "next": [
+            "YuanyuanManorPantryShopChatNext",
+            // 有概率重复点击跳过一级界面
+            "YuanyuanManorPantryShopCheckGoods"
+        ]
+    },
+    "YuanyuanManorPantryShopChatNext": {
+        "desc": "在「堂头小铺」对话界面，点击继续",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "YuanyuanManorChatSkipButton",
+                    "YuanyuanManorChatNextIcon"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 100,
+        "next": [
+            "YuanyuanManorPantryShopCheckGoods"
+        ]
+    },
+    "YuanyuanManorPantryShopCheckGoods": {
+        "desc": "在「堂头小铺」对话界面，点击「看看货物」",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "YuanyuanManorPantryShopCheckGoodsButton"
+                ]
+            }
+        },
+        "pre_delay": 100,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 100,
+        "next": [
+            "YuanyuanManorEnterPantryShopSuccess"
+        ]
+    },
+    "YuanyuanManorEnterPantryShopSuccess": {
+        "desc": "点击「看看货物」成功，进入堂头小铺",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "YuanyuanManorInPantryShop"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    // =========================================================================
+    // 通过事务总览传送至缘缘庄
+    // =========================================================================
+    "YuanyuanManorQuickTeleportStart": {
+        "desc": "通过快速传送前往缘缘庄",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "SceneEnterMenuRegionalOverviewWulingYuanyuanManorInn"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "YuanyuanManorOverviewViewPosition"
+        ]
+    },
+    "YuanyuanManorOverviewViewPosition": {
+        "desc": "在武陵事务总览界面，点击查看位置",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "SceneMenuRegionalOverviewWulingYuanyuanManorInn",
+                    "YuanyuanManorViewPositionButton"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilNotFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_node": "InRegionalOverviewWuling"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 100,
+        "next": [
+            "YuanyuanManorQuickTeleportSelect"
+        ]
+    },
+    "YuanyuanManorQuickTeleportSelect": {
+        "desc": "点击前往传送",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "QuickTeleportButton"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilNotFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_node": "QuickTeleportButton"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 100,
+        "next": [
+            "YuanyuanManorQuickTeleport"
+        ]
+    },
+    "YuanyuanManorQuickTeleport": {
+        "desc": "点击传送",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "TeleportButton"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilNotFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_node": "TeleportButton"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 100,
+        "next": [
+            "YuanyuanManorQuickTeleportDone",
+            "[JumpBack]SceneWaitLoadingExit"
+        ]
+    },
+    "YuanyuanManorQuickTeleportDone": {
+        "desc": "传送完成",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InWorld"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0
+    }
+}

@@ -76,6 +76,8 @@
                 "ImportBluePrintsEnterCodeAction",
                 "ImportBluePrintsFinishAction",
                 "ImportBluePrintsInitTextAction",
+                "InnkeepingMenuCheckCard",
+                "InnkeepingMenuDecide",
                 "IntelArchiveResetSessionAction",
                 "IntelArchiveResolveTruncAction",
                 "IntelArchiveShowInventoryAction",
@@ -93,7 +95,6 @@
                 "RealTimeTaskAction",
                 "RepeatUntilFoundAction",
                 "RepeatUntilNotFoundAction",
-                "RestaurantDecisionAction",
                 "SceneManagerMenuListClickItemAction",
                 "SeizeDeliveryJobsResetScanStateAction",
                 "SeizeDeliveryJobsScanTargetAction",
@@ -110,6 +111,7 @@
                 "VisitFriendsBtwSellSlidingAction",
                 "WebEvent202605Action",
                 "WorldToolSprayScanAction",
+                "YuanyuanManorInnkeepingDecide",
                 "ZiplineImport",
                 "autoEcoFarmInterruptibleSleep",
                 "autoEcoFarmOverrideTargetTemplate",
@@ -543,7 +545,7 @@
                 ],
                 "properties": {
                     "custom_action": {
-                        "const": "RestaurantDecisionAction"
+                        "const": "YuanyuanManorInnkeepingDecide"
                     }
                 }
             },
@@ -562,7 +564,6 @@
                         "properties": {
                             "step": {
                                 "enum": [
-                                    "initialize",
                                     "menu_page",
                                     "menu_card",
                                     "menu_advance",
@@ -582,11 +583,6 @@
                                     "vegetable",
                                     "dessert"
                                 ]
-                            },
-                            "max_rounds": {
-                                "type": "integer",
-                                "minimum": 1,
-                                "maximum": 1000
                             }
                         }
                     }

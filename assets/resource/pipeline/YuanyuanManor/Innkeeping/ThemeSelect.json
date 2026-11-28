@@ -1,0 +1,184 @@
+// 客栈经营-主题设定
+{
+    "InnkeepingThemeScan": {
+        "desc": "在主题设定界面，寻找目标主题",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "InnkeepingThemeSelectSuccess",
+            "InnkeepingThemeSelect",
+            "InnkeepingThemeListComplete",
+            "[JumpBack]InnkeepingThemeListScroll"
+        ]
+    },
+    // =========================================================================
+    // 列表滚动相关
+    // =========================================================================
+    "InnkeepingThemeListComplete": {
+        "desc": "在主题设定界面，列表滚动已至尽头",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ListCompleteRecognition",
+                "custom_recognition_param": {
+                    "threshold": 0.95
+                },
+                "roi": [
+                    70,
+                    90,
+                    430,
+                    590
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "FailedNode"
+        ]
+    },
+    "InnkeepingThemeListScroll": {
+        "desc": "在主题设定界面，向下滚动左侧面板",
+        "pre_delay": 0,
+        "action": {
+            "type": "Scroll",
+            "param": {
+                "target": [
+                    110,
+                    130,
+                    350,
+                    510
+                ],
+                "dx": 0,
+                "dy": -360
+            }
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                70,
+                90,
+                430,
+                590
+            ],
+            "threshold": 0.95
+        },
+        "post_delay": 0
+    },
+    // =========================================================================
+    // 选中目标主题
+    // =========================================================================
+    "InnkeepingThemeSelect": {
+        "desc": "点击选中左侧目标主题",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InnkeepingTargetTheme"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 100,
+        "next": [
+            "InnkeepingThemeSelectSuccess"
+        ]
+    },
+    "InnkeepingThemeSelectSuccess": {
+        "desc": "点击选中目标主题成功",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InnkeepingTargetThemeSelected"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 80,
+            "target": [
+                500,
+                80,
+                720,
+                550
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "InnkeepingOpenInnSettings"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.YuanyuanManor.focus.theme_selected"
+        }
+    },
+    // =========================================================================
+    // 点击「正式经营」，进入营业设定界面
+    // =========================================================================
+    "InnkeepingOpenInnSettings": {
+        "desc": "点击「正式经营」按钮",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InnkeepingOpenInnSettingsButtonText"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 100,
+        "next": [
+            "InnkeepingOpenInnSettingsSuccess"
+        ]
+    },
+    "InnkeepingOpenInnSettingsSuccess": {
+        "desc": "点击「正式经营」成功，进入营业设定界面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InnkeepingInInnSetting",
+                    "InnkeepingResetChefsButton"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "InnkeepingResetChefs",
+            "InnkeepingSkipSetup"
+        ]
+    },
+    "InnkeepingSkipSetup": {
+        "desc": "第二轮及之后的经营，可以沿用之前的菜单设定",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "allow_next": true,
+                    "patch": {
+                        "InnkeepingOpenMenuDesignSuccess": {
+                            "next": [
+                                "InnkeepingStartInnkeeping"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "InnkeepingOpenMenuDesign"
+        ]
+    }
+}

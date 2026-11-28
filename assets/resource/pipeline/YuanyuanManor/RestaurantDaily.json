@@ -1,0 +1,615 @@
+{
+    "RestaurantMenuInitialize": {
+        "desc": "重置菜单与运行状态，并覆盖部分识别节点的初始状态。",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "PipelineOverride",
+        "custom_action_param": {
+            "patch": {
+                "RestaurantState": {
+                    "attach": {
+                        "state": null
+                    }
+                },
+                "RestaurantRuntimeSwitchKitchen1": {
+                    "enabled": false
+                },
+                "RestaurantRuntimeSwitchKitchen2": {
+                    "enabled": false
+                },
+                "RestaurantRuntimeSwitchKitchen3": {
+                    "enabled": false
+                },
+                "RestaurantRuntimeIdle": {
+                    "enabled": false
+                },
+                "RestaurantRuntimeClickDish1": {
+                    "enabled": false
+                },
+                "RestaurantRuntimeClickDish2": {
+                    "enabled": false
+                },
+                "RestaurantRuntimeClickDish3": {
+                    "enabled": false
+                },
+                "RestaurantRuntimeClickDish4": {
+                    "enabled": false
+                },
+                "RestaurantRuntimeClickDish5": {
+                    "enabled": false
+                },
+                "RestaurantRuntimeClickDish6": {
+                    "enabled": false
+                },
+                "RestaurantRuntimeNextKitchen": {
+                    "enabled": false
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantBusinessStarted"
+        ]
+    },
+    "RestaurantBusinessStarted": {
+        "desc": "通过“结束经营”字样确认已进入经营中。",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            177,
+            70
+        ],
+        "expected": [
+            "结束经营",
+            "End Session",
+            "営業終了",
+            "운영 종료하기",
+            "結束經營"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantOpenKitchenPanel"
+        ]
+    },
+    // 720p 固定派单按钮坐标；最多点击 10 次（默认间隔 3 秒），覆盖约 30 秒加载动画。
+    "RestaurantOpenKitchenPanel": {
+        "desc": "在经营中反复点击派单位置，直到面板就绪或游戏结束。",
+        "recognition": "And",
+        "all_of": [
+            "RestaurantBusinessStarted"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RepeatUntilFoundAction",
+        "custom_action_param": {
+            "custom_action": "AutoAltClickAction",
+            "wait_nodes": [
+                "RestaurantKitchenPanelReady",
+                "RestaurantGameEnded"
+            ],
+            "repeat_count": 10
+        },
+        "target": [
+            867,
+            630
+        ],
+        "post_wait_freezes": {
+            "time": 350,
+            "target": [
+                140,
+                140,
+                1000,
+                470
+            ],
+            "timeout": 3000
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantGameEnded",
+            "RestaurantKitchenPanelReady"
+        ],
+        "on_error": [
+            "FailedNode"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.YuanyuanManor.focus.business_started"
+        }
+    },
+    "RestaurantKitchenPanelReady": {
+        "desc": "识别厨房面板已打开。",
+        "recognition": "OCR",
+        "roi": [
+            210,
+            374,
+            100,
+            24
+        ],
+        "expected": [
+            "干员加成",
+            "Operator UP",
+            "配属効果",
+            "오퍼레이터 보너스",
+            "幹員加成"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantRuntimeLoop"
+        ]
+    },
+    "RestaurantRuntimeLoop": {
+        "desc": "经营循环入口，分流到结束结算、继续结算或经营状态观察。",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantGameEnded",
+            "RestaurantSettlementContinue",
+            "RestaurantSettlementComplete",
+            "RestaurantRuntimeObserve"
+        ]
+    },
+    "RestaurantGameEnded": {
+        "desc": "识别经营结束画面。",
+        "recognition": "OCR",
+        "roi": [
+            500,
+            335,
+            280,
+            45
+        ],
+        "expected": [
+            "经营结束",
+            "End Session",
+            "SESSION ENDED",
+            "営業終了",
+            "운영 종료",
+            "經營結束"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantSettlementContinue"
+        ]
+    },
+    "RestaurantSettlementContinue": {
+        "desc": "点击结算界面的继续按钮。",
+        "recognition": "OCR",
+        "roi": [
+            1020,
+            620,
+            180,
+            48
+        ],
+        "expected": [
+            "继续",
+            "Continue",
+            "続ける",
+            "계속하기",
+            "繼續"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "wait_node": "RestaurantSettlementContinue"
+        },
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                0,
+                0,
+                1280,
+                720
+            ],
+            "timeout": 4000
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantSettlementComplete"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.YuanyuanManor.focus.business_ended"
+        }
+    },
+    "RestaurantSettlementComplete": {
+        "desc": "点击结算界面的完成按钮。",
+        "recognition": "OCR",
+        "roi": [
+            1020,
+            620,
+            180,
+            48
+        ],
+        "expected": [
+            "完成",
+            "Finish",
+            "完了",
+            "완료"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "wait_node": "RestaurantSettlementComplete"
+        },
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                0,
+                0,
+                1280,
+                720
+            ],
+            "timeout": 4000
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantReturnedWorld"
+        ]
+    },
+    "RestaurantRuntimeIdle": {
+        "desc": "暂无可执行派菜动作时返回经营循环。",
+        "enabled": false,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 250,
+        "next": [
+            "RestaurantRuntimeLoop"
+        ]
+    },
+    "RestaurantReturnedWorld": {
+        "desc": "确认回到大世界，并判断下一轮或购物流程。",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.YuanyuanManor.focus.returned_world"
+        }
+    },
+    "RestaurantRuntimeObserve": {
+        "desc": "观察桌位、厨房队列和补充标记，由 Go 决定厨房及派菜动作。",
+        "recognition": "And",
+        "all_of": [
+            "RestaurantRuntimeFullFrame"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "YuanyuanManorInnkeepingDecide",
+        "custom_action_param": {
+            "step": "runtime"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantGameEnded",
+            "RestaurantRuntimeSwitchKitchen1",
+            "RestaurantRuntimeSwitchKitchen2",
+            "RestaurantRuntimeSwitchKitchen3",
+            "RestaurantRuntimeNextKitchen",
+            "RestaurantRuntimeClickDish1",
+            "RestaurantRuntimeClickDish2",
+            "RestaurantRuntimeClickDish3",
+            "RestaurantRuntimeClickDish4",
+            "RestaurantRuntimeClickDish5",
+            "RestaurantRuntimeClickDish6",
+            "RestaurantRuntimeIdle"
+        ],
+        "on_error": [
+            "FailedNode"
+        ]
+    },
+    "RestaurantRuntimeSwitchKitchen1": {
+        "desc": "切换并确认当前选中厨房为厨房一。",
+        "enabled": false,
+        "recognition": "And",
+        "all_of": [
+            "RestaurantKitchenPanelReady"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RepeatUntilFoundAction",
+        "custom_action_param": {
+            "custom_action": "SubTask",
+            "custom_action_param": {
+                "sub": [
+                    "RestaurantRuntimeSwitchKitchen1Click"
+                ]
+            },
+            "wait_nodes": [
+                "RestaurantKitchen1Selected",
+                "RestaurantGameEnded"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantGameEnded",
+            "RestaurantRuntimeClickDish1",
+            "RestaurantRuntimeClickDish2",
+            "RestaurantRuntimeClickDish3",
+            "RestaurantRuntimeClickDish4",
+            "RestaurantRuntimeClickDish5",
+            "RestaurantRuntimeClickDish6"
+        ]
+    },
+    // 720p 固定厨房标签坐标；点击后由父节点 wait_nodes 识别 Selected 状态。
+    "RestaurantRuntimeSwitchKitchen1Click": {
+        "desc": "点击厨房一标签。",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "LongPress",
+        "target": [
+            269,
+            161
+        ],
+        "duration": 100,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "RestaurantRuntimeSwitchKitchen2": {
+        "desc": "切换并确认当前选中厨房为厨房二。",
+        "enabled": false,
+        "recognition": "And",
+        "all_of": [
+            "RestaurantKitchenPanelReady"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RepeatUntilFoundAction",
+        "custom_action_param": {
+            "custom_action": "SubTask",
+            "custom_action_param": {
+                "sub": [
+                    "RestaurantRuntimeSwitchKitchen2Click"
+                ]
+            },
+            "wait_nodes": [
+                "RestaurantKitchen2Selected",
+                "RestaurantGameEnded"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantGameEnded",
+            "RestaurantRuntimeClickDish1",
+            "RestaurantRuntimeClickDish2",
+            "RestaurantRuntimeClickDish3",
+            "RestaurantRuntimeClickDish4",
+            "RestaurantRuntimeClickDish5",
+            "RestaurantRuntimeClickDish6"
+        ]
+    },
+    // 720p 固定厨房标签坐标；点击后由父节点 wait_nodes 识别 Selected 状态。
+    "RestaurantRuntimeSwitchKitchen2Click": {
+        "desc": "点击厨房二标签。",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "LongPress",
+        "target": [
+            495,
+            161
+        ],
+        "duration": 100,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "RestaurantRuntimeSwitchKitchen3": {
+        "desc": "切换并确认当前选中厨房为厨房三。",
+        "enabled": false,
+        "recognition": "And",
+        "all_of": [
+            "RestaurantKitchenPanelReady"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RepeatUntilFoundAction",
+        "custom_action_param": {
+            "custom_action": "SubTask",
+            "custom_action_param": {
+                "sub": [
+                    "RestaurantRuntimeSwitchKitchen3Click"
+                ]
+            },
+            "wait_nodes": [
+                "RestaurantKitchen3Selected",
+                "RestaurantGameEnded"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantGameEnded",
+            "RestaurantRuntimeClickDish1",
+            "RestaurantRuntimeClickDish2",
+            "RestaurantRuntimeClickDish3",
+            "RestaurantRuntimeClickDish4",
+            "RestaurantRuntimeClickDish5",
+            "RestaurantRuntimeClickDish6"
+        ]
+    },
+    // 720p 固定厨房标签坐标；点击后由父节点 wait_nodes 识别 Selected 状态。
+    "RestaurantRuntimeSwitchKitchen3Click": {
+        "desc": "点击厨房三标签。",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "LongPress",
+        "target": [
+            714,
+            161
+        ],
+        "duration": 100,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "RestaurantRuntimeClickDish1": {
+        "enabled": false,
+        "recognition": "And",
+        "all_of": [
+            "RestaurantRuntimeTargetKitchen"
+        ],
+        "pre_delay": 0,
+        "action": "LongPress",
+        "target": [
+            720,
+            256
+        ],
+        "duration": 100,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantRuntimeDispatched"
+        ]
+    },
+    "RestaurantRuntimeClickDish2": {
+        "enabled": false,
+        "recognition": "And",
+        "all_of": [
+            "RestaurantRuntimeTargetKitchen"
+        ],
+        "pre_delay": 0,
+        "action": "LongPress",
+        "target": [
+            1022,
+            256
+        ],
+        "duration": 100,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantRuntimeDispatched"
+        ]
+    },
+    "RestaurantRuntimeClickDish3": {
+        "enabled": false,
+        "recognition": "And",
+        "all_of": [
+            "RestaurantRuntimeTargetKitchen"
+        ],
+        "pre_delay": 0,
+        "action": "LongPress",
+        "target": [
+            720,
+            334
+        ],
+        "duration": 100,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantRuntimeDispatched"
+        ]
+    },
+    "RestaurantRuntimeClickDish4": {
+        "enabled": false,
+        "recognition": "And",
+        "all_of": [
+            "RestaurantRuntimeTargetKitchen"
+        ],
+        "pre_delay": 0,
+        "action": "LongPress",
+        "target": [
+            1022,
+            334
+        ],
+        "duration": 100,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantRuntimeDispatched"
+        ]
+    },
+    "RestaurantRuntimeClickDish5": {
+        "enabled": false,
+        "recognition": "And",
+        "all_of": [
+            "RestaurantRuntimeTargetKitchen"
+        ],
+        "pre_delay": 0,
+        "action": "LongPress",
+        "target": [
+            720,
+            430
+        ],
+        "duration": 100,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantRuntimeDispatched"
+        ]
+    },
+    "RestaurantRuntimeClickDish6": {
+        "enabled": false,
+        "recognition": "And",
+        "all_of": [
+            "RestaurantRuntimeTargetKitchen"
+        ],
+        "pre_delay": 0,
+        "action": "LongPress",
+        "target": [
+            1022,
+            430
+        ],
+        "duration": 100,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantRuntimeDispatched"
+        ]
+    },
+    "RestaurantRuntimeNextKitchen": {
+        "desc": "通过按键切换到 Go 选定的厨房。",
+        "enabled": false,
+        "recognition": "And",
+        "all_of": [
+            "RestaurantKitchenPanelReady"
+        ],
+        "pre_delay": 0,
+        "action": "ClickKey",
+        "key": 69,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantGameEnded",
+            "RestaurantRuntimeClickDish1",
+            "RestaurantRuntimeClickDish2",
+            "RestaurantRuntimeClickDish3",
+            "RestaurantRuntimeClickDish4",
+            "RestaurantRuntimeClickDish5",
+            "RestaurantRuntimeClickDish6"
+        ]
+    },
+    "RestaurantRuntimeDispatched": {
+        "desc": "通知 Go 已执行派菜，并返回经营循环。",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "YuanyuanManorInnkeepingDecide",
+        "custom_action_param": {
+            "step": "dispatched"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RestaurantRuntimeLoop"
+        ]
+    }
+}

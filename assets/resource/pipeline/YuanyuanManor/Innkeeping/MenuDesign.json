@@ -1,0 +1,574 @@
+// 客栈经营-菜单设定
+{
+    // =========================================================================
+    // 菜单筛选
+    // =========================================================================
+    "InnkeepingMenuOpenFilter": {
+        "desc": "在菜单设定界面，打开筛选",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InnkeepingMenuFilterButton"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 100,
+        "next": [
+            "InnkeepingOpenMenuFilterSuccess"
+        ]
+    },
+    "InnkeepingOpenMenuFilterSuccess": {
+        "desc": "打开筛选成功",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InnkeepingInMenuFilter"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 80,
+            "target": [
+                200,
+                190,
+                870,
+                325
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "InnkeepingMenuFilterSelectQTY",
+            "InnkeepingMenuFilterListComplete",
+            "[JumpBack]InnkeepingMenuFilterListScroll"
+        ]
+    },
+    "InnkeepingMenuFilterListComplete": {
+        "desc": "在筛选界面，列表滚动已至尽头",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ListCompleteRecognition",
+                "custom_recognition_param": {
+                    "threshold": 0.95
+                },
+                "roi": [
+                    200,
+                    190,
+                    870,
+                    325
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "FailedNode"
+        ]
+    },
+    "InnkeepingMenuFilterListScroll": {
+        "desc": "在筛选界面，向下滚动",
+        "pre_delay": 0,
+        "action": {
+            "type": "Scroll",
+            "param": {
+                "target": [
+                    200,
+                    190,
+                    870,
+                    325
+                ],
+                "dx": 0,
+                "dy": -120
+            }
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                200,
+                190,
+                870,
+                325
+            ],
+            "threshold": 0.95
+        },
+        "post_delay": 0
+    },
+    "InnkeepingMenuFilterSelectQTY": {
+        "desc": "在筛选界面，选中「可烹饪数量」",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InnkeepingMenuFilterQTY"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 100,
+        "next": [
+            "InnkeepingMenuFilterSelectQTYSuccess"
+        ]
+    },
+    "InnkeepingMenuFilterSelectQTYSuccess": {
+        "desc": "选中「可烹饪数量」成功",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InnkeepingMenuFilterQTY",
+                    "InnkeepingMenuFilterQTYSelected"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "InnkeepingCloseMenuFilter"
+        ]
+    },
+    "InnkeepingCloseMenuFilter": {
+        "desc": "关闭筛选界面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "WhiteConfirmButtonType1"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 100,
+        "next": [
+            "InnkeepingCloseMenuFilterSuccess"
+        ]
+    },
+    "InnkeepingCloseMenuFilterSuccess": {
+        "desc": "关闭筛选界面成功，回到菜单设定界面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InnkeepingInMenuDesign"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "InnkeepingMenuDesign"
+        ]
+    },
+    // =========================================================================
+    // 菜单设定
+    // =========================================================================
+    "InnkeepingMenuDesign": {
+        "desc": "开始设定菜单",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "[JumpBack]InnkeepingMenuSwitchTabDessert",
+            "[JumpBack]InnkeepingMenuSwitchTabSoup",
+            "[JumpBack]InnkeepingMenuSwitchTabEntree",
+            "[JumpBack]InnkeepingMenuSwitchTabSide",
+            "[JumpBack]InnkeepingMenuSwitchTabDrinks",
+            "InnkeepingStartInnkeeping"
+        ]
+    },
+    // =========================================================================
+    // 依次进入五个页签
+    // =========================================================================
+    "InnkeepingMenuSwitchTabEntree": {
+        "desc": "切换到主食页签",
+        "max_hit": 1,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InnkeepingMenuTabEntree"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 100,
+        "next": [
+            "InnkeepingMenuSwitchTabEntreeSuccess"
+        ]
+    },
+    "InnkeepingMenuSwitchTabEntreeSuccess": {
+        "desc": "切换到主食页签成功",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InnkeepingMenuTabEntree",
+                    "InnkeepingMenuTabEntreeSelected"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 80,
+            "target": [
+                538,
+                133,
+                664,
+                415
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "InnkeepingMenuDecide"
+        ]
+    },
+    "InnkeepingMenuSwitchTabSide": {
+        "desc": "切换到菜肴页签",
+        "max_hit": 1,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InnkeepingMenuTabSide"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 100,
+        "next": [
+            "InnkeepingMenuSwitchTabSideSuccess"
+        ]
+    },
+    "InnkeepingMenuSwitchTabSideSuccess": {
+        "desc": "切换到菜肴页签成功",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InnkeepingMenuTabSide",
+                    "InnkeepingMenuTabSideSelected"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 80,
+            "target": [
+                538,
+                133,
+                664,
+                415
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "InnkeepingMenuDecide"
+        ]
+    },
+    "InnkeepingMenuSwitchTabDessert": {
+        "desc": "切换到甜品页签",
+        "max_hit": 1,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InnkeepingMenuTabDessert"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 100,
+        "next": [
+            "InnkeepingMenuSwitchTabDessertSuccess"
+        ]
+    },
+    "InnkeepingMenuSwitchTabDessertSuccess": {
+        "desc": "切换到甜品页签成功",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InnkeepingMenuTabDessert",
+                    "InnkeepingMenuTabDessertSelected"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 80,
+            "target": [
+                538,
+                133,
+                664,
+                415
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "InnkeepingMenuDecide"
+        ]
+    },
+    "InnkeepingMenuSwitchTabSoup": {
+        "desc": "切换到汤羹页签",
+        "max_hit": 1,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InnkeepingMenuTabSoup"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 100,
+        "next": [
+            "InnkeepingMenuSwitchTabSoupSuccess"
+        ]
+    },
+    "InnkeepingMenuSwitchTabSoupSuccess": {
+        "desc": "切换到汤羹页签成功",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InnkeepingMenuTabSoup",
+                    "InnkeepingMenuTabSoupSelected"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 80,
+            "target": [
+                538,
+                133,
+                664,
+                415
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "InnkeepingMenuDecide"
+        ]
+    },
+    "InnkeepingMenuSwitchTabDrinks": {
+        "desc": "切换到饮品页签",
+        "max_hit": 1,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InnkeepingMenuTabDrinks"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 100,
+        "next": [
+            "InnkeepingMenuSwitchTabDrinksSuccess"
+        ]
+    },
+    "InnkeepingMenuSwitchTabDrinksSuccess": {
+        "desc": "切换到饮品页签成功",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InnkeepingMenuTabDrinks",
+                    "InnkeepingMenuTabDrinksSelected"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 80,
+            "target": [
+                538,
+                133,
+                664,
+                415
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "InnkeepingMenuDecide"
+        ]
+    },
+    // =========================================================================
+    // 在当前页签决策
+    // =========================================================================
+    "InnkeepingMenuDecide": {
+        "desc": "[运行时覆盖]识别当前页签与菜品数量，决策下一个卡片位置，或结束本页签",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "InnkeepingMenuRecognition"
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "InnkeepingMenuDecide"
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            // 运行时覆盖：CheckCard | 空（结束本页签）
+            "InnkeepingMenuCheckCard",
+            // 若目标位置识别不到菜品
+            "InnkeepingMenuDecide"
+        ]
+    },
+    "InnkeepingMenuCheckCard": {
+        "desc": "[运行时覆盖]校验目标卡片",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InnkeepingMenuCardPositionAnchor",
+                    "InnkeepingMenuCardIconRecognition",
+                    "InnkeepingMenuCardQuantity"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "InnkeepingMenuCheckCard"
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            // 运行时覆盖：PickCard | Decide（数量不足时）
+            "InnkeepingMenuPickCard"
+        ]
+    },
+    "InnkeepingMenuPickCard": {
+        "desc": "点击目标卡片",
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": "InnkeepingMenuCardPositionAnchor",
+                "target_offset": [
+                    120,
+                    10,
+                    -150,
+                    -20
+                ]
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 100,
+        "next": [
+            "InnkeepingMenuPickCardSuccess"
+        ]
+    },
+    "InnkeepingMenuPickCardSuccess": {
+        "desc": "[运行时覆盖]点击目标卡片成功",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InnkeepingMenuDishCount" //运行时覆盖为对应类型
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 80,
+            "target": "InnkeepingMenuCardPositionAnchor",
+            "target_offset": [
+                -50,
+                -50,
+                100,
+                100
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "InnkeepingMenuDecide"
+        ]
+    },
+    // =========================================================================
+    // 点击开始经营
+    // =========================================================================
+    "InnkeepingStartInnkeeping": {
+        "desc": "点击开始经营",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InnkeepingStartInnkeepingButtonText"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 100,
+        "next": [
+            "InnkeepingStartInnkeepingSuccess"
+        ]
+    },
+    "InnkeepingStartInnkeepingSuccess": {
+        "desc": "点击开始经营成功，进入经营状态",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InnkeepingInKeeping"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0
+    }
+}

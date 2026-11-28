@@ -1,0 +1,812 @@
+{
+    // =========================================================================
+    // 主题设定界面
+    // =========================================================================
+    "InnkeepingInThemeSetting": {
+        "desc": "在主题设定界面",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    200,
+                    60
+                ],
+                "expected": [
+                    "主题设定",
+                    "主題設定",
+                    "(?i)Theme\\s*Settings",
+                    "テーマ設定",
+                    "테마 설정"
+                ]
+            }
+        }
+    },
+    "InnkeepingPatronCount": {
+        "desc": "右上角客源数量",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1083,
+                    15,
+                    111,
+                    29
+                ],
+                // 完整数值格式为当前客源/客源上限，例如 310/1000。
+                "expected": [
+                    // @i18n-skip
+                    "^\\s*[0-9]+\\s*/\\s*[0-9]+\\s*$"
+                ]
+            }
+        }
+    },
+    "InnkeepingTargetTheme": {
+        "desc": "在主题设定界面，找到左侧列表中的目标主题",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    70,
+                    90,
+                    430,
+                    590
+                ],
+                "roi_offset": [
+                    0,
+                    0,
+                    0,
+                    -40
+                ],
+                "expected": [
+                    "席间小酌",
+                    "Drinking Social",
+                    "宴に一献",
+                    "반주 한 잔",
+                    "席間小酌"
+                ]
+            }
+        }
+    },
+    "InnkeepingTargetThemeSelected": {
+        "desc": "在主题设定界面，确认目标主题已选中",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    510,
+                    80,
+                    200,
+                    60
+                ],
+                "expected": [
+                    "席间小酌",
+                    "Drinking Social",
+                    "宴に一献",
+                    "반주 한 잔",
+                    "席間小酌"
+                ]
+            }
+        }
+    },
+    "InnkeepingOpenInnSettingsButtonText": {
+        "desc": "主题设定界面右下角的「正式经营」按钮文本",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1000,
+                    640,
+                    210,
+                    45
+                ],
+                "expected": [
+                    "正式经营",
+                    "Open the Inn",
+                    "営業開始",
+                    "정식 운영",
+                    "正式經營"
+                ]
+            }
+        }
+    },
+    // =========================================================================
+    // 营业设定界面
+    // =========================================================================
+    "InnkeepingInInnSetting": {
+        "desc": "在营业设定界面",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    200,
+                    60
+                ],
+                "expected": [
+                    "营业设定",
+                    "(?i)Inn\\s*Settings",
+                    "営業管理",
+                    "운영 설정",
+                    "營業設定"
+                ]
+            }
+        }
+    },
+    "InnkeepingResetChefsButton": {
+        "desc": "营业设定界面右下角的重置菜单按钮",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    916,
+                    601,
+                    119,
+                    119
+                ],
+                "template": [
+                    "YuanyuanManor/Innkeeping/ResetChefs.png"
+                ],
+                "threshold": 0.9
+            }
+        }
+    },
+    "InnkeepingOpenMenuDesignButtonText": {
+        "desc": "营业设定界面右下角的设定菜单按钮文本",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1010,
+                    640,
+                    210,
+                    45
+                ],
+                "expected": [
+                    "设定菜单",
+                    "Set Menu",
+                    "メニューを設定",
+                    "메뉴 설정",
+                    "設定菜單"
+                ]
+            }
+        }
+    },
+    "InnkeepingChefsClear": {
+        "desc": "在营业设定界面，三个厨房内均没有干员",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InnkeepingKitchen1Clear",
+                    "InnkeepingKitchen2Clear",
+                    "InnkeepingKitchen3Clear"
+                ]
+            }
+        }
+    },
+    "InnkeepingKitchen1Clear": {
+        "desc": "在营业设定界面，1 号厨房内没有干员",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    552,
+                    362,
+                    200,
+                    42
+                ],
+                "expected": [
+                    "安排干员",
+                    "Assign Operator",
+                    "メンバー追加",
+                    "오퍼레이터 배치",
+                    "安排幹員"
+                ]
+            }
+        }
+    },
+    "InnkeepingKitchen2Clear": {
+        "desc": "在营业设定界面，2 号厨房内没有干员",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    775,
+                    362,
+                    200,
+                    42
+                ],
+                "expected": [
+                    "安排干员",
+                    "Assign Operator",
+                    "メンバー追加",
+                    "오퍼레이터 배치",
+                    "安排幹員"
+                ]
+            }
+        }
+    },
+    "InnkeepingKitchen3Clear": {
+        "desc": "在营业设定界面，3 号厨房内没有干员",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1001,
+                    362,
+                    200,
+                    42
+                ],
+                "expected": [
+                    "安排干员",
+                    "Assign Operator",
+                    "メンバー追加",
+                    "오퍼레이터 배치",
+                    "安排幹員"
+                ]
+            }
+        }
+    },
+    // =========================================================================
+    // 营业设定-厨房
+    // =========================================================================
+    "InnkeepingInKitchen": {
+        "desc": "在营业设定的二级界面厨房内",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    25,
+                    640,
+                    135,
+                    35
+                ],
+                "expected": [
+                    "厨房进驻干员",
+                    "Operator Chefs",
+                    "キッチン配属",
+                    "주방에 배치한 오퍼레이터",
+                    "廚房進駐幹員"
+                ]
+            }
+        }
+    },
+    "InnkeepingKitchenOperatorCount1": {
+        "desc": "厨房界面左下角干员数量 1/2",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    170,
+                    640,
+                    110,
+                    40
+                ],
+                "expected": [
+                    "1/2"
+                ]
+            }
+        }
+    },
+    "InnkeepingKitchenOperatorCount2": {
+        "desc": "厨房界面左下角干员数量 2/2",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    170,
+                    640,
+                    110,
+                    40
+                ],
+                "expected": [
+                    "2/2"
+                ]
+            }
+        }
+    },
+    // =========================================================================
+    // 菜单设定界面
+    // =========================================================================
+    "InnkeepingInMenuDesign": {
+        "desc": "在菜单设定界面",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    76,
+                    607,
+                    61,
+                    72
+                ],
+                "expected": [
+                    "菜单总览",
+                    "菜單總覽",
+                    "Overview",
+                    "メニュー",
+                    "전체 메뉴"
+                ]
+            }
+        }
+    },
+    "InnkeepingStartInnkeepingButtonText": {
+        "desc": "菜单设定界面右下角的正式开始经营按钮文本",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    985,
+                    630,
+                    230,
+                    45
+                ],
+                "expected": [
+                    "开始经营",
+                    "開始經營",
+                    "Open the Inn",
+                    "営業開始",
+                    "운영 시작하기"
+                ]
+            }
+        }
+    },
+    "InnkeepingMenuDishCount": {
+        "desc": "[运行时覆盖]菜单设定界面左下角的已选菜品数量",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    158,
+                    654,
+                    61,
+                    20
+                ],
+                "expected": "[0-8]/8" // 覆盖为点击成功后的目标值
+            }
+        }
+    },
+    "InnkeepingMenuDrinksCount": {
+        "desc": "[运行时覆盖]菜单设定界面左下角的已选饮品数量",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    259,
+                    654,
+                    61,
+                    20
+                ],
+                "expected": "[0-8]/8" // 覆盖为点击成功后的目标值
+            }
+        }
+    },
+    "InnkeepingMenuCardIconRecognition": {
+        "desc": "识别菜品卡片上的菜品图标。",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "IconRecognition",
+                "custom_recognition_param": {
+                    "grid_type": "single_roi",
+                    "item_filters": [
+                        "YuanyuanManor:*",
+                        "Normal:Usable"
+                    ]
+                },
+                "roi": "InnkeepingMenuCardPositionAnchor",
+                "roi_offset": [
+                    34,
+                    14,
+                    -243,
+                    -29
+                ]
+            }
+        }
+    },
+    "InnkeepingMenuCardQuantity": {
+        "desc": "识别菜品卡片左下角数量",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "InnkeepingMenuCardPositionAnchor",
+                "roi_offset": [
+                    0,
+                    60,
+                    -200,
+                    -60
+                ],
+                "expected": [
+                    "\\d+"
+                ]
+            }
+        }
+    },
+    "InnkeepingMenuCardPositionAnchor": {
+        "desc": "[运行时覆盖]菜品卡片 ROI 区域"
+    },
+    "InnkeepingMenuCard1Position": {
+        "desc": "菜单设定界面，右侧菜品卡片 1 位置",
+        "roi": [
+            552,
+            134,
+            307,
+            93
+        ]
+    },
+    "InnkeepingMenuCard2Position": {
+        "desc": "菜单设定界面，右侧菜品卡片 2 位置",
+        "roi": [
+            870,
+            134,
+            307,
+            93
+        ]
+    },
+    "InnkeepingMenuCard3Position": {
+        "desc": "菜单设定界面，右侧菜品卡片 3 位置",
+        "roi": [
+            552,
+            239,
+            307,
+            93
+        ]
+    },
+    "InnkeepingMenuCard4Position": {
+        "desc": "菜单设定界面，右侧菜品卡片 4 位置",
+        "roi": [
+            870,
+            239,
+            307,
+            93
+        ]
+    },
+    "InnkeepingMenuCard5Position": {
+        "desc": "菜单设定界面，右侧菜品卡片 5 位置",
+        "roi": [
+            552,
+            344,
+            307,
+            93
+        ]
+    },
+    "InnkeepingMenuCard6Position": {
+        "desc": "菜单设定界面，右侧菜品卡片 6 位置",
+        "roi": [
+            870,
+            344,
+            307,
+            93
+        ]
+    },
+    "InnkeepingMenuCard7Position": {
+        "desc": "菜单设定界面，右侧菜品卡片 7 位置",
+        "roi": [
+            552,
+            450,
+            307,
+            93
+        ]
+    },
+    "InnkeepingMenuCard8Position": {
+        "desc": "菜单设定界面，右侧菜品卡片 8 位置",
+        "roi": [
+            870,
+            450,
+            307,
+            93
+        ]
+    },
+    // =========================================================================
+    // 菜单设定-筛选
+    // =========================================================================
+    "InnkeepingMenuFilterButton": {
+        "desc": "菜单设定界面右下角的筛选按钮",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    853,
+                    544,
+                    97,
+                    55
+                ],
+                "template": [
+                    "YuanyuanManor/Innkeeping/MenuFilter.png"
+                ],
+                "threshold": 0.9
+            }
+        }
+    },
+    "InnkeepingInMenuFilter": {
+        "desc": "在菜单设定的筛选界面内",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    586,
+                    144,
+                    105,
+                    40
+                ],
+                "expected": [
+                    "(?i)Filter",
+                    "篩選",
+                    "フィルタ",
+                    "필터",
+                    "筛选"
+                ]
+            }
+        }
+    },
+    "InnkeepingMenuFilterQTY": {
+        "desc": "在菜单设定的筛选界面内，找到按「可烹饪数量」排序",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    193,
+                    182,
+                    315,
+                    350
+                ],
+                "expected": [
+                    "可烹饪数量",
+                    "可烹飪數量",
+                    "(?i)Max\\s*Cooking\\s*QTY",
+                    "調理できる数量",
+                    "조리 가능 수량"
+                ]
+            }
+        }
+    },
+    "InnkeepingMenuFilterQTYSelected": {
+        "desc": "用颜色匹配确认「可烹饪数量」已选中",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "InnkeepingMenuFilterQTY",
+                "roi_offset": [
+                    -20,
+                    -10,
+                    160,
+                    20
+                ],
+                "method": 6,
+                "lower": [[180]],
+                "upper": [[255]],
+                "connected": true,
+                "count": 3000
+            }
+        }
+    },
+    // =========================================================================
+    // 菜单设定界面-四种菜品+饮品页签
+    // =========================================================================
+    "InnkeepingMenuTabEntree": {
+        "desc": "菜单设定-主食",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    638,
+                    80,
+                    99,
+                    40
+                ],
+                "expected": [
+                    "Entree",
+                    "主食",
+                    "主食",
+                    "메인",
+                    "主食"
+                ]
+            }
+        }
+    },
+    "InnkeepingMenuTabEntreeSelected": {
+        "desc": "菜单设定-主食-已选中",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "InnkeepingMenuTabEntree",
+                "roi_offset": [
+                    0,
+                    10,
+                    0,
+                    20
+                ],
+                "template": [
+                    "YuanyuanManor/Innkeeping/TabIndicator.png"
+                ],
+                "threshold": 0.8
+            }
+        }
+    },
+    "InnkeepingMenuTabSide": {
+        "desc": "菜单设定-菜肴",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    734,
+                    80,
+                    99,
+                    40
+                ],
+                "expected": [
+                    "Side",
+                    "菜餚",
+                    "副食",
+                    "사이드",
+                    "菜肴"
+                ]
+            }
+        }
+    },
+    "InnkeepingMenuTabSideSelected": {
+        "desc": "菜单设定-菜肴-已选中",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "InnkeepingMenuTabSide",
+                "roi_offset": [
+                    0,
+                    10,
+                    0,
+                    20
+                ],
+                "template": [
+                    "YuanyuanManor/Innkeeping/TabIndicator.png"
+                ],
+                "threshold": 0.8
+            }
+        }
+    },
+    "InnkeepingMenuTabDessert": {
+        "desc": "菜单设定-甜品",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    830,
+                    80,
+                    99,
+                    40
+                ],
+                "expected": [
+                    "Dessert",
+                    "甜品",
+                    "デザート",
+                    "디저트",
+                    "甜品"
+                ]
+            }
+        }
+    },
+    "InnkeepingMenuTabDessertSelected": {
+        "desc": "菜单设定-甜品-已选中",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "InnkeepingMenuTabDessert",
+                "roi_offset": [
+                    0,
+                    10,
+                    0,
+                    20
+                ],
+                "template": [
+                    "YuanyuanManor/Innkeeping/TabIndicator.png"
+                ],
+                "threshold": 0.8
+            }
+        }
+    },
+    "InnkeepingMenuTabSoup": {
+        "desc": "菜单设定-汤羹",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    926,
+                    80,
+                    99,
+                    40
+                ],
+                "expected": [
+                    "Soup",
+                    "湯羹",
+                    "スープ",
+                    "수프",
+                    "汤羹"
+                ]
+            }
+        }
+    },
+    "InnkeepingMenuTabSoupSelected": {
+        "desc": "菜单设定-汤羹-已选中",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "InnkeepingMenuTabSoup",
+                "roi_offset": [
+                    0,
+                    10,
+                    0,
+                    20
+                ],
+                "template": [
+                    "YuanyuanManor/Innkeeping/TabIndicator.png"
+                ],
+                "threshold": 0.8
+            }
+        }
+    },
+    "InnkeepingMenuTabDrinks": {
+        "desc": "菜单设定-饮品",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1095,
+                    80,
+                    108,
+                    40
+                ],
+                "expected": [
+                    "Drinks",
+                    "飲品",
+                    "飲み物",
+                    "음료",
+                    "饮品"
+                ]
+            }
+        }
+    },
+    "InnkeepingMenuTabDrinksSelected": {
+        "desc": "菜单设定-饮品-已选中",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "InnkeepingMenuTabDrinks",
+                "roi_offset": [
+                    0,
+                    10,
+                    0,
+                    20
+                ],
+                "template": [
+                    "YuanyuanManor/Innkeeping/TabIndicator.png"
+                ],
+                "threshold": 0.8
+            }
+        }
+    },
+    // =========================================================================
+    // 经营界面内
+    // =========================================================================
+    "InnkeepingInKeeping": {
+        "desc": "在经营主界面",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    13,
+                    15,
+                    158,
+                    43
+                ],
+                "expected": [
+                    "结束经营",
+                    "結束經營",
+                    "End Session",
+                    "営業終了",
+                    "운영 종료하기"
+                ]
+            }
+        }
+    }
+}

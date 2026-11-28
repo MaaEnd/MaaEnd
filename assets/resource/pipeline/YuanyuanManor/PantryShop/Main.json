@@ -1,0 +1,286 @@
+{
+    "PantryShopMain": {
+        "desc": "堂头小铺任务入口",
+        "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "YuanyuanManorEnterMenuPantryShop"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "PantryShopClickStoreInRegionalDepot",
+            "PantryShopEnsureStoreInRegionalDepot"
+        ]
+    },
+    "PantryShopClickStoreInRegionalDepot": {
+        "desc": "勾选「优先存入地区仓库」",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "PantryShopStoreInRegionalDepotUnchecked"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 100,
+        "next": [
+            "PantryShopEnsureStoreInRegionalDepot"
+        ]
+    },
+    "PantryShopEnsureStoreInRegionalDepot": {
+        "desc": "确保「优先存入地区仓库」已勾选",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "PantryShopStoreInRegionalDepotChecked"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "PantryShopScan"
+        ]
+    },
+    "PantryShopScan": {
+        "desc": "进入购物主流程",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "[JumpBack]PantryShopClickDiscountItem",
+            "[JumpBack]PantryShopRefresh",
+            "EmptyNode" // 退出堂头小铺子任务
+        ]
+    },
+    // 购买单个物品
+    "PantryShopClickDiscountItem": {
+        "desc": "点击折扣物品",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "PantryShopItemDiscountText",
+                    "PantryShopItemAreaColor"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    20,
+                    40,
+                    -40,
+                    -60
+                ]
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 100,
+        "next": [
+            "PantryShopClickDiscountItemSuccess"
+        ]
+    },
+    "PantryShopClickDiscountItemSuccess": {
+        "desc": "点击折扣物品成功，进入购买界面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "YellowConfirmButtonType1"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            // 有点拿不准这边的动画，做个保险
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "PantryShopSlideQuantityMax"
+        ]
+    },
+    "PantryShopSlideQuantityMax": {
+        "desc": "在购买界面，滑动购买数量至最大值",
+        // 省略 recognition
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "BetterSliding",
+                "custom_action_param": {
+                    "Direction": "right"
+                }
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "PantryShopPurchase"
+        ]
+    },
+    "PantryShopPurchase": {
+        "desc": "在购买界面，点击购买",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "YellowConfirmButtonType1"
+                ]
+            }
+        },
+        "pre_delay": 100, // 两次点击之间有最短间隔
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 100,
+        "next": [
+            "PantryShopCloseRewards"
+        ]
+    },
+    "PantryShopCloseRewards": {
+        "desc": "点击购买成功，随后关闭奖励界面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseRewardsButton"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 80,
+            "target": [
+                542,
+                255,
+                196,
+                196
+            ]
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 100,
+        "next": [
+            "PantryShopCloseRewardsSuccess"
+        ]
+    },
+    "PantryShopCloseRewardsSuccess": {
+        "desc": "关闭奖励界面成功，回到堂头小铺主界面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "YuanyuanManorInPantryShop"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    // 执行刷新
+    "PantryShopRefresh": {
+        "desc": "点击刷新按钮",
+        "enabled": false,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "PantryShopRefreshButton"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 100,
+        "next": [
+            "PantryShopConfirmRefresh"
+        ]
+    },
+    "PantryShopConfirmRefresh": {
+        "desc": "确认刷新",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GrayCancelButton",
+                    "YellowConfirmButtonType1"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 100,
+        "next": [
+            "PantryShopRefreshSuccess"
+        ]
+    },
+    "PantryShopRefreshSuccess": {
+        "desc": "刷新成功",
+        "recognition": {
+            "type": "And",
+            "param": {
+                // 返回购买主界面后，到可购买物品真正刷新前，存在一段卡顿时间
+                // 所以必须确认刷新后出现了新的可购买折扣物品
+                "all_of": [
+                    "YuanyuanManorInPantryShop",
+                    "PantryShopItemDiscountText",
+                    "PantryShopItemAreaColor"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0
+    }
+}

@@ -41,7 +41,6 @@ tests/
 - `controller = "CloudWeb"` 时，截图目录为 `tests/MaaEndTestset/CloudWeb/`。
 - `controller = ["Win32", "ADB"]` 时，会分别在两个控制器目录下各执行一轮同样的测试用例。
 - `resource = "官服"` 时，截图目录为 `tests/MaaEndTestset/*/Official_CN/`。
-- 设置 `configs.imageRoot = "RestaurantDaily"` 时，截图目录为 `tests/MaaEndTestset/*/Official_CN/RestaurantDaily/`。
 - `controller` 或 `resource` 只要有一方写成数组，就会按笛卡尔积展开测试矩阵。
 
 如果新增了新的资源服或控制器枚举，除了补测试文件，还要同步更新 `tests/scripts/loader.mts` 中的映射关系（`resourceMap` / `controllerMap`）。
@@ -81,7 +80,6 @@ tests/
 - `name`：测试组名称，可选，但建议填写，方便查看测试输出。
 - `resource`：资源服名称，可以写单个字符串，也可以写字符串数组。当前仓库实际使用的是 `官服`。
 - `controller`：控制器类型，可以写单个字符串，也可以写字符串数组。当前仓库实际使用的是 `Win32`、`ADB` 和 `CloudADB`。
-- `imageRoot`：资源服目录下的可选截图子目录，例如 `RestaurantDaily`。
 
 当 `controller` 或 `resource` 写成数组时，`tests/scripts/loader.mts` 会把同一个测试文件展开为多组测试，并按控制器与资源的笛卡尔积去各自目录取图。
 

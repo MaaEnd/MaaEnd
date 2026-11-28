@@ -1,6 +1,6 @@
 {
     "version": "1.7.2+12026241-3",
-    "sha256": "9d4611c30beaf976c0dfd3ca50023a2c5f1c6d58d732c9cc75171beaa1b7b187",
+    "sha256": "ce7b4a58c9f04e2ef44e8f7517f232389132fe46ff373dc877488e2b555d5275",
     "ap_supply_lt_abs1": {
         "name": "限时理智回复液",
         "nameId": 4074752360504232204,
@@ -23313,7 +23313,7 @@
             "KR": "고기찐빵"
         },
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "type": "InnManagementDish",
         "iconId": "item_inn_dish_1",
@@ -23336,7 +23336,7 @@
             "KR": "찹쌀떡"
         },
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "type": "InnManagementDish",
         "iconId": "item_inn_dish_10",
@@ -23359,7 +23359,7 @@
             "KR": "달걀푸딩"
         },
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "type": "InnManagementDish",
         "iconId": "item_inn_dish_11",
@@ -23382,7 +23382,7 @@
             "KR": "콩 비빔면"
         },
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "type": "InnManagementDish",
         "iconId": "item_inn_dish_12",
@@ -23405,7 +23405,7 @@
             "KR": "필라프"
         },
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "type": "InnManagementDish",
         "iconId": "item_inn_dish_13",
@@ -23428,7 +23428,7 @@
             "KR": "린수 만두"
         },
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "type": "InnManagementDish",
         "iconId": "item_inn_dish_14",
@@ -23451,7 +23451,7 @@
             "KR": "감자튀김"
         },
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "type": "InnManagementDish",
         "iconId": "item_inn_dish_15",
@@ -23474,7 +23474,7 @@
             "KR": "절임채소 린수탕"
         },
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "type": "InnManagementDish",
         "iconId": "item_inn_dish_16",
@@ -23497,7 +23497,7 @@
             "KR": "꼬치구이"
         },
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "type": "InnManagementDish",
         "iconId": "item_inn_dish_17",
@@ -23520,7 +23520,7 @@
             "KR": "린향육슬"
         },
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "type": "InnManagementDish",
         "iconId": "item_inn_dish_18",
@@ -23543,7 +23543,7 @@
             "KR": "팥앙금 찹쌀경단"
         },
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "type": "InnManagementDish",
         "iconId": "item_inn_dish_19",
@@ -23566,7 +23566,7 @@
             "KR": "채소 손칼국수"
         },
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "type": "InnManagementDish",
         "iconId": "item_inn_dish_2",
@@ -23589,7 +23589,7 @@
             "KR": "새콤한 베리푸딩"
         },
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "type": "InnManagementDish",
         "iconId": "item_inn_dish_20",
@@ -23612,7 +23612,7 @@
             "KR": "치즈 크래커"
         },
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "type": "InnManagementDish",
         "iconId": "item_inn_dish_21",
@@ -23635,7 +23635,7 @@
             "KR": "팥앙금 머랭 튀김"
         },
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "type": "InnManagementDish",
         "iconId": "item_inn_dish_22",
@@ -23658,7 +23658,7 @@
             "KR": "마라맛 훈툰"
         },
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "type": "InnManagementDish",
         "iconId": "item_inn_dish_23",
@@ -23681,7 +23681,7 @@
             "KR": "팔보 찹쌀밥"
         },
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "type": "InnManagementDish",
         "iconId": "item_inn_dish_24",
@@ -23704,7 +23704,7 @@
             "KR": "최고급 린수말이"
         },
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "type": "InnManagementDish",
         "iconId": "item_inn_dish_25",
@@ -23727,7 +23727,7 @@
             "KR": "계룡 고기말이"
         },
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "type": "InnManagementDish",
         "iconId": "item_inn_dish_26",
@@ -23750,7 +23750,7 @@
             "KR": "과일 샐러드"
         },
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "type": "InnManagementDish",
         "iconId": "item_inn_dish_27",
@@ -23773,7 +23773,7 @@
             "KR": "마라샹궈"
         },
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "type": "InnManagementDish",
         "iconId": "item_inn_dish_28",
@@ -23796,7 +23796,7 @@
             "KR": "뚝배기 고기 조림"
         },
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "type": "InnManagementDish",
         "iconId": "item_inn_dish_29",
@@ -23819,7 +23819,7 @@
             "KR": "토마토 달걀볶음"
         },
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "type": "InnManagementDish",
         "iconId": "item_inn_dish_3",
@@ -23842,7 +23842,7 @@
             "KR": "불도장"
         },
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "type": "InnManagementDish",
         "iconId": "item_inn_dish_30",
@@ -23865,7 +23865,7 @@
             "KR": "탕수 린수"
         },
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "type": "InnManagementDish",
         "iconId": "item_inn_dish_31",
@@ -23888,7 +23888,7 @@
             "KR": "'흰목이버섯 연밥' 수프"
         },
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "type": "InnManagementDish",
         "iconId": "item_inn_dish_32",
@@ -23911,7 +23911,7 @@
             "KR": "토마토 린수탕"
         },
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "type": "InnManagementDish",
         "iconId": "item_inn_dish_33",
@@ -23934,7 +23934,7 @@
             "KR": "산라탕"
         },
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "type": "InnManagementDish",
         "iconId": "item_inn_dish_34",
@@ -23957,7 +23957,7 @@
             "KR": "월과 고기완자탕"
         },
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "type": "InnManagementDish",
         "iconId": "item_inn_dish_35",
@@ -23980,7 +23980,7 @@
             "KR": "버섯 크림수프"
         },
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "type": "InnManagementDish",
         "iconId": "item_inn_dish_36",
@@ -24003,7 +24003,7 @@
             "KR": "맑은 린수탕"
         },
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "type": "InnManagementDish",
         "iconId": "item_inn_dish_37",
@@ -24026,7 +24026,7 @@
             "KR": "달콤한 베리 화채"
         },
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "type": "InnManagementDish",
         "iconId": "item_inn_dish_38",
@@ -24049,7 +24049,7 @@
             "KR": "비단결 두부탕"
         },
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "type": "InnManagementDish",
         "iconId": "item_inn_dish_39",
@@ -24072,7 +24072,7 @@
             "KR": "홍고추 감자채"
         },
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "type": "InnManagementDish",
         "iconId": "item_inn_dish_4",
@@ -24095,7 +24095,7 @@
             "KR": "황금실 미니 케이크"
         },
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "type": "InnManagementDish",
         "iconId": "item_inn_dish_40",
@@ -24118,7 +24118,7 @@
             "KR": "눈꽃 노른자 월병"
         },
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "type": "InnManagementDish",
         "iconId": "item_inn_dish_41",
@@ -24141,7 +24141,7 @@
             "KR": "과일 버블티"
         },
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "type": "InnManagementDish",
         "iconId": "item_inn_dish_42",
@@ -24164,7 +24164,7 @@
             "KR": "붉은 꽃술 치즈케이크"
         },
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "type": "InnManagementDish",
         "iconId": "item_inn_dish_43",
@@ -24187,7 +24187,7 @@
             "KR": "'한입의 유람'"
         },
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "type": "InnManagementDish",
         "iconId": "item_inn_dish_44",
@@ -24210,7 +24210,7 @@
             "KR": "인연 마을 나물비빔밥"
         },
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "type": "InnManagementDish",
         "iconId": "item_inn_dish_5",
@@ -24233,7 +24233,7 @@
             "KR": "버섯 만두"
         },
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "type": "InnManagementDish",
         "iconId": "item_inn_dish_6",
@@ -24256,7 +24256,7 @@
             "KR": "청경채 보양죽"
         },
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "type": "InnManagementDish",
         "iconId": "item_inn_dish_7",
@@ -24279,7 +24279,7 @@
             "KR": "노릇한 린수 구이"
         },
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "type": "InnManagementDish",
         "iconId": "item_inn_dish_8",
@@ -24302,7 +24302,7 @@
             "KR": "토마토 월과 조림"
         },
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "type": "InnManagementDish",
         "iconId": "item_inn_dish_9",
@@ -24325,7 +24325,7 @@
             "KR": "식수"
         },
         "category": "客栈饮品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Drink",
         "type": "InnManagementInfiniteFood",
         "iconId": "item_inn_drink_water",

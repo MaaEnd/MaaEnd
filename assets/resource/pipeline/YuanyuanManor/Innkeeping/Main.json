@@ -1,0 +1,80 @@
+{
+    "InnkeepingMain": {
+        "desc": "客栈经营入口",
+        "enabled": true,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "YuanyuanManorEnterMenuInnkeeping",
+                        "InnkeepingResetListComplete"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "InnkeepingPatronInsufficient",
+            "InnkeepingThemeScan"
+        ]
+    },
+    "InnkeepingResetListComplete": {
+        "desc": "重置所有 ListComplete 识别的 ready 状态",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "InnkeepingThemeListComplete": {
+                            "attach": {
+                                "ready": false
+                            }
+                        },
+                        "InnkeepingMenuFilterListComplete": {
+                            "attach": {
+                                "ready": false
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0
+    },
+    "InnkeepingPatronInsufficient": {
+        "desc": "判断客源不足，结束客栈经营",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "{InnkeepingPatronCount}<60"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "InnkeepingMain": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "focus": {
+            "Node.Action.Starting": "$task.YuanyuanManor.focus.patronage_insufficient"
+        }
+    }
+}

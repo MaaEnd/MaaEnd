@@ -4993,7 +4993,7 @@
     "item_inn_dish_1": {
         "name": "肉包子",
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "rarity": 2,
         "iconId": "item_inn_dish_1",
@@ -5004,7 +5004,7 @@
     "item_inn_dish_10": {
         "name": "糯米凉糕",
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "rarity": 3,
         "iconId": "item_inn_dish_10",
@@ -5015,7 +5015,7 @@
     "item_inn_dish_11": {
         "name": "鲜奶炖蛋",
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "rarity": 3,
         "iconId": "item_inn_dish_11",
@@ -5026,7 +5026,7 @@
     "item_inn_dish_12": {
         "name": "豌杂拌面",
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "rarity": 4,
         "iconId": "item_inn_dish_12",
@@ -5037,7 +5037,7 @@
     "item_inn_dish_13": {
         "name": "手抓饭",
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "rarity": 4,
         "iconId": "item_inn_dish_13",
@@ -5048,7 +5048,7 @@
     "item_inn_dish_14": {
         "name": "鳞肉水饺",
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "rarity": 4,
         "iconId": "item_inn_dish_14",
@@ -5059,7 +5059,7 @@
     "item_inn_dish_15": {
         "name": "炸薯条",
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "rarity": 4,
         "iconId": "item_inn_dish_15",
@@ -5070,7 +5070,7 @@
     "item_inn_dish_16": {
         "name": "酸菜鳞肉",
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "rarity": 4,
         "iconId": "item_inn_dish_16",
@@ -5081,7 +5081,7 @@
     "item_inn_dish_17": {
         "name": "烤肉串",
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "rarity": 4,
         "iconId": "item_inn_dish_17",
@@ -5092,7 +5092,7 @@
     "item_inn_dish_18": {
         "name": "鳞香肉丝",
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "rarity": 4,
         "iconId": "item_inn_dish_18",
@@ -5103,7 +5103,7 @@
     "item_inn_dish_19": {
         "name": "豆沙汤圆",
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "rarity": 4,
         "iconId": "item_inn_dish_19",
@@ -5114,7 +5114,7 @@
     "item_inn_dish_2": {
         "name": "手擀素面",
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "rarity": 2,
         "iconId": "item_inn_dish_2",
@@ -5125,7 +5125,7 @@
     "item_inn_dish_20": {
         "name": "酸莓布丁",
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "rarity": 4,
         "iconId": "item_inn_dish_20",
@@ -5136,7 +5136,7 @@
     "item_inn_dish_21": {
         "name": "咸酪脆饼",
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "rarity": 4,
         "iconId": "item_inn_dish_21",
@@ -5147,7 +5147,7 @@
     "item_inn_dish_22": {
         "name": "雪绵豆沙",
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "rarity": 4,
         "iconId": "item_inn_dish_22",
@@ -5158,7 +5158,7 @@
     "item_inn_dish_23": {
         "name": "老麻抄手",
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "rarity": 5,
         "iconId": "item_inn_dish_23",
@@ -5169,7 +5169,7 @@
     "item_inn_dish_24": {
         "name": "八宝饭",
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "rarity": 5,
         "iconId": "item_inn_dish_24",
@@ -5180,7 +5180,7 @@
     "item_inn_dish_25": {
         "name": "至臻鳞肉卷",
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "rarity": 5,
         "iconId": "item_inn_dish_25",
@@ -5191,7 +5191,7 @@
     "item_inn_dish_26": {
         "name": "界龙肉卷",
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "rarity": 5,
         "iconId": "item_inn_dish_26",
@@ -5202,7 +5202,7 @@
     "item_inn_dish_27": {
         "name": "果味沙拉",
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "rarity": 5,
         "iconId": "item_inn_dish_27",
@@ -5213,7 +5213,7 @@
     "item_inn_dish_28": {
         "name": "麻辣香锅",
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "rarity": 5,
         "iconId": "item_inn_dish_28",
@@ -5224,7 +5224,7 @@
     "item_inn_dish_29": {
         "name": "坛子肉",
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "rarity": 5,
         "iconId": "item_inn_dish_29",
@@ -5235,7 +5235,7 @@
     "item_inn_dish_3": {
         "name": "番茄炒蛋",
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "rarity": 2,
         "iconId": "item_inn_dish_3",
@@ -5246,7 +5246,7 @@
     "item_inn_dish_30": {
         "name": "福寿全",
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "rarity": 5,
         "iconId": "item_inn_dish_30",
@@ -5257,7 +5257,7 @@
     "item_inn_dish_31": {
         "name": "糖醋宝鳞",
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "rarity": 5,
         "iconId": "item_inn_dish_31",
@@ -5268,7 +5268,7 @@
     "item_inn_dish_32": {
         "name": "“银耳莲子”羹",
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "rarity": 5,
         "iconId": "item_inn_dish_32",
@@ -5279,7 +5279,7 @@
     "item_inn_dish_33": {
         "name": "茄果鳞肉汤",
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "rarity": 5,
         "iconId": "item_inn_dish_33",
@@ -5290,7 +5290,7 @@
     "item_inn_dish_34": {
         "name": "酸辣汤",
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "rarity": 5,
         "iconId": "item_inn_dish_34",
@@ -5301,7 +5301,7 @@
     "item_inn_dish_35": {
         "name": "白瓜肉丸汤",
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "rarity": 5,
         "iconId": "item_inn_dish_35",
@@ -5312,7 +5312,7 @@
     "item_inn_dish_36": {
         "name": "奶油蘑菇汤",
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "rarity": 5,
         "iconId": "item_inn_dish_36",
@@ -5323,7 +5323,7 @@
     "item_inn_dish_37": {
         "name": "白鳞高汤",
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "rarity": 5,
         "iconId": "item_inn_dish_37",
@@ -5334,7 +5334,7 @@
     "item_inn_dish_38": {
         "name": "莓果甜汤",
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "rarity": 5,
         "iconId": "item_inn_dish_38",
@@ -5345,7 +5345,7 @@
     "item_inn_dish_39": {
         "name": "簇锦豆腐羹",
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "rarity": 5,
         "iconId": "item_inn_dish_39",
@@ -5356,7 +5356,7 @@
     "item_inn_dish_4": {
         "name": "红椒土豆丝",
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "rarity": 2,
         "iconId": "item_inn_dish_4",
@@ -5367,7 +5367,7 @@
     "item_inn_dish_40": {
         "name": "金丝小贝",
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "rarity": 5,
         "iconId": "item_inn_dish_40",
@@ -5378,7 +5378,7 @@
     "item_inn_dish_41": {
         "name": "雪纱蛋黄月饼",
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "rarity": 5,
         "iconId": "item_inn_dish_41",
@@ -5389,7 +5389,7 @@
     "item_inn_dish_42": {
         "name": "千果珍珠圆",
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "rarity": 5,
         "iconId": "item_inn_dish_42",
@@ -5400,7 +5400,7 @@
     "item_inn_dish_43": {
         "name": "红蕊奶酪蛋糕",
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "rarity": 5,
         "iconId": "item_inn_dish_43",
@@ -5411,7 +5411,7 @@
     "item_inn_dish_44": {
         "name": "“勺里游”",
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "rarity": 5,
         "iconId": "item_inn_dish_44",
@@ -5422,7 +5422,7 @@
     "item_inn_dish_5": {
         "name": "缘缘菜饭",
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "rarity": 3,
         "iconId": "item_inn_dish_5",
@@ -5433,7 +5433,7 @@
     "item_inn_dish_6": {
         "name": "菌菇蒸饺",
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "rarity": 3,
         "iconId": "item_inn_dish_6",
@@ -5444,7 +5444,7 @@
     "item_inn_dish_7": {
         "name": "青菜养生粥",
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "rarity": 3,
         "iconId": "item_inn_dish_7",
@@ -5455,7 +5455,7 @@
     "item_inn_dish_8": {
         "name": "香煎鳞肉",
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "rarity": 3,
         "iconId": "item_inn_dish_8",
@@ -5466,7 +5466,7 @@
     "item_inn_dish_9": {
         "name": "茄汁白瓜",
         "category": "客栈菜品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Dish",
         "rarity": 3,
         "iconId": "item_inn_dish_9",
@@ -5587,7 +5587,7 @@
     "item_inn_drink_water": {
         "name": "直饮水",
         "category": "客栈饮品",
-        "storageKind": "Restaurant",
+        "storageKind": "YuanyuanManor",
         "categoryType": "Drink",
         "rarity": 1,
         "iconId": "item_inn_drink_water",

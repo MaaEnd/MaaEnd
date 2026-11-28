@@ -49,7 +49,6 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/resource"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pullcount"
 	puzzle "github.com/MaaXYZ/MaaEnd/agent/go-service/puzzle-solver"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/restaurant"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/scenemanager"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/seizedeliveryjobs"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/taskersink/aspectratio"
@@ -60,6 +59,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/trialofswordmancy"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/visitfriends"
 	webevent202605 "github.com/MaaXYZ/MaaEnd/agent/go-service/webevent/202605"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/yuanyuanmanor"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/ziplineimport"
 	"github.com/rs/zerolog/log"
 )
@@ -129,7 +129,7 @@ func registerAll() {
 	ziplineimport.Register()
 	pullcount.Register()
 	trialofswordmancy.Register()
-	restaurant.Register()
+	yuanyuanmanor.Register()
 	countdown.Register()
 	visitfriends.Register()
 	log.Info().

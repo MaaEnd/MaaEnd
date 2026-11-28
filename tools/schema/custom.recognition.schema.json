@@ -26,6 +26,7 @@
                 "ExpressionRecognition",
                 "IconRecognition",
                 "ImageCheckNotPassedRecognition",
+                "InnkeepingMenuRecognition",
                 "IntelArchiveScanDetailRecognition",
                 "IntelArchiveScanItemsRecognition",
                 "ItemDataReady",
