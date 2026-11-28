@@ -280,10 +280,10 @@
         "pre_wait_freezes": {
             "time": 80,
             "target": [
-                0,
-                0,
-                0,
-                0
+                538,
+                133,
+                664,
+                415
             ]
         },
         "pre_delay": 0,
