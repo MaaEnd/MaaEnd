@@ -36,7 +36,6 @@
         ],
         "expected": [
             // 一键领取
-            // @i18n-skip
             "键领取",
             "快速領取",
             "(?i)Claim\\s*All",
@@ -62,7 +61,6 @@
         ],
         "expected": [
             // 武器领取的NEW
-            // @i18n-skip
             "NEW"
         ],
         "pre_delay": 1000, // 防止动画一直在动

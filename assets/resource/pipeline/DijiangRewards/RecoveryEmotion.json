@@ -798,7 +798,6 @@
                 "roi": "[Anchor]RecoveryEmotionCurrentOperator",
                 // 完整原文：培养舱 I；保留编号 I 常见的 1 OCR 变体，仍匹配完整舱名。
                 "expected": [
-                    // @i18n-skip
                     "培养舱 I",
                     "培养舱I",
                     "培养舱Ⅰ",
@@ -835,7 +834,6 @@
                 "roi": "[Anchor]RecoveryEmotionCurrentOperator",
                 // 完整原文：制造舱 I；保留编号 I 常见的 1 OCR 变体，仍匹配完整舱名。
                 "expected": [
-                    // @i18n-skip
                     "制造舱 I",
                     "制造舱I",
                     "制造舱Ⅰ",

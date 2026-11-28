@@ -391,7 +391,6 @@
                     56
                 ],
                 // OCR full-text example: -95%
-                // @i18n-skip
                 "expected": [
                     "-\\d+%"
                 ]
@@ -442,7 +441,6 @@
                     56
                 ],
                 // OCR full-text example: -95%
-                // @i18n-skip
                 "expected": [
                     "-\\d+%"
                 ]
@@ -493,7 +491,6 @@
                     56
                 ],
                 // OCR full-text example: -95%
-                // @i18n-skip
                 "expected": [
                     "-\\d+%"
                 ]
@@ -544,7 +541,6 @@
                     56
                 ],
                 // OCR full-text example: -95%
-                // @i18n-skip
                 "expected": [
                     "-\\d+%"
                 ]
@@ -595,7 +591,6 @@
                     56
                 ],
                 // OCR full-text example: -95%
-                // @i18n-skip
                 "expected": [
                     "-\\d+%"
                 ]
@@ -646,7 +641,6 @@
                     56
                 ],
                 // OCR full-text example: -95%
-                // @i18n-skip
                 "expected": [
                     "-\\d+%"
                 ]
@@ -697,7 +691,6 @@
                     56
                 ],
                 // OCR full-text example: -95%
-                // @i18n-skip
                 "expected": [
                     "-\\d+%"
                 ]
@@ -748,7 +741,6 @@
                     56
                 ],
                 // OCR full-text example: -95%
-                // @i18n-skip
                 "expected": [
                     "-\\d+%"
                 ]
@@ -799,7 +791,6 @@
                     56
                 ],
                 // OCR full-text example: -95%
-                // @i18n-skip
                 "expected": [
                     "-\\d+%"
                 ]
@@ -850,7 +841,6 @@
                     56
                 ],
                 // OCR full-text example: -95%
-                // @i18n-skip
                 "expected": [
                     "-\\d+%"
                 ]
@@ -901,7 +891,6 @@
                     56
                 ],
                 // OCR full-text example: -95%
-                // @i18n-skip
                 "expected": [
                     "-\\d+%"
                 ]
@@ -952,7 +941,6 @@
                     56
                 ],
                 // OCR full-text example: -95%
-                // @i18n-skip
                 "expected": [
                     "-\\d+%"
                 ]
@@ -1003,7 +991,6 @@
                     56
                 ],
                 // OCR full-text example: -95%
-                // @i18n-skip
                 "expected": [
                     "-\\d+%"
                 ]
@@ -1054,7 +1041,6 @@
                     56
                 ],
                 // OCR full-text example: -95%
-                // @i18n-skip
                 "expected": [
                     "-\\d+%"
                 ]

@@ -279,7 +279,6 @@
         "recognition": "OCR",
         "roi": "IntelArchiveIncidentInvestigationTextColor",
         "expected": [
-            // @i18n-skip
             ".{2,}"
         ],
         "only_rec": true,

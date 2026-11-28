@@ -13,7 +13,6 @@
                 "expected": [
                     // 基质愿望单
                     // 离开
-                    // @i18n-skip
                     "基质愿望单",
                     "离开"
                 ],
@@ -38,7 +37,6 @@
                 "expected": [
                     // 基質願望清單
                     // 離開
-                    // @i18n-skip
                     "基質願望清單",
                     "離開"
                 ],
@@ -63,7 +61,6 @@
                 "expected": [
                     // Essence Wishlist
                     // Leave
-                    // @i18n-skip
                     "Essence Wishlist",
                     "Leave"
                 ],
@@ -88,7 +85,6 @@
                 "expected": [
                     // 基質厳選リスト
                     // 立ち去る
-                    // @i18n-skip
                     "基質厳選リスト",
                     "立ち去る"
                 ],
@@ -113,7 +109,6 @@
                 "expected": [
                     // 기질 찜 목록
                     // 떠나기
-                    // @i18n-skip
                     "기질 찜 목록",
                     "떠나기"
                 ],

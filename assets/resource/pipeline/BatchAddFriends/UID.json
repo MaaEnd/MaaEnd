@@ -181,7 +181,6 @@
                 ],
                 "expected": [
                     "等待接受",
-                    // @i18n-skip
                     "(?i).*Approval.*", // 原文：Waiting for Approval
                     "承認待ち"
                 ],

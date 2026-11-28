@@ -116,7 +116,6 @@
                 ],
                 // 完整原文：协议圆盘组；協議圓盤組；Protoset；協約ディスクセット；프로토콜 디스크 세트
                 "expected": [
-                    // @i18n-skip
                     "^协议圆盘组$",
                     "^協議圓盤組$",
                     "(?i)^Protoset$",
@@ -173,7 +172,6 @@
                 ],
                 // 完整原文：协议棱柱；協議稜柱；Protoprism；協約角柱；프로토콜 프리즘
                 "expected": [
-                    // @i18n-skip
                     "^协议棱柱$",
                     "^協議稜柱$",
                     "(?i)^Protoprism$",
@@ -230,7 +228,6 @@
                 ],
                 // 完整原文：协议棱柱组；協議稜柱組；Protohedron；協約角柱セット；프로토콜 프리즘 세트
                 "expected": [
-                    // @i18n-skip
                     "^协议棱柱组$",
                     "^協議稜柱組$",
                     "(?i)^Protohedron$",
@@ -287,7 +284,6 @@
                 ],
                 // 完整原文：超距辉映管；超距輝映管；Metadiastima Photoemission Tube；超距離分光管；초거리 빛 반사 파이프
                 "expected": [
-                    // @i18n-skip
                     "^超距辉映管$",
                     "^超距輝映管$",
                     "(?i)^Metadiastima\\s*Photoemission\\s*Tube$",
@@ -344,7 +340,6 @@
                 ],
                 // 完整原文：D96钢样品四；D96鋼樣品四；D96 Steel Sample 4；D96鋼試料Ⅳ；D96강 시제품 4번
                 "expected": [
-                    // @i18n-skip
                     "^D96钢样品四$",
                     "^D96鋼樣品四$",
                     "(?i)^D96\\s*Steel\\s*Sample\\s*4$",
@@ -401,7 +396,6 @@
                 ],
                 // 完整原文：快子遴捡晶格；迅子遴撿晶格；Tachyon Screening Lattice；タキオン精選格子；타키온 차폐 구조체
                 "expected": [
-                    // @i18n-skip
                     "^快子遴捡晶格$",
                     "^迅子遴撿晶格$",
                     "(?i)^Tachyon\\s*Screening\\s*Lattice$",
@@ -458,7 +452,6 @@
                 ],
                 // 完整原文：象限拟合液；象限擬合液；Quadrant Fitting Fluid；象限適合液；정합용 유체
                 "expected": [
-                    // @i18n-skip
                     "^象限拟合液$",
                     "^象限擬合液$",
                     "(?i)^Quadrant\\s*Fitting\\s*Fluid$",
@@ -515,7 +508,6 @@
                 ],
                 // 完整原文：跃迁浆体涂片；躍遷漿體塗片；Warp Plasma-Coated Slide；遷移スラリー塗抹標本；도약 교질 도말 표본
                 "expected": [
-                    // @i18n-skip
                     "^跃迁浆体涂片$",
                     "^躍遷漿體塗片$",
                     "(?i)^Warp\\s*Plasma-Coated\\s*Slide$",
@@ -572,7 +564,6 @@
                 ],
                 // 完整原文：初级作战记录；初級作戰紀錄；Elementary Combat Record；初級作戦記録；초급 작전 기록
                 "expected": [
-                    // @i18n-skip
                     "^初级作战记录$",
                     "^初級作戰紀錄$",
                     "(?i)^Elementary\\s*Combat\\s*Record$",
@@ -629,7 +620,6 @@
                 ],
                 // 完整原文：初级认知载体；初級認知載體；Elementary Cognitive Carrier；初級認識媒体；초급 인지 매개체
                 "expected": [
-                    // @i18n-skip
                     "^初级认知载体$",
                     "^初級認知載體$",
                     "(?i)^Elementary\\s*Cognitive\\s*Carrier$",
@@ -686,7 +676,6 @@
                 ],
                 // 完整原文：折金票；T-Creds；折金券；탈로시안 화폐
                 "expected": [
-                    // @i18n-skip
                     "^折金票$",
                     "(?i)^T-Creds$",
                     "^折金券$",
@@ -742,7 +731,6 @@
                 ],
                 // 完整原文：重型强固模具；重型強固模具；Heavy Cast Die；重硬質金型；중형 모형 틀
                 "expected": [
-                    // @i18n-skip
                     "^重型强固模具$",
                     "^重型強固模具$",
                     "(?i)^Heavy\\s*Cast\\s*Die$",
@@ -799,7 +787,6 @@
                 ],
                 // 完整原文：强固模具；強固模具；Cast Die；硬質金型；모형 틀
                 "expected": [
-                    // @i18n-skip
                     "^强固模具$",
                     "^強固模具$",
                     "(?i)^Cast\\s*Die$",
@@ -856,7 +843,6 @@
                 ],
                 // 完整原文：武器检查套组；武器檢查套組；Arms INSP Set；武器検査ボックス；무기 점검 세트；武器检查装置；武器檢查裝置；Arms INSP Kit；武器検査セット；무기 점검 장치；武器检查单元；武器檢查單元；Arms Inspector；武器検査ユニット；무기 점검 유닛
                 "expected": [
-                    // @i18n-skip
                     "^武器检查套组$",
                     "^武器檢查套組$",
                     "(?i)^Arms\\s*INSP\\s*Set$",

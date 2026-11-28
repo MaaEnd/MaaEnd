@@ -67,7 +67,6 @@
                 ],
                 "expected": [
                     // 高阶套组装备
-                    // @i18n-skip
                     "高阶套组",
                     "高階套組",
                     "(?i)Advanced\\s*Set",
@@ -105,7 +104,6 @@
                 ],
                 "expected": [
                     // 高阶独立装备
-                    // @i18n-skip
                     "高阶独立",
                     "高階獨立",
                     "(?i)Advanced\\s*Non\\s*-\\s*set",

@@ -14,7 +14,6 @@
                 "expected": [
                     // 文案仅有：在线 / X小时X分钟前在线 / X天X小时前在线；默认 ≥30 天
                     // 「在线」「X小时X分钟前在线」不匹配；仅「N天…前在线」且 N≥30
-                    // @i18n-skip
                     "(?:[3-9]\\d|\\d{3,})天.*前在线"
                 ]
             }
@@ -72,7 +71,6 @@
                 "roi": "BatchDeleteFriendsPropertyFriendNameColor",
                 "expected": [
                     // 确认弹窗好友名任意文本
-                    // @i18n-skip
                     ".+"
                 ],
                 "only_rec": true

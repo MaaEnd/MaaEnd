@@ -863,7 +863,6 @@
                 // 完整原文：《摇摆绅士古典特辑》 / 《搖擺紳士古典特輯》
                 // 货架/购买页长书名常被 OCR 截断，需前缀与截断变体才能稳定命中
                 "expected": [
-                    // @i18n-skip
                     "《摇摆绅士古典特辑》",
                     "《搖擺紳士古典特輯》",
                     "(?i)Der\\s*Schwingende\\s*Gentleman\\s*Classical\\s*Album",

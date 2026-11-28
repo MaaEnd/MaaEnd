@@ -11,7 +11,6 @@
         // 完整文本："日常·紧急抢修" / "日常·緊急搶修" / "Daily: Emergency Repairs" / "日常・緊急修理" / "일상 · 긴급 수리"
         // 中点常被 OCR 认成别的点号或漏掉，去掉「日常」和中点只认后半段
         "expected": [
-            // @i18n-skip
             "紧急抢修",
             "緊急搶修",
             "(?i)Emergency\\s*Repairs",
@@ -67,7 +66,6 @@
         // 完整文本："日常·紧急抢修" / "日常·緊急搶修" / "Daily: Emergency Repairs" / "日常・緊急修理" / "일상 · 긴급 수리"
         // 中点常被 OCR 认成别的点号或漏掉，去掉「日常」和中点只认后半段
         "expected": [
-            // @i18n-skip
             "紧急抢修",
             "緊急搶修",
             "(?i)Emergency\\s*Repairs",

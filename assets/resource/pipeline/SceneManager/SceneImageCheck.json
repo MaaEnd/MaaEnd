@@ -144,7 +144,6 @@
         ],
         // 激活 Windows
         "expected": [
-            // @i18n-skip
             "[Ww]indows"
         ],
         "pre_delay": 0,
@@ -183,7 +182,6 @@
         ],
         "expected": [
             // 是否退出至登录界面
-            // @i18n-skip
             "是否退出至登录界面"
         ],
         "pre_delay": 0,
@@ -264,7 +262,6 @@
         ],
         "expected": [
             // UID，怕I正确率低，只识别D
-            // @i18n-skip
             "D"
         ],
         "pre_delay": 0,
