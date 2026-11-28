@@ -1,0 +1,19 @@
+{
+    "__CharacterControllerDeltaSwipeAction": {
+        "desc": "云终末地网页版镜头旋转：使用侧键 1 拖动以通过 InputBridge 转发并保留位移",
+        "only_hover": false,
+        "contact": 3
+    },
+    "__CharacterControllerDeltaClickCenterAction": {
+        "desc": "云终末地网页版无需 Alt 回中，空动作",
+        "action": "DoNothing"
+    },
+    "__CharacterControllerDeltaAltKeyDownAction": {
+        "desc": "云终末地网页版无需 Alt 回中，空动作",
+        "action": "DoNothing"
+    },
+    "__CharacterControllerDeltaAltKeyUpAction": {
+        "desc": "云终末地网页版无需 Alt 回中，空动作",
+        "action": "DoNothing"
+    }
+}

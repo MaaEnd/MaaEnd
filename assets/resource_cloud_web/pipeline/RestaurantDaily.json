@@ -1,0 +1,55 @@
+{
+    // 云终末地网页版 Scroll（WM_MOUSEWHEEL）不移动远端光标且无法滚动主题/筛选列表，改为左键拖拽 Swipe
+    "RestaurantThemeScrollUp": {
+        "action": "Swipe",
+        "begin": [
+            285,
+            220
+        ],
+        "end": [
+            285,
+            560
+        ],
+        "end_hold": 300,
+        "duration": 300
+    },
+    "RestaurantThemeScrollUpAfterUnchanged": {
+        "action": "Swipe",
+        "begin": [
+            285,
+            220
+        ],
+        "end": [
+            285,
+            560
+        ],
+        "end_hold": 300,
+        "duration": 300
+    },
+    "RestaurantThemeScrollDown": {
+        "action": "Swipe",
+        "begin": [
+            285,
+            560
+        ],
+        "end": [
+            285,
+            220
+        ],
+        "end_hold": 300,
+        "duration": 300
+    },
+    "RestaurantMenuFilterScrollDown": {
+        "action": "Swipe",
+        "begin": [
+            350,
+            460
+        ],
+        "end": [
+            350,
+            240
+        ],
+        "end_hold": 300,
+        "duration": 300
+    }
+}
