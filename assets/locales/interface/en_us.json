@@ -6,6 +6,8 @@
     "controller.CloudADB.label": "Cloud Endfield (ADB) (Beta)",
     "controller.CloudWeb.description": "For the Cloud Endfield web version, running in MaaEnd's built-in web shell; works in the background. Log in and enter the game in the shell window first. Currently under testing.",
     "controller.CloudWeb.label": "Cloud Endfield (Web) (Beta)",
+    "controller.CloudWebGamescope.description": "For the Cloud Endfield web version; set up and log into a 1280x720 Gamescope browser session yourself. Currently under testing.",
+    "controller.CloudWebGamescope.label": "Cloud Endfield (Web, Gamescope) (Beta)",
     "controller.Linux-Gamescope.description": "For Gamescope.",
     "controller.Linux-Gamescope.label": "Linux-Gamescope",
     "controller.Linux-ScreenCast.description": "Recommended only as a fallback when wlroots and Gamescope are unavailable. The game must run fullscreen on the display; the user needs input permissions.",

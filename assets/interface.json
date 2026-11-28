@@ -56,6 +56,22 @@
             }
         },
         {
+            "name": "CloudWebGamescope",
+            "label": "$controller.CloudWebGamescope.label",
+            "description": "$controller.CloudWebGamescope.description",
+            "type": "Linux",
+            "attach_resource_path": [
+                "./resource_cloud",
+                "./resource_cloud_web"
+            ],
+            "linux": {
+                "input": "Libei",
+                "screencap": "PipeWire",
+                "pipewire_source": "Gamescope",
+                "use_win32_vk_code": true
+            }
+        },
+        {
             "name": "ADB",
             "label": "$controller.ADB.label",
             "description": "$controller.ADB.description",

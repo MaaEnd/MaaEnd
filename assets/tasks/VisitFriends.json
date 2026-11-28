@@ -13,6 +13,7 @@
                 "CloudADB",
                 // TODO: CloudWeb 下制造舱图标模板匹配只有 0.89（阈值 0.9），助力制造舱被跳过，修复后再启用
                 // "CloudWeb",
+                "CloudWebGamescope",
                 "Linux-Gamescope",
                 "Linux-ScreenCast",
                 "Linux-Wlroots",
