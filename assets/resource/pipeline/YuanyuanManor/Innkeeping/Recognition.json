@@ -411,5 +411,208 @@
                 "count": 3000
             }
         }
+    },
+    // =========================================================================
+    // 菜单设定界面-四种菜品+饮品页签
+    // =========================================================================
+    "InnkeepingMenuTabEntree": {
+        "desc": "菜单设定-主食",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    638,
+                    80,
+                    99,
+                    40
+                ],
+                "expected": [
+                    "Entree",
+                    "主食",
+                    "主食",
+                    "메인",
+                    "主食"
+                ]
+            }
+        }
+    },
+    "InnkeepingMenuTabEntreeSelected": {
+        "desc": "菜单设定-主食-已选中",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "InnkeepingMenuTabEntree",
+                "roi_offset": [
+                    0,
+                    10,
+                    0,
+                    20
+                ],
+                "template": [
+                    "YuanyuanManor/Innkeeping/TabIndicator.png"
+                ],
+                "threshold": 0.8
+            }
+        }
+    },
+    "InnkeepingMenuTabSide": {
+        "desc": "菜单设定-菜肴",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    734,
+                    80,
+                    99,
+                    40
+                ],
+                "expected": [
+                    "Side",
+                    "菜餚",
+                    "副食",
+                    "사이드",
+                    "菜肴"
+                ]
+            }
+        }
+    },
+    "InnkeepingMenuTabSideSelected": {
+        "desc": "菜单设定-菜肴-已选中",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "InnkeepingMenuTabSide",
+                "roi_offset": [
+                    0,
+                    10,
+                    0,
+                    20
+                ],
+                "template": [
+                    "YuanyuanManor/Innkeeping/TabIndicator.png"
+                ],
+                "threshold": 0.8
+            }
+        }
+    },
+    "InnkeepingMenuTabDessert": {
+        "desc": "菜单设定-甜品",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    830,
+                    80,
+                    99,
+                    40
+                ],
+                "expected": [
+                    "Dessert",
+                    "甜品",
+                    "デザート",
+                    "디저트",
+                    "甜品"
+                ]
+            }
+        }
+    },
+    "InnkeepingMenuTabDessertSelected": {
+        "desc": "菜单设定-甜品-已选中",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "InnkeepingMenuTabDessert",
+                "roi_offset": [
+                    0,
+                    10,
+                    0,
+                    20
+                ],
+                "template": [
+                    "YuanyuanManor/Innkeeping/TabIndicator.png"
+                ],
+                "threshold": 0.8
+            }
+        }
+    },
+    "InnkeepingMenuTabSoup": {
+        "desc": "菜单设定-汤羹",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    926,
+                    80,
+                    99,
+                    40
+                ],
+                "expected": [
+                    "Soup",
+                    "湯羹",
+                    "スープ",
+                    "수프",
+                    "汤羹"
+                ]
+            }
+        }
+    },
+    "InnkeepingMenuTabSoupSelected": {
+        "desc": "菜单设定-汤羹-已选中",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "InnkeepingMenuTabSoup",
+                "roi_offset": [
+                    0,
+                    10,
+                    0,
+                    20
+                ],
+                "template": [
+                    "YuanyuanManor/Innkeeping/TabIndicator.png"
+                ],
+                "threshold": 0.8
+            }
+        }
+    },
+    "InnkeepingMenuTabDrinks": {
+        "desc": "菜单设定-饮品",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1095,
+                    80,
+                    108,
+                    40
+                ],
+                "expected": [
+                    "Drinks",
+                    "飲品",
+                    "飲み物",
+                    "음료",
+                    "饮品"
+                ]
+            }
+        }
+    },
+    "InnkeepingMenuTabDrinksSelected": {
+        "desc": "菜单设定-饮品-已选中",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "InnkeepingMenuTabDrinks",
+                "roi_offset": [
+                    0,
+                    10,
+                    0,
+                    20
+                ],
+                "template": [
+                    "YuanyuanManor/Innkeeping/TabIndicator.png"
+                ],
+                "threshold": 0.8
+            }
+        }
     }
 }
