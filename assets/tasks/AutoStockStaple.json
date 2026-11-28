@@ -325,15 +325,6 @@
                         }
                     }
                 }
-            ],
-            "default_case": [
-                "ValleyEngravingPermit",
-                "KunstTube",
-                "JakubsLegacy",
-                "PulledSlugMeat",
-                "HazefyreBlossom",
-                "CartilageTack",
-                "CosmoMeltoJelly"
             ]
         },
         "AutoStockBuyDailyGoodsValleyIVEngravingPermitLimit": {
@@ -597,7 +588,7 @@
                     }
                 }
             ],
-            "default_case": "Any"
+            "default_case": "-50%"
         },
         "AutoStockBuyDailyGoodsValleyIVFoodAndBuffLimit": {
             "type": "input",
@@ -950,7 +941,7 @@
                     }
                 }
             ],
-            "default_case": "Any"
+            "default_case": "-50%"
         },
         "AutoStockBuyStockFactoryGoodsValleyIV": {
             "type": "switch",
@@ -1297,7 +1288,7 @@
                     }
                 }
             ],
-            "default_case": "Any"
+            "default_case": "-50%"
         },
         "AutoStockBuyCulturalGoodsValleyIV": {
             "type": "switch",
@@ -1449,15 +1440,6 @@
                         }
                     }
                 }
-            ],
-            "default_case": [
-                "BreezeOfKjersch",
-                "TidestoneSpecimen",
-                "SimonchShawl",
-                "FrontiersWatch",
-                "AuryleneCamera",
-                "CosmicGatePuzzle",
-                "SurfingFestivalTicket"
             ]
         },
         "AutoStockBuyCulturalGoodsValleyIVGiftLimit": {
@@ -1829,7 +1811,7 @@
                     }
                 }
             ],
-            "default_case": "Any"
+            "default_case": "-50%"
         },
         "AutoStockStapleWuling": {
             "type": "switch",
@@ -2143,9 +2125,6 @@
                         }
                     }
                 }
-            ],
-            "default_case": [
-                "WulingEngravingPermit"
             ]
         },
         "AutoStockBuyDailyGoodsWulingEngravingPermitLimit": {
@@ -2409,7 +2388,7 @@
                     }
                 }
             ],
-            "default_case": "Any"
+            "default_case": "-95%"
         },
         "AutoStockBuyDailyGoodsWulingFoodAndBuffLimit": {
             "type": "input",
@@ -2870,7 +2849,7 @@
                     }
                 }
             ],
-            "default_case": "Any"
+            "default_case": "-50%"
         },
         "AutoStockBuyStockFactoryGoodsWuling": {
             "type": "switch",
@@ -2974,8 +2953,7 @@
             "default_case": [
                 "WulingArtificingCatalyst",
                 "KeenWulingDetector",
-                "KeenWulingCompass",
-                "WulingTalositeProbe"
+                "KeenWulingCompass"
             ]
         },
         "AutoStockBuyStockFactoryGoodsWulingArtificingCatalystLimit": {
@@ -3239,7 +3217,7 @@
                     }
                 }
             ],
-            "default_case": "Any"
+            "default_case": "-90%"
         },
         "AutoStockBuyStockFactoryGoodsWulingDetectorCompassLimit": {
             "type": "input",
@@ -3538,7 +3516,7 @@
                     }
                 }
             ],
-            "default_case": "Any"
+            "default_case": "-75%"
         },
         "AutoStockBuyCulturalGoodsWuling": {
             "type": "switch",
@@ -3842,23 +3820,6 @@
                         }
                     }
                 }
-            ],
-            "default_case": [
-                "EurekaTeabox",
-                "YinglungDumbbells",
-                "WovenAggelos",
-                "ScrimshawOfThePack",
-                "FinNChips",
-                "BizarroCupcake",
-                "ChubbyLungFangxingMemorabilia",
-                "FowlbeastPaperKite",
-                "SwingingGentlemanClassicalAlbum",
-                "MyrkwoodBerryPreserve",
-                "MiracleCake",
-                "YuanyuanManorJigsaw",
-                "WoodenSword",
-                "WOWFFLEFusionEvent",
-                "TheUnicity"
             ]
         },
         "AutoStockBuyCulturalGoodsWulingGiftLimit": {
@@ -4374,7 +4335,7 @@
                     }
                 }
             ],
-            "default_case": "Any"
+            "default_case": "-95%"
         },
         "AutoStockStapleStashBackpackSubTask": {
             "type": "switch",

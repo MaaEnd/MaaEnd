@@ -19,7 +19,6 @@ This document was updated on November 4, 2026.
 | `assets/resource/pipeline/AutoStockStaple/General/QuantityControl.json` | Popup branch dispatch, item exclusion, purchase confirmation |
 | `assets/resource/pipeline/AutoStockStaple/General/Template.json` | Common templates for sold-out, stock bills, purchase confirmation, etc. |
 | `assets/resource/pipeline/Interface/InScene/StockStaple.json` | Region and staple goods interface scene recognition |
-| `assets/resource/image/AutoStockStaple/` | Category jump button templates (used to reset the list after sold out) |
 | `assets/resource_adb/pipeline/AutoStockStaple/` | ADB ROI offset mirror (must be checked in sync with Win32) |
 | `agent/go-service/autostockstaple/action.go` | Calculates purchase quantity and drives BetterSliding |
 | `agent/go-service/common/attachregex/action.go` | Merges attach keywords into an OCR whitelist regex |
@@ -33,7 +32,7 @@ This document was updated on November 4, 2026.
 4. Loop scan on the list page, judging sequentially each round:
     - Whether remaining stock bills are [below the retention threshold](#stock-bill-retention-threshold) → stop scanning this region.
     - Whether a [buyable target item is recognized](#item-recognition-chain-and-discount-groups) → click to enter the purchase popup; discount groups are tried in order within the same round.
-    - Whether it is sold out → [reset the list](#resetting-the-list-after-sold-out) and then branch on the top-right balance/cap: when the balance is above the cap it emits a "please spend it manually" notice and ends the region scan.
+    - Whether it is sold out → stop scanning this region.
     - Otherwise, swipe down the list to continue searching, at most 25 swipes per region (`AutoStockSwipe{Region}.max_hit`); still being on the staple page after the budget runs out means the list has reached its end.
 5. Handle the purchase popup according to the [three-branch quantity control](#quantity-control-three-branches): exit due to insufficient stock bills / purchase if under the limit / exclude if the limit is reached.
 6. End after all enabled regions are completed.
@@ -222,16 +221,7 @@ Each group has its own discount threshold controlled by `AutoStockMinDiscount{Re
 - **Numeric tiers** (`-95%` … `-50%`): Rewrite the `expected` of that group's discount node to that tier and deeper discounts (e.g. `-90%` → `-99`, `-95`, `-90`); the OCR must match one of them.
 - **Any**: Replaces that group's discount OCR node entirely by `ColorMatch` (full-range threshold `[0,0,0]`–`[255,255,255]` with `count` defaulting to 1, so any non-empty ROI passes and the presence of a discount color block does not affect the result) — equivalent to buying all selected items of that group without checking the discount.
 
-Tiers list only the discounts that actually occur for staple goods (`-95/-90/-85/-80/-75/-70/-65/-60/-50`); the default tier comes from each group select's `default_case` (every group in both regions currently defaults to "Any", i.e. buy regardless of discount). Items without a discount badge produce no OCR text and never match any numeric tier; select "Any" to buy them.
-
-Default item selections (the `default_case` of each `*Items` checkbox in `assets/tasks/AutoStockStaple.json`) differ per region:
-
-| Region | Default selection |
-| ------------- | ------------------------------------------------------------------------------------------------- |
-| Valley IV | everything (7 consumables, 2 factory goods, 7 cultural goods) |
-| Wuling | only "Wuling Engraving Permit" from consumables, all 4 factory goods and all 16 cultural goods; potions/remedies, food and drinks are not bought by default |
-
-Item names in both tables come from the `zmdmap`-generated `stock_staple.json`; after upstream adds goods, `pnpm generate:AutoStockStaple` only appends nodes and texts and never rewrites these defaults.
+Tiers list only the discounts that actually occur for staple goods (`-95/-90/-85/-80/-75/-70/-65/-60/-50`); the default tier comes from each group select's `default_case` (currently every Valley IV group is `-50%`; in Wuling the engraving permit and cultural goods default to `-95%`, industrial goods to `-75%`, the artificing catalyst to `-90%`, and daily goods to `-50%`). Items without a discount badge produce no OCR text and never match any numeric tier; select "Any" to buy them.
 
 ### 4. Judgment of "Affordability"
 
@@ -255,55 +245,11 @@ After all three match, click the item card (`target_offset: [-45, 85, -30, 0]`),
 
 ### 5. Sold-Out and Swiping
 
-- `AutoStockSoldOut{Region}`: OCR recognizes text like "Sold Out / 已售罄" on the left; once matched, it stops swiping. The sold-out text only appears at the end of the list, so it first [resets the list](#resetting-the-list-after-sold-out) and then [reports whether vouchers overflow](#reporting-overflow-after-sold-out). `max_hit: 1` keeps the branch from firing again when the flow returns to the list.
+- `SoldOut`: OCR recognizes text like "Sold Out / 已售罄" on the left; once matched, it stops swiping.
 - `AutoStockSwipe{Region}`: swipes down within the regional page, `post_wait_freezes` waits for the list area to stabilize before entering the next round of recognition. `max_hit` is `25`, i.e. at most 25 swipes per region; the count accumulates within one task run, and purchase round-trips do not consume it.
-    - The loop has only two exit signals: the sold-out branch reaches the shared `EmptyNode`, or the 25 swipes run out and `AutoStockNoMoreTarget{Region}` catches it (it sits after the swipe node, so it only hits once that node is skipped by `max_hit`), ending the region scan as "list at its end and no matching item".
+    - The loop has only two exit signals: `SoldOut` matches, or the 25 swipes run out and `AutoStockNoMoreTarget{Region}` catches it (it sits after the swipe node, so it only hits once that node is skipped by `max_hit`), ending the region scan as "list at its end and no matching item".
     - So `max_hit` and `AutoStockNoMoreTarget{Region}` must be kept as a pair: together they are the only exit for "swiped everything without a result"; without it the region spins. Raise `max_hit` only when the list is longer than 25 screens.
     - `ListCompleteRecognition` (comparing two consecutive frames to detect the end) briefly replaced this attempt cap: when the swipe itself does not take effect, both frames are equally static, so it mistook "did not scroll" for "reached the end" and skipped a whole screen of the list — hence the revert to an attempt cap.
-
-### Resetting the List after Sold Out
-
-The four small rounded squares on the left are category jump buttons: a dark icon means "not selected", while a bright white one (with the ◀ marker) marks the current category position. Clicking one jumps the list to that category, i.e. it **resets the list to the top**.
-
-Implemented in `ValleyIV.json` / `Wuling.json`; templates live in `assets/resource/image/AutoStockStaple/`:
-
-| Node | Recognition | Purpose |
-| ---------------------------------| ------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| `AutoStockResetListView{Region}` | `TemplateMatch` → `AutoStockStaple/CategoryFirstButton.png` (category 1, unselected) | On a hit, click it to jump back to the first category |
-| `AutoStockResetListViewViaLast{Region}` | `TemplateMatch` → `AutoStockStaple/CategoryLastButton.png` (category 4, unselected) | When category 1 is currently selected, click the last category first so category 1 turns unselected; `next` then returns to the node above to click category 1 |
-
-- The matching ROI is the left strip `[10, 120, 50, 480]`, the templates are 25×25, threshold `0.85`: measured on one screen the four categories score only 0.62–0.67 against each other while the target icon scores `1.0`, so the separation is comfortable.
-- Both nodes sit at the front of `AutoStockSoldOut{Region}.next`. If neither matches (for example on phones with different templates) the flow falls straight through to the branching nodes, behaving as if no reset capability existed.
-- The reset runs before reporting: whether the sold-out branch then reports an overflow or just ends the region, the list has already been brought back to the top.
-
-### Reporting Overflow after Sold Out
-
-Implemented in `ValleyIV.json` / `Wuling.json`; the reading nodes live in `General/Template.json`.
-
-The top-right dispatch voucher reading is `balance/cap` (for example `4504万/4600万`). Both values come from the same line of text:
-
-| Node | Purpose |
-| ----------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| `AutoStockCurrentStockBill` | Balance reading (pre-existing: bright-pixel `CurrentStockBillColor` + colour-filtered `CurrentStockBillText` OCR), reused as is |
-| `CurrentStockBillCapColor` | Wide `ColorMatch` (RGB `140~185` grey band, ROI `[1040,0,220,60]`) that frames the grey `/cap` run |
-| `CurrentStockBillCapText` | OCR on that box with the same colour params as `color_filter`, in detection mode (no `only_rec`), reading text such as `/4600万` |
-| `AutoStockCurrentStockBillCap` | `And` over the two above with `box_index: 1`, mirroring the balance node; the expression references it so the colour node always runs before the OCR consumes its box |
-
-> [!NOTE]
-> The cap is neutral grey (measured RGB ≈ 158/162/161) while the balance is near-white (≈ 239/242/241), so an RGB grey band separates them: the balance and the close button fall outside the range and only `/cap` survives. Do not switch to grey-scale (`method: 6`) — its luminance overlaps the pill background and the match would frame the whole background strip.
-> The OCR runs in detection mode (no `only_rec`), so the detected box tightens to the `/4600万` run by itself; `ocrnum` takes the first number, so the leading slash does not matter.
-> The colour box reaches the OCR through a node-name `roi` reference, which requires the referenced node to have run first — hence the `And` wrapper, identical in shape to `AutoStockCurrentStockBill`. Do not call `CurrentStockBillCapText` on its own.
-
-Branch order: once `AutoStockResetListView{Region}` (or its `ViaLast` variant) has reset the list, `next` attempts, in order
-
-```text
-AutoStockStockBillOverflow{Region}   hits when balance > cap and reports "the excess is not spent automatically, spend it manually"
-  -> the node has no next, so the chain ends and the task moves on to the next region
-EmptyNode                            balance within the cap; shared catch-all that ends the region scan
-```
-
-- This branch **only reports, it never acts**: it does not rewrite the reserve, does not click, and never touches the saved option value. Buying still follows the Reserved dispatch vouchers option; the player spends the overflow manually.
-- If the cap reading fails (for example a narrower top-right area on phones clips it), `ExpressionRecognition` does not match and the flow falls through to the shared `EmptyNode`, i.e. the previous behaviour.
 
 ## Quantity Control (Purchase Popup)
 
