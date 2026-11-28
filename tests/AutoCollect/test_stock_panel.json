@@ -1,0 +1,81 @@
+{
+    "configs": {
+        "name": "自动采集稀有采集物区与稀有矿物区存量面板",
+        "resource": "官服",
+        "controller": "Win32",
+        "imageRoot": "AutoCollect"
+    },
+    "cases": [
+        {
+            "name": "存量 0/8，本轮跳过",
+            "image": "武陵城_稀有采集物区_存量为零.png",
+            "hits": [
+                "AutoCollectStockPanelCount",
+                "AutoCollectStockPanelClose",
+                "AutoCollectStockPanelEmpty"
+            ]
+        },
+        {
+            // 在上一张实机图的存量卡片上叠加 6 像素水平运动模糊，模拟滑入时的不清晰读数。
+            "name": "模拟面板滑入：低置信度 0/8 可识别，继续采集",
+            "image": "武陵城_稀有采集物区_存量低置信度_模拟滑入.png",
+            "hits": [
+                "AutoCollectStockPanelCount",
+                "AutoCollectStockPanelClose"
+            ]
+        },
+        {
+            "name": "存量 8/8，继续采集",
+            "image": "北部禁区_稀有采集物区_存量已满.png",
+            "hits": [
+                "AutoCollectStockPanelCount",
+                "AutoCollectStockPanelClose",
+                "AutoCollectStockPanelStocked"
+            ]
+        },
+        {
+            "name": "存量 10/10，两位数不被截成 0/10，继续采集",
+            "image": "武陵城_稀有采集物区_存量上限10.png",
+            "hits": [
+                "AutoCollectStockPanelCount",
+                "AutoCollectStockPanelClose",
+                "AutoCollectStockPanelStocked"
+            ]
+        },
+        {
+            "name": "图标重叠选择列表：点选稀有采集物区，不误选为稀有矿物区",
+            "image": "武陵城_图标重叠选择列表_稀有采集物区.png",
+            "hits": [
+                {
+                    "node": "AutoCollectStockPanelRareCollectListEntry",
+                    "box": [
+                        896,
+                        412,
+                        44,
+                        42
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "图标重叠选择列表：点选稀有矿物区，不误选为稀有采集物区",
+            "image": "武陵_图标重叠选择列表_稀有矿物区.png",
+            "hits": [
+                {
+                    "node": "AutoCollectStockPanelRareMineralListEntry",
+                    "box": [
+                        896,
+                        412,
+                        44,
+                        42
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "其他详情面板（任务），不读作存量、不点关闭",
+            "image": "武陵_地图_拍摄巨兽心脏_前往传送.png",
+            "hits": []
+        }
+    ]
+}

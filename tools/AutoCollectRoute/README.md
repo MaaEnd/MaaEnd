@@ -45,7 +45,7 @@ uv run autocollect-route
 
 打开后照常框选增减采集点，生成按钮变为 `重新生成 <路线 id>`，预览列出相对原路线新增与移除的采集点数，与起点不连通的点同样排除在外。`写入任务` 用生成的路线替换原路线：
 
-- 采集物种类不变时沿用原 id，只覆盖路线文件；
+- 采集物种类不变时沿用原 id，覆盖路线文件，并重新生成任务注册（存量检查按路线坐标推导所在区域）；
 - 采集物种类变化时按命名规则换成新 id，删除原路线文件，在登记表中原位替换，再重新生成任务注册。
 
 生成的路线是单段结构。原路线含多段导航、`RUN` / `INTERACT` 路点、重复采集或其他节点时，确认框会列出这些不再保留的内容；仓库中其他文件（测试用例、各资源包的覆盖文件）引用了将被移除的节点时，确认框逐个列出，需同步修改。
@@ -109,3 +109,25 @@ uv run autocollect-route generate
 | `series_order` | 产物系列的排列顺序；产物选项排列 |
 
 任务界面按产物勾选，同一产物名下有多条路线时依次执行。目标库存模式下，每种产物在开跑前按仓库库存判断一次，未达目标就执行其名下全部路线。
+
+## 稀有采集物区存量检查
+
+打开「跳过存量为 0 的稀有采集物区与稀有矿物区」后，符合条件的路线会在传送前从区域详情面板读取一次存量。
+
+1. `__AutoCollect<路线 id>StockCheck` 打开路线起点传送入口所在的子区域地图，与传送时打开的是同一张；
+2. `StockFind` 用 [`MapFind`](../../docs/zh_cn/developers/components/world-map.md) 与图标 `RareCollectArea`（稀有采集物区）或 `RareMineralArea`（稀有矿物区）确认该区域图标；
+3. `StockPanelOpen` 点击找到的图标，轮询详情面板右上角的「存量/上限」或重叠图标的选择列表，超时为 5 秒。列表出现时，`StockPanelPick` 按列表项左侧的兔耳或矿石图标点选一次，再轮询面板存量，超时同为 5 秒。
+4. 以置信度 0.9 以上读到 `0/…` 时，`StockPanelEmpty` 尝试停用本轮的 `__AutoCollect<路线 id>Run`，仅在停用成功后才在运行日志中提示「`<路线名>` 存量为 0，本次跳过」（文案键 `task.AutoCollect.route.<路线 id>.stock_empty`）。`AutoCollectStockPanelStocked` 读到非零存量时照常执行。随后 `AutoCollectStockPanelClose` 在面板仍开着时点面板右上角的 X 关闭面板，地图保持打开供传送使用。
+
+打开区域或选择列表项的点击失败、轮询超时时，先尝试用 `AutoCollectStockPanelClose` 关闭仍能确认的详情面板。无法确认面板或关闭失败时，`AutoCollectStockPanelLeave` 交给后续传送流程处理。打不开地图或停用路线失败时，`AutoCollectStockCheckAborted` 返回调度并照常执行路线。找不到区域图标（包括被角色标记盖住）时，`StockKept` 同样返回调度并照常执行路线。
+
+生成器按下列条件自动决定哪些路线做检查，`routes.json` 不需要额外字段：
+
+- 路线全部是稀有产物；
+- 路线的全部 `COLLECT` / `DIG` 采集点都在底图上，且都落在同一片稀有采集物区（`collect_points.json` 中 `int_doodad_core_plant_rabbithole*` 点位）或稀有矿物区（`int_doodad_core_spcstone*` 点位）15 px 以内；
+- 起点 `Start` 的 `SubTask` 只执行一个传送入口，且该入口能在 `assets/resource/pipeline/Interface/` 中找到 `SceneEnterMap<子区域>`；
+- 每段 `MapNavigateAction` 的参数只有 `path`，且路点只用生成器产出的写法：`{"action": "ZONE", "zone_id": "<区域>_Base"}`、`{"action": "NAVMESH", "target": [x, y]}`（可带 `target_deck_y`）、`[x, y]`、`[x, y, "COLLECT" | "DIG"]`（可再带一个布尔值）；起点之外没有经 `SubTask` 执行的导航。运行时支持的其他写法（单点、数字枚举、对象坐标、`map_name`、分层等）一律不做检查，不复刻运行时的解析。
+
+生成器只扫描当前路线文件，忽略顶层 `$schema` 等元数据。文件内的采集点跨越多片区域或包含分层采集点时，路线照常执行。若通过 `next` 或 `on_error` 跳到其他文件采集，生成器会漏算那部分采集点，可能把跨区路线判为单区。
+
+区域图标贴近子区域地图边缘、`MapFind` 拖不到安全区时，路线也会照常执行，例如 `WulingRedBolete1`、`WulingIgneosite2`。

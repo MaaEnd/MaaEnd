@@ -1,6 +1,7 @@
 """AutoCollect 路线登记表 -> 调度节点、任务选项与五语文案。"""
 
 import json
+import math
 import re
 from collections import Counter
 from collections.abc import Callable, Iterable
@@ -18,6 +19,7 @@ ROUTE_DIR = PROJECT_ROOT / "assets" / "resource" / "pipeline" / "AutoCollect"
 DISPATCH_PATH = ROUTE_DIR / "Dispatch.json"
 TASK_PATH = PROJECT_ROOT / "assets" / "tasks" / "AutoCollect.json"
 LOCALE_DIR = PROJECT_ROOT / "assets" / "locales" / "interface"
+SCENE_INTERFACE_DIR = PROJECT_ROOT / "assets" / "resource" / "pipeline" / "Interface"
 
 LOCALES = ("zh_cn", "zh_tw", "en_us", "ja_jp", "ko_kr")
 GENERATED_FILES = (DISPATCH_PATH, TASK_PATH, *(LOCALE_DIR / f"{locale}.json" for locale in LOCALES))
@@ -32,7 +34,22 @@ HAND_WRITTEN_OPTIONS = (
     "AutoCollectMidSweepStashEvery",
     "AutoCollectMode",
     "AutoCollectTargetInventory",
+    "AutoCollectSkipEmptyStock",
 )
+# 点位类型前缀 -> (MapIcons 图标名, 图标重叠时选择列表项的模板)
+STOCK_AREA_KINDS = {
+    "int_doodad_core_plant_rabbithole": ("RareCollectArea", "AutoCollect/RareCollectListEntry.png"),
+    "int_doodad_core_spcstone": ("RareMineralArea", "AutoCollect/RareMineralListEntry.png"),
+}
+STOCK_AREA_RADIUS = 15.0
+REGION_MAPS = {"ValleyIV": "map01", "Wuling": "map02"}
+STOCK_COLLECT_ACTIONS = ("COLLECT", "DIG")
+STOCK_PANEL_COUNT_ROI = [1120, 160, 105, 40]
+STOCK_PANEL_TIMEOUT_MS = 5000
+STOCK_PANEL_RATE_LIMIT_MS = 250
+STOCK_PANEL_EXIT = ["AutoCollectStockPanelClose", "AutoCollectStockPanelLeave"]
+# 打开地图或停用路线失败时，照常执行路线并返回调度。
+STOCK_ABORTED = "AutoCollectStockCheckAborted"
 HAND_WRITTEN_KEYS = (
     "option.AutoCollectMode.",
     "option.AutoCollectTargetInventory.description",
@@ -93,6 +110,13 @@ SKIPPED_TEXTS = {
     "ja_jp": "{name} 在庫が目標に達したため、今回はスキップします",
     "ko_kr": "{name} 재고가 목표에 도달하여 이번에는 건너뜁니다",
 }
+STOCK_EMPTY_TEXTS = {
+    "zh_cn": "{name} 存量为 0，本次跳过",
+    "zh_tw": "{name} 存量為 0，本次跳過",
+    "en_us": "{name} — area stock is 0, skipped this run",
+    "ja_jp": "{name} エリアの在庫が0のため、今回はスキップします",
+    "ko_kr": "{name} 구역 재고가 0이라 이번에는 건너뜁니다",
+}
 
 
 class RegistryError(ValueError):
@@ -141,6 +165,16 @@ class Group:
         return f"__AutoCollect{self.region}{self.item.key}"
 
 
+@dataclass(frozen=True)
+class StockArea:
+    """路线采的那片稀有采集物区或稀有矿物区：底图坐标、地图图标、列表项模板，以及传送前打开的子区域地图入口。"""
+
+    at: tuple[float, float]
+    icon: str
+    list_entry: str
+    scene: str
+
+
 # zmdmap 数据与 locale 是机器写出的严格 JSON，体积大，用 json 读；手写的配置按 JSONC 读
 def read_json(path: Path) -> Any:
     return json.loads(path.read_text(encoding="utf-8"))
@@ -151,7 +185,7 @@ def read_jsonc(path: Path) -> Any:
 
 
 def write_json(path: Path, data: Any) -> None:
-    path.write_text(json.dumps(data, ensure_ascii=False, indent=4) + "\n", encoding="utf-8")
+    path.write_text(json.dumps(data, ensure_ascii=False, indent=4) + "\n", encoding="utf-8", newline="\n")
 
 
 def to_pascal(text: str) -> str:
@@ -217,6 +251,138 @@ def load_routes(registry: dict[str, Any], items: dict[str, Item]) -> list[Route]
     if duplicated:
         raise RegistryError(f"路线 id 重复: {', '.join(duplicated)}")
     return routes
+
+
+def node_custom_action(node: dict[str, Any]) -> tuple[str, dict[str, Any]]:
+    """节点的 Custom 动作名与参数，兼容扁平与 v2 写法。"""
+    action = node.get("action")
+    if isinstance(action, dict):
+        param = action.get("param") or {}
+        return param.get("custom_action", ""), param.get("custom_action_param") or {}
+    return node.get("custom_action", ""), node.get("custom_action_param") or {}
+
+
+def is_number(value: Any) -> bool:
+    return isinstance(value, (int, float)) and not isinstance(value, bool)
+
+
+def path_collect_points(path: Any) -> list[tuple[float, float]] | None:
+    """按白名单读取一段 path 的采集点底图坐标；出现白名单以外的写法时返回 None。
+
+    白名单即路线生成器产出的写法：{"action": "ZONE", "zone_id": "<区域>_Base"}、
+    {"action": "NAVMESH", "target": [x, y](, "target_deck_y": h)}、[x, y]、[x, y, "COLLECT" | "DIG"(, bool)]。
+    运行时还支持更多写法（单点、数字枚举、对象坐标、map_name、分层等），这里不复刻其解析，一律不做存量检查。
+    """
+    if not isinstance(path, list) or not path:
+        return None
+    zone = ""
+    points = []
+    for waypoint in path:
+        if isinstance(waypoint, dict):
+            action = waypoint.get("action")
+            if action == "ZONE" and set(waypoint) == {"action", "zone_id"}:
+                zone = waypoint["zone_id"]
+                if not isinstance(zone, str) or not zone.endswith("_Base"):
+                    return None
+            elif (
+                action == "NAVMESH"
+                and {"action", "target"} <= set(waypoint) <= {"action", "target", "target_deck_y"}
+                and isinstance(waypoint["target"], list)
+                and len(waypoint["target"]) == 2
+                and all(is_number(value) for value in waypoint["target"])
+            ):
+                pass
+            else:
+                return None
+            continue
+        if not isinstance(waypoint, list) or len(waypoint) < 2 or not all(is_number(v) for v in waypoint[:2]):
+            return None
+        tail = waypoint[2:]
+        if not tail:
+            continue
+        if tail[0] not in STOCK_COLLECT_ACTIONS or len(tail) > 2 or (len(tail) == 2 and not isinstance(tail[1], bool)):
+            return None
+        if not zone:
+            return None
+        points.append((waypoint[0], waypoint[1]))
+    return points
+
+
+def route_collect_points(route: Route) -> list[tuple[float, float]] | None:
+    """路线全部采集点的底图坐标。
+
+    以下情况返回 None，不做存量检查：起点之外另经 SubTask 执行（采集点不在本文件里）；
+    MapNavigateAction 参数不止 path，或 path 用了白名单以外的写法（见 path_collect_points）。
+    """
+    points = []
+    for name, node in read_jsonc(route_file(route.region, route.id)).items():
+        if name.startswith("$"):
+            continue
+        action, param = node_custom_action(node)
+        if action == "SubTask" and name != f"AutoCollect{route.id}Start":
+            return None
+        if action != "MapNavigateAction":
+            continue
+        if set(param) != {"path"}:
+            return None
+        segment = path_collect_points(param["path"])
+        if segment is None:
+            return None
+        points += segment
+    return points
+
+
+def teleport_scene(route: Route, scenes: dict[str, Any]) -> str | None:
+    """起点只执行一次传送时，返回传送前打开的子区域地图入口 SceneEnterMap<子区域>。"""
+    start = read_jsonc(route_file(route.region, route.id))[f"AutoCollect{route.id}Start"]
+    action, param = node_custom_action(start)
+    if action != "SubTask":
+        return None
+    match param.get("sub"):
+        case [str() as teleport]:
+            value = scenes.get(teleport, {}).get("next", [])
+        case _:
+            return None
+    entries = [value] if isinstance(value, (str, dict)) else value
+    # next 条目可写成 "[JumpBack]节点名" 或对象 {"name": "节点名", "jump_back": true}
+    names = (entry.get("name", "") if isinstance(entry, dict) else entry for entry in entries)
+    return next((name.removeprefix("[JumpBack]") for name in names if "SceneEnterMap" in name), None)
+
+
+def load_stock_areas(routes: list[Route]) -> dict[str, StockArea]:
+    """只给「全部采集点都落在同一片稀有采集物区或稀有矿物区里」的稀有路线做存量检查，其余路线照常执行。"""
+    areas: dict[str, list[tuple[float, float, str]]] = {}
+    for point in read_json(COLLECT_POINTS_PATH)["points"]:
+        kind = next((prefix for prefix in STOCK_AREA_KINDS if point["detail_id"].startswith(prefix)), None)
+        if kind is not None:
+            areas.setdefault(point["map"], []).append((point["u"], point["v"], kind))
+    scenes: dict[str, Any] = {}
+    for path in sorted(SCENE_INTERFACE_DIR.glob("*.json")):
+        scenes.update(read_jsonc(path))
+
+    stocks = {}
+    for route in routes:
+        if any(item.kind != "rare" for item in route.items):
+            continue
+        points = route_collect_points(route)
+        if not points:
+            continue
+        near = {
+            area
+            for point in points
+            for area in areas.get(REGION_MAPS.get(route.region, ""), [])
+            if math.dist(area[:2], point) <= STOCK_AREA_RADIUS
+        }
+        if len(near) != 1:
+            continue
+        u, v, kind = near.pop()
+        if any(math.dist((u, v), point) > STOCK_AREA_RADIUS for point in points):
+            continue
+        scene = teleport_scene(route, scenes)
+        if scene is not None:
+            icon, list_entry = STOCK_AREA_KINDS[kind]
+            stocks[route.id] = StockArea((round(u, 2), round(v, 2)), icon, list_entry, scene)
+    return stocks
 
 
 def validate_series_order(series_order: list[str], items: dict[str, Item]) -> None:
@@ -327,7 +493,13 @@ def quantity_check(expression: str) -> dict[str, Any]:
     }
 
 
-def group_nodes(group: Group) -> dict[str, Any]:
+def route_entries(route: Route, stocks: dict[str, StockArea]) -> list[str]:
+    """调度入口里一条路线占的位置：有存量检查时先检查，再执行。"""
+    check = [f"[JumpBack]__AutoCollect{route.id}StockCheck"] if route.id in stocks else []
+    return [*check, f"[JumpBack]__AutoCollect{route.id}Run"]
+
+
+def group_nodes(group: Group, stocks: dict[str, StockArea]) -> dict[str, Any]:
     node = group.node
     name = group.item.names["zh_cn"]
     return {
@@ -340,7 +512,7 @@ def group_nodes(group: Group) -> dict[str, Any]:
             "action": "DoNothing",
             "post_delay": 0,
             "rate_limit": 0,
-            "next": [*(f"[JumpBack]__AutoCollect{route.id}Run" for route in group.routes), "AutoCollectEnd"],
+            "next": [*(entry for route in group.routes for entry in route_entries(route, stocks)), "AutoCollectEnd"],
         },
         f"{node}Skipped": {
             "desc": f"{name}目标库存预判：已达标时停用调度入口",
@@ -397,7 +569,177 @@ def route_nodes(route: Route, name: str) -> dict[str, Any]:
     }
 
 
-def dispatch_document(groups: list[Group], routes: list[Route], names: dict[str, dict[str, str]]) -> dict[str, Any]:
+def stock_panel_count(expected: str, threshold: float | None = None) -> dict[str, Any]:
+    """稀有采集物区 / 稀有矿物区详情面板右上角的「存量/上限」。"""
+    param: dict[str, Any] = {"roi": STOCK_PANEL_COUNT_ROI, "expected": [expected]}
+    if threshold is not None:
+        param["threshold"] = threshold
+    return {"type": "OCR", "param": param}
+
+
+def stock_panel_list_node(template: str) -> str:
+    return f"AutoCollectStockPanel{Path(template).stem}"
+
+
+def stock_panel_shared_nodes() -> dict[str, Any]:
+    """各路线共用的详情面板、重叠列表项识别与退出流程。"""
+    return {
+        "AutoCollectStockPanelCount": {
+            "desc": "稀有采集物区 / 稀有矿物区详情面板：右上角的「存量/上限」",
+            "recognition": stock_panel_count(r"^\d+/\d+$"),
+        },
+        "AutoCollectStockPanelEmpty": {
+            "desc": "详情面板存量为 0，低置信度时继续轮询",
+            "recognition": stock_panel_count(r"^0/\d+$", threshold=0.9),
+        },
+        "AutoCollectStockPanelStocked": {
+            "desc": "详情面板存量不为 0，照常执行路线",
+            "recognition": stock_panel_count(r"^[1-9]\d*/\d+$"),
+            "pre_delay": 0,
+            "action": "DoNothing",
+            "post_delay": 0,
+            "rate_limit": 0,
+            "next": STOCK_PANEL_EXIT,
+        },
+        **{
+            stock_panel_list_node(template): {
+                "desc": "重叠地图图标选择列表中的存量区域",
+                "recognition": {
+                    "type": "TemplateMatch",
+                    "param": {"roi": [860, 300, 140, 360], "template": [template], "threshold": 0.8},
+                },
+            }
+            for _, template in STOCK_AREA_KINDS.values()
+        },
+        "AutoCollectStockPanelClose": {
+            "desc": "关闭稀有采集物区 / 稀有矿物区详情面板：面板仍开着时才点右上角 X，避免误关地图",
+            "recognition": "And",
+            "all_of": ["AutoCollectStockPanelCount", "CloseButtonType1"],
+            "box_index": 1,
+            "pre_delay": 0,
+            "action": "Click",
+            "post_wait_freezes": 300,
+            "post_delay": 0,
+            "rate_limit": 0,
+            "on_error": ["AutoCollectStockPanelLeave"],
+        },
+        STOCK_ABORTED: {
+            "desc": "存量检查：动作失败，照常执行并返回调度",
+            "recognition": "DirectHit",
+            "pre_delay": 0,
+            "action": "DoNothing",
+            "post_delay": 0,
+            "rate_limit": 0,
+        },
+        "AutoCollectStockPanelLeave": {
+            "desc": "详情面板未能确认关闭，交给随后的传送流程处理",
+            "recognition": "DirectHit",
+            "pre_delay": 0,
+            "action": "DoNothing",
+            "post_delay": 0,
+            "rate_limit": 0,
+        },
+    }
+
+
+def stock_nodes(route: Route, name: str, region: str, stock: StockArea) -> dict[str, Any]:
+    """传送前在区域详情面板读取存量，确认为 0 时停用本轮路线。"""
+    node = f"__AutoCollect{route.id}"
+    find_node = f"{node}StockFind"
+    panel_states = [f"{node}StockPanelEmpty", "AutoCollectStockPanelStocked"]
+    return {
+        f"{node}StockCheck": {
+            "desc": f"路线 {name} 存量检查：打开传送所在的子区域地图",
+            "enabled": False,
+            "max_hit": 1,
+            "recognition": "DirectHit",
+            "pre_delay": 0,
+            "action": {
+                "type": "Custom",
+                "param": {"custom_action": "SubTask", "custom_action_param": {"sub": [stock.scene]}},
+            },
+            "post_delay": 0,
+            "rate_limit": 0,
+            "next": [find_node, f"{node}StockKept"],
+            "on_error": [STOCK_ABORTED],
+        },
+        find_node: {
+            "desc": f"路线 {name} 存量检查：在大地图上确认存量区域图标",
+            "recognition": {
+                "type": "Custom",
+                "param": {
+                    "custom_recognition": "MapFind",
+                    "custom_recognition_param": {
+                        "zone": region,
+                        "icon": stock.icon,
+                        "at": list(stock.at),
+                        "max_attempts": 2,
+                    },
+                },
+            },
+            "pre_delay": 0,
+            "action": "DoNothing",
+            "post_delay": 0,
+            "rate_limit": 0,
+            "next": [f"{node}StockPanelOpen"],
+        },
+        # 点开区域后轮询存量读数或重叠图标的选择列表，滑入期间未命中时继续识别。
+        f"{node}StockPanelOpen": {
+            "desc": f"路线 {name} 存量检查：点开存量区域详情面板",
+            "recognition": "DirectHit",
+            "pre_delay": 0,
+            "action": {"type": "Click", "param": {"target": find_node}},
+            "post_delay": 0,
+            "timeout": STOCK_PANEL_TIMEOUT_MS,
+            "rate_limit": STOCK_PANEL_RATE_LIMIT_MS,
+            "next": [*panel_states, f"{node}StockPanelPick"],
+            "on_error": STOCK_PANEL_EXIT,
+        },
+        f"{node}StockPanelPick": {
+            "desc": f"路线 {name} 存量检查：图标重叠时在选择列表中点选存量区域",
+            "recognition": "And",
+            "all_of": [stock_panel_list_node(stock.list_entry)],
+            "pre_delay": 0,
+            "action": "Click",
+            "post_delay": 0,
+            "timeout": STOCK_PANEL_TIMEOUT_MS,
+            "rate_limit": STOCK_PANEL_RATE_LIMIT_MS,
+            "next": panel_states,
+            "on_error": STOCK_PANEL_EXIT,
+        },
+        f"{node}StockPanelEmpty": {
+            "desc": f"路线 {name} 存量检查：详情面板存量为 0，停用本轮执行",
+            "recognition": "And",
+            "all_of": ["AutoCollectStockPanelEmpty"],
+            "pre_delay": 0,
+            "action": {
+                "type": "Custom",
+                "param": {
+                    "custom_action": "PipelineOverride",
+                    "custom_action_param": {"patch": {f"{node}Run": {"enabled": False}}},
+                },
+            },
+            "post_delay": 0,
+            "rate_limit": 0,
+            "next": STOCK_PANEL_EXIT,
+            "on_error": [STOCK_ABORTED],
+            # 停用成功后才提示跳过；停用失败时走 on_error 照常执行，不误报
+            "focus": {"Node.Action.Succeeded": f"$task.AutoCollect.route.{route.id}.stock_empty"},
+        },
+        f"{node}StockKept": {
+            "desc": f"路线 {name} 存量检查：未找到区域图标，照常执行",
+            "recognition": "DirectHit",
+            "pre_delay": 0,
+            "action": "DoNothing",
+            "post_delay": 0,
+            "rate_limit": 0,
+        },
+    }
+
+
+def dispatch_document(
+    groups: list[Group], routes: list[Route], names: dict[str, dict[str, str]], stocks: dict[str, StockArea]
+) -> dict[str, Any]:
     document = {
         "AutoCollectLoop": {
             "desc": "依次调度已勾选的采集物，未勾选的不进入库存判断",
@@ -438,9 +780,12 @@ def dispatch_document(groups: list[Group], routes: list[Route], names: dict[str,
         },
     }
     for group in groups:
-        document.update(group_nodes(group))
+        document.update(group_nodes(group, stocks))
     for route in routes:
         document.update(route_nodes(route, names[route.id]["zh_cn"]))
+        if route.id in stocks:
+            document.update(stock_nodes(route, names[route.id]["zh_cn"], route.region, stocks[route.id]))
+    document.update(stock_panel_shared_nodes())
     return document
 
 
@@ -488,9 +833,13 @@ def update_task(
     groups: list[Group],
     rank: Callable[[Item], tuple[int, int, int]],
     default_limits: dict[str, int],
+    stocks: dict[str, StockArea],
 ) -> dict[str, Any]:
     generated = region_options(groups)
     options = {name: option for name, option in task["option"].items() if name in HAND_WRITTEN_OPTIONS}
+
+    skip_empty = next(case for case in options["AutoCollectSkipEmptyStock"]["cases"] if case["name"] == "Yes")
+    skip_empty["pipeline_override"] = {f"__AutoCollect{route_id}StockCheck": {"enabled": True} for route_id in stocks}
 
     inventory = options["AutoCollectTargetInventory"]
     inventory["inputs"] = [
@@ -528,7 +877,11 @@ def owned_key(key: str) -> bool:
 
 
 def locale_texts(
-    locale: str, groups: list[Group], routes: list[Route], names: dict[str, dict[str, str]]
+    locale: str,
+    groups: list[Group],
+    routes: list[Route],
+    names: dict[str, dict[str, str]],
+    stocks: dict[str, StockArea],
 ) -> dict[str, str]:
     texts = {f"option.AutoCollect{kind.capitalize()}Items.label": KIND_LABELS[kind][locale] for kind in KINDS}
     for item in unique_items(groups):
@@ -540,6 +893,8 @@ def locale_texts(
         name = names[route.id][locale]
         texts[f"task.AutoCollect.route.{route.id}.label"] = ROUTE_LABELS[locale].format(name=name)
         texts[f"task.AutoCollect.route.{route.id}.failed"] = FAILED_STYLE.format(FAILED_TEXTS[locale].format(name=name))
+        if route.id in stocks:
+            texts[f"task.AutoCollect.route.{route.id}.stock_empty"] = STOCK_EMPTY_TEXTS[locale].format(name=name)
     return texts
 
 
@@ -552,11 +907,14 @@ def generate() -> list[Path]:
     rank = item_rank(routes, series_order)
     groups = build_groups(routes, rank)
     names = route_names(routes)
+    stocks = load_stock_areas(routes)
 
-    write_json(DISPATCH_PATH, dispatch_document(groups, routes, names))
-    write_json(TASK_PATH, update_task(read_jsonc(TASK_PATH), groups, rank, registry.get("default_limits", {})))
+    write_json(DISPATCH_PATH, dispatch_document(groups, routes, names, stocks))
+    task = update_task(read_jsonc(TASK_PATH), groups, rank, registry.get("default_limits", {}), stocks)
+    write_json(TASK_PATH, task)
     for locale in LOCALES:
         path = LOCALE_DIR / f"{locale}.json"
         messages = {key: value for key, value in read_json(path).items() if not owned_key(key)}
-        write_json(path, dict(sorted({**messages, **locale_texts(locale, groups, routes, names)}.items())))
+        texts = locale_texts(locale, groups, routes, names, stocks)
+        write_json(path, dict(sorted({**messages, **texts}.items())))
     return list(GENERATED_FILES)
