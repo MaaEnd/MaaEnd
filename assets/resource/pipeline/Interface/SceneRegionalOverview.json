@@ -50,6 +50,7 @@
                 "recognition": "TemplateMatch",
                 "roi": "__ScenePrivateMenuRegionalOverviewUpperIconRegion",
                 "template": [
+                    "SceneManager/RegionalOverview/YuanyuanManorInnInactive.png",
                     "SceneManager/RegionalOverview/YuanyuanManorInnWuling.png"
                 ],
                 "threshold": 0.85
