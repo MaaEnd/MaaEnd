@@ -24,10 +24,7 @@
         },
         "pre_delay": 0,
         "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoStockStapleSpendBillExitValleyIV"
-        ]
+        "rate_limit": 0
     },
     "AutoStockStapleSpendBillLimitColorValleyIV": {
         "desc": "四号谷地：调度券上限数字的浅灰文字（颜色锚点，GRAY 140~255）",
@@ -218,127 +215,54 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockBuyValuableItemSpendValleyIV",
             "AutoStockBuyAnyItemSpendValleyIV",
             "AutoStockStapleSpendBillSoldOutExitValleyIV",
             "[JumpBack]AutoStockSwipeValleyIV",
             "AutoStockNoMoreTargetValleyIV"
         ]
     },
-    "AutoStockStapleSpendBillValuableNameValleyIV": {
-        "desc": "四号谷地：识别刻写券/精锻助剂名称",
+    "AutoStockStapleSpendBillAnyNameTextValleyIV": {
+        "desc": "四号谷地：任意商品名文字（白色文字区 OCR，不限制内容）",
         "recognition": {
             "type": "OCR",
             "param": {
                 "roi": "AutoStockInStapleItemNameTextColor",
-                "roi_offset": [
-                    -2,
-                    -2,
-                    4,
-                    4
-                ],
                 "expected": [
-                    "谷地刻写券",
-                    "谷地刻寫券",
-                    "Valley Engraving Permit",
-                    "谷地刻印券",
-                    "협곡 각인권",
-                    "武陵刻写券",
-                    "武陵刻寫券",
-                    "Wuling Engraving Permit",
-                    "武陵刻印券",
-                    "무릉 각인권",
-                    "武陵精锻助剂",
-                    "武陵精鍛助劑",
-                    "(?i)Wuling\\s*Artificing\\s*Catalyst",
-                    "武陵加工強化剤",
-                    "월릉 정련 도움제"
+                    ".+"
                 ],
-                "only_rec": true,
-                "order_by": "Vertical"
+                "only_rec": true
             }
         },
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
     },
-    "AutoStockStapleAnyItemDiscountValleyIV": {
-        "desc": "四号谷地：命中任意商品卡片的折扣区域，不限制折扣力度",
-        "recognition": {
-            "type": "ColorMatch",
-            "param": {
-                "roi": "AutoStockInStapleItemNameLabelColor",
-                "roi_offset": [
-                    37,
-                    -190,
-                    10,
-                    28
-                ],
-                "lower": [
-                    0,
-                    0,
-                    0
-                ],
-                "upper": [
-                    255,
-                    255,
-                    255
-                ]
-            }
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "AutoStockBuyValuableItemSpendValleyIV": {
-        "desc": "四号谷地：第一档——买高价值物品（刻写券/精锻助剂），折扣任意、不校验库存",
-        "max_hit": 1,
+    "AutoStockStapleSpendBillAnyNameValleyIV": {
+        "desc": "四号谷地：任意商品名——灰色标签 + 白色文字 + OCR 到字即命中",
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    "AutoStockInStapleItem",
-                    "AutoStockStapleSpendBillValuableNameValleyIV",
-                    "AutoStockStapleAnyItemDiscountValleyIV",
-                    "AutoStockStapleSpendBillOverLimitValleyIV"
+                    "AutoStockInStapleItemNameLabelColor",
+                    "AutoStockInStapleItemNameTextColor",
+                    "AutoStockStapleSpendBillAnyNameTextValleyIV"
                 ],
                 "box_index": 2
             }
         },
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "RepeatUntilFoundAction",
-                "custom_action_param": {
-                    "action": "Click",
-                    "wait_nodes": [
-                        "AutoStockStapleQuantityControl"
-                    ]
-                },
-                "target_offset": [
-                    -45,
-                    85,
-                    -30,
-                    0
-                ]
-            }
-        },
         "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoStockStapleSpendBillCalcValleyIV"
-        ]
+        "rate_limit": 0
     },
     "AutoStockBuyAnyItemSpendValleyIV": {
-        "desc": "四号谷地：第二档——第一档没命中时买任意物品，折扣任意、不校验库存",
+        "desc": "四号谷地：超限购买——任意物品（两档合并为一档），不限折扣、不校验库存",
         "max_hit": 1,
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
                     "AutoStockInStapleItem",
-                    "AutoStockStapleAnyItemDiscountValleyIV",
+                    "AutoStockStapleSpendBillAnyNameValleyIV",
                     "AutoStockStapleSpendBillOverLimitValleyIV"
                 ],
                 "box_index": 1
@@ -831,10 +755,7 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoStockStapleSpendBillExitValleyIV"
-        ]
+        "rate_limit": 0
     },
     "AutoStockStapleSpendBillSlidingValleyIV": {
         "desc": "四号谷地：超限专用滑条，按派发下来的百分比滑",
@@ -962,15 +883,6 @@
             "type": "Click"
         },
         "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoStockStapleSpendBillExitValleyIV"
-        ]
-    },
-    "AutoStockStapleSpendBillExitValleyIV": {
-        "desc": "四号谷地：特制退出——不做任何操作，直接结束（没有 next）",
-        "pre_delay": 0,
-        "post_delay": 0,
         "rate_limit": 0
     },
     "AutoStockStapleSpendBillSoldOutExitWuling": {
@@ -998,10 +910,7 @@
         },
         "pre_delay": 0,
         "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoStockStapleSpendBillExitWuling"
-        ]
+        "rate_limit": 0
     },
     "AutoStockStapleSpendBillLimitColorWuling": {
         "desc": "武陵：调度券上限数字的浅灰文字（颜色锚点，GRAY 140~255）",
@@ -1192,127 +1101,54 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockBuyValuableItemSpendWuling",
             "AutoStockBuyAnyItemSpendWuling",
             "AutoStockStapleSpendBillSoldOutExitWuling",
             "[JumpBack]AutoStockSwipeWuling",
             "AutoStockNoMoreTargetWuling"
         ]
     },
-    "AutoStockStapleSpendBillValuableNameWuling": {
-        "desc": "武陵：识别刻写券/精锻助剂名称",
+    "AutoStockStapleSpendBillAnyNameTextWuling": {
+        "desc": "武陵：任意商品名文字（白色文字区 OCR，不限制内容）",
         "recognition": {
             "type": "OCR",
             "param": {
                 "roi": "AutoStockInStapleItemNameTextColor",
-                "roi_offset": [
-                    -2,
-                    -2,
-                    4,
-                    4
-                ],
                 "expected": [
-                    "谷地刻写券",
-                    "谷地刻寫券",
-                    "Valley Engraving Permit",
-                    "谷地刻印券",
-                    "협곡 각인권",
-                    "武陵刻写券",
-                    "武陵刻寫券",
-                    "Wuling Engraving Permit",
-                    "武陵刻印券",
-                    "무릉 각인권",
-                    "武陵精锻助剂",
-                    "武陵精鍛助劑",
-                    "(?i)Wuling\\s*Artificing\\s*Catalyst",
-                    "武陵加工強化剤",
-                    "월릉 정련 도움제"
+                    ".+"
                 ],
-                "only_rec": true,
-                "order_by": "Vertical"
+                "only_rec": true
             }
         },
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
     },
-    "AutoStockStapleAnyItemDiscountWuling": {
-        "desc": "武陵：命中任意商品卡片的折扣区域，不限制折扣力度",
-        "recognition": {
-            "type": "ColorMatch",
-            "param": {
-                "roi": "AutoStockInStapleItemNameLabelColor",
-                "roi_offset": [
-                    37,
-                    -190,
-                    10,
-                    28
-                ],
-                "lower": [
-                    0,
-                    0,
-                    0
-                ],
-                "upper": [
-                    255,
-                    255,
-                    255
-                ]
-            }
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "AutoStockBuyValuableItemSpendWuling": {
-        "desc": "武陵：第一档——买高价值物品（刻写券/精锻助剂），折扣任意、不校验库存",
-        "max_hit": 1,
+    "AutoStockStapleSpendBillAnyNameWuling": {
+        "desc": "武陵：任意商品名——灰色标签 + 白色文字 + OCR 到字即命中",
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    "AutoStockInStapleItem",
-                    "AutoStockStapleSpendBillValuableNameWuling",
-                    "AutoStockStapleAnyItemDiscountWuling",
-                    "AutoStockStapleSpendBillOverLimitWuling"
+                    "AutoStockInStapleItemNameLabelColor",
+                    "AutoStockInStapleItemNameTextColor",
+                    "AutoStockStapleSpendBillAnyNameTextWuling"
                 ],
                 "box_index": 2
             }
         },
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "RepeatUntilFoundAction",
-                "custom_action_param": {
-                    "action": "Click",
-                    "wait_nodes": [
-                        "AutoStockStapleQuantityControl"
-                    ]
-                },
-                "target_offset": [
-                    -45,
-                    85,
-                    -30,
-                    0
-                ]
-            }
-        },
         "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoStockStapleSpendBillCalcWuling"
-        ]
+        "rate_limit": 0
     },
     "AutoStockBuyAnyItemSpendWuling": {
-        "desc": "武陵：第二档——第一档没命中时买任意物品，折扣任意、不校验库存",
+        "desc": "武陵：超限购买——任意物品（两档合并为一档），不限折扣、不校验库存",
         "max_hit": 1,
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
                     "AutoStockInStapleItem",
-                    "AutoStockStapleAnyItemDiscountWuling",
+                    "AutoStockStapleSpendBillAnyNameWuling",
                     "AutoStockStapleSpendBillOverLimitWuling"
                 ],
                 "box_index": 1
@@ -1805,10 +1641,7 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoStockStapleSpendBillExitWuling"
-        ]
+        "rate_limit": 0
     },
     "AutoStockStapleSpendBillSlidingWuling": {
         "desc": "武陵：超限专用滑条，按派发下来的百分比滑",
@@ -1935,15 +1768,6 @@
         "action": {
             "type": "Click"
         },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoStockStapleSpendBillExitWuling"
-        ]
-    },
-    "AutoStockStapleSpendBillExitWuling": {
-        "desc": "武陵：特制退出——不做任何操作，直接结束（没有 next）",
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
     }
