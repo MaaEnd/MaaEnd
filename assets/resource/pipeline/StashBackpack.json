@@ -177,19 +177,22 @@
                 ],
                 "template": [
                     "StashBackpack/UsableItems.png"
-                ]
+                ],
+                "green_mask": true
             },
             {
                 "recognition": "OCR",
                 "roi": "icon",
                 "roi_offset": [
-                    20,
-                    44,
-                    4,
-                    -2
+                    24,
+                    46,
+                    -4,
+                    -6
                 ],
+                // 格子底部堆叠数量角标（如 "1"～"4"）
                 "expected": [
-                    "(?<!\\d)[0-4](?!\\d)"
+                    // @i18n-skip
+                    "^[1-4]$"
                 ],
                 "only_rec": true
             }
