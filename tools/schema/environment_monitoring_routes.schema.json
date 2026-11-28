@@ -168,7 +168,7 @@
                 "description": "普通传送 MapNavigator 路线起点断言的 MapLocate zone_id（渲染为 MapLocateAssertLocation 的 zone_id）。与 NavAssert / NavPath 同时配置；QuickTeleport 不执行起点断言，可省略 NavZoneId / NavAssert。",
                 "examples": [
                     "Wuling_Base",
-                    "Wuling_L4_328"
+                    "Wuling_L4_330"
                 ]
             },
             "NavAssert": {

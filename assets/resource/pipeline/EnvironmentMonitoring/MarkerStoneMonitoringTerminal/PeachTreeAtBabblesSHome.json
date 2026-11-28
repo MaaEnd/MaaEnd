@@ -390,10 +390,9 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        258.16,
-                        207.3
-                    ],
-                    "target_tier": "Wuling_L4_328"
+                        610.16,
+                        2575.3
+                    ]
                 },
                 {
                     "action": "HEADING",
@@ -425,10 +424,9 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        258.16,
-                        207.3
-                    ],
-                    "target_tier": "Wuling_L4_328"
+                        610.16,
+                        2575.3
+                    ]
                 },
                 {
                     "action": "HEADING",

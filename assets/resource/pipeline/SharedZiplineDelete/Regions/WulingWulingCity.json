@@ -51,7 +51,7 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        712.76,
+                        808.76,
                         1600.84
                     ]
                 }
@@ -94,7 +94,7 @@
             "zone": "Wuling",
             "icon": "TeleportAnchor",
             "at": [
-                908.4,
+                1004.4,
                 1180.6
             ]
         },
@@ -150,7 +150,7 @@
             "zone": "Wuling",
             "icon": "TeleportAnchor",
             "at": [
-                921.8,
+                1017.8,
                 1307.7
             ]
         },
@@ -178,7 +178,7 @@
             "zone": "Wuling",
             "icon": "TeleportAnchor",
             "at": [
-                424.3,
+                520.3,
                 1373.9
             ]
         },
@@ -206,7 +206,7 @@
             "zone": "Wuling",
             "icon": "TeleportAnchor",
             "at": [
-                496.8,
+                592.8,
                 1562.1
             ]
         },
@@ -234,7 +234,7 @@
             "zone": "Wuling",
             "icon": "TeleportAnchor",
             "at": [
-                704.8,
+                800.8,
                 1621.4
             ]
         },
@@ -262,7 +262,7 @@
             "zone": "Wuling",
             "icon": "TeleportAnchor",
             "at": [
-                914.4,
+                1010.4,
                 1585.0
             ]
         },
@@ -290,7 +290,7 @@
             "zone": "Wuling",
             "icon": "TeleportAnchor",
             "at": [
-                528.7,
+                624.7,
                 1741.8
             ]
         },
@@ -318,7 +318,7 @@
             "zone": "Wuling",
             "icon": "TeleportAnchor",
             "at": [
-                942.8,
+                1038.8,
                 1779.9
             ]
         },
@@ -346,7 +346,7 @@
             "zone": "Wuling",
             "icon": "TeleportAnchor",
             "at": [
-                866.0,
+                962.0,
                 1867.6
             ]
         },
@@ -374,7 +374,7 @@
             "zone": "Wuling",
             "icon": "TeleportAnchor",
             "at": [
-                973.3,
+                1069.3,
                 1958.3
             ]
         },
@@ -402,7 +402,7 @@
             "zone": "Wuling",
             "icon": "TeleportAnchor",
             "at": [
-                508.4,
+                604.4,
                 1966.0
             ]
         },
@@ -430,7 +430,7 @@
             "zone": "Wuling",
             "icon": "TeleportAnchor",
             "at": [
-                703.8,
+                799.8,
                 1890.9
             ]
         },

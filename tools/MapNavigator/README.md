@@ -109,10 +109,10 @@ MapNavigator 是用于 C++ MapNavigator 模块使用的地图路径录制与编�
     {
         "action": "RUN",
         "target": [
-            243.49,
-            177.53
+            98.4,
+            111
         ],
-        "target_tier": "Wuling_L4_328"
+        "target_tier": "Wuling_L4_330"
     },
     [
         760,

@@ -37,28 +37,28 @@
             "candidates": [
                 {
                     "at": [
-                        513.135,
+                        609.135,
                         1650.773
                     ],
                     "next": "SeizeDeliveryJobsEndpointFilterOwl"
                 },
                 {
                     "at": [
-                        461.92,
+                        557.92,
                         1712.802
                     ],
                     "next": "SeizeDeliveryJobsEndpointFilterMaterialResearchInstitute"
                 },
                 {
                     "at": [
-                        894.615,
+                        990.615,
                         1408.425
                     ],
                     "next": "SeizeDeliveryJobsEndpointFilterObservatory"
                 },
                 {
                     "at": [
-                        538.031,
+                        634.031,
                         1250.27
                     ],
                     "next": "SeizeDeliveryJobsEndpointFilterTechProductionOffice"
@@ -106,21 +106,21 @@
             "candidates": [
                 {
                     "at": [
-                        1083.307,
+                        1179.307,
                         1455.27
                     ],
                     "next": "SeizeDeliveryJobsEndpointFilterNo1TypeCAnchorArea"
                 },
                 {
                     "at": [
-                        1369.873,
+                        1465.873,
                         1533.922
                     ],
                     "next": "SeizeDeliveryJobsEndpointFilterNo3TypeCAnchorArea"
                 },
                 {
                     "at": [
-                        1383.764,
+                        1479.764,
                         1633.923
                     ],
                     "next": "SeizeDeliveryJobsEndpointFilterJingweiFieldArea"
