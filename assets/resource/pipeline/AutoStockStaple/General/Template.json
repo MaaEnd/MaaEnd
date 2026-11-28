@@ -64,6 +64,7 @@
     // 右上角读数形如「4504万/4600万」，斜杠左为余额、右为本地区上限。
     // 余额直接复用上面的 AutoStockCurrentStockBill（亮色数字）；上限是灰色数字，亮色过滤拿不到，
     // 所以用一个大范围 RGB 灰阶匹配把「/上限」这段灰字框出来，再按这个框做 OCR。
+    // 上限 OCR 会用 replace 去掉斜杠及其左侧内容：斜杠本身不参与数值比较，留着只会让读数不是纯数字。
     "CurrentStockBillCapColor": {
         "desc": "识别调度券上限文字颜色（「余额/上限」斜杠右侧的灰色数字）",
         "recognition": {
@@ -103,6 +104,12 @@
                 ],
                 "expected": [
                     "\\d+"
+                ],
+                "replace": [
+                    [
+                        "^[^/]*/",
+                        ""
+                    ]
                 ],
                 "color_filter": "CurrentStockBillCapColor"
             }
