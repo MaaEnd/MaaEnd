@@ -53,8 +53,6 @@ type tableOrder struct {
 }
 
 var (
-	menuRoutes         = []string{"RestaurantMenuStapleComplete", "RestaurantMenuVegetableComplete", "RestaurantMenuDishesComplete", "RestaurantMenuDrinksComplete", "RestaurantMenuClickCard", "RestaurantMenuAdvanceCard", "RestaurantMenuReadCard", "RestaurantMenuInsufficient"}
-	runtimeRoutes      = []string{"RestaurantRuntimeSwitchKitchen1", "RestaurantRuntimeSwitchKitchen2", "RestaurantRuntimeSwitchKitchen3", "RestaurantRuntimeNextKitchen", "RestaurantRuntimeClickDish1", "RestaurantRuntimeClickDish2", "RestaurantRuntimeClickDish3", "RestaurantRuntimeClickDish4", "RestaurantRuntimeClickDish5", "RestaurantRuntimeClickDish6", "RestaurantRuntimeIdle"}
 	innkeepingData     menuCatalog
 	innkeepingDataOnce sync.Once
 	innkeepingDataErr  error
@@ -70,7 +68,7 @@ func (a *DecisionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		log.Error().Err(err).Str("component", "YuanyuanManorInnkeepingDecide").Msg("cannot parse innkeeping decision parameters")
 		return false
 	}
-	raw, err := ctx.GetNodeJSON("RestaurantState")
+	raw, err := ctx.GetNodeJSON(nodeRestaurantState)
 	if err != nil {
 		log.Error().Err(err).Str("component", "YuanyuanManorInnkeepingDecide").Str("step", param.Step).Msg("cannot read innkeeping state node")
 		return false
@@ -93,7 +91,7 @@ func (a *DecisionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	case "menu_card":
 		err = chooseMenuCard(state, observed, patch)
 	case "menu_advance":
-		if state.Menu.ClickingID == "" || !observed.hit("RestaurantMenuSelectedCircle") {
+		if state.Menu.ClickingID == "" || !observed.hit(nodeMenuSelectedCircle) {
 			return false
 		}
 		rememberMenuItem(&state.Menu, state.Menu.ClickingID)
@@ -118,7 +116,7 @@ func (a *DecisionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		log.Error().Err(err).Str("component", "YuanyuanManorInnkeepingDecide").Str("step", param.Step).Msg("innkeeping decision failed")
 		return false
 	}
-	patch["RestaurantState"] = map[string]any{"attach": map[string]any{"state": state}}
+	patch[nodeRestaurantState] = map[string]any{"attach": map[string]any{"state": state}}
 	if err := ctx.OverridePipeline(patch); err != nil {
 		log.Error().Err(err).Str("component", "YuanyuanManorInnkeepingDecide").Msg("cannot store innkeeping decision")
 		return false
@@ -238,7 +236,7 @@ func chooseMenuCard(state *session, observed observations, patch map[string]any)
 	if menu.Index < 0 || menu.Index >= len(menu.Cards) || menu.ClickingID != "" {
 		return fmt.Errorf("menu candidate state is missing")
 	}
-	id, err := readIcon(observed, "RestaurantMenuCardIcon")
+	id, err := readIcon(observed, nodeMenuCardIcon)
 	if err != nil {
 		return err
 	}
@@ -258,9 +256,9 @@ func chooseMenuCard(state *session, observed observations, patch map[string]any)
 	}
 	card := menu.Cards[menu.Index]
 	menu.ClickingID = id
-	route(patch, menuRoutes, "RestaurantMenuClickCard")
-	patch["RestaurantMenuAdvanceCard"] = map[string]any{"enabled": true}
-	patch["RestaurantMenuClickCard"] = map[string]any{
+	route(patch, menuRoutes, nodeMenuClickCard)
+	patch[nodeMenuAdvanceCard] = map[string]any{"enabled": true}
+	patch[nodeMenuClickCard] = map[string]any{
 		"enabled": true,
 		"target":  []int{card[0] + 230, card[1] + 46},
 	}
@@ -268,7 +266,7 @@ func chooseMenuCard(state *session, observed observations, patch map[string]any)
 }
 
 func readMenuCardQuantity(observed observations) (int, error) {
-	detail := observed["RestaurantMenuCardQuantity"]
+	detail := observed[nodeMenuCardQuantity]
 	if detail == nil || detail.Results == nil {
 		return 0, fmt.Errorf("missing menu card quantity OCR")
 	}
@@ -302,18 +300,18 @@ func nextMenuCard(state *session, patch map[string]any) error {
 				state.Runtime.Cache[id] = 0
 			}
 			all := slices.Concat(menu.Dishes, menu.Drinks)
-			for table := 1; table <= 6; table++ {
-				setTableObservation(patch, table, tableOrder{})
-				for _, layout := range []string{"SinglePoint1", "DoublePoint1", "DoublePoint2"} {
-					iconCandidates(patch, fmt.Sprintf("RestaurantTable%d%sIcon", table, layout), all)
+			for _, tableNode := range tableNodes {
+				setTableObservation(patch, tableNode, tableOrder{})
+				for _, iconNode := range tableNode.iconNodes() {
+					iconCandidates(patch, iconNode, all)
 				}
 			}
 			menu.Cards = nil
 		} else {
 			complete := map[string]string{
-				"staple":    "RestaurantMenuStapleComplete",
-				"vegetable": "RestaurantMenuVegetableComplete",
-				"dessert":   "RestaurantMenuDishesComplete",
+				"staple":    nodeMenuStapleComplete,
+				"vegetable": nodeMenuVegetableComplete,
+				"dessert":   nodeMenuDishesComplete,
 			}[menu.Category]
 			if complete == "" {
 				return fmt.Errorf("invalid dish category %q", menu.Category)
@@ -321,11 +319,11 @@ func nextMenuCard(state *session, patch map[string]any) error {
 			route(patch, menuRoutes, complete)
 			return nil
 		}
-		route(patch, menuRoutes, "RestaurantMenuDrinksComplete")
+		route(patch, menuRoutes, nodeMenuDrinksComplete)
 		return nil
 	}
 	if menu.Index >= len(menu.Cards) {
-		route(patch, menuRoutes, "RestaurantMenuInsufficient")
+		route(patch, menuRoutes, nodeMenuInsufficient)
 		return nil
 	}
 	data, err := loadInnkeepingData()
@@ -338,18 +336,18 @@ func nextMenuCard(state *session, patch map[string]any) error {
 	} else {
 		ids = data.Drinks
 	}
-	iconCandidates(patch, "RestaurantMenuCardIcon", ids, iconrecognition.WithThreshold(0.75))
+	iconCandidates(patch, nodeMenuCardIcon, ids, iconrecognition.WithThreshold(0.75))
 	card := menu.Cards[menu.Index]
-	patch["RestaurantMenuCardQuantity"] = map[string]any{
+	patch[nodeMenuCardQuantity] = map[string]any{
 		"roi": []int{card[0] + 4, card[1] + 66, card[2] - 184, card[3] - 72},
 	}
-	patch["RestaurantMenuCardAnchor"] = map[string]any{
+	patch[nodeMenuCardAnchor] = map[string]any{
 		"recognition": map[string]any{
 			"type":  "DirectHit",
 			"param": map[string]any{"roi": menu.Cards[menu.Index]},
 		},
 	}
-	route(patch, menuRoutes, "RestaurantMenuReadCard")
+	route(patch, menuRoutes, nodeMenuReadCard)
 	return nil
 }
 
@@ -363,10 +361,10 @@ type menuCatalog struct {
 // of using the E-key route reserved for recognition failures.
 func chooseKitchen(observed observations) (kitchen int, full bool) {
 	minimum := 3
-	for number := 1; number <= 3; number++ {
+	for index, counts := range nodeKitchenCounts {
 		count := -1
-		for value := 0; value <= 3; value++ {
-			if observed.hit(fmt.Sprintf("RestaurantKitchen%dCount%d", number, value)) {
+		for value, countNode := range counts {
+			if observed.hit(countNode) {
 				count = value
 				break
 			}
@@ -374,6 +372,7 @@ func chooseKitchen(observed observations) (kitchen int, full bool) {
 		if count < 0 {
 			return 0, false
 		}
+		number := index + 1
 		if kitchen == 0 || count < minimum {
 			kitchen, minimum = number, count
 		}
@@ -382,28 +381,28 @@ func chooseKitchen(observed observations) (kitchen int, full bool) {
 }
 
 // Filed tables run only Dining OCR; unfiled tables scan for one- or two-point orders.
-func setTableObservation(patch map[string]any, table int, order tableOrder) {
-	prefix := fmt.Sprintf("RestaurantTable%d", table)
-	nodes := []string{"RestaurantObservationEmpty"}
+func setTableObservation(patch map[string]any, tableNode tableNodeGroup, order tableOrder) {
+	nodes := []string{nodeObservationEmpty}
 	if len(order.Items) > 0 {
-		nodes = []string{prefix + "Dining", "RestaurantObservationEmpty"}
+		nodes = []string{tableNode.dining, nodeObservationEmpty}
 	} else {
-		nodes = []string{prefix + "SingleOrder", prefix + "DoubleOrder", "RestaurantObservationEmpty"}
+		nodes = []string{tableNode.singleOrder, tableNode.doubleOrder, nodeObservationEmpty}
 	}
-	patch[prefix+"Observation"] = map[string]any{"any_of": nodes}
+	patch[tableNode.observation] = map[string]any{"any_of": nodes}
 }
 
-func readTableOrder(observed observations, table int) ([]string, error) {
-	prefix := fmt.Sprintf("RestaurantTable%d", table)
-	layout, count := "Single", 1
-	if observed.hit(prefix + "DoubleOrder") {
-		layout, count = "Double", 2
-	} else if !observed.hit(prefix + "SingleOrder") {
+func readTableOrder(observed observations, tableNode tableNodeGroup) ([]string, error) {
+	var iconNodes []string
+	if observed.hit(tableNode.doubleOrder) {
+		iconNodes = []string{tableNode.doublePoint1Icon, tableNode.doublePoint2Icon}
+	} else if observed.hit(tableNode.singleOrder) {
+		iconNodes = []string{tableNode.singlePoint1Icon}
+	} else {
 		return nil, nil
 	}
-	items := make([]string, 0, count)
-	for point := 1; point <= count; point++ {
-		id, err := readIcon(observed, fmt.Sprintf("%s%sPoint%dIcon", prefix, layout, point))
+	items := make([]string, 0, len(iconNodes))
+	for _, iconNode := range iconNodes {
+		id, err := readIcon(observed, iconNode)
 		if err != nil {
 			return nil, err
 		}
@@ -419,9 +418,9 @@ func observeTables(current *runtimeState, observed observations, patch map[strin
 	for index := range current.Tables {
 		order := &current.Tables[index]
 		table := index + 1
-		prefix := fmt.Sprintf("RestaurantTable%d", table)
+		tableNode := tableNodes[index]
 		if len(order.Items) > 0 {
-			if observed.hit(prefix + "Dining") {
+			if observed.hit(tableNode.dining) {
 				for _, id := range order.Items {
 					if cached, dish := current.Cache[id]; dish {
 						current.Cache[id] = max(cached-1, 0)
@@ -429,17 +428,17 @@ func observeTables(current *runtimeState, observed observations, patch map[strin
 				}
 				log.Debug().Int("table", table).Strs("items", order.Items).Msg("dining table cleared; order deducted from cache")
 				*order = tableOrder{}
-				setTableObservation(patch, table, *order)
+				setTableObservation(patch, tableNode, *order)
 			}
 			continue
 		}
-		items, err := readTableOrder(observed, table)
+		items, err := readTableOrder(observed, tableNode)
 		if err != nil {
 			return err
 		}
 		if len(items) > 0 {
 			*order = tableOrder{Items: items}
-			setTableObservation(patch, table, *order)
+			setTableObservation(patch, tableNode, *order)
 			log.Debug().Int("table", table).Strs("items", items).Msg("table order filed")
 		}
 	}
@@ -449,15 +448,15 @@ func observeTables(current *runtimeState, observed observations, patch map[strin
 // A waving marker takes precedence over the two-portion pre-stock limit.
 // Otherwise, choose the first under-stocked dish in selected menu order.
 func chooseDish(state *session, observed observations) (string, int) {
-	for slot := 1; slot <= 6; slot++ {
-		prefix := fmt.Sprintf("RestaurantRecipe%d", slot)
-		if !observed.hit(prefix + "RestockMarker") {
+	for index, markerNode := range nodeRecipeRestockMarkers {
+		if !observed.hit(markerNode) {
 			continue
 		}
+		slot := index + 1
 		if slot > len(state.Menu.Dishes) {
 			return "", 0
 		}
-		return state.Menu.Dishes[slot-1], slot
+		return state.Menu.Dishes[index], slot
 	}
 	for index, id := range state.Menu.Dishes {
 		if state.Runtime.Cache[id] < 2 {
@@ -478,24 +477,24 @@ func decideRuntime(state *session, observed observations, patch map[string]any) 
 	id, slot := chooseDish(state, observed)
 	kitchen, full := chooseKitchen(observed)
 	if id == "" || full {
-		route(patch, runtimeRoutes, "RestaurantRuntimeIdle")
+		route(patch, runtimeRoutes, nodeRuntimeIdle)
 		return nil
 	}
 	current.PendingID = id
-	target := "RestaurantKitchenPanelReady"
-	name := "RestaurantRuntimeNextKitchen"
+	target := nodeKitchenPanelReady
+	name := nodeRuntimeNextKitchen
 	if kitchen != 0 {
-		target = fmt.Sprintf("RestaurantKitchen%dSelected", kitchen)
+		target = nodeKitchenSelected[kitchen-1]
 		name = ""
 		if !observed.hit(target) {
-			name = fmt.Sprintf("RestaurantRuntimeSwitchKitchen%d", kitchen)
+			name = nodeRuntimeSwitchKitchens[kitchen-1]
 		}
 	}
-	patch["RestaurantRuntimeTargetKitchen"] = map[string]any{"all_of": []string{target}}
+	patch[nodeRuntimeTargetKitchen] = map[string]any{"all_of": []string{target}}
 	route(patch, runtimeRoutes, name)
 	// The runtime recipe card order matches the selected menu order; enable its fixed slot click.
-	for cardSlot := 1; cardSlot <= 6; cardSlot++ {
-		patch[fmt.Sprintf("RestaurantRuntimeClickDish%d", cardSlot)] = map[string]any{"enabled": cardSlot == slot}
+	for index, clickNode := range nodeRuntimeClickDishes {
+		patch[clickNode] = map[string]any{"enabled": index+1 == slot}
 	}
 	return nil
 }
