@@ -2685,6 +2685,8 @@
     "task.EssenceFilter.focus.afterbattle_tier_boundary_flawless": "무결만 선택: 순수 기질이 감지되어 전투 후 필터를 종료합니다",
     "task.EssenceFilter.focus.afterbattle_tier_skip_pure_only": "순수만 선택: 무결 기질을 건너뜁니다",
     "task.EssenceFilter.label": "🔒 기질 필터 잠금",
+    "task.ExclusionZoneRebuilding.description": "무릉의 금지 구역 재건에 들어가 지속 유지 단계의 보상을 받습니다",
+    "task.ExclusionZoneRebuilding.label": "🛠️금지 구역 재건",
     "task.GearAssembly.description": "지정된 등급의 장비를 자동으로 제조합니다",
     "task.GearAssembly.label": "🔧장비 제조",
     "task.GearAssembly.option.GearAssemblySortOrder.cases.Higher.label": "기본 내림차순",

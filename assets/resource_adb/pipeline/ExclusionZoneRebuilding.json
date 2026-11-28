@@ -1,0 +1,34 @@
+{
+    "ExclusionZoneRebuildingConstructionStage": {
+        "roi": [
+            970,
+            72,
+            170,
+            48
+        ]
+    },
+    "ExclusionZoneRebuildingPage": {
+        "roi": [
+            970,
+            72,
+            170,
+            48
+        ]
+    },
+    "ExclusionZoneRebuildingUnavailableButton": {
+        "roi": [
+            1105,
+            294,
+            140,
+            46
+        ]
+    },
+    "ExclusionZoneRebuildingClaimButton": {
+        "roi": [
+            1105,
+            294,
+            140,
+            46
+        ]
+    }
+}

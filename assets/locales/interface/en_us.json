@@ -2685,6 +2685,8 @@
     "task.EssenceFilter.focus.afterbattle_tier_boundary_flawless": "Flawless-only: Pure essence detected, exiting post-battle filter",
     "task.EssenceFilter.focus.afterbattle_tier_skip_pure_only": "Pure-only: Skipping flawless essence",
     "task.EssenceFilter.label": "🔒 Essence Filter Lock",
+    "task.ExclusionZoneRebuilding.description": "Open the Exclusion Zone Rebuilding in Wuling and claim its Routine Maintenance rewards",
+    "task.ExclusionZoneRebuilding.label": "🛠️Exclusion Zone Rebuilding",
     "task.GearAssembly.description": "Automatically craft a gear of the specified level",
     "task.GearAssembly.label": "🔧Gear Assembly",
     "task.GearAssembly.option.GearAssemblySortOrder.cases.Higher.label": "Default Descending",

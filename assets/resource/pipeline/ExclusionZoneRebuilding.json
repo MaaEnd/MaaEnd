@@ -1,0 +1,140 @@
+{
+    "ExclusionZoneRebuildingEntry": {
+        "desc": "进入武陵重建禁区",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ExclusionZoneRebuildingInScene",
+            "[JumpBack]SceneEnterMenuRegionalDevelopmentWulingExclusionZoneRebuilding"
+        ]
+    },
+    "ExclusionZoneRebuildingInScene": {
+        "desc": "在重建禁区内检查维护奖励",
+        "recognition": "And",
+        "all_of": [
+            "InRegionalDevelopmentWulingExclusionZoneRebuilding"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ExclusionZoneRebuildingConstructionStage",
+            "ExclusionZoneRebuildingClaim",
+            "ExclusionZoneRebuildingEmpty"
+        ]
+    },
+    "ExclusionZoneRebuildingConstructionStage": {
+        "desc": "识别重建禁区的阶段一至三并结束维护奖励任务",
+        "recognition": "OCR",
+        "roi": [
+            1000,
+            52,
+            183,
+            48
+        ],
+        "expected": [
+            "南部建设",
+            "南部建設",
+            "(?i)Rebuilding\\s*:\\s*South",
+            "北部建设",
+            "北部建設",
+            "(?i)Rebuilding\\s*:\\s*North",
+            "阵列点火",
+            "陣列點火",
+            "(?i)Array\\s*Ignition",
+            "陣の点火"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": []
+    },
+    "ExclusionZoneRebuildingClaim": {
+        "desc": "识别并点击黄色领取按钮",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "ExclusionZoneRebuildingPage",
+                    "ExclusionZoneRebuildingClaimButton"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "next": [
+            "SceneNoticeRewardsConfirm"
+        ]
+    },
+    "ExclusionZoneRebuildingEmpty": {
+        "desc": "识别暂无奖励按钮，确认本轮无奖励可领",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "ExclusionZoneRebuildingPage",
+                    "ExclusionZoneRebuildingUnavailableButton"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": []
+    },
+
+    "ExclusionZoneRebuildingPage": {
+        "desc": "识别持续维护阶段标题",
+        "recognition": "OCR",
+        "roi": [
+            1000,
+            52,
+            183,
+            48
+        ],
+        "expected": [
+            "持续维护",
+            "持續維護",
+            "(?i)Routine\\s*Maintenance",
+            "長期運営"
+        ]
+    },
+    "ExclusionZoneRebuildingUnavailableButton": {
+        "desc": "识别暂无奖励按钮",
+        "recognition": "OCR",
+        "roi": [
+            1134,
+            234,
+            117,
+            38
+        ],
+        "expected": [
+            "暂无奖励",
+            "尚無獎勵",
+            "(?i)No\\s*Rewards",
+            "報酬なし"
+        ]
+    },
+    "ExclusionZoneRebuildingClaimButton": {
+        "desc": "识别黄色领取按钮",
+        "recognition": "ColorMatch",
+        "roi": [
+            1134,
+            234,
+            117,
+            38
+        ],
+        "method": 40,
+        "lower": [
+            22,
+            160,
+            180
+        ],
+        "upper": [
+            36,
+            255,
+            255
+        ],
+        "connected": true,
+        "count": 500
+    }
+}

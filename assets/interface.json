@@ -234,6 +234,7 @@
         "tasks/DeliveryJobs.json",
         "tasks/AutoStockpile.json",
         "tasks/EnvironmentMonitoring.json",
+        "tasks/ExclusionZoneRebuilding.json",
         "tasks/AutoSell.json",
         "tasks/AutoStockStaple.json",
         "tasks/TrialOfSwordmancy.json",

@@ -2685,6 +2685,8 @@
     "task.EssenceFilter.focus.afterbattle_tier_boundary_flawless": "純粋のみ選択中：清浄基質を検出したため、戦闘後フィルタを終了します",
     "task.EssenceFilter.focus.afterbattle_tier_skip_pure_only": "清浄のみ選択中：純粋基質をスキップします",
     "task.EssenceFilter.label": "🔒基質フィルターロック",
+    "task.ExclusionZoneRebuilding.description": "武陵の封鎖区域再建を開き、長期運営段階の報酬を受け取ります",
+    "task.ExclusionZoneRebuilding.label": "🛠️封鎖区域再建",
     "task.GearAssembly.description": "指定された等級の装備を自動で製造します",
     "task.GearAssembly.label": "🔧装備製造",
     "task.GearAssembly.option.GearAssemblySortOrder.cases.Higher.label": "デフォルト降順",

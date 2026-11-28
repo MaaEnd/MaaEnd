@@ -2685,6 +2685,8 @@
     "task.EssenceFilter.focus.afterbattle_tier_boundary_flawless": "僅選擇無瑕基質：偵測到高純基質，退出戰後篩選",
     "task.EssenceFilter.focus.afterbattle_tier_skip_pure_only": "僅選擇高純基質：跳過無瑕基質",
     "task.EssenceFilter.label": "🔒基質篩選鎖定",
+    "task.ExclusionZoneRebuilding.description": "進入武陵的重建禁區，領取持續維護階段的獎勵",
+    "task.ExclusionZoneRebuilding.label": "🛠️重建禁區",
     "task.GearAssembly.description": "自動製造指定等級的裝備",
     "task.GearAssembly.label": "🔧裝備製造",
     "task.GearAssembly.option.GearAssemblySortOrder.cases.Higher.label": "預設降序",
