@@ -446,7 +446,6 @@
                         "__AutoUseSpMedicationOCRRecognitionEmergencySanityBoosterRemainingTime": {
                             "expected": [
                                 // 剩余时间 OCR：行首锚定，避免匹配「剩余23小时」「剩余1天」等带前缀文本
-                                // @i18n-skip
                                 "^(\\d+小时|([1-9]|1[0-3])天)"
                             ]
                         }
@@ -459,7 +458,6 @@
                         "__AutoUseSpMedicationOCRRecognitionEmergencySanityBoosterRemainingTime": {
                             "expected": [
                                 // 剩余时间 OCR：行首锚定，避免匹配「剩余23小时」「剩余1天」等带前缀文本
-                                // @i18n-skip
                                 "^(\\d+小时|([1-9]|10)天)"
                             ]
                         }
@@ -472,7 +470,6 @@
                         "__AutoUseSpMedicationOCRRecognitionEmergencySanityBoosterRemainingTime": {
                             "expected": [
                                 // 剩余时间 OCR：行首锚定，避免匹配「剩余23小时」「剩余1天」等带前缀文本
-                                // @i18n-skip
                                 "^(\\d+小时|[1-7]天)"
                             ]
                         }
@@ -485,7 +482,6 @@
                         "__AutoUseSpMedicationOCRRecognitionEmergencySanityBoosterRemainingTime": {
                             "expected": [
                                 // 剩余时间 OCR：行首锚定，避免匹配「剩余23小时」「剩余1天」等带前缀文本
-                                // @i18n-skip
                                 "^(\\d+小时|[1-3]天)"
                             ]
                         }
@@ -498,7 +494,6 @@
                         "__AutoUseSpMedicationOCRRecognitionEmergencySanityBoosterRemainingTime": {
                             "expected": [
                                 // 剩余时间 OCR：行首锚定，避免匹配「剩余23小时」「剩余1天」等带前缀文本
-                                // @i18n-skip
                                 "^(\\d+小时|1天)"
                             ]
                         }

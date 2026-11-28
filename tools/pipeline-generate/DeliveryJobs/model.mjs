@@ -34,6 +34,7 @@ function escapeRegex(text) {
     return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+// 英文展开成忽略大小写的宽松正则，词间空白用 \s* 匹配，容忍 OCR 的空格差异。
 function toFlexibleEnglishRegex(text) {
     return `(?i)${escapeRegex(text.trim()).replace(/\s+/g, "\\s*")}`;
 }

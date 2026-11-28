@@ -85,7 +85,6 @@
             25
         ],
         "expected": [
-            // @i18n-skip
             "^[0-9]+$"
         ],
         "only_rec": true,

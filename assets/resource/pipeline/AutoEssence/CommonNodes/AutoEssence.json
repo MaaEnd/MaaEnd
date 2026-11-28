@@ -453,7 +453,6 @@
             "param": {
                 "roi": "__AutoEssenceEngraveCondition1HighlightColor",
                 "expected": [
-                    // @i18n-skip
                     ""
                 ],
                 "only_rec": true
@@ -467,7 +466,6 @@
             "param": {
                 "roi": "__AutoEssenceEngraveCondition1HighlightColor",
                 "expected": [
-                    // @i18n-skip
                     ""
                 ],
                 "only_rec": true
@@ -481,7 +479,6 @@
             "param": {
                 "roi": "__AutoEssenceEngraveCondition1HighlightColor",
                 "expected": [
-                    // @i18n-skip
                     ""
                 ],
                 "only_rec": true
@@ -495,7 +492,6 @@
             "param": {
                 "roi": "__AutoEssenceEngraveCondition1HighlightColor",
                 "expected": [
-                    // @i18n-skip
                     ""
                 ],
                 "only_rec": true
@@ -509,7 +505,6 @@
             "param": {
                 "roi": "__AutoEssenceEngraveCondition1HighlightColor",
                 "expected": [
-                    // @i18n-skip
                     ""
                 ],
                 "only_rec": true
@@ -535,7 +530,6 @@
             "param": {
                 "roi": "__AutoEssenceEngraveCondition2HighlightColor",
                 "expected": [
-                    // @i18n-skip
                     ""
                 ],
                 "replace": [
@@ -837,7 +831,6 @@
                     540
                 ],
                 "expected": [
-                    // @i18n-skip
                     "a^"
                 ],
                 "replace": [
@@ -1030,7 +1023,6 @@
                     200
                 ],
                 "expected": [
-                    // @i18n-skip
                     "当前未进行基质预刻写",
                     "目前未預刻寫基質",
                     "(?i)No\\s*essence\\s*pre\\s*-?\\s*engraving",
@@ -1062,7 +1054,6 @@
                     1280,
                     200
                 ],
-                // @i18n-skip
                 "expected": [
                     "当前理智不足",
                     "目前理智不足",
@@ -1090,7 +1081,6 @@
                     1280,
                     200
                 ],
-                // @i18n-skip
                 "expected": [
                     "当前理智不足",
                     "目前理智不足",
@@ -1141,7 +1131,6 @@
                     1280,
                     200
                 ],
-                // @i18n-skip
                 "expected": [
                     "当前理智不足",
                     "目前理智不足",

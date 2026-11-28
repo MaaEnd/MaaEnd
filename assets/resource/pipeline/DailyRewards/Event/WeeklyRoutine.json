@@ -112,7 +112,6 @@
         "roi": "DailyEventUnreadWeeklyRoutineColor",
         "expected": [
             // 每周事务
-            // @i18n-skip
             "周事务",
             "週事務",
             "Routine",

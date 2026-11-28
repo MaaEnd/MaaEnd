@@ -266,7 +266,7 @@ function escapeRegExp(text) {
     return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-// NPC 的交互提示只显示角色名，按五语言名称复核；写法与 tools/i18n 展开的 expected 一致。
+// NPC 的交互提示只显示角色名，按五语言名称复核；英文展开成忽略大小写的宽松正则，词间空白用 \s* 匹配。
 function buildNameExpected(name, label) {
     const texts = [
         assertNonEmptyString(name?.zh_cn, `${label}.name.zh_cn`),

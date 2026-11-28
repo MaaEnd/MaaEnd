@@ -597,7 +597,6 @@
                 ],
                 "expected": [
                     // 信赖度数值，含满信赖 200
-                    // @i18n-skip
                     "\\d+"
                 ],
                 "only_rec": true,
@@ -697,7 +696,6 @@
                     0
                 ],
                 "expected": [
-                    // @i18n-skip
                     ".*"
                 ]
             }

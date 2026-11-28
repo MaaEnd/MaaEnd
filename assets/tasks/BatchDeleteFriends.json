@@ -30,7 +30,6 @@
                         "BatchDeleteFriendsInactive": {
                             "expected": [
                                 // 文案：在线 / X小时X分钟前在线 / X天X小时前在线；≥1 天
-                                // @i18n-skip
                                 "[1-9]\\d*天.*前在线"
                             ]
                         }
@@ -43,7 +42,6 @@
                         "BatchDeleteFriendsInactive": {
                             "expected": [
                                 // ≥3 天：匹配「N天…前在线」且 N≥3
-                                // @i18n-skip
                                 "(?:[3-9]|[1-9]\\d+)天.*前在线"
                             ]
                         }
@@ -56,7 +54,6 @@
                         "BatchDeleteFriendsInactive": {
                             "expected": [
                                 // ≥7 天
-                                // @i18n-skip
                                 "(?:[7-9]|[1-9]\\d+)天.*前在线"
                             ]
                         }
@@ -69,7 +66,6 @@
                         "BatchDeleteFriendsInactive": {
                             "expected": [
                                 // ≥14 天
-                                // @i18n-skip
                                 "(?:1[4-9]|[2-9]\\d+)天.*前在线"
                             ]
                         }
@@ -82,7 +78,6 @@
                         "BatchDeleteFriendsInactive": {
                             "expected": [
                                 // ≥30 天
-                                // @i18n-skip
                                 "(?:[3-9]\\d|\\d{3,})天.*前在线"
                             ]
                         }
@@ -95,7 +90,6 @@
                         "BatchDeleteFriendsInactive": {
                             "expected": [
                                 // ≥60 天
-                                // @i18n-skip
                                 "(?:[6-9]\\d|\\d{3,})天.*前在线"
                             ]
                         }

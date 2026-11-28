@@ -149,7 +149,6 @@
         ],
         "expected": [
             // LV.90
-            // @i18n-skip
             "LV",
             "Lv",
             "lV",

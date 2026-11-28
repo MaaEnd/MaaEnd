@@ -97,7 +97,6 @@
                         "UmbralMonumentNameText": {
                             // 山中见犼 / 山中見犼：OCR 会把「犼」识别成「孔」
                             "expected": [
-                                // @i18n-skip
                                 "山中见.",
                                 "山中見.",
                                 "(?i)Howlers\\s*of\\s*the\\s*Crag",

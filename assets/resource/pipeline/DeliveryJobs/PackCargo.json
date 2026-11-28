@@ -108,7 +108,6 @@
             -2
         ],
         "expected": [
-            // @i18n-skip
             "\\d+(?:[.,]\\d+)?"
         ],
         "replace": [
@@ -583,7 +582,6 @@
             // "Get %s%d deposit right now and transfer delivery job to another courier?"
             // "すぐに手付取引券%s%dを獲得し、配達任務を外部に依頼します。続行しますか？"
             // "%s%d의 계약금만 받고 운송 의뢰를 다른 사람에게 바로 위탁하시겠습니까?"
-            // @i18n-skip
             "并将运送任务委托他人派送",
             "並將運送任務委託他人運送",
             "(?i)transfer\\s*delivery\\s*job\\s*to\\s*another\\s*courier",

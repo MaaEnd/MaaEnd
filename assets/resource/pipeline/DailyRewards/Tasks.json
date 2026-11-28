@@ -201,7 +201,6 @@
                     // 通行證等級提升，可前往查看獎勵
                     // Pass level up; go to the Protocol Pass for rewards
                     // 通行証レべルがアップしました。報酬をご確認ください。
-                    // @i18n-skip
                     "通行证等级提升",
                     "通行證等級提升",
                     "(?i)Pass\\s*level\\s*up",

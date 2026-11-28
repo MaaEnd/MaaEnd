@@ -359,7 +359,6 @@
                     265
                 ],
                 "expected": [
-                    // @i18n-skip
                     "a^"
                 ],
                 "order_by": "Vertical"
