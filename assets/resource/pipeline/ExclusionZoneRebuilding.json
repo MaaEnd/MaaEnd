@@ -1,6 +1,8 @@
 {
     "ExclusionZoneRebuildingEntry": {
         "desc": "进入武陵重建禁区",
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
             "ExclusionZoneRebuildingInScene",
             "[JumpBack]SceneEnterMenuRegionalDevelopmentWulingExclusionZoneRebuilding"
@@ -13,9 +15,7 @@
             "InRegionalDevelopmentWulingExclusionZoneRebuilding"
         ],
         "pre_delay": 0,
-        "post_wait_freezes": 500,
         "post_delay": 0,
-        "rate_limit": 0,
         "next": [
             "ExclusionZoneRebuildingConstructionStage",
             "ExclusionZoneRebuildingClaim",
@@ -28,7 +28,7 @@
         "roi": [
             1000,
             52,
-            171,
+            183,
             48
         ],
         "expected": [
@@ -43,9 +43,10 @@
             "(?i)Array\\s*Ignition",
             "陣の点火"
         ],
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": []
     },
-
     "ExclusionZoneRebuildingClaim": {
         "desc": "识别并点击黄色领取按钮",
         "recognition": {
@@ -76,15 +77,18 @@
                 ]
             }
         },
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": []
     },
+
     "ExclusionZoneRebuildingPage": {
         "desc": "识别持续维护阶段标题",
         "recognition": "OCR",
         "roi": [
             1000,
             52,
-            171,
+            183,
             48
         ],
         "expected": [
@@ -111,6 +115,7 @@
         ]
     },
     "ExclusionZoneRebuildingClaimButton": {
+        "desc": "识别黄色领取按钮",
         "recognition": "ColorMatch",
         "roi": [
             1134,
@@ -130,9 +135,6 @@
             255
         ],
         "connected": true,
-        "count": 500,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
+        "count": 500
     }
 }
