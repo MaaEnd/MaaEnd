@@ -558,6 +558,9 @@ jobs:
           if [[ -f "$APP_NAME/Contents/MacOS/agent/cpp-algo" ]]; then
             chmod +x "$APP_NAME/Contents/MacOS/agent/cpp-algo"
           fi
+          # Finder rewrites file names to NFD when the app is dragged out of the DMG.
+          # Seal NFD names so that rewrite is a no-op and the signature survives install.
+          python3 .github/scripts/normalize_macos_bundle_names.py "$APP_NAME"
           codesign --force --deep --sign - "$APP_NAME"
 
           create-dmg \
@@ -577,9 +580,15 @@ jobs:
         shell: bash
         run: |
           mount_point="$(mktemp -d "$RUNNER_TEMP/maaend-dmg-check.XXXXXX")"
+          install_copy="$(mktemp -d "$RUNNER_TEMP/maaend-install-check.XXXXXX")"
           hdiutil attach -readonly -nobrowse -mountpoint "$mount_point" MaaEnd.dmg
-          trap 'hdiutil detach "$mount_point"' EXIT
+          trap 'hdiutil detach "$mount_point"; rm -rf "$install_copy"' EXIT
           codesign --verify --deep --strict --verbose=2 "$mount_point/MaaEnd.app"
+          # Every name must already be NFD, otherwise a Finder install would break the seal.
+          python3 .github/scripts/normalize_macos_bundle_names.py --check "$mount_point/MaaEnd.app"
+          # The copy a user installs must still verify.
+          ditto "$mount_point/MaaEnd.app" "$install_copy/MaaEnd.app"
+          codesign --verify --deep --strict --verbose=2 "$install_copy/MaaEnd.app"
 
       - uses: actions/upload-artifact@v6
         with:
