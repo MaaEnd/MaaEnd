@@ -255,7 +255,7 @@ After all three match, click the item card (`target_offset: [-45, 85, -30, 0]`),
 
 ### 5. Sold-Out and Swiping
 
-- `AutoStockSoldOut{Region}`: OCR recognizes text like "Sold Out / 已售罄" on the left; once matched, it stops swiping. The sold-out text only appears at the end of the list, so it first [resets the list](#resetting-the-list-after-sold-out) and then [branches](#branching-on-the-voucher-cap-after-sold-out) on the top-right reading. `max_hit: 1` keeps the branch from firing again when the flow returns to the list.
+- `AutoStockSoldOut{Region}`: OCR recognizes text like "Sold Out / 已售罄" on the left; once matched, it stops swiping. The sold-out text only appears at the end of the list, so it first [resets the list](#resetting-the-list-after-sold-out) and then [reports whether vouchers overflow](#reporting-overflow-after-sold-out). `max_hit: 1` keeps the branch from firing again when the flow returns to the list.
 - `AutoStockSwipe{Region}`: swipes down within the regional page, `post_wait_freezes` waits for the list area to stabilize before entering the next round of recognition. `max_hit` is `25`, i.e. at most 25 swipes per region; the count accumulates within one task run, and purchase round-trips do not consume it.
     - The loop has only two exit signals: the sold-out branch reaches the shared `EmptyNode`, or the 25 swipes run out and `AutoStockNoMoreTarget{Region}` catches it (it sits after the swipe node, so it only hits once that node is skipped by `max_hit`), ending the region scan as "list at its end and no matching item".
     - So `max_hit` and `AutoStockNoMoreTarget{Region}` must be kept as a pair: together they are the only exit for "swiped everything without a result"; without it the region spins. Raise `max_hit` only when the list is longer than 25 screens.
@@ -274,9 +274,9 @@ Implemented in `ValleyIV.json` / `Wuling.json`; templates live in `assets/resour
 
 - The matching ROI is the left strip `[10, 120, 50, 480]`, the templates are 25×25, threshold `0.85`: measured on one screen the four categories score only 0.62–0.67 against each other while the target icon scores `1.0`, so the separation is comfortable.
 - Both nodes sit at the front of `AutoStockSoldOut{Region}.next`. If neither matches (for example on phones with different templates) the flow falls straight through to the branching nodes, behaving as if no reset capability existed.
-- The reset runs before branching: whether the flow then only notifies (current default) or, once automatic spending is enabled, returns to the list to keep buying, the list is already at the top.
+- The reset runs before reporting: whether the sold-out branch then reports an overflow or just ends the region, the list has already been brought back to the top.
 
-### Branching on the Voucher Cap after Sold Out
+### Reporting Overflow after Sold Out
 
 Implemented in `ValleyIV.json` / `Wuling.json`; the reading nodes live in `General/Template.json`.
 
@@ -294,21 +294,13 @@ The top-right dispatch voucher reading is `balance/cap` (for example `4504万/46
 Branch order: once `AutoStockResetListView{Region}` (or its `ViaLast` variant) has reset the list, `next` attempts, in order
 
 ```text
-AutoStockStockBillOverflow{Region}                   hits when balance > cap (vouchers are overflowing) and reports "spend it manually"
-  -> AutoStockStockBillOverflowRaiseReserve{Region}   `enabled: false` by default, so it is skipped
-     (when enabled: rewrites AutoStockTargetCompare{Region} to {CurrentStockBillCapText}>{AutoStockCurrentStockBill}
-      → AutoStockInStaple{Region}, back to the list loop to spend only the excess)
-EmptyNode                                            shared catch-all that ends the region scan
+AutoStockStockBillOverflow{Region}   hits when balance > cap and reports "the excess is not spent automatically, spend it manually"
+  -> the node has no next, so the chain ends and the task moves on to the next region
+EmptyNode                            balance within the cap; shared catch-all that ends the region scan
 ```
 
-- **Notify only by default**: `AutoStockStockBillOverflowRaiseReserve{Region}` ships with `enabled: false`, so an overflow only emits `$task.AutoStockStaple.focus.stock_bill_overflow.{valley_iv,wuling}` ("the excess is not spent automatically, please spend it manually") and `EmptyNode` then ends the region.
-- The disabled node stays referenced in the overflow node's `next` followed by `EmptyNode`: disabled nodes are skipped, so the list never ends up with nothing usable and an error state. To restore automatic spending, flip that node back to `enabled: true` and update the focus text.
-- Once enabled the semantics are: rewriting the reserve equals "set Reserved dispatch vouchers to the regional cap" — `AutoStockTargetCanNotBuy{Region}` only stops matching while the balance is above the cap, so the scan continues only then; once the balance falls to the cap it matches immediately and ends the region.
-- `PipelineOverride` defaults to context scope (this task run only) and never writes back the saved option value.
+- This branch **only reports, it never acts**: it does not rewrite the reserve, does not click, and never touches the saved option value. Buying still follows the Reserved dispatch vouchers option; the player spends the overflow manually.
 - If the cap reading fails (for example a narrower top-right area on phones clips it), `ExpressionRecognition` does not match and the flow falls through to the shared `EmptyNode`, i.e. the previous behaviour.
-
-> [!NOTE]
-> The companion "Buy while above the cap" switch (`AutoStockStapleOverCapPurchase`) has been removed and is no longer offered in the UI: the flow is notify-only for good. To restore automatic spending, flip `AutoStockStockBillOverflowRaiseReserve{Region}` back to `enabled: true` and change the focus text back to the "keeps only the cap amount" wording.
 
 ## Quantity Control (Purchase Popup)
 

@@ -414,10 +414,6 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
-        "next": [
-            "AutoStockStockBillOverflowRaiseReserveWuling",
-            "EmptyNode" // 改保留阈值节点默认 disabled（只提示不消耗），由空节点接住结束本地区
-        ],
         "focus": {
             "Node.Recognition.Succeeded": {
                 "content": "$task.AutoStockStaple.focus.stock_bill_overflow.wuling",
@@ -427,36 +423,5 @@
                 ]
             }
         }
-    },
-    // 默认关闭：超上限只提示、不自动消耗。要恢复“把保留阈值改成本地区上限”的行为，把 enabled 改回 true。
-    "AutoStockStockBillOverflowRaiseReserveWuling": {
-        "desc": "券溢出时把保留阈值改成该地区上限，只消耗超出上限的部分，并回到列表继续购买",
-        "enabled": false,
-        "max_hit": 1,
-        "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoStockTargetCompareWuling": {
-                            "recognition": {
-                                "param": {
-                                    "custom_recognition_param": {
-                                        "expression": "{CurrentStockBillCapText}>{AutoStockCurrentStockBill}"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoStockInStapleWuling"
-        ]
     }
 }
