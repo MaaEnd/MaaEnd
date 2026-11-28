@@ -191,10 +191,10 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "[JumpBack]InnkeepingMenuSwitchTabEntree",
-            "[JumpBack]InnkeepingMenuSwitchTabSide",
             "[JumpBack]InnkeepingMenuSwitchTabDessert",
             "[JumpBack]InnkeepingMenuSwitchTabSoup",
+            "[JumpBack]InnkeepingMenuSwitchTabEntree",
+            "[JumpBack]InnkeepingMenuSwitchTabSide",
             "[JumpBack]InnkeepingMenuSwitchTabDrinks",
             "InnkeepingStartInnkeeping"
         ]
