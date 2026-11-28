@@ -20,7 +20,7 @@ const pretty = process.argv.includes("--pretty");
 // 参数由 UILevelMapLoadConfig 中各关卡 worldRect 的并集和底图尺寸算出。
 const MAP_PLANES = {
     map01: {zone: "ValleyIV_Base", s: 0.703125, tx: 720, ty: 630},
-    map02: {zone: "Wuling_Base", s: 0.75, tx: 1536, ty: 1344},
+    map02: {zone: "Wuling_Base", s: 0.75, tx: 1632, ty: 1344},
     base01: {zone: "OMVBase01", s: 0.75, tx: 192, ty: 192},
     dung01_wrdg001: {zone: "Dung01Base", s: 0.75, tx: 384, ty: 480},
     indie_dg005: {zone: "IndieDg005Base", s: 0.75, tx: 1344, ty: -96},

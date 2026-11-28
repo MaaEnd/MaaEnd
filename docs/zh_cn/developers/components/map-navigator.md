@@ -142,10 +142,10 @@ uv run map-navigator --port 9000 --no-browser
 {
     "action": "RUN",
     "target": [
-        243.49,
-        177.53
+        98.4,
+        111
     ],
-    "target_tier": "Wuling_L4_328"
+    "target_tier": "Wuling_L4_330"
 }
 ```
 
@@ -294,10 +294,10 @@ uv run map-navigator --port 9000 --no-browser
 {
     "action": "RUN",
     "target": [
-        243.49,
-        177.53
+        98.4,
+        111
     ],
-    "target_tier": "Wuling_L4_328"
+    "target_tier": "Wuling_L4_330"
 }
 ```
 
@@ -408,7 +408,7 @@ uv run map-navigator --port 9000 --no-browser
 }
 ```
 
-该节点不产生移动，仅为后续路径点提供区域**校验**上下文。录制导出的 `path` 一般已包含。区域按所在地图判定：同一张地图上的层与底图视为同一区域，`zone_id` 写层名（如 `Wuling_L4_328`）与写底图名（`Wuling_Base`）等价。
+该节点不产生移动，仅为后续路径点提供区域**校验**上下文。录制导出的 `path` 一般已包含。区域按所在地图判定：同一张地图上的层与底图视为同一区域，`zone_id` 写层名（如 `Wuling_L4_330`）与写底图名（`Wuling_Base`）等价。
 
 ### 调整朝向：`HEADING`
 

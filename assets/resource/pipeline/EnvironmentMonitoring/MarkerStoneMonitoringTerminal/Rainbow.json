@@ -394,26 +394,23 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        243.65,
-                        182.44
-                    ],
-                    "target_tier": "Wuling_L4_328"
+                        595.65,
+                        2550.44
+                    ]
                 },
                 {
                     "action": "RUN",
                     "target": [
-                        243.5,
-                        178.04
-                    ],
-                    "target_tier": "Wuling_L4_328"
+                        595.5,
+                        2546.04
+                    ]
                 },
                 {
                     "action": "NAVMESH",
                     "target": [
-                        214.61,
-                        145.62
-                    ],
-                    "target_tier": "Wuling_L4_328"
+                        566.61,
+                        2513.62
+                    ]
                 },
                 {
                     "action": "HEADING",
@@ -449,26 +446,23 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        243.65,
-                        182.44
-                    ],
-                    "target_tier": "Wuling_L4_328"
+                        595.65,
+                        2550.44
+                    ]
                 },
                 {
                     "action": "RUN",
                     "target": [
-                        243.5,
-                        178.04
-                    ],
-                    "target_tier": "Wuling_L4_328"
+                        595.5,
+                        2546.04
+                    ]
                 },
                 {
                     "action": "NAVMESH",
                     "target": [
-                        214.61,
-                        145.62
-                    ],
-                    "target_tier": "Wuling_L4_328"
+                        566.61,
+                        2513.62
+                    ]
                 },
                 {
                     "action": "HEADING",

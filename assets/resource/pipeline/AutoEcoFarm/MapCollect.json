@@ -22,7 +22,7 @@
                     "zone": "Wuling",
                     "icon": "FarmTerminal",
                     "at": [
-                        699.101,
+                        795.101,
                         1251.929
                     ]
                 }
@@ -100,7 +100,7 @@
                     "zone": "Wuling",
                     "icon": "FarmTerminal",
                     "at": [
-                        2159.866,
+                        2255.866,
                         400.073
                     ]
                 }
@@ -189,7 +189,7 @@
                     "zone": "Wuling",
                     "icon": "Ranch",
                     "at": [
-                        2150.75,
+                        2246.75,
                         425.5
                     ]
                 }

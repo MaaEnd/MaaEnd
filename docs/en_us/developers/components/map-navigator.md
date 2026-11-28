@@ -142,10 +142,10 @@ Ordinary coordinate actions can use the same object form to declare that point's
 {
     "action": "RUN",
     "target": [
-        243.49,
-        177.53
+        98.4,
+        111
     ],
-    "target_tier": "Wuling_L4_328"
+    "target_tier": "Wuling_L4_330"
 }
 ```
 
@@ -294,10 +294,10 @@ This format is usually exported by the tool and does not need to be written by h
 {
     "action": "RUN",
     "target": [
-        243.49,
-        177.53
+        98.4,
+        111
     ],
-    "target_tier": "Wuling_L4_328"
+    "target_tier": "Wuling_L4_330"
 }
 ```
 
@@ -408,7 +408,7 @@ Use `ZONE` to specify the map area of the following points:
 }
 ```
 
-This node produces no movement and only provides area **verification** context for the following path points. A `path` exported from a recording usually contains it already. Areas are compared by map: tiers and the basemap of the same map count as one area, so a tier name (such as `Wuling_L4_328`) in `zone_id` is equivalent to the basemap name (`Wuling_Base`).
+This node produces no movement and only provides area **verification** context for the following path points. A `path` exported from a recording usually contains it already. Areas are compared by map: tiers and the basemap of the same map count as one area, so a tier name (such as `Wuling_L4_330`) in `zone_id` is equivalent to the basemap name (`Wuling_Base`).
 
 ### Adjusting Orientation: `HEADING`
 

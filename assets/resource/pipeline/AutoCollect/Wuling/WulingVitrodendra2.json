@@ -26,7 +26,7 @@
         "custom_recognition_param": {
             "zone_id": "Wuling_Base",
             "target": [
-                743.89,
+                839.89,
                 2585.41,
                 20.0,
                 20.0
@@ -52,67 +52,67 @@
                         {
                             "action": "NAVMESH",
                             "target": [
-                                849.14,
+                                945.14,
                                 2525.84
                             ],
                             "target_deck_y": 227.46
                         },
                         [
-                            849.14,
+                            945.14,
                             2525.84,
                             "COLLECT",
                             true
                         ],
                         [
-                            849.61,
+                            945.61,
                             2525.07,
                             "COLLECT",
                             true
                         ],
                         [
-                            847.87,
+                            943.87,
                             2523.73,
                             "COLLECT",
                             true
                         ],
                         [
-                            849.68,
+                            945.68,
                             2522.33,
                             "COLLECT",
                             true
                         ],
                         [
-                            849.63,
+                            945.63,
                             2521.2,
                             "COLLECT",
                             true
                         ],
                         [
-                            846.25,
+                            942.25,
                             2521.72,
                             "COLLECT",
                             true
                         ],
                         [
-                            845.21,
+                            941.21,
                             2517.28,
                             "COLLECT",
                             true
                         ],
                         [
-                            844.39,
+                            940.39,
                             2515.79,
                             "COLLECT",
                             true
                         ],
                         [
-                            844.15,
+                            940.15,
                             2514.69,
                             "COLLECT",
                             true
                         ],
                         [
-                            846.23,
+                            942.23,
                             2515.2,
                             "COLLECT",
                             true

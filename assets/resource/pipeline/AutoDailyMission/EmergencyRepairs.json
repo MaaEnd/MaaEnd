@@ -191,21 +191,21 @@
             "candidates": [
                 {
                     "at": [
-                        440.438,
+                        536.438,
                         1738.163
                     ],
                     "next": "AutoDailyMissionEmergencyRepairsTianshiBureauAcademy"
                 },
                 {
                     "at": [
-                        964.649,
+                        1060.649,
                         1563.792
                     ],
                     "next": "AutoDailyMissionEmergencyRepairsMaintenanceZone"
                 },
                 {
                     "at": [
-                        637.62,
+                        733.62,
                         1395.81
                     ],
                     "next": "AutoDailyMissionEmergencyRepairsBureauOfAppliedTechnologies"
@@ -255,14 +255,14 @@
             "candidates": [
                 {
                     "at": [
-                        897.938,
+                        993.938,
                         2581.35
                     ],
                     "next": "AutoDailyMissionEmergencyRepairsBurdosnoutHill"
                 },
                 {
                     "at": [
-                        683.993,
+                        779.993,
                         2531.303
                     ],
                     "next": "AutoDailyMissionEmergencyRepairsZhailingIslet"
@@ -354,7 +354,7 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        455.85,
+                        551.85,
                         1719.63
                     ],
                     // 楼梯口上方还有一层，钉在地面这层
@@ -365,29 +365,29 @@
                 // 机器人在楼上，折返楼梯上下层路点平面重叠，NAVMESH 跟点会停在下层，按实测路点上楼
                 // RUN 点不能加 strict：严格到达的 RUN 点运行时会改用 NAVMESH 重新规划，楼梯上会绕路
                 [
-                    444.41,
+                    540.41,
                     1731.0
                 ],
                 [
-                    431.75,
+                    527.75,
                     1732.65
                 ],
                 [
-                    438.77,
+                    534.77,
                     1725.29
                 ],
                 [
-                    443.62,
+                    539.62,
                     1731.15
                 ],
                 [
-                    458.55,
+                    554.55,
                     1735.46
                 ],
                 {
                     "action": "INTERACT",
                     "target": [
-                        440.7,
+                        536.7,
                         1738.0
                     ]
                 }
@@ -411,7 +411,7 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        966.07,
+                        1062.07,
                         1563.01
                     ]
                 }
@@ -439,14 +439,14 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        967.1,
+                        1063.1,
                         1547.3
                     ]
                 },
                 {
                     "action": "INTERACT",
                     "target": [
-                        967.1,
+                        1063.1,
                         1547.3
                     ]
                 }
@@ -473,14 +473,14 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        620.7,
+                        716.7,
                         1403.1
                     ]
                 },
                 {
                     "action": "INTERACT",
                     "target": [
-                        620.7,
+                        716.7,
                         1403.1
                     ]
                 }
@@ -507,14 +507,14 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        897.938,
+                        993.938,
                         2581.35
                     ]
                 },
                 {
                     "action": "INTERACT",
                     "target": [
-                        897.938,
+                        993.938,
                         2581.35
                     ]
                 }
@@ -540,7 +540,7 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        683.993,
+                        779.993,
                         2531.303
                     ]
                 }
@@ -571,7 +571,7 @@
                 {
                     "action": "INTERACT",
                     "target": [
-                        683.993,
+                        779.993,
                         2531.303
                     ]
                 }

@@ -394,7 +394,7 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        333.71,
+                        429.71,
                         2155.67
                     ],
                     "target_deck_y": 265.55
@@ -433,7 +433,7 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        333.71,
+                        429.71,
                         2155.67
                     ],
                     "target_deck_y": 265.55

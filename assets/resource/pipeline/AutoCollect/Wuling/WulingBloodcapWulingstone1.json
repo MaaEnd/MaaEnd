@@ -27,7 +27,7 @@
         "custom_recognition_param": {
             "zone_id": "Wuling_Base",
             "target": [
-                487,
+                583,
                 1555,
                 20,
                 20
@@ -53,7 +53,7 @@
                         {
                             "action": "NAVMESH",
                             "target": [
-                                554,
+                                650,
                                 1404.52
                             ]
                         }
@@ -80,7 +80,7 @@
         "custom_recognition_param": {
             "zone_id": "Wuling_Base",
             "target": [
-                545,
+                641,
                 1396,
                 20,
                 20
@@ -104,47 +104,47 @@
                             "zone_id": "Wuling_Base"
                         },
                         [
-                            548.85,
+                            644.85,
                             1396.71,
                             "COLLECT"
                         ],
                         [
-                            545.69,
+                            641.69,
                             1400.51,
                             "COLLECT"
                         ],
                         [
-                            542.87,
+                            638.87,
                             1399.71,
                             "COLLECT"
                         ],
                         [
-                            541.47,
+                            637.47,
                             1396.04,
                             "COLLECT"
                         ],
                         [
-                            543.59,
+                            639.59,
                             1393.97,
                             "COLLECT"
                         ],
                         [
-                            545.03,
+                            641.03,
                             1391.52,
                             "COLLECT"
                         ],
                         [
-                            551.26,
+                            647.26,
                             1392,
                             "COLLECT"
                         ],
                         [
-                            549.04,
+                            645.04,
                             1396.76,
                             "COLLECT"
                         ],
                         [
-                            545.28,
+                            641.28,
                             1395.89,
                             "COLLECT"
                         ]
@@ -171,7 +171,7 @@
         "custom_recognition_param": {
             "zone_id": "Wuling_Base",
             "target": [
-                545,
+                641,
                 1388,
                 20,
                 20
@@ -210,14 +210,14 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        564.83,
+                        660.83,
                         1367.48
                     ]
                 },
                 {
                     "action": "NAVMESH",
                     "target": [
-                        567.3,
+                        663.3,
                         1355.17
                     ]
                 }
@@ -276,7 +276,7 @@
                         {
                             "action": "NAVMESH",
                             "target": [
-                                578.43,
+                                674.43,
                                 1356.55
                             ]
                         }
@@ -303,7 +303,7 @@
         "custom_recognition_param": {
             "zone_id": "Wuling_Base",
             "target": [
-                568,
+                664,
                 1348,
                 20,
                 20
@@ -329,7 +329,7 @@
                         {
                             "action": "NAVMESH",
                             "target": [
-                                562.27,
+                                658.27,
                                 1332.9
                             ]
                         }
@@ -356,7 +356,7 @@
         "custom_recognition_param": {
             "zone_id": "Wuling_Base",
             "target": [
-                552,
+                648,
                 1324,
                 20,
                 20
@@ -380,37 +380,37 @@
                             "zone_id": "Wuling_Base"
                         },
                         [
-                            558.63,
+                            654.63,
                             1336.75,
                             "DIG",
                             true
                         ],
                         [
-                            557.35,
+                            653.35,
                             1338.13,
                             "DIG",
                             true
                         ],
                         [
-                            554.88,
+                            650.88,
                             1341.67,
                             "DIG",
                             true
                         ],
                         [
-                            552.42,
+                            648.42,
                             1342.85,
                             "DIG",
                             true
                         ],
                         [
-                            548.87,
+                            644.87,
                             1340.39,
                             "DIG",
                             true
                         ],
                         [
-                            550.16,
+                            646.16,
                             1329.36,
                             "DIG",
                             true

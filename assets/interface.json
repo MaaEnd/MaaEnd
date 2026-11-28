@@ -289,7 +289,6 @@
         "tasks/Crafting.json",
         "tasks/ItemTransfer.json",
         "tasks/ReceiveProdManual.json",
-        "tasks/SimpleProductionBatchStart.json",
         // group: other_menu
         "tasks/DailyRewards.json",
         "tasks/CreditShopping.json",

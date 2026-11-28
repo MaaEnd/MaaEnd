@@ -29,26 +29,25 @@
         },
         {
             "name": "AutoCollectWulingScorchbug1AssertLocation1",
-            "zone_id": "Wuling_L4_328",
+            "zone_id": "Wuling_Base",
             "start": [
-                259,
-                215
+                611,
+                2583
             ],
             "goal": [
-                244.38,
-                122.12
-            ],
-            "goal_tier": "Wuling_L4_328"
+                596.38,
+                2490.12
+            ]
         },
         {
             "name": "AutoCollectWulingGlowbug1AssertLocation1",
             "zone_id": "Wuling_Base",
             "start": [
-                980,
+                1076,
                 2508
             ],
             "goal": [
-                956.74,
+                1052.74,
                 2535.91
             ]
         },
@@ -56,11 +55,11 @@
             "name": "AutoCollectWulingFluffedJincao1AssertLocation1",
             "zone_id": "Wuling_Base",
             "start": [
-                492,
+                588,
                 2119
             ],
             "goal": [
-                411.37,
+                507.37,
                 2132.9
             ]
         },
@@ -68,11 +67,11 @@
             "name": "AutoCollectWulingRedjadeGinseng1AssertLocation1",
             "zone_id": "Wuling_Base",
             "start": [
-                599,
+                695,
                 2241
             ],
             "goal": [
-                636.26,
+                732.26,
                 2293.87
             ]
         },
@@ -80,11 +79,11 @@
             "name": "AutoCollectWulingRedjadeGinseng1AssertLocation2",
             "zone_id": "Wuling_Base",
             "start": [
-                455,
+                551,
                 2389
             ],
             "goal": [
-                467.08,
+                563.08,
                 2400.82
             ]
         },
@@ -92,11 +91,11 @@
             "name": "AutoCollectWulingThornyYazhen1AssertLocation1",
             "zone_id": "Wuling_Base",
             "start": [
-                492,
+                588,
                 2119
             ],
             "goal": [
-                408.71,
+                504.71,
                 2122.16
             ]
         },
@@ -104,11 +103,11 @@
             "name": "AutoCollectWulingAmberRice1AssertLocation1",
             "zone_id": "Wuling_Base",
             "start": [
-                1293,
+                1389,
                 1753
             ],
             "goal": [
-                1336.21,
+                1432.21,
                 1763.47
             ]
         },
@@ -116,11 +115,11 @@
             "name": "AutoCollectWulingBlightedJadeleaf1AssertLocation",
             "zone_id": "Wuling_Base",
             "start": [
-                951,
+                1047,
                 1788
             ],
             "goal": [
-                933,
+                1029,
                 1706
             ]
         },
@@ -128,11 +127,11 @@
             "name": "AutoCollectWulingRubyBolete1AssertLocation1",
             "zone_id": "Wuling_Base",
             "start": [
-                975,
+                1071,
                 2202
             ],
             "goal": [
-                933.27,
+                1029.27,
                 2222.41
             ]
         },
@@ -140,11 +139,11 @@
             "name": "AutoCollectWulingRubyBolete1AssertLocation2",
             "zone_id": "Wuling_Base",
             "start": [
-                933,
+                1029,
                 2222
             ],
             "goal": [
-                931.64,
+                1027.64,
                 2201.9
             ]
         },
@@ -152,11 +151,11 @@
             "name": "AutoCollectWulingUmbronyx1AssertLocation1",
             "zone_id": "Wuling_Base",
             "start": [
-                738,
+                834,
                 2412
             ],
             "goal": [
-                701.34,
+                797.34,
                 2317.76
             ]
         },
@@ -164,11 +163,11 @@
             "name": "AutoCollectWulingRedBolete1AssertLocation1",
             "zone_id": "Wuling_Base",
             "start": [
-                598,
+                694,
                 2242
             ],
             "goal": [
-                624.05,
+                720.05,
                 2263.63
             ]
         },
@@ -200,11 +199,11 @@
             "name": "AutoCollectWulingCrimsonSpearleaf1AssertLocation",
             "zone_id": "Wuling_Base",
             "start": [
-                1118.96,
+                1214.96,
                 598.59
             ],
             "goal": [
-                1096.46,
+                1192.46,
                 575.99
             ]
         },
@@ -216,7 +215,7 @@
                 271.89
             ],
             "goal": [
-                1502,
+                1598,
                 538.13
             ]
         },
@@ -224,11 +223,11 @@
             "name": "AutoCollectWulingTalosCap1AssertLocation",
             "zone_id": "Wuling_Base",
             "start": [
-                1716.07,
+                1812.07,
                 995.23
             ],
             "goal": [
-                1666.32,
+                1762.32,
                 1016.35
             ],
             "goal_deck_y": 126.37
@@ -237,11 +236,11 @@
             "name": "AutoCollectWulingFalseAggela1AssertLocation",
             "zone_id": "Wuling_Base",
             "start": [
-                920,
+                1016,
                 1593
             ],
             "goal": [
-                818.71,
+                914.71,
                 1519.42
             ]
         },
@@ -249,11 +248,11 @@
             "name": "AutoCollectWulingVitrodendra1AssertLocation",
             "zone_id": "Wuling_Base",
             "start": [
-                716,
+                812,
                 1903
             ],
             "goal": [
-                733,
+                829,
                 1885
             ]
         },
@@ -297,11 +296,11 @@
             "name": "AutoCollectWulingBloodcapWulingstone1AssertLocation1",
             "zone_id": "Wuling_Base",
             "start": [
-                497,
+                593,
                 1565
             ],
             "goal": [
-                554,
+                650,
                 1404.52
             ]
         },
@@ -309,11 +308,11 @@
             "name": "AutoCollectWulingBloodcapWulingstone1AssertLocation4",
             "zone_id": "Wuling_Base",
             "start": [
-                555,
+                651,
                 1398
             ],
             "goal": [
-                564.83,
+                660.83,
                 1367.48
             ]
         },
@@ -321,11 +320,11 @@
             "name": "AutoCollectWulingBloodcapWulingstone1AssertLocation5",
             "zone_id": "Wuling_Base",
             "start": [
-                578,
+                674,
                 1358
             ],
             "goal": [
-                562.27,
+                658.27,
                 1332.9
             ]
         },
@@ -333,11 +332,11 @@
             "name": "AutoCollectWulingCosmagaric1AssertLocation1",
             "zone_id": "Wuling_Base",
             "start": [
-                707,
+                803,
                 1894
             ],
             "goal": [
-                665.72,
+                761.72,
                 1858.93
             ]
         },
@@ -345,11 +344,11 @@
             "name": "AutoCollectWulingIgneosite1AssertLocation1",
             "zone_id": "Wuling_Base",
             "start": [
-                707,
+                803,
                 1894
             ],
             "goal": [
-                838.22,
+                934.22,
                 1943.85
             ]
         }

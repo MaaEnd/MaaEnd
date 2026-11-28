@@ -27,7 +27,7 @@
         "custom_recognition_param": {
             "zone_id": "Wuling_Base",
             "target": [
-                728,
+                824,
                 2402,
                 20,
                 20
@@ -53,7 +53,7 @@
                         {
                             "action": "NAVMESH",
                             "target": [
-                                701.34,
+                                797.34,
                                 2317.76
                             ]
                         }
@@ -80,7 +80,7 @@
         "custom_recognition_param": {
             "zone_id": "Wuling_Base",
             "target": [
-                692,
+                788,
                 2310,
                 20,
                 20
@@ -104,37 +104,37 @@
                             "zone_id": "Wuling_Base"
                         },
                         [
-                            701.24,
+                            797.24,
                             2320.12,
                             "DIG",
                             true
                         ],
                         [
-                            700.06,
+                            796.06,
                             2320.22,
                             "DIG",
                             true
                         ],
                         [
-                            697.6,
+                            793.6,
                             2321.4,
                             "DIG",
                             true
                         ],
                         [
-                            700.06,
+                            796.06,
                             2322.59,
                             "DIG",
                             true
                         ],
                         [
-                            702.52,
+                            798.52,
                             2323.87,
                             "DIG",
                             true
                         ],
                         [
-                            698.78,
+                            794.78,
                             2322.59,
                             "DIG",
                             true

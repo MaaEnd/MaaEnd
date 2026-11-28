@@ -46,14 +46,14 @@
                         {
                             "action": "NAVMESH",
                             "target": [
-                                1248.49,
+                                1344.49,
                                 2376.68
                             ]
                         },
                         {
                             "action": "INTERACT",
                             "target": [
-                                1250.36,
+                                1346.36,
                                 2386.24
                             ],
                             "strict_arrival": true,
