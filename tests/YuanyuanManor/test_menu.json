@@ -11,9 +11,7 @@
             "hits": [
                 "InnkeepingInMenuDesign",
                 "InnkeepingMenuFilterButton",
-                "RestaurantMenuCardQuantity",
-                "RestaurantMenuStartBusinessWarning",
-                "RestaurantMenuStartBusiness"
+                "InnkeepingStartInnkeepingButtonText"
             ]
         },
         {
@@ -21,8 +19,7 @@
             "image": "缘缘庄_菜单_饮品页及可开始经营.png",
             "hits": [
                 "InnkeepingInMenuDesign",
-                "RestaurantMenuCardQuantity",
-                "RestaurantMenuStartBusiness"
+                "InnkeepingStartInnkeepingButtonText"
             ]
         },
         {
@@ -31,8 +28,7 @@
             "hits": [
                 "InnkeepingInMenuDesign",
                 "InnkeepingMenuFilterQTY",
-                "RestaurantMenuStartBusinessWarning",
-                "RestaurantMenuStartBusiness"
+                "InnkeepingStartInnkeepingButtonText"
             ]
         },
         {
@@ -42,8 +38,7 @@
                 "InnkeepingInMenuDesign",
                 "InnkeepingMenuFilterQTY",
                 "InnkeepingMenuFilterSelectQTYSuccess",
-                "RestaurantMenuStartBusinessWarning",
-                "RestaurantMenuStartBusiness"
+                "InnkeepingStartInnkeepingButtonText"
             ]
         },
         {
@@ -61,8 +56,7 @@
             "image": "缘缘庄_菜单_筛选列表需滚动.png",
             "hits": [
                 "InnkeepingInMenuDesign",
-                "RestaurantMenuStartBusinessWarning",
-                "RestaurantMenuStartBusiness"
+                "InnkeepingStartInnkeepingButtonText"
             ]
         }
     ]

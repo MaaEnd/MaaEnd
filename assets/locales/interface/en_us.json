@@ -2969,8 +2969,6 @@
     "task.YuanyuanManor.description": "Use this task to clear your daily patron supply and farm Spirit Money. It automatically configures the kitchens and menu, then selects dishes to queue based on table orders and restock markers. **Requires Inn Level 4 and all three kitchens unlocked.**",
     "task.YuanyuanManor.focus.business_ended": "This business round is over; settling the results",
     "task.YuanyuanManor.focus.business_started": "Business has started; handling customer orders",
-    "task.YuanyuanManor.focus.menu_items_insufficient": "Not enough menu items",
-    "task.YuanyuanManor.focus.menu_requirements_unmet": "Menu requirements are not met",
     "task.YuanyuanManor.focus.patronage_insufficient": "Patronage is insufficient (below 60); ending the business flow",
     "task.YuanyuanManor.focus.returned_world": "Settlement is complete; returned to the overworld",
     "task.YuanyuanManor.focus.theme_selected": "Business theme set to “Drinking Social”",

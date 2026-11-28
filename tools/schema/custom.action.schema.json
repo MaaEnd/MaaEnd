@@ -76,6 +76,8 @@
                 "ImportBluePrintsEnterCodeAction",
                 "ImportBluePrintsFinishAction",
                 "ImportBluePrintsInitTextAction",
+                "InnkeepingMenuCheckCard",
+                "InnkeepingMenuDecide",
                 "IntelArchiveResetSessionAction",
                 "IntelArchiveResolveTruncAction",
                 "IntelArchiveShowInventoryAction",

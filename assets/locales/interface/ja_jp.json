@@ -2969,8 +2969,6 @@
     "task.YuanyuanManor.description": "毎日の来客枠を消費して活気銭を稼ぐためのタスクです。厨房とメニューを自動設定し、テーブルの注文と補充マークに応じて厨房に追加する料理を選択します。**宿屋レベル4以上かつ3つすべての厨房の解放が必要です。**",
     "task.YuanyuanManor.focus.business_ended": "今期の営業が終了しました。精算中です",
     "task.YuanyuanManor.focus.business_started": "営業を開始しました。注文に対応します",
-    "task.YuanyuanManor.focus.menu_items_insufficient": "メニュー品目が不足しています",
-    "task.YuanyuanManor.focus.menu_requirements_unmet": "メニューの条件を満たしていません",
     "task.YuanyuanManor.focus.patronage_insufficient": "現在の客源が60未満で不足しています。営業フローを終了します",
     "task.YuanyuanManor.focus.returned_world": "精算が完了し、大世界に戻りました",
     "task.YuanyuanManor.focus.theme_selected": "経営テーマを「宴に一献」に設定しました",

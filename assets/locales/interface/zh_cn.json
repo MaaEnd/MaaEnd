@@ -2969,8 +2969,6 @@
     "task.YuanyuanManor.description": "用于清理每日客源，刷烟火钱。自动配置厨房和菜单，并根据桌位订单与补充标记挂机点菜。**需客栈等级达到四级且三个厨房全解锁。**",
     "task.YuanyuanManor.focus.business_ended": "本轮经营已结束，正在结算",
     "task.YuanyuanManor.focus.business_started": "经营已开始，开始处理顾客订单",
-    "task.YuanyuanManor.focus.menu_items_insufficient": "菜品不足",
-    "task.YuanyuanManor.focus.menu_requirements_unmet": "菜单未满足要求",
     "task.YuanyuanManor.focus.patronage_insufficient": "当前客源不足 60，结束经营流程",
     "task.YuanyuanManor.focus.returned_world": "结算完成，已返回大世界",
     "task.YuanyuanManor.focus.theme_selected": "经营主题已设置为「席间小酌」",

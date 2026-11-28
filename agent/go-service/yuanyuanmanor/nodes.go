@@ -1,21 +1,80 @@
 package yuanyuanmanor
 
+import (
+	"encoding/json"
+
+	maa "github.com/MaaXYZ/maa-framework-go/v4"
+)
+
+const (
+	component = "yuanyuanmanor"
+
+	recognizeMenuName = "InnkeepingMenuRecognition"
+	decideMenuName    = "InnkeepingMenuDecide"
+	checkMenuCardName = "InnkeepingMenuCheckCard"
+)
+
+const (
+	nodeInnkeepingMenuSwitchTabEntreeSuccess  = "InnkeepingMenuSwitchTabEntreeSuccess"
+	nodeInnkeepingMenuSwitchTabSideSuccess    = "InnkeepingMenuSwitchTabSideSuccess"
+	nodeInnkeepingMenuSwitchTabDessertSuccess = "InnkeepingMenuSwitchTabDessertSuccess"
+	nodeInnkeepingMenuSwitchTabSoupSuccess    = "InnkeepingMenuSwitchTabSoupSuccess"
+	nodeInnkeepingMenuSwitchTabDrinksSuccess  = "InnkeepingMenuSwitchTabDrinksSuccess"
+
+	nodeInnkeepingMenuDecide          = "InnkeepingMenuDecide"
+	nodeInnkeepingMenuCheckCard       = "InnkeepingMenuCheckCard"
+	nodeInnkeepingMenuPickCard        = "InnkeepingMenuPickCard"
+	nodeInnkeepingMenuPickCardSuccess = "InnkeepingMenuPickCardSuccess"
+
+	nodeInnkeepingMenuDishCount   = "InnkeepingMenuDishCount"
+	nodeInnkeepingMenuDrinksCount = "InnkeepingMenuDrinksCount"
+
+	nodeInnkeepingMenuCardPositionAnchor  = "InnkeepingMenuCardPositionAnchor"
+	nodeInnkeepingMenuCardIconRecognition = "InnkeepingMenuCardIconRecognition"
+	nodeInnkeepingMenuCardQuantity        = "InnkeepingMenuCardQuantity"
+
+	nodeInnkeepingMenuCard1Position = "InnkeepingMenuCard1Position"
+	nodeInnkeepingMenuCard2Position = "InnkeepingMenuCard2Position"
+	nodeInnkeepingMenuCard3Position = "InnkeepingMenuCard3Position"
+	nodeInnkeepingMenuCard4Position = "InnkeepingMenuCard4Position"
+	nodeInnkeepingMenuCard5Position = "InnkeepingMenuCard5Position"
+	nodeInnkeepingMenuCard6Position = "InnkeepingMenuCard6Position"
+	nodeInnkeepingMenuCard7Position = "InnkeepingMenuCard7Position"
+	nodeInnkeepingMenuCard8Position = "InnkeepingMenuCard8Position"
+)
+
+var nodeInnkeepingMenuCardPositions = [8]string{
+	nodeInnkeepingMenuCard1Position,
+	nodeInnkeepingMenuCard2Position,
+	nodeInnkeepingMenuCard3Position,
+	nodeInnkeepingMenuCard4Position,
+	nodeInnkeepingMenuCard5Position,
+	nodeInnkeepingMenuCard6Position,
+	nodeInnkeepingMenuCard7Position,
+	nodeInnkeepingMenuCard8Position,
+}
+
+// nodeROI 读取节点（JSON 中定义）的识别 ROI。
+func nodeROI(ctx *maa.Context, nodeName string) (maa.Rect, error) {
+	raw, err := ctx.GetNodeJSON(nodeName)
+	if err != nil {
+		return maa.Rect{}, err
+	}
+	var node struct {
+		Recognition struct {
+			Param struct {
+				ROI maa.Rect `json:"roi"`
+			} `json:"param"`
+		} `json:"recognition"`
+	}
+	if err := json.Unmarshal([]byte(raw), &node); err != nil {
+		return maa.Rect{}, err
+	}
+	return node.Recognition.Param.ROI, nil
+}
+
 const (
 	nodeRestaurantState = "RestaurantState"
-
-	nodeMenuStapleComplete    = "RestaurantMenuStapleComplete"
-	nodeMenuVegetableComplete = "RestaurantMenuVegetableComplete"
-	nodeMenuDishesComplete    = "RestaurantMenuDishesComplete"
-	nodeMenuDrinksComplete    = "RestaurantMenuDrinksComplete"
-	nodeMenuClickCard         = "RestaurantMenuClickCard"
-	nodeMenuAdvanceCard       = "RestaurantMenuAdvanceCard"
-	nodeMenuReadCard          = "RestaurantMenuReadCard"
-	nodeMenuInsufficient      = "RestaurantMenuInsufficient"
-
-	nodeMenuSelectedCircle = "RestaurantMenuSelectedCircle"
-	nodeMenuCardIcon       = "RestaurantMenuCardIcon"
-	nodeMenuCardQuantity   = "RestaurantMenuCardQuantity"
-	nodeMenuCardAnchor     = "RestaurantMenuCardAnchor"
 
 	nodeKitchenPanelReady    = "RestaurantKitchenPanelReady"
 	nodeObservationEmpty     = "RestaurantObservationEmpty"
@@ -122,17 +181,6 @@ func (g tableNodeGroup) iconNodes() []string {
 }
 
 var (
-	menuRoutes = []string{
-		nodeMenuStapleComplete,
-		nodeMenuVegetableComplete,
-		nodeMenuDishesComplete,
-		nodeMenuDrinksComplete,
-		nodeMenuClickCard,
-		nodeMenuAdvanceCard,
-		nodeMenuReadCard,
-		nodeMenuInsufficient,
-	}
-
 	runtimeRoutes = []string{
 		nodeRuntimeSwitchKitchen1,
 		nodeRuntimeSwitchKitchen2,
