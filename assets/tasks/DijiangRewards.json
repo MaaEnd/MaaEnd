@@ -11,6 +11,8 @@
             "controller": [
                 "ADB",
                 "CloudADB",
+                // TODO: CloudWeb 下制造舱等红点颜色匹配（HSV 饱和度 255）不命中，基建流程会被跳过，修复后再启用
+                // "CloudWeb",
                 "Linux-Gamescope",
                 "Linux-ScreenCast",
                 "Linux-Wlroots",
@@ -21,6 +23,7 @@
             ],
             "option": [
                 "StageTaskSetting",
+                "AutoStartExchange",
                 "ClueSetting",
                 "SelectToGrow"
             ]
@@ -30,6 +33,7 @@
         "AutoStartExchange": {
             "type": "switch",
             "label": "$option.AutoStartExchange.label",
+            "description": "$option.AutoStartExchange.description",
             "cases": [
                 {
                     "name": "Yes",
@@ -445,7 +449,6 @@
                 {
                     "name": "Yes",
                     "option": [
-                        "AutoStartExchange",
                         "SendCluesDirect",
                         "ClueSend",
                         "ClueStockLimit",
@@ -542,9 +545,6 @@
                             "enabled": false
                         },
                         "ReceptionRoomSendCluesQuickGiveDuplicates": {
-                            "enabled": false
-                        },
-                        "ReceptionRoomSendCluesSwipe": {
                             "enabled": false
                         }
                     }
@@ -668,6 +668,7 @@
         "QuickGiveDuplicateClues": {
             "type": "switch",
             "label": "$option.QuickGiveDuplicateClues.label",
+            "description": "$option.QuickGiveDuplicateClues.description",
             "cases": [
                 {
                     "name": "Yes",
@@ -691,12 +692,15 @@
         "ClueSend": {
             "type": "input",
             "label": "$option.ClueSend.label",
+            "description": "$option.ClueSend.description",
             "inputs": [
                 {
                     "name": "MaxClueSend",
                     "label": "$option.ClueSend.MaxClueSend.label",
                     "default": "3",
-                    "pipeline_type": "int"
+                    "pipeline_type": "int",
+                    "verify": "^(?:0|[1-9]|1\\d|20)$",
+                    "pattern_msg": "$option.ClueSend.MaxClueSend.pattern_msg"
                 }
             ],
             "pipeline_override": {

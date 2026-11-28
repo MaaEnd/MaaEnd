@@ -62,6 +62,12 @@ Files in the `SceneManager` folder (such as `SceneCommon.json`, `SceneMenu.json`
 | Map | `SceneEnterMapValleyIVTheHub` | Enter Valley IV - The Hub map screen. |
 | Menu | `SceneEnterMenuList` | Enter main menu list. |
 | Menu | `SceneEnterMenuMission` | Enter the Missions screen. |
+| Menu | `SceneEnterMenuMissionAll` | Enter the Missions screen - In Progress (ALL) tab. |
+| Menu | `SceneEnterMenuMissionMain` | Enter the Missions screen - Main Missions tab. |
+| Menu | `SceneEnterMenuMissionExploration` | Enter the Missions screen - Exploration Missions tab. |
+| Menu | `SceneEnterMenuMissionSide` | Enter the Missions screen - Side Missions tab. |
+| Menu | `SceneEnterMenuMissionEvent` | Enter the Missions screen - Event Missions tab. |
+| Menu | `SceneEnterMenuMissionCommission` | Enter the Missions screen - Commissions tab. |
 | Menu | `SceneEnterMenuRegionalDevelopment` | Enter Regional Development menu. |
 | Menu | `SceneEnterMenuEvent` | Enter Events menu. |
 | Menu | `SceneEnterMenuProtocolPass` | Enter Protocol Pass menu. |
@@ -81,7 +87,11 @@ Files in the `SceneManager` folder (such as `SceneCommon.json`, `SceneMenu.json`
 | Menu | `SceneEnterMenuSettingPlatformAccount` | Enter Settings - Platform & Account (PC only). |
 | Menu | `SceneEnterMenuSettingOthers` | Enter Settings - Others (PC only). |
 | Menu | `SceneEnterMenuHeadhunt` | Enter Operator Headhunt screen. |
+| Menu | `SceneEnterMenuOperationalManualIndex` | Enter Operational Manual - Index. |
+| Menu | `SceneEnterMenuOperationalManualDaily` | Enter Operational Manual - Daily. |
+| Menu | `SceneEnterMenuOperationalManualSimulation` | Enter Operational Manual - Simulation. |
 | Menu | `SceneEnterMenuOperationalManualUmbralMonument` | Enter Operational Manual - Umbral Monument. |
+| Menu | `SceneEnterMenuOperationalManualWarEcho` | Enter Operational Manual - War Echo. |
 | Helper | `SceneDialogConfirm` | Click confirm button in dialogs. |
 | Helper | `SceneDialogCancel` | Click cancel button in dialogs. |
 | Helper | `SceneNoticeRewardsConfirm` | Click confirm button on rewards screens. |

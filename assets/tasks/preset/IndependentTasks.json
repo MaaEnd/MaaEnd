@@ -1,0 +1,65 @@
+{
+    "preset": [
+        {
+            "name": "IndependentTasks",
+            "label": "$preset.IndependentTasks.label",
+            "description": "$preset.IndependentTasks.description",
+            "task": [
+                {
+                    "name": "BatchUseDetector"
+                },
+                {
+                    "name": "EssenceFilter"
+                },
+                {
+                    "name": "DecomposeWeaponEssence"
+                },
+                {
+                    "name": "PuzzleSolver"
+                },
+                {
+                    "name": "ImportBluePrints"
+                },
+                {
+                    "name": "AeroSalvage"
+                },
+                {
+                    "name": "ZiplineImport"
+                },
+                {
+                    "name": "SharedZiplineDelete"
+                },
+                {
+                    "name": "BatchAddFriends"
+                },
+                {
+                    "name": "BatchDeleteFriends"
+                },
+                {
+                    "name": "ItemTransfer"
+                },
+                {
+                    "name": "ReceiveProdManual"
+                },
+                {
+                    "name": "PullCountCalculator"
+                },
+                {
+                    "name": "BakerEntry"
+                },
+                {
+                    "name": "ReadAllWiki"
+                },
+                {
+                    "name": "IntelArchive"
+                },
+                {
+                    "name": "ClaimSimulationRewards"
+                },
+                {
+                    "name": "UmbralMonument"
+                }
+            ]
+        }
+    ]
+}

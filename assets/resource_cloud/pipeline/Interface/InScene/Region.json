@@ -1,0 +1,6 @@
+{
+    // 云终末地没有退出登陆按钮
+    "CheckMenuListExitButtonColor": {
+        "recognition": "DirectHit"
+    }
+}

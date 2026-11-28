@@ -112,6 +112,15 @@
                             "enabled": true
                         }
                     }
+                },
+                {
+                    "name": "WLSisPainting",
+                    "label": "$global.region.SisPainting",
+                    "pipeline_override": {
+                        "GotoTriggerPointSetAnchor_WLSisPainting": {
+                            "enabled": true
+                        }
+                    }
                 }
             ],
             "default_case": [
@@ -126,7 +135,8 @@
                 "WLSwordVaultDale",
                 "WLYinglungPass",
                 "WLNorthWulingExclusionZone",
-                "WLSnowyForest"
+                "WLSnowyForest",
+                "WLSisPainting"
             ]
         }
     }

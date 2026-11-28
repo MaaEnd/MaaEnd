@@ -30,10 +30,10 @@
         "action": {
             "type": "Click"
         },
-        "post_delay": 300,
+        "post_wait_freezes": 200,
+        "post_delay": 0,
         "next": [
-            "EssenceFilterCheckLocked",
-            "EssenceFilterClickLockItem"
+            "EssenceFilterCheckLocked"
         ],
         "focus": {
             "Node.Action.Succeeded": "已锁定基质"
@@ -55,12 +55,18 @@
             }
         },
         "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "EssenceFilterConfirmMarkAction"
+            }
+        },
         "post_delay": 0,
         "next": [
             "EssenceGridAdvance"
         ],
         "on_error": [
-            "EssenceFilterClickLockItem"
+            "FailedNode"
         ],
         "focus": {
             "Node.Action.Succeeded": "已确认上锁"
@@ -97,10 +103,10 @@
         "action": {
             "type": "Click"
         },
-        "post_delay": 300,
+        "post_wait_freezes": 200,
+        "post_delay": 0,
         "next": [
-            "EssenceFilterCheckDiscarded",
-            "EssenceFilterClickDiscardItem"
+            "EssenceFilterCheckDiscarded"
         ],
         "focus": {
             "Node.Action.Succeeded": "已废弃基质"
@@ -122,12 +128,18 @@
             }
         },
         "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "EssenceFilterConfirmMarkAction"
+            }
+        },
         "post_delay": 0,
         "next": [
             "EssenceGridAdvance"
         ],
         "on_error": [
-            "EssenceFilterClickDiscardItem"
+            "FailedNode"
         ],
         "focus": {
             "Node.Action.Succeeded": "已确认废弃"

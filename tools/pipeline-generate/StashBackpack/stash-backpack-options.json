@@ -1,0 +1,93 @@
+{
+    "StashBackpackSubTask": {
+        "type": "switch",
+        "label": "$task.StashBackpack.option.StashBackpackSubTask.label",
+        "cases": [
+            {
+                "name": "Yes",
+                "option": [
+                    "StashBackpackType",
+                    "StashBackpackArea"
+                ],
+                "pipeline_override": {
+                    "StashBackpackMain": {
+                        "enabled": true
+                    }
+                }
+            },
+            {
+                "name": "No",
+                "pipeline_override": {
+                    "StashBackpackMain": {
+                        "enabled": false
+                    }
+                }
+            }
+        ],
+        "default_case": "Yes"
+    },
+    "StashBackpackType": {
+        "type": "checkbox",
+        "label": "$option.StashBackpackType.label",
+        "cases": [
+            {
+                "name": "StashBackpackQuick",
+                "label": "$option.StashBackpackQuick.label",
+                "pipeline_override": {
+                    "StashBackpackStashQuick": {
+                        "enabled": true
+                    }
+                }
+            },
+            {
+                "name": "StashBackpackUsableItemsLimited",
+                "label": "$option.StashBackpackUsableItemsLimited.label",
+                "pipeline_override": {
+                    "StashBackpackUsableItemsLimited": {
+                        "enabled": true
+                    }
+                }
+            }
+        ],
+        "default_case": [
+            "StashBackpackQuick",
+            "StashBackpackUsableItemsLimited"
+        ]
+    },
+    "StashBackpackArea": {
+        "type": "select",
+        "label": "$option.StashBackpackArea.label",
+        "cases": [
+            {
+                "name": "None",
+                "label": "$option.StashBackpackArea.cases.None.label",
+                "pipeline_override": {}
+            },
+            {
+                "name": "ValleyIV",
+                "label": "$global.region.ValleyIV",
+                "pipeline_override": {
+                    "StashBackpackMain": {
+                        "next": [
+                            "StashBackpackEnterSuccess",
+                            "[JumpBack]SceneEnterMenuBackpackWithDepotValleyIV"
+                        ]
+                    }
+                }
+            },
+            {
+                "name": "Wuling",
+                "label": "$global.region.Wuling",
+                "pipeline_override": {
+                    "StashBackpackMain": {
+                        "next": [
+                            "StashBackpackEnterSuccess",
+                            "[JumpBack]SceneEnterMenuBackpackWithDepotWuling"
+                        ]
+                    }
+                }
+            }
+        ],
+        "default_case": "None"
+    }
+}

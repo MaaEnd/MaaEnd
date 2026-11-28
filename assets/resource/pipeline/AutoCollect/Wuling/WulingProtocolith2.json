@@ -1,0 +1,135 @@
+{
+    "AutoCollectWulingProtocolith2Start": {
+        "enabled": false,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingSisPaintingPavilionOfParting"
+            ]
+        },
+        "next": [
+            "AutoCollectWulingProtocolith2AssertLocation"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingProtocolith2.label"
+        }
+    },
+    "AutoCollectWulingProtocolith2End": {
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "AutoCollectWulingProtocolith2AssertLocation": {
+        "desc": "传送到采集点",
+        "recognition": "Custom",
+        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition_param": {
+            "zone_id": "Wuling_Base",
+            "target": [
+                2374.37,
+                750.29,
+                20.0,
+                20.0
+            ]
+        },
+        "action": "DoNothing",
+        "next": [
+            "AutoCollectWulingProtocolith2Goto"
+        ]
+    },
+    "AutoCollectWulingProtocolith2Goto": {
+        "desc": "前往采集点",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_Base"
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                2412.82,
+                                700.75
+                            ],
+                            "target_deck_y": 403.16
+                        },
+                        [
+                            2412.82,
+                            700.75,
+                            "DIG",
+                            true
+                        ],
+                        [
+                            2413.77,
+                            701.2,
+                            "DIG",
+                            true
+                        ],
+                        [
+                            2416.51,
+                            701.31,
+                            "DIG",
+                            true
+                        ],
+                        [
+                            2420.38,
+                            700.87,
+                            "DIG",
+                            true
+                        ],
+                        [
+                            2420.34,
+                            698.54,
+                            "DIG",
+                            true
+                        ],
+                        [
+                            2419.5,
+                            697.64,
+                            "DIG",
+                            true
+                        ],
+                        [
+                            2420.63,
+                            697.26,
+                            "DIG",
+                            true
+                        ],
+                        [
+                            2418.59,
+                            694.76,
+                            "DIG",
+                            true
+                        ]
+                    ]
+                }
+            }
+        },
+        "next": [
+            "AutoCollectWulingProtocolith2Wait10sec"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoCollectWulingProtocolith2Wait10sec": {
+        "desc": "等待10s完成收集",
+        "pre_delay": 0,
+        "post_delay": 10000,
+        "next": [
+            "AutoCollectWulingProtocolith2End"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "等待10s完成收集"
+        }
+    }
+}

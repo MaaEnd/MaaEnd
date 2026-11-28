@@ -319,7 +319,7 @@ def collect_report(
     move_failure_filter = f"{move_filter} span.status:internal_error"
     scan_failure_filter = (
         f"{scope_filter} "
-        "span.description:EnvironmentMonitoringCameraScan "
+        "span.description:[EnvironmentMonitoringCameraScan,__TakePhotoCameraScan] "
         "span.status:internal_error"
     )
 

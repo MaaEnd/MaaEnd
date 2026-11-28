@@ -76,7 +76,7 @@
 debug/record/ElasticGoodsPrices.json
 ```
 
-路径为相对于 MaaEnd 工作目录的固定路径，不再进行向上查找或环境变量解析。目录不存在时由 `MkdirAll` 自动创建。
+路径以 `PI_USER_DATA_DIR` 指定的用户数据目录为根（未注入时为安装根目录），由 `fsutil.UserDataPath` 解析，不进行向上查找。目录不存在时由 `MkdirAll` 自动创建。
 
 ### 原子写入流程
 

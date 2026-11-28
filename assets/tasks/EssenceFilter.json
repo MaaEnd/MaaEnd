@@ -11,6 +11,8 @@
             "controller": [
                 "ADB",
                 "CloudADB",
+                // TODO: CloudWeb 尚未实机验证，验证通过后取消注释
+                // "CloudWeb",
                 "Linux-Gamescope",
                 "Linux-ScreenCast",
                 "Linux-Wlroots",
@@ -20,37 +22,26 @@
                 "Win32-Front"
             ],
             "option": [
-                "ExportInventory"
+                "ScreenFlawlessAndReport"
             ]
         }
     ],
     "option": {
-        "ExportInventory": {
+        "ScreenFlawlessAndReport": {
             "type": "switch",
-            "label": "$option.ExportInventory.label",
-            "description": "$option.ExportInventory.description",
+            "label": "$option.ScreenFlawlessAndReport.label",
+            "description": "$option.ScreenFlawlessAndReport.description",
             "cases": [
                 {
                     "name": "Yes",
                     "pipeline_override": {
+                        "EssenceFilterEntry": {
+                            "enabled": true
+                        },
                         "EssenceFilterInit": {
                             "attach": {
-                                "export_inventory": true
+                                "mode": "screen_and_report"
                             }
-                        },
-                        "EssenceFilterCheckItemOCRFallback": {
-                            "action": "StopTask"
-                        },
-                        "EssenceGridClickPending": {
-                            "on_error": [
-                                "EssenceFilterCheckItemOCRFallback"
-                            ]
-                        },
-                        "EssenceFilterMainFailed": {
-                            "action": "StopTask"
-                        },
-                        "EssenceFilterNavigateToInventory": {
-                            "action": "StopTask"
                         }
                     }
                 },
@@ -64,9 +55,12 @@
                         "SkipThumbDiscard"
                     ],
                     "pipeline_override": {
+                        "EssenceFilterEntry": {
+                            "enabled": true
+                        },
                         "EssenceFilterInit": {
                             "attach": {
-                                "export_inventory": false
+                                "mode": "filter"
                             }
                         }
                     }
@@ -327,7 +321,6 @@
                 {
                     "name": "Yes",
                     "option": [
-                        "PerfectMinLevelTotal",
                         "KeepFuturePromising",
                         "KeepSlot3Level3Practical",
                         "DiscardUnmatched",
@@ -339,26 +332,6 @@
                 }
             ],
             "default_case": "No"
-        },
-        "PerfectMinLevelTotal": {
-            "type": "input",
-            "label": "$option.PerfectMinLevelTotal.label",
-            "inputs": [
-                {
-                    "name": "PerfectMinLevelTotal",
-                    "label": "$option.PerfectMinLevelTotal.inputs.PerfectMinLevelTotal.label",
-                    "default": "3",
-                    "pipeline_type": "int",
-                    "verify": "^[3-9]$|^1[0-5]$"
-                }
-            ],
-            "pipeline_override": {
-                "EssenceFilterInit": {
-                    "attach": {
-                        "perfect_min_level_total": "{PerfectMinLevelTotal}"
-                    }
-                }
-            }
         },
         "KeepFuturePromising": {
             "type": "switch",

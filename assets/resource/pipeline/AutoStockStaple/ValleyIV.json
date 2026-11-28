@@ -16,7 +16,10 @@
         "rate_limit": 0,
         "next": [
             "AutoStockTargetCanNotBuyValleyIV",
-            "[JumpBack]AutoStockBuyItemValleyIVTask",
+            "[JumpBack]AutoStockBuyItemValleyIVTaskEngravingPermit",
+            "[JumpBack]AutoStockBuyItemValleyIVTaskDaily",
+            "[JumpBack]AutoStockBuyItemValleyIVTaskIndustrial",
+            "[JumpBack]AutoStockBuyItemValleyIVTaskCultural",
             "SoldOut",
             "[JumpBack]AutoStockSwipeValleyIV",
             "AutoStockNoMoreTargetValleyIV"
@@ -49,15 +52,139 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "AutoStockBuyItemValleyIVTask": {
-        "desc": "识别商品，并进入购买流程",
+    // 每个折扣分组对应一条购买任务：命中该分组的商品名白名单 + 该分组折扣档位后才点击商品。
+    "AutoStockBuyItemValleyIVTaskEngravingPermit": {
+        "desc": "识别四号谷地刻写券，并进入购买流程",
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
                     "AutoStockInStapleItem",
-                    "AutoStockInStapleItemName_Expected",
-                    "AutoStockInStapleItemDiscountsValleyIV"
+                    "AutoStockInStapleItemNameEngravingPermit_Expected",
+                    "AutoStockInStapleItemDiscountsValleyIVEngravingPermit"
+                ],
+                "box_index": 2
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "AutoStockStapleQuantityControl"
+                    ]
+                },
+                "target_offset": [
+                    -45,
+                    85,
+                    -30,
+                    0
+                ]
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControl"
+        ],
+        "focus": {
+            "Node.Action.Failed": "$task.AutoStockStaple.focus.quantity_control.purchase_page_failed"
+        }
+    },
+    "AutoStockBuyItemValleyIVTaskDaily": {
+        "desc": "识别四号谷地日用消耗类商品，并进入购买流程",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockInStapleItem",
+                    "AutoStockInStapleItemNameDaily_Expected",
+                    "AutoStockInStapleItemDiscountsValleyIVDaily"
+                ],
+                "box_index": 2
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "AutoStockStapleQuantityControl"
+                    ]
+                },
+                "target_offset": [
+                    -45,
+                    85,
+                    -30,
+                    0
+                ]
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControl"
+        ],
+        "focus": {
+            "Node.Action.Failed": "$task.AutoStockStaple.focus.quantity_control.purchase_page_failed"
+        }
+    },
+    "AutoStockBuyItemValleyIVTaskIndustrial": {
+        "desc": "识别四号谷地工业货品类商品，并进入购买流程",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockInStapleItem",
+                    "AutoStockInStapleItemNameIndustrial_Expected",
+                    "AutoStockInStapleItemDiscountsValleyIVIndustrial"
+                ],
+                "box_index": 2
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "AutoStockStapleQuantityControl"
+                    ]
+                },
+                "target_offset": [
+                    -45,
+                    85,
+                    -30,
+                    0
+                ]
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControl"
+        ],
+        "focus": {
+            "Node.Action.Failed": "$task.AutoStockStaple.focus.quantity_control.purchase_page_failed"
+        }
+    },
+    "AutoStockBuyItemValleyIVTaskCultural": {
+        "desc": "识别四号谷地人文物产类商品，并进入购买流程",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockInStapleItem",
+                    "AutoStockInStapleItemNameCultural_Expected",
+                    "AutoStockInStapleItemDiscountsValleyIVCultural"
                 ],
                 "box_index": 2
             }

@@ -1,0 +1,499 @@
+{
+    "AutoDailyMissionAethilluStudiesListItem": {
+        "desc": "委派任务列表里的日常·表象研究",
+        "recognition": "OCR",
+        "roi": [
+            42,
+            70,
+            360,
+            590
+        ],
+        // 完整文本："日常·表象研究" / "日常·表象研究" / "Daily: Æthillu Studies" / "日常・イーサルー研究" / "일상 · 잔영 연구"
+        // 中点常被 OCR 认成别的点号或漏掉，去掉「日常」和中点只认后半段；英文的 Æ 容易认错，只认后面
+        "expected": [
+            // @i18n-skip
+            "表象研究",
+            "(?i)thillu\\s*Studies",
+            "イーサルー研究",
+            "잔영\\s*연구"
+        ]
+    },
+    "AutoDailyMissionAethilluStudiesNotFinished": {
+        "desc": "做完后列表里仍有日常·表象研究，任务失败",
+        "recognition": "And",
+        "all_of": [
+            "InMenuMission",
+            "AutoDailyMissionAethilluStudiesListItem"
+        ],
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                42,
+                70,
+                360,
+                590
+            ]
+        },
+        "action": "Custom",
+        "custom_action": "FalseAction"
+    },
+    "AutoDailyMissionAethilluStudiesDetail": {
+        "desc": "右侧详情已选中日常·表象研究",
+        "recognition": "OCR",
+        "roi": [
+            410,
+            55,
+            400,
+            45
+        ],
+        "expected": [
+            "日常·表象研究",
+            "(?i)Daily:\\s*Æthillu\\s*Studies",
+            "日常・イーサルー研究",
+            "일상\\s*·\\s*잔영\\s*연구"
+        ]
+    },
+    "AutoDailyMissionAethilluStudiesMapPanel": {
+        "desc": "任务地图右侧详情栏是日常·表象研究",
+        "recognition": "OCR",
+        "roi": [
+            950,
+            45,
+            320,
+            45
+        ],
+        // 完整文本："日常·表象研究" / "日常·表象研究" / "Daily: Æthillu Studies" / "日常・イーサルー研究" / "일상 · 잔영 연구"
+        // 中点常被 OCR 认成别的点号或漏掉，去掉「日常」和中点只认后半段；英文的 Æ 容易认错，只认后面
+        "expected": [
+            // @i18n-skip
+            "表象研究",
+            "(?i)thillu\\s*Studies",
+            "イーサルー研究",
+            "잔영\\s*연구"
+        ]
+    },
+    "AutoDailyMissionAethilluStudiesEntry": {
+        "desc": "在委派任务列表中点击日常·表象研究",
+        "recognition": "And",
+        "all_of": [
+            "InMenuMission",
+            "AutoDailyMissionAethilluStudiesListItem"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "AutoDailyMissionSnsTracked",
+            "AutoDailyMissionSnsUntracked",
+            "AutoDailyMissionAethilluStudiesOpenMap",
+            "AutoDailyMissionAethilluStudiesStartTracking"
+        ]
+    },
+    "AutoDailyMissionAethilluStudiesOpenMap": {
+        "desc": "点击定位按钮打开表象研究的任务地图",
+        "recognition": "And",
+        "all_of": [
+            "AutoDailyMissionAethilluStudiesDetail",
+            "TrackedMissionMapButton"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                410,
+                55,
+                400,
+                45
+            ]
+        },
+        "action": "Click",
+        "next": [
+            "AutoDailyMissionAethilluStudiesClosePanel"
+        ]
+    },
+    "AutoDailyMissionAethilluStudiesStartTracking": {
+        "desc": "表象研究还没追踪时点击开始追踪，打开任务地图",
+        "recognition": "And",
+        "all_of": [
+            "AutoDailyMissionAethilluStudiesDetail",
+            "AutoDailyMissionStartTrackingButton"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                410,
+                55,
+                400,
+                45
+            ]
+        },
+        "action": "Click",
+        "next": [
+            "AutoDailyMissionAethilluStudiesClosePanel"
+        ]
+    },
+    "AutoDailyMissionAethilluStudiesClosePanel": {
+        "desc": "确认已打开表象研究的任务地图，关闭右侧详情栏",
+        "recognition": "And",
+        "all_of": [
+            "CloseButtonType1",
+            "AutoDailyMissionAethilluStudiesMapPanel"
+        ],
+        "box_index": 0,
+        "action": "Click",
+        "post_wait_freezes": 500,
+        "next": [
+            "AutoDailyMissionAethilluStudiesCandidates"
+        ]
+    },
+    "AutoDailyMissionAethilluStudiesCandidates": {
+        "desc": "在首墩中层主区的地图上确认今天是哪个异常点",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "IndieDg007",
+            // 4 个异常点都在中层主区，打开任务地图时会自动切到这一层
+            "tier": "IndieDg007Tier337",
+            "icon": "MissionTrack",
+            "candidates": [
+                {
+                    "at": [
+                        109.295,
+                        108.095
+                    ],
+                    "next": "AutoDailyMissionAethilluStudiesMainSection1"
+                },
+                {
+                    "at": [
+                        101.6,
+                        190.138
+                    ],
+                    "next": "AutoDailyMissionAethilluStudiesMainSection2"
+                },
+                {
+                    "at": [
+                        102.592,
+                        158.654
+                    ],
+                    "next": "AutoDailyMissionAethilluStudiesMainSection3"
+                },
+                {
+                    "at": [
+                        70.97,
+                        156.8
+                    ],
+                    "next": "AutoDailyMissionAethilluStudiesMainSection4"
+                }
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": 500
+    },
+    "AutoDailyMissionAethilluStudiesMainSection1": {
+        "desc": "今天的表象研究在中层主区的第一个异常点",
+        "pre_delay": 0,
+        "anchor": {
+            "AutoDailyMissionRoute": "AutoDailyMissionAethilluStudiesRouteMainSection1"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDailyMissionQuickTeleport",
+            "AutoDailyMissionSelectTrackedMission"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoDailyMission.focus.aethillu_studies_main_section_1"
+        }
+    },
+    "AutoDailyMissionAethilluStudiesMainSection2": {
+        "desc": "今天的表象研究在中层主区的第二个异常点",
+        "pre_delay": 0,
+        "anchor": {
+            "AutoDailyMissionRoute": "AutoDailyMissionAethilluStudiesRouteMainSection2"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDailyMissionQuickTeleport",
+            "AutoDailyMissionSelectTrackedMission"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoDailyMission.focus.aethillu_studies_main_section_2"
+        }
+    },
+    "AutoDailyMissionAethilluStudiesMainSection3": {
+        "desc": "今天的表象研究在中层主区的第三个异常点",
+        "pre_delay": 0,
+        "anchor": {
+            "AutoDailyMissionRoute": "AutoDailyMissionAethilluStudiesRouteMainSection3"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDailyMissionAethilluStudiesMainSection3Anchor"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoDailyMission.focus.aethillu_studies_main_section_3"
+        }
+    },
+    "AutoDailyMissionAethilluStudiesMainSection3Anchor": {
+        "desc": "在地图上点击第二个异常点旁的传送点",
+        // 前往传送会选中第三个异常点正上方的传送点，从那里下楼要绕很远；
+        // 而且起点和异常点上下重叠，寻路会把起点吸到异常点那层、原地判定到达，不好处理。
+        // 所以改为手动选第二个异常点旁的传送点
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "IndieDg007",
+            "tier": "IndieDg007Tier337",
+            "icon": "TeleportAnchor",
+            "at": [
+                97.775,
+                185.577
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": 500,
+        "next": [
+            "AutoDailyMissionTeleport"
+        ]
+    },
+    "AutoDailyMissionAethilluStudiesMainSection4": {
+        "desc": "今天的表象研究在中层主区的第四个异常点",
+        "pre_delay": 0,
+        "anchor": {
+            "AutoDailyMissionRoute": "AutoDailyMissionAethilluStudiesRouteMainSection4"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDailyMissionQuickTeleport",
+            "AutoDailyMissionSelectTrackedMission"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoDailyMission.focus.aethillu_studies_main_section_4"
+        }
+    },
+    "AutoDailyMissionAethilluStudiesRouteMainSection1": {
+        "desc": "走到中层主区第一个异常点对面的平台上",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "IndieDg007Base"
+                },
+                // 从这个传送点走不到异常点那层：平台和异常点之间是深坑，往下跳会掉进坑里被拉回来。
+                // 停在平台上离坑边约 2 像素的位置，隔着坑拍；离坑边太近会冲下去
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        356.3,
+                        348.4
+                    ],
+                    "target_deck_y": 136.7
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionAethilluStudiesTakePhoto"
+        ]
+    },
+    "AutoDailyMissionAethilluStudiesRouteMainSection2": {
+        "desc": "从传送点沿走廊走到通往第二个异常点的楼梯口",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        // 传送点在异常点正上方一层，寻路的起点楼层取的是分层地图的楼层高度，会被吸到异常点那层；
+        // 启动时又按平面距离从最近的路点续走，和后面的寻路写在一起会直接跳到异常点、原地判定到达。
+        // 所以先单独直线走到楼梯口，那里底下没有别的楼层，再另起一段寻路绕下去；
+        // 起步时也会按吸错的楼层用 navmesh 规划一段，要关掉，才能照直走
+        "custom_action_param": {
+            "heading_source": "camera",
+            "enable_bootstrap_navmesh": false,
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "IndieDg007Base"
+                },
+                {
+                    "action": "RUN",
+                    "target": [
+                        331.0,
+                        446.0
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionAethilluStudiesRouteMainSection2Down"
+        ]
+    },
+    "AutoDailyMissionAethilluStudiesRouteMainSection2Down": {
+        "desc": "从楼梯口绕下楼走到中层主区的第二个异常点",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "IndieDg007Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        357.695,
+                        445.771
+                    ],
+                    "target_deck_y": 132.87
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionAethilluStudiesTakePhotoShowOperators"
+        ]
+    },
+    "AutoDailyMissionAethilluStudiesRouteMainSection3": {
+        "desc": "从传送点沿走廊走到通往第三个异常点的楼梯口",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        // 手动传送到第二个异常点旁的传送点，同样要先单独直线走到楼梯口再寻路，原因见第二个异常点
+        "custom_action_param": {
+            "heading_source": "camera",
+            "enable_bootstrap_navmesh": false,
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "IndieDg007Base"
+                },
+                {
+                    "action": "RUN",
+                    "target": [
+                        331.0,
+                        446.0
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionAethilluStudiesRouteMainSection3Down"
+        ]
+    },
+    "AutoDailyMissionAethilluStudiesRouteMainSection3Down": {
+        "desc": "从楼梯口绕下楼走到中层主区的第三个异常点",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "IndieDg007Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        358.495,
+                        414.882
+                    ],
+                    "target_deck_y": 138.573
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionAethilluStudiesTakePhotoShowOperators"
+        ]
+    },
+    "AutoDailyMissionAethilluStudiesRouteMainSection4": {
+        "desc": "从传送点沿走廊走到通往第四个异常点的楼梯口",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        // 和第二个异常点共用传送点，同样要先单独直线走到楼梯口再寻路，原因见第二个异常点
+        "custom_action_param": {
+            "heading_source": "camera",
+            "enable_bootstrap_navmesh": false,
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "IndieDg007Base"
+                },
+                {
+                    "action": "RUN",
+                    "target": [
+                        331.0,
+                        446.0
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionAethilluStudiesRouteMainSection4Down"
+        ]
+    },
+    "AutoDailyMissionAethilluStudiesRouteMainSection4Down": {
+        "desc": "从楼梯口下楼走到中层主区的第四个异常点",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "IndieDg007Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        327.173,
+                        412.775
+                    ],
+                    "target_deck_y": 144.298
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionAethilluStudiesTakePhotoShowOperators"
+        ]
+    },
+    "AutoDailyMissionAethilluStudiesTakePhoto": {
+        "desc": "在异常点拍下裂隙幻影",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "anchor": {
+            "TakePhotoDone": "AutoDailyMissionAethilluStudiesPhotoDone"
+        },
+        "next": [
+            "TakePhoto"
+        ]
+    },
+    "AutoDailyMissionAethilluStudiesTakePhotoShowOperators": {
+        "desc": "在异常点不隐藏干员拍下裂隙幻影",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "anchor": {
+            "TakePhotoDone": "AutoDailyMissionAethilluStudiesPhotoDone"
+        },
+        "next": [
+            "TakePhotoShowOperators"
+        ]
+    },
+    "AutoDailyMissionAethilluStudiesPhotoDone": {
+        "desc": "拍照完成，关闭照片预览回到大世界后检查日常是否完成",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
+        "next": [
+            "AutoDailyMissionCheckFinished"
+        ]
+    }
+}

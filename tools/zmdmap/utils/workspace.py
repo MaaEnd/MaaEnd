@@ -103,7 +103,10 @@ def sync_repo(name: str, repo: Path, *, dry_run: bool) -> RepoOutcome:
 
 
 def sync_workspace(workspace: Path, *, dry_run: bool) -> tuple[list[RepoOutcome], bool]:
-    """同步 workspace 下的兄弟仓库。
+    """同步 workspace 下的兄弟仓库：两个数据仓库 + 解包出的 Lua 与资源。
+
+    顺序见 :data:`~tools.zmdmap.utils.config.WORKSPACE_REPO_NAMES`。没 clone、工作区有改动、分离头指针、
+    没配上游的都只跳过，不算失败；资源仓库 20 GB 以上，这一步会连它的 LFS 内容一起更新，慢是正常的。
 
     返回 ``(各仓库结果, 是否有失败)``。
     """
@@ -116,8 +119,20 @@ def sync_workspace(workspace: Path, *, dry_run: bool) -> tuple[list[RepoOutcome]
     return outcomes, failed
 
 
-def preflight(table_cfg_dir: Path, json_data_dir: Path, *, check_navmesh: bool, check_json_data: bool = True) -> list[str]:
-    """生成/投影前的提示项；返回问题列表（只提示，不阻止）。"""
+def preflight(
+    table_cfg_dir: Path,
+    json_data_dir: Path,
+    *,
+    lua_dir: Path | None = None,
+    assets_dir: Path | None = None,
+    check_navmesh: bool,
+    check_json_data: bool = True,
+) -> list[str]:
+    """生成/投影前的提示项；返回问题列表（只提示，不阻止）。
+
+    ``lua_dir`` / ``assets_dir`` 只在这次选中的数据集真要读它们时传进来（目前是 ``region3d``），
+    别的数据集不读，也就不该因为缺它们而提示。
+    """
     problems: list[str] = []
     if not table_cfg_dir.is_dir():
         problems.append(f"缺少 TableCfg 目录：{table_cfg_dir}")
@@ -125,6 +140,10 @@ def preflight(table_cfg_dir: Path, json_data_dir: Path, *, check_navmesh: bool, 
         problems.append(f"缺少 JsonData 目录：{json_data_dir}")
     elif check_json_data and not (json_data_dir / "GameplayConfig" / "LevelMapMark.json").is_file():
         problems.append(f"缺少 {json_data_dir / 'GameplayConfig' / 'LevelMapMark.json'}")
+    if lua_dir is not None and not lua_dir.is_dir():
+        problems.append(f"缺少 LuaScripts 目录：{lua_dir}")
+    if assets_dir is not None and not assets_dir.is_dir():
+        problems.append(f"缺少解包资源目录：{assets_dir}")
     if check_navmesh and not any((NAVMESH_DIR / name).exists() for name in NAVMESH_FILES):
         problems.append("本地没有 navmesh（投影会改用远端 nav 数据，需要联网）")
     return problems
@@ -141,4 +160,3 @@ def changed_data_files(file_names: list[str]) -> list[str]:
         for line in changed.splitlines()
         if Path(line[3:].strip()).name in expected
     ]
-

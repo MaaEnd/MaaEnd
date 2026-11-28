@@ -458,6 +458,8 @@ export class AppState {
     this.selectedIndices = new Set();
     /** @type {string} */
     this.mode = Mode.EDIT;
+    /** @type {?Object<string, string>} zone name → base zone name of its map, null until the zone table loads */
+    this.mapZones = null;
   }
 
   /** @returns {number[]} global indices of the current segment's points. */
@@ -478,7 +480,7 @@ export class AppState {
    * @returns {void}
    */
   setPoints(points, opts = {}) {
-    this.points = normalizePathPoints(points);
+    this.points = normalizePathPoints(points, this.mapZones);
     if (!opts.keepHistory) this.history.clear();
     this.zoneState.rebuild(this.points);
     this._normalizeSelection();
@@ -495,7 +497,7 @@ export class AppState {
    * @returns {void}
    */
   reindex() {
-    this.points = normalizePathPoints(this.points);
+    this.points = normalizePathPoints(this.points, this.mapZones);
     this.zoneState.rebuild(this.points);
     this._normalizeSelection();
   }

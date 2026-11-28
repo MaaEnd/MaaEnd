@@ -93,7 +93,7 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "CheckTreeOfTheOldCourtyardJob": {
+    "CheckTreeOfTheOldCourtyardJobText": {
         "desc": "检查旧庭树委托是否可以接取",
         "recognition": "OCR",
         "roi": "CheckTreeOfTheOldCourtyardIcon",
@@ -162,7 +162,7 @@
         "all_of": [
             "CheckTreeOfTheOldCourtyardText",
             "CheckTreeOfTheOldCourtyardIcon",
-            "CheckTreeOfTheOldCourtyardJob"
+            "CheckTreeOfTheOldCourtyardJobText"
         ],
         "box_index": 2,
         "pre_delay": 0,
@@ -234,7 +234,7 @@
         "desc": "旧庭树任务已经在追踪中",
         "recognition": "And",
         "all_of": [
-            "AlreadyTrackedMissionButton",
+            "CheckAlreadyTrackingText",
             "InTreeOfTheOldCourtyardMission"
         ],
         "pre_delay": 0,
@@ -454,12 +454,12 @@
         "desc": "在旧庭树任务拍照点开始拍照",
         "pre_delay": 0,
         "anchor": {
-            "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal"
+            "TakePhotoDone": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "EnvironmentMonitoringTakePhoto"
+            "TakePhoto"
         ]
     }
 }

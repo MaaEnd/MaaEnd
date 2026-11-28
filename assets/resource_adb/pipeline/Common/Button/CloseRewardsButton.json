@@ -1,13 +1,13 @@
 {
-    "DectedCloseRewardsImage": {
-        "template": "AdbOnly/Common/Button/CloseRewardImage.png",
-        "threshold": 0.7
-    },
+    // ROI 按实测位置收窄：ADB 模板 44x45，x 恒为 618，y 有 586 / 628 两档
+    // （奖励面板行数不同、面板高度不同），并集 [618,586,44,87] 再四周各留 5px
+    // 抖动余量 -> [613,581,54,97]（原 ROI 为 209x182）。
     "__CloseRewardsButtonStable": {
-        "template": "AdbOnly/Common/Button/CloseRewardButton.png",
-        "threshold": 0.7
-    },
-    "__CloseRewardsButtonHover": {
-        "threshold": 0.7
+        "roi": [
+            613,
+            581,
+            54,
+            97
+        ]
     }
 }

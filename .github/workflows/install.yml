@@ -10,6 +10,7 @@ on:
       - ".github/workflows/install.yml"
       - "assets/**"
       - "agent/**"
+      - "CloudShell/**"
       - "tests/MaaEndTestset"
       - "tools/**"
 
@@ -20,6 +21,7 @@ on:
       - ".github/workflows/install.yml"
       - "assets/**"
       - "agent/**"
+      - "CloudShell/**"
       - "tests/MaaEndTestset"
       - "tools/**"
 
@@ -30,6 +32,12 @@ on:
         required: false
         type: string
         default: ''
+
+# 同一 PR / 分支再次推送时取消上一次运行；tag 推送与手动触发是发版构建，
+# 永不取消，排队等前一次跑完
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' || (github.event_name == 'push' && !startsWith(github.ref, 'refs/tags/')) }}
 
 jobs:
   meta:
@@ -337,8 +345,8 @@ jobs:
           PYTHONIOENCODING: utf-8
           PYTHONUNBUFFERED: "1"
         run: |
-          # 运行安装脚本（构建 Go Agent + Cpp Agent + 复制资源）
-          uv run -m tools.setup.build_and_install --cpp-algo --ci --os ${{ matrix.os }} --arch ${{ matrix.arch }} --version ${{ needs.meta.outputs.tag }}
+          # 运行安装脚本（构建 Go Agent + Cpp Agent + 复制资源；CloudShell 只在 Windows 上构建）
+          uv run -m tools.setup.build_and_install --cpp-algo --cloud-shell --ci --os ${{ matrix.os }} --arch ${{ matrix.arch }} --version ${{ needs.meta.outputs.tag }}
 
           # 安装 MaaFramework
           echo "Install MaaFramework"
@@ -354,6 +362,9 @@ jobs:
               cp downloads/MXU/mxu.exe install/MaaEnd.exe
             elif [[ -f downloads/MXU/mxu ]]; then
               cp downloads/MXU/mxu install/MaaEnd
+            elif [[ -f downloads/MXU/mxu.app/Contents/MacOS/mxu ]]; then
+              # MXU v2.10.0 起 macOS 包改为 mxu.app 布局
+              cp downloads/MXU/mxu.app/Contents/MacOS/mxu install/MaaEnd
             fi
           fi
 
@@ -408,6 +419,15 @@ jobs:
           path: |
             install/agent/cpp-algo*
             install/agent/WebView2Loader.dll
+          retention-days: 90
+
+      # 云游戏外壳只有 Windows 会构建（其他平台的 install/cloud-shell 不存在），
+      # 单独出一个 artifact，供 setup-workspace 只取这一个 exe，不必下整个安装包
+      - uses: actions/upload-artifact@v6
+        if: matrix.os == 'win'
+        with:
+          name: cloud-shell-${{ matrix.os }}-${{ matrix.arch }}
+          path: install/cloud-shell
           retention-days: 90
 
   package_linux_tarball:
@@ -541,6 +561,7 @@ jobs:
           codesign --force --deep --sign - "$APP_NAME"
 
           create-dmg \
+            --filesystem APFS \
             --volname "MaaEnd Installer" \
             --volicon "maaend.icns" \
             --window-pos 200 120 \
@@ -551,6 +572,14 @@ jobs:
             --app-drop-link 600 185 \
             "MaaEnd.dmg" \
             "$APP_NAME"
+
+      - name: Verify app signature in DMG
+        shell: bash
+        run: |
+          mount_point="$(mktemp -d "$RUNNER_TEMP/maaend-dmg-check.XXXXXX")"
+          hdiutil attach -readonly -nobrowse -mountpoint "$mount_point" MaaEnd.dmg
+          trap 'hdiutil detach "$mount_point"' EXIT
+          codesign --verify --deep --strict --verbose=2 "$mount_point/MaaEnd.app"
 
       - uses: actions/upload-artifact@v6
         with:

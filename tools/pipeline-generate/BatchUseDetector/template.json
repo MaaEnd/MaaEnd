@@ -5,11 +5,7 @@
         "recognition": "DirectHit",
         "pre_delay": 0,
         "post_delay": 0,
-        "next": [
-            "BatchUseDetectorFind${Detector}",
-            "BatchUseDetectorFind${Compass}",
-            "BatchUseDetectorFindNoItem"
-        ]
+        "next": "${ItemNext}"
     },
     "BatchUseDetectorFind${Detector}": {
         "desc": "寻找${LocationDetector}",

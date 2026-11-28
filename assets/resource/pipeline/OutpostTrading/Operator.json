@@ -63,7 +63,7 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "OutpostTradingOperatorAlreadyAssignedPrompt": {
+    "OutpostTradingCheckOperatorAlreadyAssignedDialogText": {
         "desc": "联络干员已派驻到其他据点确认弹窗",
         "recognition": "OCR",
         "roi": [
@@ -98,7 +98,7 @@
             162,
             116
         ],
-        "template": "OutpostTrading/OutpostTradingOpenOperatorListButton.png",
+        "template": "OutpostTrading/OperatorLiaisonButton.png",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0

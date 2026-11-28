@@ -12,8 +12,11 @@ agent/cpp-algo/MaaUtils/
 tests/MaaEndTestset/
 Android/MaaFwApp/
 
-# 跳过 schema 目录，避免与 sync_schema_files 冲突
-tools/schema/
+# 由 sync_schema_files 从 MaaFramework 同步覆盖，保持上游格式避免冲突
+tools/schema/interface.schema.json
+tools/schema/interface_config.schema.json
+tools/schema/interface_import.schema.json
+tools/schema/pipeline.schema.json
 
 # 从 zmdmap 获取的数据不需要格式化
 tools/zmdmap/data/*.json

@@ -1201,6 +1201,61 @@
                 }
             ]
         },
+        "research_011prts": {
+            "id": "research_011prts",
+            "names": {
+                "zh_cn": "杜-舒比纳大坝建设细节",
+                "zh_tw": "杜-舒比納大壩建設細節"
+            },
+            "page": "investigate",
+            "fileCategory": "investigate",
+            "tagIds": [
+                "investigate"
+            ],
+            "relatedItemIds": [
+                "paper_map02_research14_2",
+                "paper_map02_research14_1",
+                "paper_map02_research14_3",
+                "paper_map02_research14_4"
+            ],
+            "order": 14,
+            "groups": [
+                {
+                    "id": "research_011prts_1",
+                    "names": {
+                        "zh_cn": "设计目的",
+                        "zh_tw": "設計目的"
+                    },
+                    "entries": [
+                        {
+                            "itemId": "paper_map02_research14_2",
+                            "pageId": "nar_paper_map02_research14_2_1"
+                        },
+                        {
+                            "itemId": "paper_map02_research14_1",
+                            "pageId": "nar_paper_map02_research14_1_1"
+                        }
+                    ]
+                },
+                {
+                    "id": "research_011prts_2",
+                    "names": {
+                        "zh_cn": "息壤",
+                        "zh_tw": "息壤"
+                    },
+                    "entries": [
+                        {
+                            "itemId": "paper_map02_research14_3",
+                            "pageId": "nar_paper_map02_research14_3_1"
+                        },
+                        {
+                            "itemId": "paper_map02_research14_4",
+                            "pageId": "nar_paper_map02_research14_4_1"
+                        }
+                    ]
+                }
+            ]
+        },
         "media_1": {
             "id": "media_1",
             "names": {
@@ -12710,6 +12765,742 @@
                 }
             ],
             "order": 201062805
+        },
+        "collection_map02_17025": {
+            "id": "collection_map02_17025",
+            "names": {
+                "zh_cn": "小刻的作战计划",
+                "zh_tw": "小刻的作戰計劃"
+            },
+            "page": "text",
+            "fileCategory": "collection",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_collection_map02_17025_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "小刻的作战计划",
+                        "zh_tw": "小刻的作戰計劃"
+                    }
+                }
+            ],
+            "order": 201070024
+        },
+        "collection_map02_17026": {
+            "id": "collection_map02_17026",
+            "names": {
+                "zh_cn": "分享时刻",
+                "zh_tw": "分享時刻"
+            },
+            "page": "text",
+            "fileCategory": "collection",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_collection_map02_17026_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "分享时刻",
+                        "zh_tw": "分享時刻"
+                    }
+                }
+            ],
+            "order": 201070025
+        },
+        "collection_map02_17027": {
+            "id": "collection_map02_17027",
+            "names": {
+                "zh_cn": "小刻的塔卫二冒险",
+                "zh_tw": "小刻的塔衛二冒險"
+            },
+            "page": "text",
+            "fileCategory": "collection",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_collection_map02_17027_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "小刻的塔卫二冒险",
+                        "zh_tw": "小刻的塔衛二冒險"
+                    }
+                }
+            ],
+            "order": 201070026
+        },
+        "collection_map02_17028": {
+            "id": "collection_map02_17028",
+            "names": {
+                "zh_cn": "“不可能的合唱”",
+                "zh_tw": "「不可能的合唱」"
+            },
+            "page": "text",
+            "fileCategory": "collection",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_collection_map02_17028_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "“不可能的合唱”",
+                        "zh_tw": "「不可能的合唱」"
+                    }
+                }
+            ],
+            "order": 201070001
+        },
+        "collection_map02_17029": {
+            "id": "collection_map02_17029",
+            "names": {
+                "zh_cn": "“疯狂挑战”",
+                "zh_tw": "「瘋狂挑戰」"
+            },
+            "page": "text",
+            "fileCategory": "collection",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_collection_map02_17029_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "“疯狂挑战”",
+                        "zh_tw": "「瘋狂挑戰」"
+                    }
+                }
+            ],
+            "order": 201070002
+        },
+        "collection_map02_17030": {
+            "id": "collection_map02_17030",
+            "names": {
+                "zh_cn": "“神秘嘉宾”",
+                "zh_tw": "「神秘嘉賓」"
+            },
+            "page": "text",
+            "fileCategory": "collection",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_collection_map02_17030_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "“神秘嘉宾”",
+                        "zh_tw": "「神秘嘉賓」"
+                    }
+                }
+            ],
+            "order": 201070003
+        },
+        "collection_map02_17031": {
+            "id": "collection_map02_17031",
+            "names": {
+                "zh_cn": "“宿醉如泥”",
+                "zh_tw": "「宿醉如泥」"
+            },
+            "page": "text",
+            "fileCategory": "collection",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_collection_map02_17031_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "“宿醉如泥”",
+                        "zh_tw": "「宿醉如泥」"
+                    }
+                }
+            ],
+            "order": 201070004
+        },
+        "collection_map02_17032": {
+            "id": "collection_map02_17032",
+            "names": {
+                "zh_cn": "“胜利纪念”",
+                "zh_tw": "「勝利紀念」"
+            },
+            "page": "text",
+            "fileCategory": "collection",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_collection_map02_17032_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "“胜利纪念”",
+                        "zh_tw": "「勝利紀念」"
+                    }
+                }
+            ],
+            "order": 201070005
+        },
+        "collection_map02_17033": {
+            "id": "collection_map02_17033",
+            "names": {
+                "zh_cn": "“力量对决”",
+                "zh_tw": "「力量對決」"
+            },
+            "page": "text",
+            "fileCategory": "collection",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_collection_map02_17033_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "“力量对决”",
+                        "zh_tw": "「力量對決」"
+                    }
+                }
+            ],
+            "order": 201070006
+        },
+        "paper_map02_17010": {
+            "id": "paper_map02_17010",
+            "names": {
+                "zh_cn": "有关甚大裂隙的陈旧记录",
+                "zh_tw": "有關甚大裂隙的陳舊紀錄"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_17010_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "有关甚大裂隙的陈旧记录",
+                        "zh_tw": "有關甚大裂隙的陳舊紀錄"
+                    }
+                }
+            ],
+            "order": 201070008
+        },
+        "paper_map02_17020": {
+            "id": "paper_map02_17020",
+            "names": {
+                "zh_cn": "一份手写的工作日志",
+                "zh_tw": "一份手寫的工作日誌"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_17020_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "一份手写的工作日志",
+                        "zh_tw": "一份手寫的工作日誌"
+                    }
+                }
+            ],
+            "order": 201070019
+        },
+        "digital_map02_17015": {
+            "id": "digital_map02_17015",
+            "names": {
+                "zh_cn": "遗留的处理记录",
+                "zh_tw": "遺留的處理紀錄"
+            },
+            "page": "text",
+            "fileCategory": "digital",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_digital_map02_17015_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "遗留的处理记录",
+                        "zh_tw": "遺留的處理紀錄"
+                    }
+                }
+            ],
+            "order": 201070013
+        },
+        "digital_map02_17017": {
+            "id": "digital_map02_17017",
+            "names": {
+                "zh_cn": "一份年代不明的录音记录",
+                "zh_tw": "一份年代不明的錄音紀錄"
+            },
+            "page": "text",
+            "fileCategory": "digital",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_digital_map02_17017_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "一份年代不明的录音记录",
+                        "zh_tw": "一份年代不明的錄音紀錄"
+                    }
+                }
+            ],
+            "order": 201070015
+        },
+        "paper_map02_17011": {
+            "id": "paper_map02_17011",
+            "names": {
+                "zh_cn": "误入者的留言",
+                "zh_tw": "誤入者的留言"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_17011_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "误入者的留言",
+                        "zh_tw": "誤入者的留言"
+                    }
+                }
+            ],
+            "order": 201070009
+        },
+        "paper_map02_research14_2": {
+            "id": "paper_map02_research14_2",
+            "names": {
+                "zh_cn": "行程记录（二）",
+                "zh_tw": "行程紀錄（二）"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_research14_2_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "行程记录（二）",
+                        "zh_tw": "行程紀錄（二）"
+                    }
+                }
+            ],
+            "order": 201073602
+        },
+        "paper_map02_research14_3": {
+            "id": "paper_map02_research14_3",
+            "names": {
+                "zh_cn": "误入者的挣扎",
+                "zh_tw": "誤入者的掙扎"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_research14_3_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "误入者的挣扎",
+                        "zh_tw": "誤入者的掙扎"
+                    }
+                }
+            ],
+            "order": 201073603
+        },
+        "paper_map02_17016": {
+            "id": "paper_map02_17016",
+            "names": {
+                "zh_cn": "《实验β区育种与制肥手册（节选）》",
+                "zh_tw": "《實驗β區育種與製肥手冊（節選）》"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_17016_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "《实验β区育种与制肥手册（节选）》",
+                        "zh_tw": "《實驗β區育種與製肥手冊（節選）》"
+                    }
+                }
+            ],
+            "order": 201070014
+        },
+        "document_v1d7_1": {
+            "id": "document_v1d7_1",
+            "names": {
+                "zh_cn": "杜-舒比纳大坝",
+                "zh_tw": "杜-舒比納大壩"
+            },
+            "page": "document",
+            "fileCategory": "document",
+            "tagIds": [
+                "document"
+            ],
+            "pages": [
+                {
+                    "id": "nar_document_v1d7_1_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "杜-舒比纳大坝",
+                        "zh_tw": "杜-舒比納大壩"
+                    }
+                }
+            ],
+            "order": 1070001
+        },
+        "paper_map02_17022": {
+            "id": "paper_map02_17022",
+            "names": {
+                "zh_cn": "关于种植试验场L329特殊事件的处理方案",
+                "zh_tw": "關於種植試驗場L329特殊事件的處理方案"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_17022_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "关于种植试验场L329特殊事件的处理方案",
+                        "zh_tw": "關於種植試驗場L329特殊事件的處理方案"
+                    }
+                }
+            ],
+            "order": 201070021
+        },
+        "paper_map02_17014": {
+            "id": "paper_map02_17014",
+            "names": {
+                "zh_cn": "各类蘑菇的培育记录",
+                "zh_tw": "各類蘑菇的培育紀錄"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_17014_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "各类蘑菇的培育记录",
+                        "zh_tw": "各類蘑菇的培育紀錄"
+                    }
+                }
+            ],
+            "order": 201070012
+        },
+        "paper_map02_17024": {
+            "id": "paper_map02_17024",
+            "names": {
+                "zh_cn": "手记的残页",
+                "zh_tw": "手記的殘頁"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_17024_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "手记的残页",
+                        "zh_tw": "手記的殘頁"
+                    }
+                }
+            ],
+            "order": 201070023
+        },
+        "paper_map02_research14_1": {
+            "id": "paper_map02_research14_1",
+            "names": {
+                "zh_cn": "陈旧的运行检查日志",
+                "zh_tw": "陳舊的運作檢查日誌"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_research14_1_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "陈旧的运行检查日志",
+                        "zh_tw": "陳舊的運作檢查日誌"
+                    }
+                }
+            ],
+            "order": 201073601
+        },
+        "paper_map02_17009": {
+            "id": "paper_map02_17009",
+            "names": {
+                "zh_cn": "行程记录（一）",
+                "zh_tw": "行程紀錄（一）"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_17009_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "行程记录（一）",
+                        "zh_tw": "行程紀錄（一）"
+                    }
+                }
+            ],
+            "order": 201070007
+        },
+        "paper_map02_17006": {
+            "id": "paper_map02_17006",
+            "names": {
+                "zh_cn": "《试验层紧急情况处理手册》",
+                "zh_tw": "《試驗層緊急情況處理手冊》"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_17006_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "《试验层紧急情况处理手册》",
+                        "zh_tw": "《試驗層緊急情況處理手冊》"
+                    }
+                }
+            ],
+            "order": 201070017
+        },
+        "paper_map02_17012": {
+            "id": "paper_map02_17012",
+            "names": {
+                "zh_cn": "行程记录（三）",
+                "zh_tw": "行程紀錄（三）"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_17012_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "行程记录（三）",
+                        "zh_tw": "行程紀錄（三）"
+                    }
+                }
+            ],
+            "order": 201070010
+        },
+        "paper_map02_17013": {
+            "id": "paper_map02_17013",
+            "names": {
+                "zh_cn": "E21实验记录",
+                "zh_tw": "E21實驗紀錄"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_17013_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "E21实验记录",
+                        "zh_tw": "E21實驗紀錄"
+                    }
+                }
+            ],
+            "order": 201070011
+        },
+        "paper_map02_17018": {
+            "id": "paper_map02_17018",
+            "names": {
+                "zh_cn": "未署名的手记（二）",
+                "zh_tw": "未署名的手記（二）"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_17018_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "未署名的手记（二）",
+                        "zh_tw": "未署名的手記（二）"
+                    }
+                }
+            ],
+            "order": 201070016
+        },
+        "paper_map02_17019": {
+            "id": "paper_map02_17019",
+            "names": {
+                "zh_cn": "发黄的内部通报文件",
+                "zh_tw": "發黃的內部通報文件"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_17019_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "发黄的内部通报文件",
+                        "zh_tw": "發黃的內部通報文件"
+                    }
+                }
+            ],
+            "order": 201070018
+        },
+        "paper_map02_17021": {
+            "id": "paper_map02_17021",
+            "names": {
+                "zh_cn": "未署名的手记（一）",
+                "zh_tw": "未署名的手記（一）"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_17021_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "未署名的手记（一）",
+                        "zh_tw": "未署名的手記（一）"
+                    }
+                }
+            ],
+            "order": 201070020
+        },
+        "paper_map02_17023": {
+            "id": "paper_map02_17023",
+            "names": {
+                "zh_cn": "关于特殊实验肥料HF31924075的最终处理报告",
+                "zh_tw": "關於特殊實驗肥料HF31924075的最終處理報告"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_17023_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "关于特殊实验肥料HF31924075的最终处理报告",
+                        "zh_tw": "關於特殊實驗肥料HF31924075的最終處理報告"
+                    }
+                }
+            ],
+            "order": 201070022
+        },
+        "report_map02_research14_5": {
+            "id": "report_map02_research14_5",
+            "names": {
+                "zh_cn": "有关杜-舒比纳大坝建设细节的调查报告",
+                "zh_tw": "有關杜-舒比納大壩建設細節的調查報告"
+            },
+            "page": "document",
+            "fileCategory": "report",
+            "tagIds": [
+                "document"
+            ],
+            "pages": [
+                {
+                    "id": "nar_report_map02_research14_5_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "有关杜-舒比纳大坝建设细节的调查报告",
+                        "zh_tw": "有關杜-舒比納大壩建設細節的調查報告"
+                    }
+                }
+            ],
+            "order": 201073605
+        },
+        "paper_map02_research14_4": {
+            "id": "paper_map02_research14_4",
+            "names": {
+                "zh_cn": "监测者的抱怨",
+                "zh_tw": "監測者的抱怨"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_research14_4_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "监测者的抱怨",
+                        "zh_tw": "監測者的抱怨"
+                    }
+                }
+            ],
+            "order": 201073604
         }
     }
 }

@@ -55,13 +55,13 @@
         // attach.ready 是识别器的运行期状态：首次执行时 ListCompleteRecognition 把 roi 内画面截成模板
         // ListCompleteRecognition/AutoDeliveryCheckDeliveryMissionListComplete.png 并置 ready=true，
         // 之后每轮用该模板判断列表是否已停住。
-        // AutoDeliverySelectDeliveryMissionFromList 在开始新一轮查找前用 PipelineOverrideAction 置回 false，
+        // AutoDeliverySelectDeliveryMissionFromList 在开始新一轮查找前用 PipelineOverride 置回 false，
         // 使固定画面被重新采集（否则上一轮的模板会一直沿用）。
         "attach": {
             "ready": false
         }
     },
-    "AutoDeliveryCheckDeliveryMissionListItem": {
+    "AutoDeliveryCheckDeliveryMissionListItemText": {
         "desc": "在任务列表中识别送货任务",
         "recognition": "OCR",
         "roi": [
@@ -79,7 +79,7 @@
         ],
         "order_by": "Expected"
     },
-    "AutoDeliveryCheckDeliveryMissionSelected": {
+    "AutoDeliveryCheckDeliveryMissionSelectedText": {
         "desc": "确认右侧详情已经切换到送货任务",
         "recognition": "OCR",
         "roi": [
@@ -104,7 +104,7 @@
         "desc": "确认任务条件区域包含黄色文本，并保留送货目标 OCR 结果",
         "recognition": "And",
         "all_of": [
-            "AutoDeliveryCheckDestinationYellowText",
+            "AutoDeliveryCheckDestinationYellowColor",
             "AutoDeliveryCheckDestinationText"
         ],
         "box_index": 1
@@ -122,7 +122,7 @@
         "only_rec": false,
         "order_by": "Horizontal"
     },
-    "AutoDeliveryCheckDestinationYellowText": {
+    "AutoDeliveryCheckDestinationYellowColor": {
         "desc": "确认任务条件区域存在黄色文本，避免把白色任务说明当作终点",
         "recognition": "ColorMatch",
         "roi": [
@@ -193,7 +193,7 @@
         "recognition": "And",
         "all_of": [
             "InMenuMission",
-            "AutoDeliveryCheckDeliveryMissionSelected"
+            "AutoDeliveryCheckDeliveryMissionSelectedText"
         ],
         "box_index": 1,
         "pre_wait_freezes": {
@@ -269,7 +269,7 @@
         "recognition": "And",
         "all_of": [
             "InMenuMission",
-            "AutoDeliveryCheckDeliveryMissionListItem"
+            "AutoDeliveryCheckDeliveryMissionListItemText"
         ],
         "box_index": 1,
         "pre_delay": 0,
@@ -284,7 +284,7 @@
         "desc": "在任务列表中查找送货任务，并确认右侧详情已经选中该任务",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
+        "custom_action": "PipelineOverride",
         "custom_action_param": {
             "patch": {
                 "AutoDeliveryCheckDeliveryMissionListComplete": {

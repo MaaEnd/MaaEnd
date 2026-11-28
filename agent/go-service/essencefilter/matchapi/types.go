@@ -12,6 +12,7 @@ type WeaponData struct {
 
 // SkillPool is a canonical skill pool entry for a slot.
 type SkillPool struct {
+	TermID  string `json:"term_id,omitempty"`
 	ID      int    `json:"id"`
 	English string `json:"english"`
 	Chinese string `json:"chinese"`
@@ -71,9 +72,6 @@ type EssenceFilterOptions struct {
 	Rarity5Weapon bool `json:"rarity5_weapon"`
 	Rarity4Weapon bool `json:"rarity4_weapon"`
 
-	// Min total level to lock an exact match.
-	PerfectMinLevelTotal int `json:"perfect_min_level_total"`
-
 	// Future Promising extension.
 	KeepFuturePromising     bool `json:"keep_future_promising"`
 	FuturePromisingMinTotal int  `json:"future_promising_min_total"`
@@ -119,6 +117,10 @@ type MatchResult struct {
 	SkillIDs      []int
 	SkillsChinese []string
 	Weapons       []WeaponData
+
+	// Levels are the OCR levels in slot1..slot3 order, i.e. reordered together with the
+	// skills when the engine infers slot pools from the OCR text.
+	Levels [3]int
 
 	// Extension rule detail — only populated for the corresponding Kind.
 	ExtLevelSum int // MatchFuturePromising: sum of three slot levels

@@ -11,6 +11,7 @@
             "controller": [
                 "ADB",
                 "CloudADB",
+                "CloudWeb",
                 "Linux-Gamescope",
                 "Linux-ScreenCast",
                 "Linux-Wlroots",
@@ -72,24 +73,10 @@
                             "enabled": true,
                             "anchor": {
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsValleyIV",
-                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsQuickTransfer",
+                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsDecideQuickTransfer",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode",
                                 "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
                             }
-                        },
-                        "DeliveryJobsCheckOriginiumScienceParkCargo": {
-                            "expected": [
-                                "查看报价",
-                                "查看報價",
-                                "(?i)Check\\s*Bid",
-                                "希望価格確認",
-                                "货物装箱",
-                                "貨物裝箱",
-                                "(?i)Pack\\s*Goods",
-                                "パッキング",
-                                "화물 포장",
-                                "입찰 보기"
-                            ]
                         },
                         "DeliveryJobsOngoingDeliveryForOriginiumSciencePark": {
                             "next": [
@@ -145,20 +132,6 @@
                                 "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
                             }
                         },
-                        "DeliveryJobsCheckOriginiumScienceParkCargo": {
-                            "expected": [
-                                "查看报价",
-                                "查看報價",
-                                "(?i)Check\\s*Bid",
-                                "希望価格確認",
-                                "货物装箱",
-                                "貨物裝箱",
-                                "(?i)Pack\\s*Goods",
-                                "パッキング",
-                                "화물 포장",
-                                "입찰 보기"
-                            ]
-                        },
                         "DeliveryJobsOngoingDeliveryForOriginiumSciencePark": {
                             "next": [
                                 "DeliveryJobsAutoDeliveryOriginiumSciencePark"
@@ -181,20 +154,6 @@
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode",
                                 "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
                             }
-                        },
-                        "DeliveryJobsCheckOriginiumScienceParkCargo": {
-                            "expected": [
-                                "查看报价",
-                                "查看報價",
-                                "(?i)Check\\s*Bid",
-                                "希望価格確認",
-                                "货物装箱",
-                                "貨物裝箱",
-                                "(?i)Pack\\s*Goods",
-                                "パッキング",
-                                "화물 포장",
-                                "입찰 보기"
-                            ]
                         },
                         "DeliveryJobsOngoingDeliveryForOriginiumSciencePark": {
                             "next": [
@@ -219,7 +178,7 @@
                                 "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
                             }
                         },
-                        "DeliveryJobsCheckOriginiumScienceParkCargo": {
+                        "DeliveryJobsCheckOriginiumScienceParkCargoText": {
                             "expected": [
                                 "货物装箱",
                                 "貨物裝箱",
@@ -259,7 +218,7 @@
                     "name": "DeliveryJobsQuoteThresholdOriginiumScienceParkValue",
                     "label": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.label",
                     "description": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.description",
-                    "default": "119000",
+                    "default": "211000",
                     "pipeline_type": "string",
                     "verify": "^\\d+$",
                     "pattern_msg": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.pattern_msg"
@@ -292,7 +251,7 @@
                                 "DeliveryJobsGoToDepot": "DeliveryJobsReturnAndTransferOriginiumSciencePark"
                             },
                             "next": [
-                                "DeliveryJobsQuickTransfer"
+                                "DeliveryJobsDecideQuickTransfer"
                             ]
                         }
                     }
@@ -353,7 +312,7 @@
                                 "DeliveryJobsGoToDepot": "DeliveryJobsReturnAndTransferOriginiumSciencePark"
                             },
                             "next": [
-                                "DeliveryJobsQuickTransfer"
+                                "DeliveryJobsDecideQuickTransfer"
                             ]
                         }
                     }
@@ -415,24 +374,10 @@
                             "enabled": true,
                             "anchor": {
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsValleyIV",
-                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsQuickTransfer",
+                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsDecideQuickTransfer",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode",
                                 "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
                             }
-                        },
-                        "DeliveryJobsCheckOriginLodespringCargo": {
-                            "expected": [
-                                "查看报价",
-                                "查看報價",
-                                "(?i)Check\\s*Bid",
-                                "希望価格確認",
-                                "货物装箱",
-                                "貨物裝箱",
-                                "(?i)Pack\\s*Goods",
-                                "パッキング",
-                                "화물 포장",
-                                "입찰 보기"
-                            ]
                         },
                         "DeliveryJobsOngoingDeliveryForOriginLodespring": {
                             "next": [
@@ -488,20 +433,6 @@
                                 "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
                             }
                         },
-                        "DeliveryJobsCheckOriginLodespringCargo": {
-                            "expected": [
-                                "查看报价",
-                                "查看報價",
-                                "(?i)Check\\s*Bid",
-                                "希望価格確認",
-                                "货物装箱",
-                                "貨物裝箱",
-                                "(?i)Pack\\s*Goods",
-                                "パッキング",
-                                "화물 포장",
-                                "입찰 보기"
-                            ]
-                        },
                         "DeliveryJobsOngoingDeliveryForOriginLodespring": {
                             "next": [
                                 "DeliveryJobsAutoDeliveryOriginLodespring"
@@ -524,20 +455,6 @@
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode",
                                 "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
                             }
-                        },
-                        "DeliveryJobsCheckOriginLodespringCargo": {
-                            "expected": [
-                                "查看报价",
-                                "查看報價",
-                                "(?i)Check\\s*Bid",
-                                "希望価格確認",
-                                "货物装箱",
-                                "貨物裝箱",
-                                "(?i)Pack\\s*Goods",
-                                "パッキング",
-                                "화물 포장",
-                                "입찰 보기"
-                            ]
                         },
                         "DeliveryJobsOngoingDeliveryForOriginLodespring": {
                             "next": [
@@ -562,7 +479,7 @@
                                 "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
                             }
                         },
-                        "DeliveryJobsCheckOriginLodespringCargo": {
+                        "DeliveryJobsCheckOriginLodespringCargoText": {
                             "expected": [
                                 "货物装箱",
                                 "貨物裝箱",
@@ -602,7 +519,7 @@
                     "name": "DeliveryJobsQuoteThresholdOriginLodespringValue",
                     "label": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.label",
                     "description": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.description",
-                    "default": "119000",
+                    "default": "343000",
                     "pipeline_type": "string",
                     "verify": "^\\d+$",
                     "pattern_msg": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.pattern_msg"
@@ -635,7 +552,7 @@
                                 "DeliveryJobsGoToDepot": "DeliveryJobsReturnAndTransferOriginLodespring"
                             },
                             "next": [
-                                "DeliveryJobsQuickTransfer"
+                                "DeliveryJobsDecideQuickTransfer"
                             ]
                         }
                     }
@@ -696,7 +613,7 @@
                                 "DeliveryJobsGoToDepot": "DeliveryJobsReturnAndTransferOriginLodespring"
                             },
                             "next": [
-                                "DeliveryJobsQuickTransfer"
+                                "DeliveryJobsDecideQuickTransfer"
                             ]
                         }
                     }
@@ -758,24 +675,10 @@
                             "enabled": true,
                             "anchor": {
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsValleyIV",
-                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsQuickTransfer",
+                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsDecideQuickTransfer",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode",
                                 "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
                             }
-                        },
-                        "DeliveryJobsCheckPowerPlateauCargo": {
-                            "expected": [
-                                "查看报价",
-                                "查看報價",
-                                "(?i)Check\\s*Bid",
-                                "希望価格確認",
-                                "货物装箱",
-                                "貨物裝箱",
-                                "(?i)Pack\\s*Goods",
-                                "パッキング",
-                                "화물 포장",
-                                "입찰 보기"
-                            ]
                         },
                         "DeliveryJobsOngoingDeliveryForPowerPlateau": {
                             "next": [
@@ -831,20 +734,6 @@
                                 "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
                             }
                         },
-                        "DeliveryJobsCheckPowerPlateauCargo": {
-                            "expected": [
-                                "查看报价",
-                                "查看報價",
-                                "(?i)Check\\s*Bid",
-                                "希望価格確認",
-                                "货物装箱",
-                                "貨物裝箱",
-                                "(?i)Pack\\s*Goods",
-                                "パッキング",
-                                "화물 포장",
-                                "입찰 보기"
-                            ]
-                        },
                         "DeliveryJobsOngoingDeliveryForPowerPlateau": {
                             "next": [
                                 "DeliveryJobsAutoDeliveryPowerPlateau"
@@ -867,20 +756,6 @@
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode",
                                 "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
                             }
-                        },
-                        "DeliveryJobsCheckPowerPlateauCargo": {
-                            "expected": [
-                                "查看报价",
-                                "查看報價",
-                                "(?i)Check\\s*Bid",
-                                "希望価格確認",
-                                "货物装箱",
-                                "貨物裝箱",
-                                "(?i)Pack\\s*Goods",
-                                "パッキング",
-                                "화물 포장",
-                                "입찰 보기"
-                            ]
                         },
                         "DeliveryJobsOngoingDeliveryForPowerPlateau": {
                             "next": [
@@ -905,7 +780,7 @@
                                 "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
                             }
                         },
-                        "DeliveryJobsCheckPowerPlateauCargo": {
+                        "DeliveryJobsCheckPowerPlateauCargoText": {
                             "expected": [
                                 "货物装箱",
                                 "貨物裝箱",
@@ -945,7 +820,7 @@
                     "name": "DeliveryJobsQuoteThresholdPowerPlateauValue",
                     "label": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.label",
                     "description": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.description",
-                    "default": "119000",
+                    "default": "369000",
                     "pipeline_type": "string",
                     "verify": "^\\d+$",
                     "pattern_msg": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.pattern_msg"
@@ -978,7 +853,7 @@
                                 "DeliveryJobsGoToDepot": "DeliveryJobsReturnAndTransferPowerPlateau"
                             },
                             "next": [
-                                "DeliveryJobsQuickTransfer"
+                                "DeliveryJobsDecideQuickTransfer"
                             ]
                         }
                     }
@@ -1039,7 +914,7 @@
                                 "DeliveryJobsGoToDepot": "DeliveryJobsReturnAndTransferPowerPlateau"
                             },
                             "next": [
-                                "DeliveryJobsQuickTransfer"
+                                "DeliveryJobsDecideQuickTransfer"
                             ]
                         }
                     }
@@ -1128,24 +1003,10 @@
                             "enabled": true,
                             "anchor": {
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsWuling",
-                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsQuickTransfer",
+                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsDecideQuickTransfer",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode",
                                 "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
                             }
-                        },
-                        "DeliveryJobsCheckWulingCityCargo": {
-                            "expected": [
-                                "查看报价",
-                                "查看報價",
-                                "(?i)Check\\s*Bid",
-                                "希望価格確認",
-                                "货物装箱",
-                                "貨物裝箱",
-                                "(?i)Pack\\s*Goods",
-                                "パッキング",
-                                "화물 포장",
-                                "입찰 보기"
-                            ]
                         },
                         "DeliveryJobsOngoingDeliveryForWulingCity": {
                             "next": [
@@ -1201,20 +1062,6 @@
                                 "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
                             }
                         },
-                        "DeliveryJobsCheckWulingCityCargo": {
-                            "expected": [
-                                "查看报价",
-                                "查看報價",
-                                "(?i)Check\\s*Bid",
-                                "希望価格確認",
-                                "货物装箱",
-                                "貨物裝箱",
-                                "(?i)Pack\\s*Goods",
-                                "パッキング",
-                                "화물 포장",
-                                "입찰 보기"
-                            ]
-                        },
                         "DeliveryJobsOngoingDeliveryForWulingCity": {
                             "next": [
                                 "DeliveryJobsAutoDeliveryWulingCity"
@@ -1237,20 +1084,6 @@
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode",
                                 "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
                             }
-                        },
-                        "DeliveryJobsCheckWulingCityCargo": {
-                            "expected": [
-                                "查看报价",
-                                "查看報價",
-                                "(?i)Check\\s*Bid",
-                                "希望価格確認",
-                                "货物装箱",
-                                "貨物裝箱",
-                                "(?i)Pack\\s*Goods",
-                                "パッキング",
-                                "화물 포장",
-                                "입찰 보기"
-                            ]
                         },
                         "DeliveryJobsOngoingDeliveryForWulingCity": {
                             "next": [
@@ -1275,7 +1108,7 @@
                                 "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
                             }
                         },
-                        "DeliveryJobsCheckWulingCityCargo": {
+                        "DeliveryJobsCheckWulingCityCargoText": {
                             "expected": [
                                 "货物装箱",
                                 "貨物裝箱",
@@ -1315,7 +1148,7 @@
                     "name": "DeliveryJobsQuoteThresholdWulingCityValue",
                     "label": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.label",
                     "description": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.description",
-                    "default": "119000",
+                    "default": "142000",
                     "pipeline_type": "string",
                     "verify": "^\\d+$",
                     "pattern_msg": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.pattern_msg"
@@ -1348,7 +1181,7 @@
                                 "DeliveryJobsGoToDepot": "DeliveryJobsReturnAndTransferWulingCity"
                             },
                             "next": [
-                                "DeliveryJobsQuickTransfer"
+                                "DeliveryJobsDecideQuickTransfer"
                             ]
                         }
                     }
@@ -1409,7 +1242,7 @@
                                 "DeliveryJobsGoToDepot": "DeliveryJobsReturnAndTransferWulingCity"
                             },
                             "next": [
-                                "DeliveryJobsQuickTransfer"
+                                "DeliveryJobsDecideQuickTransfer"
                             ]
                         }
                     }
@@ -1471,24 +1304,10 @@
                             "enabled": true,
                             "anchor": {
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsWuling",
-                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsQuickTransfer",
+                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsDecideQuickTransfer",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode",
                                 "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
                             }
-                        },
-                        "DeliveryJobsCheckTestAreaCargo": {
-                            "expected": [
-                                "查看报价",
-                                "查看報價",
-                                "(?i)Check\\s*Bid",
-                                "希望価格確認",
-                                "货物装箱",
-                                "貨物裝箱",
-                                "(?i)Pack\\s*Goods",
-                                "パッキング",
-                                "화물 포장",
-                                "입찰 보기"
-                            ]
                         },
                         "DeliveryJobsOngoingDeliveryForTestArea": {
                             "next": [
@@ -1544,20 +1363,6 @@
                                 "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
                             }
                         },
-                        "DeliveryJobsCheckTestAreaCargo": {
-                            "expected": [
-                                "查看报价",
-                                "查看報價",
-                                "(?i)Check\\s*Bid",
-                                "希望価格確認",
-                                "货物装箱",
-                                "貨物裝箱",
-                                "(?i)Pack\\s*Goods",
-                                "パッキング",
-                                "화물 포장",
-                                "입찰 보기"
-                            ]
-                        },
                         "DeliveryJobsOngoingDeliveryForTestArea": {
                             "next": [
                                 "DeliveryJobsAutoDeliveryTestArea"
@@ -1580,20 +1385,6 @@
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode",
                                 "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
                             }
-                        },
-                        "DeliveryJobsCheckTestAreaCargo": {
-                            "expected": [
-                                "查看报价",
-                                "查看報價",
-                                "(?i)Check\\s*Bid",
-                                "希望価格確認",
-                                "货物装箱",
-                                "貨物裝箱",
-                                "(?i)Pack\\s*Goods",
-                                "パッキング",
-                                "화물 포장",
-                                "입찰 보기"
-                            ]
                         },
                         "DeliveryJobsOngoingDeliveryForTestArea": {
                             "next": [
@@ -1618,7 +1409,7 @@
                                 "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
                             }
                         },
-                        "DeliveryJobsCheckTestAreaCargo": {
+                        "DeliveryJobsCheckTestAreaCargoText": {
                             "expected": [
                                 "货物装箱",
                                 "貨物裝箱",
@@ -1658,7 +1449,7 @@
                     "name": "DeliveryJobsQuoteThresholdTestAreaValue",
                     "label": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.label",
                     "description": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.description",
-                    "default": "119000",
+                    "default": "190000",
                     "pipeline_type": "string",
                     "verify": "^\\d+$",
                     "pattern_msg": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.pattern_msg"
@@ -1691,7 +1482,7 @@
                                 "DeliveryJobsGoToDepot": "DeliveryJobsReturnAndTransferTestArea"
                             },
                             "next": [
-                                "DeliveryJobsQuickTransfer"
+                                "DeliveryJobsDecideQuickTransfer"
                             ]
                         }
                     }
@@ -1752,7 +1543,7 @@
                                 "DeliveryJobsGoToDepot": "DeliveryJobsReturnAndTransferTestArea"
                             },
                             "next": [
-                                "DeliveryJobsQuickTransfer"
+                                "DeliveryJobsDecideQuickTransfer"
                             ]
                         }
                     }

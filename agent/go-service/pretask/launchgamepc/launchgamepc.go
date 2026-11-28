@@ -33,15 +33,19 @@ const (
 
 	gameProcessName = "Endfield.exe"
 	launcherExeName = "Launcher.exe"
-	// 安装目录下的 Launcher.exe 只负责拉起 <版本号>\Games.exe 后退出，启动器窗口属于 Games.exe
-	launcherProcessName = "Games.exe"
 
+	wakeEntry     = "GameLauncherWakeMain"
 	pipelineEntry = "GameLauncherMain"
 
-	launcherWindowTimeout = 60 * time.Second
-	gameWindowTimeout     = 120 * time.Second
-	pollInterval          = 5 * time.Second
-	launcherRelaunchWait  = 5 * time.Second
+	// 开机自启动时负载高、游戏首次启动较慢，与 MXU 前置程序等待窗口的时长保持一致
+	launcherWindowTimeout = 300 * time.Second
+	gameWindowTimeout     = 300 * time.Second
+	// 与 MXU 前置程序等待窗口的轮询间隔一致
+	pollInterval = 1 * time.Second
+	// 与 MXU 前置程序 preActionConnectDelaySec 的默认值一致，窗口出现后先等待初始化再连接
+	// 启动器过早连接会出现异常画面 https://github.com/MaaEnd/MaaEnd/issues/6585
+	launcherWindowSettleWait = 5 * time.Second
+	gameWindowSettleWait     = 5 * time.Second
 )
 
 // 与 interface.json 中 Win32-Front 的窗口匹配规则保持一致，供 MXU 后续连接。
@@ -128,7 +132,7 @@ func Run(args []string) bool {
 		return false
 	}
 
-	if isProcessRunning(gameProcessName, "") {
+	if isProcessRunning(gameProcessName) {
 		log.Info().
 			Str("component", component).
 			Msg("game is already running, skip launching")
@@ -177,6 +181,14 @@ func Run(args []string) bool {
 	log.Info().
 		Str("component", component).
 		Msg("MAA framework initialized")
+
+	// 无显示器时/部分DP显示器关闭后，系统判断显示器断开，启动器窗口不绘制，所有截图方案均不可用
+	// 控制台（即 MXU 界面）只输出 Error 及以上级别，用 Error 让用户在 MXU 中看到该提示；流程仍继续
+	if !hasActiveMonitor() {
+		log.Error().
+			Str("component", component).
+			Msg("未检测到显示器，可能无法识别启动器画面 / No monitor detected, the launcher screen may not be recognized")
+	}
 
 	if info.launchURL != "" {
 		if err := openLaunchURL(info.launchURL); err != nil {
@@ -233,6 +245,19 @@ func runLauncher(windowRegex *regexp.Regexp) bool {
 		Str("title", windowRegex.String()).
 		Msg("launcher window found")
 
+	// 在静置等待前还原，还原后的重绘落在静置时间内；最小化窗口的坐标不在任何显示器上，也需先还原再判断是否移到主屏
+	if restoreLauncherWindow(hWnd) {
+		log.Info().
+			Str("component", component).
+			Msg("launcher window was minimized, restored")
+	}
+
+	log.Info().
+		Str("component", component).
+		Dur("wait", launcherWindowSettleWait).
+		Msg("waiting before connecting launcher window")
+	time.Sleep(launcherWindowSettleWait)
+
 	if moved, err := moveLauncherToPrimaryMonitor(hWnd); err != nil {
 		log.Warn().
 			Err(err).
@@ -244,10 +269,6 @@ func runLauncher(windowRegex *regexp.Regexp) bool {
 			Msg("launcher window moved to primary monitor")
 	}
 
-	log.Info().
-		Str("component", component).
-		Str("entry", pipelineEntry).
-		Msg("running launcher pipeline")
 	return runLauncherPipeline(hWnd)
 }
 
@@ -299,7 +320,6 @@ func startLauncherFromInstallDir(opts launchGamePCOptions, info launcherInfo) bo
 		Msg("launcher install directory found")
 
 	// 启动器最小化到托盘时进程仍在但窗口不可见，需要再执行一次 Launcher.exe 唤出窗口。
-	launcherRunning := isProcessRunning(launcherProcessName, installDir)
 	if err := startLauncher(installDir); err != nil {
 		log.Error().
 			Err(err).
@@ -307,14 +327,6 @@ func startLauncherFromInstallDir(opts launchGamePCOptions, info launcherInfo) bo
 			Str("install_dir", installDir).
 			Msg("failed to start launcher")
 		return false
-	}
-	if launcherRunning {
-		log.Info().
-			Str("component", component).
-			Dur("wait", launcherRelaunchWait).
-			Msg("launcher process was already running, waiting before connecting")
-		// 启动器进程已在运行时再次执行 Launcher.exe，等待一段时间再继续，避免maa过早连接出现异常画面 https://github.com/MaaEnd/MaaEnd/issues/6585
-		time.Sleep(launcherRelaunchWait)
 	}
 	return true
 }
@@ -365,8 +377,8 @@ func parseOptions(args []string) launchGamePCOptions {
 	return opts
 }
 
-// isProcessRunning 按进程名查找；dirPrefix 非空时还要求可执行文件位于该目录下，用于区分不同区服的启动器。
-func isProcessRunning(name, dirPrefix string) bool {
+// isProcessRunning 按进程名查找。
+func isProcessRunning(name string) bool {
 	procs, err := process.Processes()
 	if err != nil {
 		log.Warn().
@@ -376,17 +388,9 @@ func isProcessRunning(name, dirPrefix string) bool {
 		return false
 	}
 
-	prefix := strings.ToLower(filepath.Clean(dirPrefix)) + string(filepath.Separator)
 	for _, p := range procs {
 		procName, err := p.Name()
-		if err != nil || !strings.EqualFold(procName, name) {
-			continue
-		}
-		if dirPrefix == "" {
-			return true
-		}
-		exe, err := p.Exe()
-		if err == nil && strings.HasPrefix(strings.ToLower(filepath.Clean(exe)), prefix) {
+		if err == nil && strings.EqualFold(procName, name) {
 			return true
 		}
 	}
@@ -425,10 +429,10 @@ func openLaunchURL(url string) error {
 }
 
 func initMaa() error {
-	// 与 agent.go 一致：默认取工作目录下的 maafw，宿主可用 MAAFW_BINARY_PATH 覆盖
+	// 与 agent.go 一致：宿主可用 MAAFW_BINARY_PATH 覆盖库目录
 	libDir := os.Getenv("MAAFW_BINARY_PATH")
 	if libDir == "" {
-		libDir = fsutil.OutputPath("maafw")
+		libDir = fsutil.InstallPath("maafw")
 	}
 	if err := maa.Init(
 		maa.WithLibDir(libDir),
@@ -437,7 +441,7 @@ func initMaa() error {
 	); err != nil {
 		return err
 	}
-	if err := maa.ConfigInitOption(fsutil.OutputPath(), "{}"); err != nil {
+	if err := maa.ConfigInitOption(fsutil.UserDataPath(), "{}"); err != nil {
 		log.Warn().
 			Err(err).
 			Str("component", component).
@@ -479,6 +483,11 @@ func waitGame(timeout time.Duration) bool {
 	}
 	log.Info().
 		Str("component", component).
+		Dur("wait", gameWindowSettleWait).
+		Msg("game window found, waiting before connecting")
+	time.Sleep(gameWindowSettleWait)
+	log.Info().
+		Str("component", component).
 		Msg("game window is ready")
 	return true
 }
@@ -497,25 +506,39 @@ func runLauncherPipeline(hWnd unsafe.Pointer) bool {
 	return true
 }
 
+// runPipeline 分两个阶段执行启动器 pipeline：
+// 第一阶段与游戏的 Win32-Front 一致，用前台截图 + Seize（SendInput 真实输入），息屏时点击可唤醒显示器，直到识别到左侧终末地图标；
+// 第二阶段改用 PrintWindow + SendMessage，直接把点击发给启动器窗口，避免唤醒后真实输入被锁屏等前台界面拦截。
 func runPipeline(hWnd unsafe.Pointer) error {
-	// 鼠标用 Seize（SendInput 真实输入），DP 显示器息屏后点击可唤醒显示器；PostMessage 不算用户输入，无法唤醒
-	ctrl, err := maa.NewWin32Controller(hWnd, win32.ScreencapPrintWindow, win32.InputSeize, win32.InputPostMessage)
+	res, err := maa.NewResource()
+	if err != nil {
+		return err
+	}
+	defer res.Destroy()
+	resourceDir := fsutil.InstallPath("resource")
+	if !res.PostBundle(resourceDir).Wait().Success() {
+		return fmt.Errorf("failed to load resource: %s", resourceDir)
+	}
+
+	if err := runPipelinePhase(hWnd, res, win32.ScreencapScreenDC, win32.InputSeize, wakeEntry); err != nil {
+		return err
+	}
+	return runPipelinePhase(hWnd, res, win32.ScreencapPrintWindow, win32.InputSendMessage, pipelineEntry)
+}
+
+func runPipelinePhase(hWnd unsafe.Pointer, res *maa.Resource, screencap win32.ScreencapMethod, input win32.InputMethod, entry string) error {
+	log.Info().
+		Str("component", component).
+		Str("entry", entry).
+		Msg("running launcher pipeline")
+
+	ctrl, err := maa.NewWin32Controller(hWnd, screencap, input, input)
 	if err != nil {
 		return err
 	}
 	defer ctrl.Destroy()
 	if !ctrl.PostConnect().Wait().Success() {
 		return fmt.Errorf("failed to connect launcher window")
-	}
-
-	res, err := maa.NewResource()
-	if err != nil {
-		return err
-	}
-	defer res.Destroy()
-	resourceDir := fsutil.OutputPath("resource")
-	if !res.PostBundle(resourceDir).Wait().Success() {
-		return fmt.Errorf("failed to load resource: %s", resourceDir)
 	}
 
 	tasker, err := maa.NewTasker()
@@ -530,8 +553,8 @@ func runPipeline(hWnd unsafe.Pointer) error {
 		return err
 	}
 
-	if !tasker.PostTask(pipelineEntry).Wait().Success() {
-		return fmt.Errorf("pipeline %s failed", pipelineEntry)
+	if !tasker.PostTask(entry).Wait().Success() {
+		return fmt.Errorf("pipeline %s failed", entry)
 	}
 	return nil
 }

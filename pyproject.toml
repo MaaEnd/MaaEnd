@@ -12,6 +12,7 @@ autocollect-route = "tools.AutoCollectRoute.main:main"
 build-and-install = "tools.setup.build_and_install:main"
 map-navigator = "tools.MapNavigator.main:main"
 sentry-report = "tools.sentry.cli:main"
+test-capture = "tools.test_capture.main:main"
 setup-workspace = "tools.setup.setup_workspace:main"
 zmdmap = "tools.zmdmap.cli:main"
 
@@ -87,8 +88,8 @@ module-name = ["tools.AutoCollectRoute", "tools.MapNavigator", "tools.sentry", "
 module-root = ""
 
 [tool.pyright]
-# 先只纳入 tools/zmdmap（strict）；其余 Python 工具逐步跟进，别一次把几百条历史问题当成本次改动。
-include = ["tools/zmdmap"]
+# 逐个纳入已经做到 strict 零错误的 Python 工具，其余工具逐步跟进，别一次把几百条历史问题当成本次改动。
+include = ["tools/zmdmap", "tools/test_capture", "tests/**/capture_flow.py"]
 venvPath = "."
 venv = ".venv"
 pythonVersion = "3.14"

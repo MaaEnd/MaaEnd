@@ -15,6 +15,7 @@ from build_autoessence_tasks import (
     select_weapons,
     strip_choose_location,
     sync_anchor_list,
+    sync_teleport_reset_list,
     weapon_icon,
 )
 
@@ -55,6 +56,18 @@ var locationLevelToKey = map[string]string{
         message = str(ctx.exception)
         self.assertIn("map02_lv010", message)
         self.assertIn("locationLevelToKey", message)
+
+    def test_allow_missing_skips_unregistered_region(self):
+        resolved = resolve_locations(
+            [
+                {"name": "重度能量淤积点·枢纽区", "level_id": "map01_lv001"},
+                {"name": "重度能量淤积点·旧水坝", "level_id": "map02_lv011"},
+            ],
+            {"map01_lv001": "VFTheHub"},
+            {"global.region.TheHub"},
+            allow_missing=True,
+        )
+        self.assertEqual([key for key, _ in resolved], ["VFTheHub"])
 
 
 class OcrExpectedTest(unittest.TestCase):
@@ -147,6 +160,26 @@ class TextRewriteTest(unittest.TestCase):
         self.assertIn('"GotoTriggerPointSetAnchor_WLWulingCity"', updated)
         self.assertNotIn("WLSnowyForest", updated)
         self.assertEqual(updated.count("GotoTriggerPointSetAnchor"), 2)
+
+    def test_sync_teleport_reset_list_covers_every_location(self):
+        text = """{
+    "sub": [
+        "GotoTriggerPointSetAnchor_WLSisPainting"
+    ],
+    "nodes": [
+        "GotoTriggerPointMaybeTeleport_VFTheHub",
+        "GotoTriggerPointMaybeTeleport_WLSnowyForest"
+    ]
+}
+"""
+        updated = sync_teleport_reset_list(text, ["WLSisPainting", "VFTheHub", "WLSnowyForest"])
+        self.assertIn(
+            '"GotoTriggerPointMaybeTeleport_VFTheHub",\n'
+            '        "GotoTriggerPointMaybeTeleport_WLSisPainting",\n'
+            '        "GotoTriggerPointMaybeTeleport_WLSnowyForest"\n',
+            updated,
+        )
+        self.assertIn('"GotoTriggerPointSetAnchor_WLSisPainting"', updated)
 
 
 class SecondaryShapeTest(unittest.TestCase):

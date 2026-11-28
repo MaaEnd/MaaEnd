@@ -1,6 +1,6 @@
 {
-    "version": "1.6.3",
-    "sha256": "b00eb551d3dcfad4cc013b3cd1b79bad87ab5785897bef41c9d2ff43dd918ebf",
+    "version": "1.7.2+12026241-3",
+    "sha256": "c6f8020c136699720fd6eb9cce444fa4112dd2f2e638f6725852f37b6438a25a",
     "levels": {
         "base01_lv001": {
             "names": {
@@ -180,6 +180,15 @@
                 "en_us": "Si's Painting",
                 "ja_jp": "スーの絵",
                 "ko_kr": "사의 그림"
+            }
+        },
+        "map02_lv011": {
+            "names": {
+                "zh_cn": "旧水坝",
+                "zh_tw": "舊水壩",
+                "en_us": "Old Dam",
+                "ja_jp": "廃ダム",
+                "ko_kr": "옛 댐"
             }
         }
     },
@@ -1467,11 +1476,11 @@
             "u": 504.281,
             "v": 2582.465,
             "area_names": {
-                "zh_cn": "栖云窟",
-                "zh_tw": "棲雲窟",
-                "en_us": "Cloudrest Grotto",
-                "ja_jp": "栖雲洞",
-                "ko_kr": "서운 굴"
+                "zh_cn": "栖云林地",
+                "zh_tw": "棲雲林地",
+                "en_us": "Cloudrest Woods",
+                "ja_jp": "栖雲林",
+                "ko_kr": "서운 숲지대"
             }
         },
         {
@@ -1886,6 +1895,111 @@
                 "en_us": "Raintap Grotto",
                 "ja_jp": "雨音洞",
                 "ko_kr": "청우 동굴"
+            }
+        },
+        {
+            "id": "42200020002",
+            "teleport_id": "TpForMap_ent_42200020002",
+            "map": "map02",
+            "level": "map02_lv011",
+            "u": 296.637,
+            "v": 2534.67,
+            "area_names": {
+                "zh_cn": "废弃工棚",
+                "zh_tw": "廢棄工棚",
+                "en_us": "Abandoned Work Shacks",
+                "ja_jp": "ボロボロの作業場",
+                "ko_kr": "폐기된 작업장"
+            }
+        },
+        {
+            "id": "42200020006",
+            "teleport_id": "TpForMap_ent_42200020006",
+            "map": "map02",
+            "level": "map02_lv011",
+            "u": 393.813,
+            "v": 2754.492,
+            "area_names": {
+                "zh_cn": "检修通道",
+                "zh_tw": "檢修通道",
+                "en_us": "Maintenance Corridor",
+                "ja_jp": "ダムのうらぐち",
+                "ko_kr": "점검 통로"
+            }
+        },
+        {
+            "id": "42200020059",
+            "teleport_id": "TpForMap_ent_42200020059",
+            "map": "map02",
+            "level": "map02_lv011",
+            "u": 242.783,
+            "v": 2825.693,
+            "area_names": {
+                "zh_cn": "能源层上层",
+                "zh_tw": "能源層上層",
+                "en_us": "Energy Floor, Top",
+                "ja_jp": "動力フロア・上",
+                "ko_kr": "에너지층 상층"
+            }
+        },
+        {
+            "id": "42200020060",
+            "teleport_id": "TpForMap_ent_42200020060",
+            "map": "map02",
+            "level": "map02_lv011",
+            "u": 143.648,
+            "v": 2694.593,
+            "area_names": {
+                "zh_cn": "功能区上层",
+                "zh_tw": "功能區上層",
+                "en_us": "Functional Area, UF",
+                "ja_jp": "機能フロア・上",
+                "ko_kr": "기능 구역 상층"
+            }
+        },
+        {
+            "id": "42200020063",
+            "teleport_id": "TpForMap_ent_42200020063",
+            "map": "map02",
+            "level": "map02_lv011",
+            "u": 118.395,
+            "v": 2798.783,
+            "area_names": {
+                "zh_cn": "办公区上层",
+                "zh_tw": "辦公區上層",
+                "en_us": "Offices, UF",
+                "ja_jp": "事務室・上",
+                "ko_kr": "사무 구역 상층"
+            }
+        },
+        {
+            "id": "42200021014",
+            "teleport_id": "TpForMap_ent_42200021014",
+            "map": "map02",
+            "level": "map02_lv011",
+            "u": 319.497,
+            "v": 2723.467,
+            "area_names": {
+                "zh_cn": "建设层深处",
+                "zh_tw": "建設層深處",
+                "en_us": "Construction Floor, Interiors",
+                "ja_jp": "構造フロア・奥",
+                "ko_kr": "건설층 깊은 곳"
+            }
+        },
+        {
+            "id": "42200021156",
+            "teleport_id": "TpForMap_ent_42200021156",
+            "map": "map02",
+            "level": "map02_lv011",
+            "u": 203.738,
+            "v": 2766.33,
+            "area_names": {
+                "zh_cn": "大坝顶层",
+                "zh_tw": "大壩頂層",
+                "en_us": "Dam Crest",
+                "ja_jp": "ダムのてっぺん",
+                "ko_kr": "댐 최상층"
             }
         },
         {

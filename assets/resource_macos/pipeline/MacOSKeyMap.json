@@ -34,7 +34,7 @@
             }
         }
     },
-    "AutoCollectClick": {
+    "AutoCollectClickKey": {
         "action": {
             "type": "ClickKey",
             "param": {
@@ -55,6 +55,62 @@
             "type": "ClickKey",
             "param": {
                 "key": 53
+            }
+        }
+    },
+    "AutoMissionEntityTrackCurrentMission": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 9
+            }
+        }
+    },
+    "AutoMissionMissionAreaTrackCurrentMission": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 9
+            }
+        }
+    },
+    "AutoMissionNpcProxyTrackCurrentMission": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 9
+            }
+        }
+    },
+    "AutoMissionOpenScanClick": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 15
+            }
+        }
+    },
+    "AutoMissionOpenScanKeyUp": {
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 15
+            }
+        }
+    },
+    "AutoMissionOpenScanLongPress": {
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 15
+            }
+        }
+    },
+    "AutoMissionPosTrackCurrentMission": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 9
             }
         }
     },
@@ -90,19 +146,11 @@
             }
         }
     },
-    "EnterCameraModeKeyUp": {
+    "GameLauncherWakePressEsc": {
         "action": {
-            "type": "KeyUp",
+            "type": "ClickKey",
             "param": {
-                "key": 15
-            }
-        }
-    },
-    "EnterCameraModeLongPress": {
-        "action": {
-            "type": "KeyDown",
-            "param": {
-                "key": 15
+                "key": 53
             }
         }
     },
@@ -218,14 +266,6 @@
             }
         }
     },
-    "ProtocolSpaceTouchExitTouchRetry": {
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 3
-            }
-        }
-    },
     "RealTimeAutoPat": {
         "action": {
             "type": "ClickKey",
@@ -235,6 +275,14 @@
         }
     },
     "RealTimeAutoZiplineClick": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 14
+            }
+        }
+    },
+    "RestaurantRuntimeNextKitchen": {
         "action": {
             "type": "ClickKey",
             "param": {
@@ -275,6 +323,134 @@
         }
     },
     "StashBackpackUsableItemsLimitedQuickMoveKeyUp": {
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 56
+            }
+        }
+    },
+    "SwitchTeamOperatorPos1Press": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 122
+            }
+        }
+    },
+    "SwitchTeamOperatorPos2Press": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 120
+            }
+        }
+    },
+    "SwitchTeamOperatorPos3Press": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 99
+            }
+        }
+    },
+    "SwitchTeamOperatorPos4Press": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 118
+            }
+        }
+    },
+    "UseConsumableStockTransferBeginSlot1": {
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 56
+            }
+        }
+    },
+    "UseConsumableStockTransferBeginSlot2": {
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 56
+            }
+        }
+    },
+    "UseConsumableStockTransferBeginSlot3": {
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 56
+            }
+        }
+    },
+    "UseConsumableStockTransferBeginSlot4": {
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 56
+            }
+        }
+    },
+    "UseConsumableStockTransferReleaseSlot1": {
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 56
+            }
+        }
+    },
+    "UseConsumableStockTransferReleaseSlot2": {
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 56
+            }
+        }
+    },
+    "UseConsumableStockTransferReleaseSlot3": {
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 56
+            }
+        }
+    },
+    "UseConsumableStockTransferReleaseSlot4": {
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 56
+            }
+        }
+    },
+    "UseConsumableTacticalBackpackTransferBegin": {
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 56
+            }
+        }
+    },
+    "UseConsumableTacticalBackpackTransferRelease": {
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 56
+            }
+        }
+    },
+    "UseConsumableTacticalDepotTransferBegin": {
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 56
+            }
+        }
+    },
+    "UseConsumableTacticalDepotTransferRelease": {
         "action": {
             "type": "KeyUp",
             "param": {
@@ -639,6 +815,102 @@
             "type": "ClickKey",
             "param": {
                 "key": 122
+            }
+        }
+    },
+    "__TakePhotoHoldR": {
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 15
+            }
+        }
+    },
+    "__TakePhotoKeyUp": {
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 15
+            }
+        }
+    },
+    "__WorldToolFillWaterHoldR": {
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 15
+            }
+        }
+    },
+    "__WorldToolFillWaterKeyUp": {
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 15
+            }
+        }
+    },
+    "__WorldToolFillWaterShiftDown": {
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 56
+            }
+        }
+    },
+    "__WorldToolFillWaterShiftUp": {
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 56
+            }
+        }
+    },
+    "__WorldToolSprayExit": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 53
+            }
+        }
+    },
+    "__WorldToolSprayHoldR": {
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 15
+            }
+        }
+    },
+    "__WorldToolSprayKeyUp": {
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 15
+            }
+        }
+    },
+    "__WorldToolSprayOpenLiquid": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 12
+            }
+        }
+    },
+    "__WorldToolSprayRecenterAltDown": {
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 58
+            }
+        }
+    },
+    "__WorldToolSprayRecenterAltUp": {
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 58
             }
         }
     }

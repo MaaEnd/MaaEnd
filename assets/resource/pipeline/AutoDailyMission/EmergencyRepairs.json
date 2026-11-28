@@ -1,0 +1,584 @@
+{
+    "AutoDailyMissionEmergencyRepairsListItem": {
+        "desc": "委派任务列表里的日常·紧急抢修",
+        "recognition": "OCR",
+        "roi": [
+            42,
+            70,
+            360,
+            590
+        ],
+        // 完整文本："日常·紧急抢修" / "日常·緊急搶修" / "Daily: Emergency Repairs" / "日常・緊急修理" / "일상 · 긴급 수리"
+        // 中点常被 OCR 认成别的点号或漏掉，去掉「日常」和中点只认后半段
+        "expected": [
+            // @i18n-skip
+            "紧急抢修",
+            "緊急搶修",
+            "(?i)Emergency\\s*Repairs",
+            "緊急修理",
+            "긴급\\s*수리"
+        ]
+    },
+    "AutoDailyMissionEmergencyRepairsNotFinished": {
+        "desc": "做完后列表里仍有日常·紧急抢修，任务失败",
+        "recognition": "And",
+        "all_of": [
+            "InMenuMission",
+            "AutoDailyMissionEmergencyRepairsListItem"
+        ],
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                42,
+                70,
+                360,
+                590
+            ]
+        },
+        "action": "Custom",
+        "custom_action": "FalseAction"
+    },
+    "AutoDailyMissionEmergencyRepairsDetail": {
+        "desc": "右侧详情已选中日常·紧急抢修",
+        "recognition": "OCR",
+        "roi": [
+            410,
+            55,
+            400,
+            45
+        ],
+        "expected": [
+            "日常·紧急抢修",
+            "日常·緊急搶修",
+            "(?i)Daily:\\s*Emergency\\s*Repairs",
+            "日常・緊急修理",
+            "일상\\s*·\\s*긴급\\s*수리"
+        ]
+    },
+    "AutoDailyMissionEmergencyRepairsMapPanel": {
+        "desc": "任务地图右侧详情栏是日常·紧急抢修",
+        "recognition": "OCR",
+        "roi": [
+            950,
+            45,
+            320,
+            45
+        ],
+        // 完整文本："日常·紧急抢修" / "日常·緊急搶修" / "Daily: Emergency Repairs" / "日常・緊急修理" / "일상 · 긴급 수리"
+        // 中点常被 OCR 认成别的点号或漏掉，去掉「日常」和中点只认后半段
+        "expected": [
+            // @i18n-skip
+            "紧急抢修",
+            "緊急搶修",
+            "(?i)Emergency\\s*Repairs",
+            "緊急修理",
+            "긴급\\s*수리"
+        ]
+    },
+    "AutoDailyMissionEmergencyRepairsEntry": {
+        "desc": "在委派任务列表中点击日常·紧急抢修",
+        "recognition": "And",
+        "all_of": [
+            "InMenuMission",
+            "AutoDailyMissionEmergencyRepairsListItem"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "AutoDailyMissionSnsTracked",
+            "AutoDailyMissionSnsUntracked",
+            "AutoDailyMissionEmergencyRepairsOpenMap",
+            "AutoDailyMissionEmergencyRepairsStartTracking"
+        ]
+    },
+    "AutoDailyMissionEmergencyRepairsOpenMap": {
+        "desc": "点击定位按钮打开紧急抢修的任务地图",
+        "recognition": "And",
+        "all_of": [
+            "AutoDailyMissionEmergencyRepairsDetail",
+            "TrackedMissionMapButton"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                410,
+                55,
+                400,
+                45
+            ]
+        },
+        "action": "Click",
+        "next": [
+            "AutoDailyMissionEmergencyRepairsClosePanel"
+        ]
+    },
+    "AutoDailyMissionEmergencyRepairsStartTracking": {
+        "desc": "紧急抢修还没追踪时点击开始追踪，打开任务地图",
+        "recognition": "And",
+        "all_of": [
+            "AutoDailyMissionEmergencyRepairsDetail",
+            "AutoDailyMissionStartTrackingButton"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                410,
+                55,
+                400,
+                45
+            ]
+        },
+        "action": "Click",
+        "next": [
+            "AutoDailyMissionEmergencyRepairsClosePanel"
+        ]
+    },
+    "AutoDailyMissionEmergencyRepairsClosePanel": {
+        "desc": "确认已打开紧急抢修的任务地图，关闭右侧详情栏",
+        "recognition": "And",
+        "all_of": [
+            "CloseButtonType1",
+            "AutoDailyMissionEmergencyRepairsMapPanel"
+        ],
+        "box_index": 0,
+        "action": "Click",
+        "post_wait_freezes": 500,
+        "next": [
+            "AutoDailyMissionEmergencyRepairsRegionWulingCity",
+            "AutoDailyMissionEmergencyRepairsRegionJingyuValley"
+        ]
+    },
+    "AutoDailyMissionEmergencyRepairsRegionWulingCity": {
+        "desc": "地图左上角子区域是武陵城",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            320,
+            60
+        ],
+        "expected": [
+            "武陵城",
+            "(?i)Wuling\\s*City",
+            "무릉성"
+        ],
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                0,
+                0,
+                320,
+                60
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDailyMissionEmergencyRepairsCandidatesWulingCity"
+        ]
+    },
+    "AutoDailyMissionEmergencyRepairsCandidatesWulingCity": {
+        "desc": "在地图上确认今天的紧急抢修是武陵城里的哪一处",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "MissionTrack",
+            // 武陵城这三处追踪的是任务区域，标记在区域中心，不在机器人身上
+            "candidates": [
+                {
+                    "at": [
+                        440.438,
+                        1738.163
+                    ],
+                    "next": "AutoDailyMissionEmergencyRepairsTianshiBureauAcademy"
+                },
+                {
+                    "at": [
+                        964.649,
+                        1563.792
+                    ],
+                    "next": "AutoDailyMissionEmergencyRepairsMaintenanceZone"
+                },
+                {
+                    "at": [
+                        637.62,
+                        1395.81
+                    ],
+                    "next": "AutoDailyMissionEmergencyRepairsBureauOfAppliedTechnologies"
+                }
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": 500
+    },
+    "AutoDailyMissionEmergencyRepairsRegionJingyuValley": {
+        "desc": "地图左上角子区域是景玉谷",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            320,
+            60
+        ],
+        "expected": [
+            "景玉谷",
+            "(?i)Jingyu\\s*Valley",
+            "경옥\\s*골짜기"
+        ],
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                0,
+                0,
+                320,
+                60
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDailyMissionEmergencyRepairsCandidatesJingyuValley"
+        ]
+    },
+    "AutoDailyMissionEmergencyRepairsCandidatesJingyuValley": {
+        "desc": "在地图上确认今天的紧急抢修是景玉谷里的哪一处",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "MissionTrack",
+            "candidates": [
+                {
+                    "at": [
+                        897.938,
+                        2581.35
+                    ],
+                    "next": "AutoDailyMissionEmergencyRepairsBurdosnoutHill"
+                },
+                {
+                    "at": [
+                        683.993,
+                        2531.303
+                    ],
+                    "next": "AutoDailyMissionEmergencyRepairsZhailingIslet"
+                }
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": 500
+    },
+    "AutoDailyMissionEmergencyRepairsTianshiBureauAcademy": {
+        "desc": "今天的紧急抢修在天师府学院附近",
+        "pre_delay": 0,
+        "anchor": {
+            "AutoDailyMissionRoute": "AutoDailyMissionEmergencyRepairsRouteTianshiBureauAcademy"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDailyMissionQuickTeleport",
+            "AutoDailyMissionSelectTrackedMission"
+        ]
+    },
+    "AutoDailyMissionEmergencyRepairsMaintenanceZone": {
+        "desc": "今天的紧急抢修在待修缮区附近",
+        "pre_delay": 0,
+        "anchor": {
+            "AutoDailyMissionRoute": "AutoDailyMissionEmergencyRepairsRouteMaintenanceZone"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDailyMissionQuickTeleport",
+            "AutoDailyMissionSelectTrackedMission"
+        ]
+    },
+    "AutoDailyMissionEmergencyRepairsBureauOfAppliedTechnologies": {
+        "desc": "今天的紧急抢修在技术开发局附近",
+        "pre_delay": 0,
+        "anchor": {
+            "AutoDailyMissionRoute": "AutoDailyMissionEmergencyRepairsRouteBureauOfAppliedTechnologies"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDailyMissionQuickTeleport",
+            "AutoDailyMissionSelectTrackedMission"
+        ]
+    },
+    "AutoDailyMissionEmergencyRepairsBurdosnoutHill": {
+        "desc": "今天的紧急抢修在驮鼻山附近",
+        "pre_delay": 0,
+        "anchor": {
+            "AutoDailyMissionRoute": "AutoDailyMissionEmergencyRepairsRouteBurdosnoutHill"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDailyMissionQuickTeleport",
+            "AutoDailyMissionSelectTrackedMission"
+        ]
+    },
+    "AutoDailyMissionEmergencyRepairsZhailingIslet": {
+        "desc": "今天的紧急抢修在摘菱屿附近",
+        "pre_delay": 0,
+        "anchor": {
+            "AutoDailyMissionRoute": "AutoDailyMissionEmergencyRepairsRouteZhailingIslet"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDailyMissionQuickTeleport",
+            "AutoDailyMissionSelectTrackedMission"
+        ]
+    },
+    "AutoDailyMissionEmergencyRepairsRouteTianshiBureauAcademy": {
+        "desc": "走到天师府学院附近的故障机器人并修复",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "interact_text": {
+                "node": "AutoDailyMissionRepairRobotInteractText"
+            },
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        455.85,
+                        1719.63
+                    ],
+                    // 楼梯口上方还有一层，钉在地面这层
+                    "target_deck_y": 315.4,
+                    // 楼梯口窄，必须走到正中再上楼，提前转向会擦过楼梯留在一楼
+                    "strict": true
+                },
+                // 机器人在楼上，折返楼梯上下层路点平面重叠，NAVMESH 跟点会停在下层，按实测路点上楼
+                // RUN 点不能加 strict：严格到达的 RUN 点运行时会改用 NAVMESH 重新规划，楼梯上会绕路
+                [
+                    444.41,
+                    1731.0
+                ],
+                [
+                    431.75,
+                    1732.65
+                ],
+                [
+                    438.77,
+                    1725.29
+                ],
+                [
+                    443.62,
+                    1731.15
+                ],
+                [
+                    458.55,
+                    1735.46
+                ],
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        440.7,
+                        1738.0
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionRepairRobotPuzzle"
+        ]
+    },
+    "AutoDailyMissionEmergencyRepairsRouteMaintenanceZone": {
+        "desc": "走到待修缮区机器人附近的怪物处，有敌人时先自动战斗",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        966.07,
+                        1563.01
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "[JumpBack]AutoFight",
+            "AutoDailyMissionEmergencyRepairsRouteMaintenanceZoneRobot"
+        ]
+    },
+    "AutoDailyMissionEmergencyRepairsRouteMaintenanceZoneRobot": {
+        "desc": "清完怪继续走到待修缮区附近的故障机器人并修复",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "interact_text": {
+                "node": "AutoDailyMissionRepairRobotInteractText"
+            },
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        967.1,
+                        1547.3
+                    ]
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        967.1,
+                        1547.3
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionRepairRobotPuzzle"
+        ]
+    },
+    "AutoDailyMissionEmergencyRepairsRouteBureauOfAppliedTechnologies": {
+        "desc": "走到技术开发局附近的故障机器人并修复",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "interact_text": {
+                "node": "AutoDailyMissionRepairRobotInteractText"
+            },
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        620.7,
+                        1403.1
+                    ]
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        620.7,
+                        1403.1
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionRepairRobotPuzzle"
+        ]
+    },
+    "AutoDailyMissionEmergencyRepairsRouteBurdosnoutHill": {
+        "desc": "走到驮鼻山附近的故障机器人并修复",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "interact_text": {
+                "node": "AutoDailyMissionRepairRobotInteractText"
+            },
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        897.938,
+                        2581.35
+                    ]
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        897.938,
+                        2581.35
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionRepairRobotPuzzle"
+        ]
+    },
+    "AutoDailyMissionEmergencyRepairsRouteZhailingIslet": {
+        "desc": "坐滑索到摘菱屿的故障机器人旁，有敌人时先自动战斗",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            // 机器人在岛上，步行到不了，只能坐滑索
+            "zip": true,
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        683.993,
+                        2531.303
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "[JumpBack]AutoFight",
+            "AutoDailyMissionEmergencyRepairsRouteZhailingIsletRobot"
+        ],
+        "focus": {
+            "Node.Action.Failed": "$task.AutoDailyMission.focus.emergency_repairs_zhailing_islet_zipline_required"
+        }
+    },
+    "AutoDailyMissionEmergencyRepairsRouteZhailingIsletRobot": {
+        "desc": "清完怪修复摘菱屿的故障机器人",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "interact_text": {
+                "node": "AutoDailyMissionRepairRobotInteractText"
+            },
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        683.993,
+                        2531.303
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionRepairRobotPuzzle"
+        ]
+    }
+}

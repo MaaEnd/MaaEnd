@@ -1,0 +1,120 @@
+{
+    "AutoCollectWulingBlightedJadeleaf1Start": {
+        "enabled": false,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingWulingCityTianjingCourtyard"
+            ]
+        },
+        "next": [
+            "AutoCollectWulingBlightedJadeleaf1AssertLocation"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingBlightedJadeleaf1.label"
+        }
+    },
+    "AutoCollectWulingBlightedJadeleaf1End": {
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "AutoCollectWulingBlightedJadeleaf1AssertLocation": {
+        "desc": "传送到采集点",
+        "recognition": "Custom",
+        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition_param": {
+            "zone_id": "Wuling_Base",
+            "target": [
+                941,
+                1778,
+                20,
+                20
+            ]
+        },
+        "action": "DoNothing",
+        "next": [
+            "AutoCollectWulingBlightedJadeleaf1Goto"
+        ]
+    },
+    "AutoCollectWulingBlightedJadeleaf1Goto": {
+        "desc": "前往采集点",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_Base"
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                933,
+                                1706
+                            ]
+                        },
+                        [
+                            930.94,
+                            1708.2,
+                            "COLLECT"
+                        ],
+                        [
+                            933.06,
+                            1705.76,
+                            "COLLECT"
+                        ],
+                        [
+                            934.35,
+                            1704.16,
+                            "COLLECT"
+                        ],
+                        [
+                            934.24,
+                            1701.93,
+                            "COLLECT"
+                        ],
+                        [
+                            929.94,
+                            1698.25,
+                            "COLLECT"
+                        ],
+                        [
+                            927.13,
+                            1700.67,
+                            "COLLECT"
+                        ],
+                        [
+                            926.96,
+                            1703.02,
+                            "COLLECT"
+                        ],
+                        [
+                            929.01,
+                            1705.42,
+                            "COLLECT"
+                        ],
+                        [
+                            930.7,
+                            1708.19,
+                            "COLLECT"
+                        ]
+                    ]
+                }
+            }
+        },
+        "next": [
+            "AutoCollectWulingBlightedJadeleaf1End"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    }
+}

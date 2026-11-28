@@ -93,7 +93,7 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "CheckCloudrestEcoSiteJob": {
+    "CheckCloudrestEcoSiteJobText": {
         "desc": "检查栖云生态点委托是否可以接取",
         "recognition": "OCR",
         "roi": "CheckCloudrestEcoSiteIcon",
@@ -162,7 +162,7 @@
         "all_of": [
             "CheckCloudrestEcoSiteText",
             "CheckCloudrestEcoSiteIcon",
-            "CheckCloudrestEcoSiteJob"
+            "CheckCloudrestEcoSiteJobText"
         ],
         "box_index": 2,
         "pre_delay": 0,
@@ -234,7 +234,7 @@
         "desc": "栖云生态点任务已经在追踪中",
         "recognition": "And",
         "all_of": [
-            "AlreadyTrackedMissionButton",
+            "CheckAlreadyTrackingText",
             "InCloudrestEcoSiteMission"
         ],
         "pre_delay": 0,
@@ -475,12 +475,12 @@
         "desc": "在栖云生态点任务拍照点开始拍照",
         "pre_delay": 0,
         "anchor": {
-            "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal"
+            "TakePhotoDone": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "EnvironmentMonitoringTakePhoto"
+            "TakePhoto"
         ]
     }
 }

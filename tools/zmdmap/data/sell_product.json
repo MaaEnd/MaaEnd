@@ -1,6 +1,6 @@
 {
-    "version": "1.6.3",
-    "sha256": "35e7b3a8aa3c4f640478edde0444d7806388db1f64d6bda2df7d891d0a9d6daa",
+    "version": "1.7.2+12026241-3",
+    "sha256": "a24f10ab646367e5823d0883c972fcc7fdc26b77226278a0dcdd5ace1357b5b3",
     "items": {
         "item_activity_xiranite_enr_hulu": {
             "id": "item_activity_xiranite_enr_hulu",
@@ -664,6 +664,16 @@
                 "ko_kr": "사"
             }
         },
+        "chr_0037_minghe": {
+            "id": "chr_0037_minghe",
+            "names": {
+                "zh_cn": "明河",
+                "zh_tw": "明河",
+                "en_us": "Argent Flow",
+                "ja_jp": "ミンホ",
+                "ko_kr": "명하"
+            }
+        },
         "chr_0038_purrche": {
             "id": "chr_0038_purrche",
             "names": {
@@ -672,6 +682,16 @@
                 "en_us": "Purrchena",
                 "ja_jp": "プチエナ",
                 "ko_kr": "푸치나"
+            }
+        },
+        "chr_0040_sweetpie": {
+            "id": "chr_0040_sweetpie",
+            "names": {
+                "zh_cn": "小刻",
+                "zh_tw": "小刻",
+                "en_us": "Kay",
+                "ja_jp": "ケーちゃん",
+                "ko_kr": "케르"
             }
         }
     },
@@ -943,7 +963,9 @@
                         "chr_0027_tangtang",
                         "chr_0028_wulfa",
                         "chr_0032_lizhiyan",
-                        "chr_0034_typhoea"
+                        "chr_0034_typhoea",
+                        "chr_0037_minghe",
+                        "chr_0040_sweetpie"
                     ]
                 },
                 {
@@ -956,7 +978,8 @@
                         "chr_0026_lastrite",
                         "chr_0027_tangtang",
                         "chr_0031_mifu",
-                        "chr_0032_lizhiyan"
+                        "chr_0032_lizhiyan",
+                        "chr_0037_minghe"
                     ]
                 }
             ]
@@ -1215,7 +1238,8 @@
                         "chr_0030_zhuangfy",
                         "chr_0031_mifu",
                         "chr_0032_lizhiyan",
-                        "chr_0036_jsspsi"
+                        "chr_0036_jsspsi",
+                        "chr_0037_minghe"
                     ]
                 },
                 {
@@ -1472,7 +1496,8 @@
                         "chr_0030_zhuangfy",
                         "chr_0031_mifu",
                         "chr_0032_lizhiyan",
-                        "chr_0036_jsspsi"
+                        "chr_0036_jsspsi",
+                        "chr_0037_minghe"
                     ]
                 },
                 {
@@ -1488,7 +1513,9 @@
                         "chr_0027_tangtang",
                         "chr_0028_wulfa",
                         "chr_0032_lizhiyan",
-                        "chr_0034_typhoea"
+                        "chr_0034_typhoea",
+                        "chr_0037_minghe",
+                        "chr_0040_sweetpie"
                     ]
                 },
                 {
@@ -1710,7 +1737,8 @@
                         "chr_0016_laevat",
                         "chr_0025_ardelia",
                         "chr_0029_pograni",
-                        "chr_0034_typhoea"
+                        "chr_0034_typhoea",
+                        "chr_0040_sweetpie"
                     ]
                 },
                 {
@@ -2086,7 +2114,8 @@
                         "chr_0016_laevat",
                         "chr_0025_ardelia",
                         "chr_0029_pograni",
-                        "chr_0034_typhoea"
+                        "chr_0034_typhoea",
+                        "chr_0040_sweetpie"
                     ]
                 },
                 {

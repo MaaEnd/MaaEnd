@@ -1,0 +1,18 @@
+{
+    "configs": {
+        "name": "据点交易，测试交易超出上限",
+        "resource": "官服",
+        "controller": [
+            "Win32"
+        ],
+        "imageRoot": "OutpostTrading"
+    },
+    "cases": [
+        {
+            "image": "据点交易_超出上限.png",
+            "hits": [
+                "OutpostTradingAidQuotaExceededStop"
+            ]
+        }
+    ]
+}

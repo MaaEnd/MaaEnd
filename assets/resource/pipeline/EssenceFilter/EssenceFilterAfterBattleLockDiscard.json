@@ -9,6 +9,9 @@
         "next": [
             "EssenceFilterAfterBattleCheckLocked",
             "EssenceFilterAfterBattleClickLockItem"
+        ],
+        "on_error": [
+            "EssenceFilterAfterBattleFailed"
         ]
     },
     "EssenceFilterAfterBattleClickLockItem": {
@@ -31,10 +34,13 @@
         "action": {
             "type": "Click"
         },
-        "post_delay": 300,
+        "post_wait_freezes": 200,
+        "post_delay": 0,
         "next": [
-            "EssenceFilterAfterBattleCheckLocked",
-            "EssenceFilterAfterBattleClickLockItem"
+            "EssenceFilterAfterBattleCheckLocked"
+        ],
+        "on_error": [
+            "EssenceFilterAfterBattleFailed"
         ]
     },
     "EssenceFilterAfterBattleCheckLocked": {
@@ -54,12 +60,18 @@
             }
         },
         "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "EssenceFilterConfirmMarkAction"
+            }
+        },
         "post_delay": 0,
         "next": [
             "EssenceFilterAfterBattleRowNextItem"
         ],
         "on_error": [
-            "EssenceFilterAfterBattleClickLockItem"
+            "EssenceFilterAfterBattleFailed"
         ]
     },
     "EssenceFilterAfterBattleDiscardItem": {
@@ -72,6 +84,9 @@
         "next": [
             "EssenceFilterAfterBattleCheckDiscarded",
             "EssenceFilterAfterBattleClickDiscardItem"
+        ],
+        "on_error": [
+            "EssenceFilterAfterBattleFailed"
         ]
     },
     "EssenceFilterAfterBattleClickDiscardItem": {
@@ -97,8 +112,10 @@
         "post_wait_freezes": 300,
         "post_delay": 0,
         "next": [
-            "EssenceFilterAfterBattleCheckDiscarded",
-            "EssenceFilterAfterBattleClickDiscardItem"
+            "EssenceFilterAfterBattleCheckDiscarded"
+        ],
+        "on_error": [
+            "EssenceFilterAfterBattleFailed"
         ]
     },
     "EssenceFilterAfterBattleCheckDiscarded": {
@@ -119,12 +136,18 @@
         },
         "pre_wait_freezes": 100,
         "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "EssenceFilterConfirmMarkAction"
+            }
+        },
         "post_delay": 0,
         "next": [
             "EssenceFilterAfterBattleRowNextItem"
         ],
         "on_error": [
-            "EssenceFilterAfterBattleClickDiscardItem"
+            "EssenceFilterAfterBattleFailed"
         ]
     },
     "EssenceFilterAfterBattleCloseDetail": {
@@ -134,7 +157,8 @@
             "param": {
                 "any_of": [
                     "EssenceFilterCloseDetailFourth",
-                    "EssenceFilterCloseDetailWuling"
+                    "EssenceFilterCloseDetailWuling",
+                    "EssenceFindLockItem"
                 ]
             }
         },
@@ -149,6 +173,9 @@
         },
         "next": [
             "EssenceFilterAfterBattleRowNextItem"
+        ],
+        "on_error": [
+            "EssenceFilterAfterBattleFailed"
         ]
     },
     "EssenceFilterCloseDetailFourth": {
@@ -188,7 +215,8 @@
             "param": {
                 "any_of": [
                     "EssenceFilterCloseDetailFourth",
-                    "EssenceFilterCloseDetailWuling"
+                    "EssenceFilterCloseDetailWuling",
+                    "EssenceFindLockItem"
                 ]
             }
         },
@@ -202,16 +230,17 @@
                 ]
             }
         },
-        "next": [
-            //无next，用来触发Jumpback
-        ]
+        "next": []
     },
     "EssenceFilterAfterBattleRowNextItem": {
         "desc": "处理下一个命中的格子，识别不到则退出任务",
         "next": [
             "[JumpBack]EssenceFilterAfterBattleCloseDetailJumpback",
             "EssenceFilterAfterBattleNthRecognition",
-            "EssenceFilterAfterBattleExit"
+            "EssenceFilterAfterBattleCommitInventory"
+        ],
+        "on_error": [
+            "EssenceFilterAfterBattleFailed"
         ]
     },
     "EssenceFilterAfterBattleNthRecognition": {
@@ -232,11 +261,10 @@
         "post_wait_freezes": 200,
         "post_delay": 0,
         "next": [
-            "EssenceFindLockItem",
-            "EssenceFilterAfterBattleRowNextItem"
+            "EssenceFindLockItem"
         ],
         "on_error": [
-            "EssenceFilterAfterBattleExit"
+            "EssenceFilterAfterBattleFailed"
         ]
     }
 }

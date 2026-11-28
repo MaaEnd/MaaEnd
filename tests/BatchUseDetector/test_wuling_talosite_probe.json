@@ -1,0 +1,39 @@
+{
+    "configs": {
+        "name": "批量探测器武陵塔晶探针",
+        "resource": "官服",
+        "controller": "ADB"
+    },
+    "cases": [
+        {
+            "name": "珍贵物品页有武陵塔晶探针",
+            "image": "贵重品库_珍贵物品_武陵塔晶探针.png",
+            "hits": [
+                {
+                    "node": "BatchUseDetectorFindWulingTalositeProbe",
+                    "box": [
+                        498,
+                        113,
+                        123,
+                        125
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "负例：仓库矿物栏",
+            "image": "帝江号仓库_武陵_物品分类_矿物.png",
+            "hits": []
+        },
+        {
+            "name": "负例：仓库随身装置栏",
+            "image": "帝江号仓库_武陵_物品分类_随身装置.png",
+            "hits": []
+        },
+        {
+            "name": "负例：据点交易",
+            "image": "武陵_地区建设_据点_交易.png",
+            "hits": []
+        }
+    ]
+}

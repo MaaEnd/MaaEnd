@@ -93,7 +93,7 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "CheckEternalSunsetJob": {
+    "CheckEternalSunsetJobText": {
         "desc": "检查栖霞驻影委托是否可以接取",
         "recognition": "OCR",
         "roi": "CheckEternalSunsetIcon",
@@ -162,7 +162,7 @@
         "all_of": [
             "CheckEternalSunsetText",
             "CheckEternalSunsetIcon",
-            "CheckEternalSunsetJob"
+            "CheckEternalSunsetJobText"
         ],
         "box_index": 2,
         "pre_delay": 0,
@@ -234,7 +234,7 @@
         "desc": "栖霞驻影任务已经在追踪中",
         "recognition": "And",
         "all_of": [
-            "AlreadyTrackedMissionButton",
+            "CheckAlreadyTrackingText",
             "InEternalSunsetMission"
         ],
         "pre_delay": 0,
@@ -460,12 +460,12 @@
         "desc": "在栖霞驻影任务拍照点开始拍照",
         "pre_delay": 0,
         "anchor": {
-            "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal"
+            "TakePhotoDone": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "EnvironmentMonitoringTakePhoto"
+            "TakePhoto"
         ]
     }
 }

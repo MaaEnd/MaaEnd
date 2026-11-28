@@ -160,7 +160,9 @@
             "GiftOperatorSelect_Xaihi",
             "GiftOperatorSelect_Yvonne",
             "GiftOperatorSelect_ZhuangFangyi",
-            "GiftOperatorSelect_Si"
+            "GiftOperatorSelect_Si",
+            "GiftOperatorSelect_ArgentFlow",
+            "GiftOperatorSelect_Kay"
         ]
     },
     "GiftOperatorSelectSpecifiedOp": {
@@ -202,6 +204,7 @@
             "type": "And",
             "param": {
                 "all_of": [
+                    "GiftOperatorTrustIcon",
                     "GiftOperatorCheckSelectedLabelColor",
                     "GiftOperatorCheckSelectedTextColor",
                     "GiftOperatorCheckSelectedText1"
@@ -291,6 +294,13 @@
         "recognition": {
             "type": "ColorMatch",
             "param": {
+                "roi": "GiftOperatorTrustIcon",
+                "roi_offset": [
+                    26,
+                    -86,
+                    20,
+                    3
+                ],
                 "method": 40,
                 "lower": [
                     27,
@@ -303,7 +313,7 @@
                     255
                 ],
                 "connected": true,
-                "count": 10,
+                "count": 150,
                 "order_by": "Area"
             }
         }
@@ -314,15 +324,12 @@
             "type": "ColorMatch",
             "param": {
                 "roi": "GiftOperatorCheckSelectedLabelColor",
+                "method": 6,
                 "lower": [
-                    0,
-                    0,
-                    45
+                    0
                 ],
                 "upper": [
-                    80,
-                    78,
-                    55
+                    80
                 ],
                 "count": 15
             }
@@ -391,6 +398,7 @@
             "type": "And",
             "param": {
                 "all_of": [
+                    "GiftOperatorTrustIcon",
                     "GiftOperatorCheckSelectedLabelColor",
                     "GiftOperatorCheckSelectedTextColor",
                     "GiftOperatorCheckSelectedText1"
@@ -407,6 +415,7 @@
             "type": "And",
             "param": {
                 "all_of": [
+                    "GiftOperatorTrustIcon",
                     "GiftOperatorCheckSelectedLabelColor",
                     "GiftOperatorCheckSelectedTextColor",
                     "GiftOperatorCheckSelectedText2"
@@ -423,6 +432,7 @@
             "type": "And",
             "param": {
                 "all_of": [
+                    "GiftOperatorTrustIcon",
                     "GiftOperatorCheckSelectedLabelColor",
                     "GiftOperatorCheckSelectedTextColor",
                     "GiftOperatorCheckSelectedText3"

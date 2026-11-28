@@ -2,6 +2,7 @@ package goods
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -86,7 +87,7 @@ func (r *CurrentGoodsRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogniti
 			Msg("current goods icon recognition failed")
 		return nil, false
 	}
-	parsed, _, err := iconrecognition.ParseRecognitionDetail(detail)
+	parsed, err := iconrecognition.NewRecognitionDetail(detail)
 	if err != nil {
 		log.Warn().Err(err).
 			Str("component", currentGoodsRecognitionName).
@@ -94,28 +95,29 @@ func (r *CurrentGoodsRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogniti
 			Msg("failed to parse current goods icon recognition detail")
 		return nil, false
 	}
+	matches, matchErr := parsed.All().Matches()
+	var detailErr *iconrecognition.DetailError
+	errors.As(matchErr, &detailErr)
 	// no_match 表示识别正常完成但没有候选达到阈值，交由 Pipeline 回落到换货流程。
-	if isCurrentGoodsNoMatch(parsed.Error) {
+	if isCurrentGoodsNoMatch(detailErr) {
 		log.Debug().
 			Str("component", currentGoodsRecognitionName).
 			Str("location", param.Location).
 			Msg("current goods slot is empty or unrecognized")
 		return nil, false
 	}
-	if parsed.Error != nil {
-		log.Warn().
+	if matchErr != nil {
+		log.Warn().Err(matchErr).
 			Str("component", currentGoodsRecognitionName).
 			Str("location", param.Location).
-			Str("error_code", string(parsed.Error.Code)).
-			Str("error_message", parsed.Error.Message).
 			Msg("current goods icon recognition returned error")
 		return nil, false
 	}
-	if !parsed.Matched || len(parsed.Matches) == 0 {
+	if len(matches) == 0 {
 		return nil, false
 	}
 
-	match := parsed.Matches[0]
+	match := matches[0]
 	if !currentGoodsMatchesSelection(param.Location, match.ItemID, groups, policy) {
 		log.Debug().
 			Str("component", currentGoodsRecognitionName).

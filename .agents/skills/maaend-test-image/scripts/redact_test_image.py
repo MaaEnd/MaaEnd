@@ -27,15 +27,16 @@ from PIL import Image as PILImage
 # 同目录脚本：uv 按路径执行时脚本目录已在 sys.path 上，显式加一次以便直接 import。
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from detect_screenshot_platform import (
-    UID_FIXED_ROIS as FIXED_ROIS,
-)
-from detect_screenshot_platform import (
+    SUPPORTED_CONTROLLERS,
     covers,
     detect_platform,
     format_extra_rois,
+    same_hud_family,
+)
+from detect_screenshot_platform import (
+    UID_FIXED_ROIS as FIXED_ROIS,
 )
 
-SUPPORTED_CONTROLLERS = {"adb": "ADB", "win32": "Win32"}
 EXPECTED_SIZE = (1280, 720)
 
 
@@ -133,13 +134,15 @@ def controller_from_destination(repo: Path, destination: Path) -> str:
     except ValueError as exc:
         raise SystemExit("目标图片必须位于 tests/MaaEndTestset/ 内。") from exc
 
-    if len(relative.parts) != 3:
+    # <controller>/<resource>/<任务目录>/<文件名>.png；任务目录可以省略，那批老图就放在 <resource> 下。
+    if len(relative.parts) < 3:
         raise SystemExit(
-            "目标图片必须使用 tests/MaaEndTestset/<controller>/<resource>/<文件名>.png。"
+            "目标图片必须使用 "
+            "tests/MaaEndTestset/<controller>/<resource>/<任务目录>/<文件名>.png。"
         )
     controller = SUPPORTED_CONTROLLERS.get(relative.parts[0].casefold())
     if controller is None:
-        raise SystemExit("目标图片必须位于 ADB/ 或 Win32/ 目录中。")
+        raise SystemExit("目标图片必须位于 ADB/、CloudADB/、CloudWeb/ 或 Win32/ 目录中。")
     return controller
 
 
@@ -215,11 +218,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "destination",
         type=Path,
-        help="tests/MaaEndTestset/<controller>/<resource>/ 下的目标 PNG",
+        help="tests/MaaEndTestset/<controller>/<resource>/<任务目录>/ 下的目标 PNG",
     )
     parser.add_argument(
         "--controller",
-        choices=("ADB", "Win32"),
+        choices=("ADB", "CloudADB", "CloudWeb", "Win32"),
         help="可选；默认从目标路径推断，并校验两者一致",
     )
     parser.add_argument(
@@ -270,17 +273,24 @@ def main() -> None:
     extras = list(args.extra_roi)
     validate_image_and_rois(image, [fixed_roi, *extras])
 
-    # 先按原图判定平台，避免把 ADB 截图按 Win32 的固定 ROI 打码（尾部数字会留在图里）。
+    # 先按原图判定平台，避免把 ADB 截图按 Win32 的固定 ROI 打码（尾部数字会留在图里），
+    # 或把 CloudADB 截图按 ADB 的 ROI 打码（左侧 "UID:" 前缀会留在图里）。
     detection = detect_platform(image)
     print(f"平台判定：{detection.describe()}")
     if not args.skip_platform_check and detection.platform is not None and detection.platform != controller:
-        raise SystemExit(
-            f"原图平台判定为 {detection.platform}，与目标路径的 {controller} 不一致。\n"
-            f"- 若原图来自 {detection.platform}，请把目标改到 tests/MaaEndTestset/{detection.platform}/<resource>/ 下；\n"
-            "- 若确认平台无误（例如同平台下 UID 文字更长），用 --skip-platform-check 并用 --extra-roi 补齐遮盖范围。"
-        )
+        if same_hud_family(controller, detection.platform):
+            # 云网页版和云安卓版左下是同一套云 HUD，判定只能给出一个，按目标路径处理即可。
+            print(f"提示：{controller} 与 {detection.platform} 是同一套云 HUD，平台判定分不开，按目标路径的 {controller} 处理。")
+        else:
+            raise SystemExit(
+                f"原图平台判定为 {detection.platform}，与目标路径的 {controller} 不一致。\n"
+                f"- 若原图来自 {detection.platform}，请把目标改到 tests/MaaEndTestset/{detection.platform}/<resource>/<任务目录>/ 下；\n"
+                "- 若确认平台无误（例如同平台下 UID 文字更长），用 --skip-platform-check 并用 --extra-roi 补齐遮盖范围。"
+            )
     if detection.confidence == "unknown":
         print(f"提示：无法判定平台（{detection.reason}），按目标路径的 {controller} 处理，请务必目视复核。")
+    elif detection.confidence == "ambiguous":
+        print(f"提示：平台只倾向判定为 {detection.platform}（{detection.reason}），请目视复核。")
     if detection.text_box is not None and not any(covers(roi, detection.text_box) for roi in [fixed_roi, *extras]):
         suggested = format_extra_rois(detection.suggested_extra_rois) or "--extra-roi x,y,w,h"
         raise SystemExit(

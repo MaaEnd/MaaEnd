@@ -20,7 +20,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "AutoStockStapleMain"
+            "AutoStockStapleBeforeStashBackpack"
         ],
         "attach": {
             "monday": false,
@@ -32,15 +32,41 @@
             "sunday": false
         }
     },
+    "AutoStockStapleBeforeStashBackpack": {
+        "desc": "购买前存放背包，避免背包已满导致购买失败",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "StashBackpackSubTask"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleMain"
+        ]
+    },
     "AutoStockStapleMain": {
         "desc": "自动购买稳定需求物资入口",
         "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "AttachToExpectedRegexAction", //初始化正则表达式
+                "custom_action": "AttachToExpectedRegexAction", //初始化各折扣分组的商品名白名单正则
                 "custom_action_param": {
-                    "target": "AutoStockInStapleItemName"
+                    "targets": [
+                        "AutoStockInStapleItemNameDaily",
+                        "AutoStockInStapleItemNameIndustrial",
+                        "AutoStockInStapleItemNameCultural",
+                        "AutoStockInStapleItemNameEngravingPermit",
+                        "AutoStockInStapleItemNameArtificingCatalyst"
+                    ]
                 }
             }
         },
@@ -80,7 +106,7 @@
                 "roi": [
                     0,
                     0,
-                    300,
+                    520,
                     122
                 ],
                 "expected": [

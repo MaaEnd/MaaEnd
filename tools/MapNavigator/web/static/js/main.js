@@ -639,6 +639,7 @@ class MapNavigatorApp {
         {
           loadPoints: (points, options) => this._importLoadPoints(points, options),
           applyAssert: (zoneId, target) => this._importApplyAssert(zoneId, target),
+          mapZones: () => this.state.mapZones,
         },
       );
       this.importer.init();
@@ -699,6 +700,8 @@ class MapNavigatorApp {
       return;
     }
     this.field = new NavmeshField(payload && payload.zones ? payload.zones : []);
+    this.state.mapZones = this.field.mapZones();
+    this.state.reindex();
     this._populateDisplayZoneCombo();
     this._syncMapControls();
     this._refreshZoneLabel();
@@ -2867,17 +2870,14 @@ class MapNavigatorApp {
     const result = measurement.result;
     const resultBox = document.createElement("div");
     resultBox.className = "log-distance-result";
-    if (Number.isFinite(result.minimumWorldDistance) && Number.isFinite(result.maximumWorldDistance)) {
+    if (Number.isFinite(result.worldDistance)) {
       const primary = document.createElement("div");
       primary.className = "log-distance-primary";
-      primary.textContent = `可能中心跨度 ${result.minimumWorldDistance.toFixed(2)}～${result.maximumWorldDistance.toFixed(2)} m`;
-      const formula = document.createElement("div");
-      formula.className = "log-distance-formula";
-      formula.textContent = `原始锚点三维距离 ${result.worldDistance.toFixed(2)} m · X/Z 轴合计不确定性 ±${result.uncertaintyX.toFixed(2)} / ±${result.uncertaintyZ.toFixed(2)} m`;
+      primary.textContent = `中心跨度 ${result.worldDistance.toFixed(2)} m`;
       const components = document.createElement("div");
       components.className = "log-distance-components";
-      components.textContent = `可能水平距离 ${result.minimumHorizontalDistance.toFixed(2)}～${result.maximumHorizontalDistance.toFixed(2)} m · 高差 |ΔY| ${result.heightDelta.toFixed(2)} m（不偏移）`;
-      resultBox.append(primary, formula, components);
+      components.textContent = `水平距离 ${result.horizontalDistance.toFixed(2)} m · 高差 |ΔY| ${result.heightDelta.toFixed(2)} m`;
+      resultBox.append(primary, components);
     } else {
       const missing = document.createElement("div");
       missing.className = "log-distance-primary";
@@ -4619,14 +4619,8 @@ class MapNavigatorApp {
       setStatus("已清除滑索架测距。", "#10b981");
     } else if (measurement.towers.length === 1) {
       setStatus("已选择 A 点；请再点一座滑索架作为 B 点。", "#3b82f6");
-    } else if (
-      Number.isFinite(measurement.result && measurement.result.minimumWorldDistance) &&
-      Number.isFinite(measurement.result && measurement.result.maximumWorldDistance)
-    ) {
-      setStatus(
-        `滑索架可能中心跨度：${measurement.result.minimumWorldDistance.toFixed(2)}～${measurement.result.maximumWorldDistance.toFixed(2)} m。`,
-        "#10b981",
-      );
+    } else if (Number.isFinite(measurement.result && measurement.result.worldDistance)) {
+      setStatus(`滑索架中心跨度：${measurement.result.worldDistance.toFixed(2)} m。`, "#10b981");
     } else {
       setStatus("已选择 A/B，但其中一座缺少世界坐标，只能显示底图距离。", "#f59e0b");
     }
@@ -4961,9 +4955,8 @@ class MapNavigatorApp {
 
     try {
       // 默认模式把第一个作者点视作已抵达的起点；手动起点则保留全部作者点为目标。
-      const exported = await exportPath(plan.targets);
-      const customActionParam = {path: exported.nodes || []};
-      if (this.els.chkEditZipline.checked) customActionParam.zip = true;
+      const exported = await exportPath(plan.targets, this.state.mapZones);
+      const customActionParam = {path: exported.nodes || [], zip: this.els.chkEditZipline.checked};
       const result = await postRoutePreview({
         position: plan.position,
         position_zone: plan.positionZone,
@@ -5969,7 +5962,7 @@ class MapNavigatorApp {
       return;
     }
     try {
-      const result = await exportPath(this.state.points);
+      const result = await exportPath(this.state.points, this.state.mapZones);
       if (this.els.chkEditZipline.checked) {
         const param = {path: result.nodes, zip: true};
         await this._copyText(JSON.stringify(param, null, 4));
@@ -6034,6 +6027,7 @@ class MapNavigatorApp {
     return {
       path: this.state.points,
       exported: false,
+      map_zones: this.state.mapZones,
       zip: this.els.chkEditZipline.checked,
       zipline_account_id: this.els.chkEditZipline.checked ? this.ziplineAccountId : "",
       heading_source: this.els.navtestHeadingSource.value,

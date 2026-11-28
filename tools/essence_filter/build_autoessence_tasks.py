@@ -8,6 +8,7 @@
 
 import argparse
 import json
+import os
 import re
 import sys
 from pathlib import Path
@@ -73,10 +74,19 @@ OCR_TEXT_OVERRIDE = {
 }
 
 LOCATION_KEY_RE = re.compile(r'"((?:[^"\\]|\\.)*)"\s*:\s*"([A-Za-z0-9]+)"')
-ANCHOR_BLOCK_RE = re.compile(
-    r'(?P<indent>[ \t]*)"GotoTriggerPointSetAnchor_[A-Za-z0-9]+",?\n'
-    r'(?:[ \t]*"GotoTriggerPointSetAnchor_[A-Za-z0-9]+",?\n)*'
-)
+ANCHOR_NODE_PREFIX = "GotoTriggerPointSetAnchor_"
+TELEPORT_NODE_PREFIX = "GotoTriggerPointMaybeTeleport_"
+
+
+def _node_block_re(prefix: str) -> re.Pattern[str]:
+    return re.compile(
+        rf'(?P<indent>[ \t]*)"{prefix}[A-Za-z0-9]+",?\n'
+        rf'(?:[ \t]*"{prefix}[A-Za-z0-9]+",?\n)*'
+    )
+
+
+ANCHOR_BLOCK_RE = _node_block_re(ANCHOR_NODE_PREFIX)
+TELEPORT_BLOCK_RE = _node_block_re(TELEPORT_NODE_PREFIX)
 IMPORT_BLOCK_RE = re.compile(
     r'(?P<indent>[ \t]*)"tasks/AutoEssence/AutoEssence\.json",\n'
     r'(?:[ \t]*"tasks/AutoEssence/Location/[A-Za-z0-9]+\.json",\n)*'
@@ -329,18 +339,24 @@ def resolve_locations(
     locations: list[Any],
     location_keys: dict[str, str],
     locale_keys: set[str],
+    *,
+    allow_missing: bool = False,
 ) -> list[tuple[str, dict[str, Any]]]:
+    """把每个激发点对到地区 key；allow_missing 时跳过还没登记地区的那几条，其余照常解析。
+
+    新地图上线后、地区还没在 locations.go 与 RegionNodes 里登记时，整份任务生成会报错。CI 用 allow_missing
+    跳过这些地区并打警告，先让数据和别的任务发出去，等地区补上再跑一次就会带上它。
+    """
     resolved: list[tuple[str, dict[str, Any]]] = []
+    missing: list[str] = []
     seen: set[str] = set()
     for location in locations:
         name = location.get("name")
         level_id = location.get("level_id")
         key = location_keys.get(level_id)
         if not key:
-            raise ValueError(
-                f"locations.json 的 {name!r}（level_id {level_id!r}）没有地区 key。"
-                "请先在 locations.go 的 locationLevelToKey 和 RegionNodes 中补上该地区"
-            )
+            missing.append(f"{name!r}（level_id {level_id!r}）")
+            continue
         if key in seen:
             raise ValueError(f"地区 key 重复: {key}")
         seen.add(key)
@@ -351,6 +367,19 @@ def resolve_locations(
         if not node.is_file():
             raise ValueError(f"缺少地区节点 {node.relative_to(REPO_ROOT)}")
         resolved.append((key, location))
+    if missing:
+        detail = "、".join(missing)
+        message = (
+            "locations.json 里这些激发点还没有地区 key，请先在 locations.go 的 locationLevelToKey 与 "
+            f"RegionNodes 中补上：{detail}"
+        )
+        if not allow_missing:
+            raise ValueError(message)
+        # 跳过是不出声的降级，CI 里打成警告标注，免得刷在日志里没人看见；本地仍是普通警告。
+        if os.environ.get("GITHUB_ACTIONS") == "true":
+            print(f"::warning::{message}；本次跳过这些地区")
+        else:
+            print(f"[警告] {message}；本次跳过这些地区", file=sys.stderr)
     if not resolved:
         raise ValueError("locations.json 没有可用地区")
     return resolved
@@ -413,15 +442,24 @@ def strip_choose_location(text: str) -> str:
     return text[:line_start] + rest
 
 
-def sync_anchor_list(text: str, keys: list[str]) -> str:
-    matches = list(ANCHOR_BLOCK_RE.finditer(text))
+def _sync_node_list(text: str, pattern: re.Pattern[str], prefix: str, keys: list[str], label: str) -> str:
+    matches = list(pattern.finditer(text))
     if len(matches) != 1:
-        raise ValueError(f"淤积点 sub 列表应只有 1 处，实际 {len(matches)}")
+        raise ValueError(f"{label}应只有 1 处，实际 {len(matches)}")
     indent = matches[0].group("indent")
-    lines = [f'{indent}"GotoTriggerPointSetAnchor_{key}"' for key in keys]
+    lines = [f'{indent}"{prefix}{key}"' for key in keys]
     block = ",\n".join(lines) + "\n"
     match = matches[0]
     return text[: match.start()] + block + text[match.end() :]
+
+
+def sync_anchor_list(text: str, keys: list[str]) -> str:
+    return _sync_node_list(text, ANCHOR_BLOCK_RE, ANCHOR_NODE_PREFIX, keys, "淤积点 sub 列表")
+
+
+def sync_teleport_reset_list(text: str, keys: list[str]) -> str:
+    """AutoEssenceDispatcher 每轮清零各地区传送节点的命中次数，列表须覆盖全部地区。"""
+    return _sync_node_list(text, TELEPORT_BLOCK_RE, TELEPORT_NODE_PREFIX, sorted(keys), "传送节点清零列表")
 
 
 def sync_interface_imports(text: str, keys: list[str]) -> str:
@@ -496,6 +534,11 @@ def main() -> int:
     parser.add_argument("--locations", type=Path, default=DATA_DIR / "locations.json")
     parser.add_argument("--skill-pools", type=Path, default=DATA_DIR / "skill_pools.json")
     parser.add_argument("--location-keys", type=Path, default=LOCATION_KEYS_GO)
+    parser.add_argument(
+        "--allow-missing-regions",
+        action="store_true",
+        help="locations.json 里还没登记地区 key 的激发点跳过不生成（CI 用；本地默认报错，提醒先补登记）",
+    )
     args = parser.parse_args()
 
     weapons = read_payload(args.weapons)
@@ -504,7 +547,7 @@ def main() -> int:
     location_keys = parse_location_keys(args.location_keys.read_text(encoding="utf-8"))
     zh_cn = json.loads((LOCALE_DIR / "zh_cn.json").read_text(encoding="utf-8"))
 
-    resolved = resolve_locations(locations, location_keys, set(zh_cn))
+    resolved = resolve_locations(locations, location_keys, set(zh_cn), allow_missing=args.allow_missing_regions)
     grouped = select_weapons(weapons)
     labels = skill_labels([location for _, location in resolved], pools["slot1"])
     for locale_name in LOCALE_LANG:
@@ -544,7 +587,8 @@ def main() -> int:
         written.append(INTERFACE_PATH)
 
     pipeline_text, pipeline_newline = _normalize(PIPELINE_PATH.read_text(encoding="utf-8"))
-    if _replace_file(PIPELINE_PATH, sync_anchor_list(pipeline_text, keys), pipeline_newline):
+    pipeline_text = sync_teleport_reset_list(sync_anchor_list(pipeline_text, keys), keys)
+    if _replace_file(PIPELINE_PATH, pipeline_text, pipeline_newline):
         written.append(PIPELINE_PATH)
 
     for locale_name in sync_weapon_locales(weapons):

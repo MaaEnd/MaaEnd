@@ -1,0 +1,161 @@
+{
+    "BatchAddFriendsMain": {
+        "desc": "批量添加好友主入口",
+        "next": [
+            "BatchAddFriendsOnAddPage",
+            "BatchAddFriendsClickAddFriendTab",
+            "[JumpBack]SceneEnterMenuFriendsAdd"
+        ]
+    },
+    "BatchAddFriendsOnAddPage": {
+        "desc": "已在「添加好友」页面：顶部该 tab 处于选中（黄底）状态",
+        // 图标判断，不依赖语言
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    650,
+                    0,
+                    90,
+                    60
+                ],
+                "template": "BatchAddFriends/addFriend2.png"
+            }
+        },
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        "next": [
+            "BatchAddFriendsStart"
+        ]
+    },
+    "BatchAddFriendsClickAddFriendTab": {
+        "desc": "顶部「添加好友」tab 处于未选中状态：点它切过去",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    650,
+                    0,
+                    90,
+                    60
+                ],
+                "template": "BatchAddFriends/addFriend.png"
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "BatchAddFriendsOnAddPage"
+        ]
+    },
+    "BatchAddFriendsFriendListFullToast": {
+        "desc": "好友列表已满提示",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    481,
+                    108,
+                    304,
+                    29
+                ],
+                "expected": [
+                    // 已核对游戏内文本
+                    // "你的好友列表已满，无法再发送申请"
+                    "你的好友列表已满.*无法再发送申请",
+                    // "你的好友列表已滿，無法再傳送申請"
+                    "你的好友列表已滿.*無法再傳送申請",
+                    "(?i)Friends\\s*List\\s*full.*Cannot\\s*send\\s*more\\s*requests",
+                    // "フレンド上限に達したため、申請できません"
+                    "フレンド上限に達したため.*申請できません",
+                    // "친구 목록이 가득 찼습니다. 신청을 보낼 수 없습니다."
+                    "친구\\s*목록이\\s*가득\\s*찼습니다.*신청을\\s*보낼\\s*수\\s*없습니다"
+                ],
+                "threshold": 0.7
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "BatchAddFriendsFriendListFullAction"
+            }
+        },
+        "next": [
+            "BatchAddFriendsStrangersEnd",
+            "BatchAddFriendsUIDEnd"
+        ]
+    },
+    "BatchAddFriendsAfterAddEnd": {
+        "desc": "点击添加好友后结束",
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "BatchAddFriendsUIDOnAddAction"
+            }
+        },
+        "next": [
+            "BatchAddFriendsUIDLoopTop"
+        ]
+    },
+    "BatchAddFriendsUIDEnd": {
+        "desc": "UID 列表模式结束",
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "BatchAddFriendsUIDFinishAction"
+            }
+        },
+        "focus": {
+            "Node.Action.Succeeded": "UID 添加结束"
+        }
+    },
+    "BatchAddFriendsStrangersStart": {
+        "desc": "陌生人批量添加入口：先过数量闸门，未达上限则进入扫描，达到上限直接结束",
+        // 陌生人模式的第一个节点。只做数量闸门：还有名额就进 AddStrangersLoop（它带 max_hit），
+        // 名额用尽时 max_hit 已满、该节点被跳过，于是落到 StrangersEnd 直接收工。
+        // 只有「添加成功」这条回路会再次经过这里，所以名额只被真正添加消耗。
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "BatchAddFriendsAddStrangersLoop",
+            "BatchAddFriendsStrangersEnd"
+        ]
+    },
+    "BatchAddFriendsStrangersEnd": {
+        "desc": "陌生人批量添加结束",
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "BatchAddFriendsStrangersFinishAction"
+            }
+        }
+    },
+    "BatchAddFriendsStart": {
+        "desc": "批量添加好友逻辑",
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "BatchAddFriendsAction"
+            }
+        },
+        "next": [
+            "BatchAddFriendsUIDInit",
+            "BatchAddFriendsStrangersStart",
+            "BatchAddFriendsUIDEnd",
+            "BatchAddFriendsStrangersEnd"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "开始批量添加好友"
+        }
+    }
+}

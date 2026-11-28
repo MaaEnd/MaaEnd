@@ -6,10 +6,7 @@
 namespace navmesh::recast
 {
 
-// 收齐窗口内的边界边。这份数据只说哪里能走, 不带墙面/断崖之类的信息,
-// 再去分辨某条边是墙还是接缝等于凭空造数据, 所以这里只收边、不分类。
-// 三角的包围盒罩得住它自己的每条边, 于是分桶查出来的三角必是超集; 按三角号升序、
-// 边内序 k 升序枚举, 得到的就是全网格顺序扫描的同一子序列。
+// 输出顺序与全网格按三角号、边内序扫描所得的子序列一致
 BakedWalls BakeWalls(const ZoneClean& zc, double x0, double y0, int64_t nx, int64_t ny)
 {
     BakedWalls out;
@@ -18,27 +15,26 @@ BakedWalls BakeWalls(const ZoneClean& zc, double x0, double y0, int64_t nx, int6
     const double bx1 = x0 + static_cast<double>(nx) * kCS + 4;
     const double by1 = y0 + static_cast<double>(ny) * kCS + 4;
     const PolyMesh& mesh = zc.mesh;
-    for (const int32_t t : mesh.trisInBox(bx0, by0, bx1, by1)) {
+    for (const int32_t t : TrisInBox(mesh, bx0, by0, bx1, by1)) {
         const auto i = static_cast<size_t>(t);
         if (zc.walkable[i] == 0) {
-            // 掩码外的三角不出边。它与可走面之间那条缝已在 ZoneClean 里割断,
-            // 所以那条边会由可走面这一侧收成边界边 —— 水岸因此成墙,而不是消失。
+            // 与可走面的缝已在 ZoneClean 割断, 这条边由可走面一侧收成墙
             continue;
         }
         for (int k = 0; k < 3; ++k) {
             if ((mesh.bnd[i] >> k & 1U) == 0U) {
-                continue; // 有邻居的边不是墙
+                continue;
             }
             const int32_t a = mesh.T[i][k];
             const int32_t b = mesh.T[i][(k + 1) % 3];
-            const WorldPoint p0 = mesh.v(a);
-            const WorldPoint p1 = mesh.v(b);
+            const WorldPoint p0 = MeshPoint(mesh, a);
+            const WorldPoint p1 = MeshPoint(mesh, b);
             if (std::max(p0.x, p1.x) >= bx0 && std::min(p0.x, p1.x) <= bx1 && std::max(p0.y, p1.y) >= by0 && std::min(p0.y, p1.y) <= by1) {
                 out.p0.push_back(p0);
                 out.p1.push_back(p1);
-                out.h0.push_back(mesh.h(a));
-                out.h1.push_back(mesh.h(b));
-                out.hh.push_back((mesh.h(a) + mesh.h(b)) / 2.0);
+                out.h0.push_back(MeshHeight(mesh, a));
+                out.h1.push_back(MeshHeight(mesh, b));
+                out.hh.push_back((MeshHeight(mesh, a) + MeshHeight(mesh, b)) / 2.0);
                 out.tri.push_back(t);
                 out.k.push_back(static_cast<uint8_t>(k));
             }
@@ -54,9 +50,8 @@ BakedCells BakeCells(const ZoneClean& zc, double x0, double y0, int64_t nx, int6
     out.y0 = y0;
     out.nx = nx;
     out.ny = ny;
-    // 掩码随网格一起送进体素化 —— 烘焙期与运行期共用这一处判据,两边的可走面必然一致
-    out.rcs = Rasterize(zc.mesh.verts(), zc.mesh.T, x0, y0, nx, ny, &zc.walkable);
-    AppendSeamBridge(out.rcs, nx, ny);
+    out.rcs = Rasterize(MeshVertices(zc.mesh), zc.mesh.T, x0, y0, nx, ny, &zc.walkable);
+    AppendSeamBridge(&out.rcs, nx, ny);
     out.st = BuildSpans(out.rcs.cell, out.rcs.h);
 
     BakedWalls walls = BakeWalls(zc, x0, y0, nx, ny);

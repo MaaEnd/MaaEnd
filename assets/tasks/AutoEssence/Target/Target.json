@@ -593,6 +593,18 @@
                             }
                         }
                     }
+                },
+                {
+                    "name": "wpn_pistol_0013",
+                    "label": "$weapon.wpn_pistol_0013",
+                    "icon": "resource/image/UI/Item/wpn_pistol_0013.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_pistol_0013": true
+                            }
+                        }
+                    }
                 }
             ],
             "default_case": [
@@ -949,6 +961,30 @@
                     }
                 },
                 {
+                    "name": "wpn_lance_0017",
+                    "label": "$weapon.wpn_lance_0017",
+                    "icon": "resource/image/UI/Item/wpn_lance_0017.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_lance_0017": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_lance_0018",
+                    "label": "$weapon.wpn_lance_0018",
+                    "icon": "resource/image/UI/Item/wpn_lance_0018.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_lance_0018": true
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "wpn_lance_0004",
                     "label": "$weapon.wpn_lance_0004",
                     "icon": "resource/image/UI/Item/wpn_lance_0004.png",
@@ -992,7 +1028,9 @@
                 "wpn_lance_0012",
                 "wpn_lance_0014",
                 "wpn_lance_0015",
-                "wpn_lance_0016"
+                "wpn_lance_0016",
+                "wpn_lance_0017",
+                "wpn_lance_0018"
             ]
         }
     }

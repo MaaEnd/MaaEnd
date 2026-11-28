@@ -1,0 +1,183 @@
+{
+    "UseConsumableSubTask": {
+        "desc": "被子任务调用的入口，用于设置 UseConsumableMain 的 enable",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "UseConsumableMain",
+            "EmptyNode"
+        ]
+    },
+    "UseConsumableMain": {
+        "desc": "进入道具补充与取用流程",
+        "enabled": false,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "UseConsumableFailureCollectorReset"
+        ]
+    },
+    "UseConsumableTacticalItemsEnabled": {
+        "desc": "进入战术物品补充流程",
+        "enabled": false,
+        "recognition": "DirectHit",
+        "next": [
+            "UseConsumableTacticalStart"
+        ]
+    },
+    "UseConsumableNeedValleyIV": {
+        "enabled": false,
+        "recognition": "DirectHit",
+        "next": [
+            "UseConsumableStockValleyIVEnter"
+        ]
+    },
+    "UseConsumableNeedStockSlot1": {
+        "enabled": false,
+        "recognition": "DirectHit",
+        "next": [
+            "UseConsumablePrecheckCloseBackpackToStock"
+        ]
+    },
+    "UseConsumableNeedValleyIVSlot1": {
+        "enabled": false,
+        "recognition": "DirectHit",
+        "next": [
+            "UseConsumableStockValleyIVMarkMissingSlot1"
+        ]
+    },
+    "UseConsumableSlot1Enabled": {
+        "enabled": true,
+        "recognition": "DirectHit",
+        "next": [
+            "UseConsumableTaskHasSelectedSlot"
+        ]
+    },
+    "UseConsumableSlot1Disabled": {
+        "enabled": false,
+        "recognition": "DirectHit"
+    },
+    "UseConsumableNeedStockSlot2": {
+        "enabled": false,
+        "recognition": "DirectHit",
+        "next": [
+            "UseConsumablePrecheckCloseBackpackToStock"
+        ]
+    },
+    "UseConsumableNeedValleyIVSlot2": {
+        "enabled": false,
+        "recognition": "DirectHit",
+        "next": [
+            "UseConsumableStockValleyIVMarkMissingSlot2"
+        ]
+    },
+    "UseConsumableSlot2Enabled": {
+        "enabled": true,
+        "recognition": "DirectHit",
+        "next": [
+            "UseConsumableTaskHasSelectedSlot"
+        ]
+    },
+    "UseConsumableSlot2Disabled": {
+        "enabled": false,
+        "recognition": "DirectHit"
+    },
+    "UseConsumableNeedStockSlot3": {
+        "enabled": false,
+        "recognition": "DirectHit",
+        "next": [
+            "UseConsumablePrecheckCloseBackpackToStock"
+        ]
+    },
+    "UseConsumableNeedValleyIVSlot3": {
+        "enabled": false,
+        "recognition": "DirectHit",
+        "next": [
+            "UseConsumableStockValleyIVMarkMissingSlot3"
+        ]
+    },
+    "UseConsumableSlot3Enabled": {
+        "enabled": true,
+        "recognition": "DirectHit",
+        "next": [
+            "UseConsumableTaskHasSelectedSlot"
+        ]
+    },
+    "UseConsumableSlot3Disabled": {
+        "enabled": false,
+        "recognition": "DirectHit"
+    },
+    "UseConsumableNeedStockSlot4": {
+        "enabled": false,
+        "recognition": "DirectHit",
+        "next": [
+            "UseConsumablePrecheckCloseBackpackToStock"
+        ]
+    },
+    "UseConsumableNeedValleyIVSlot4": {
+        "enabled": false,
+        "recognition": "DirectHit",
+        "next": [
+            "UseConsumableStockValleyIVMarkMissingSlot4"
+        ]
+    },
+    "UseConsumableSlot4Enabled": {
+        "enabled": true,
+        "recognition": "DirectHit",
+        "next": [
+            "UseConsumableTaskHasSelectedSlot"
+        ]
+    },
+    "UseConsumableSlot4Disabled": {
+        "enabled": false,
+        "recognition": "DirectHit"
+    },
+    "UseConsumableTaskStart": {
+        "desc": "开始检查启用的消耗品槽位",
+        "recognition": "DirectHit",
+        "next": [
+            "UseConsumableTaskConsumablesEnabled",
+            "UseConsumableFailureCollectorFinish"
+        ]
+    },
+    "UseConsumableTaskConsumablesEnabled": {
+        "desc": "进入消耗品槽位检查流程",
+        "enabled": false,
+        "recognition": "DirectHit",
+        "next": [
+            "UseConsumableSlot1Enabled",
+            "UseConsumableSlot2Enabled",
+            "UseConsumableSlot3Enabled",
+            "UseConsumableSlot4Enabled",
+            "UseConsumableTaskNoSelectedSlot"
+        ]
+    },
+    "UseConsumableTaskHasSelectedSlot": {
+        "desc": "检测到启用的消耗品槽位，进入消耗品取用流程",
+        "recognition": "DirectHit",
+        "next": [
+            "UseConsumableInitialWorldReady",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "UseConsumableTaskNoSelectedSlot": {
+        "desc": "完成消耗品槽位选项检查",
+        "recognition": "DirectHit",
+        "next": [
+            "UseConsumableFailureCollectorFinish"
+        ]
+    },
+    "UseConsumableInitialWorldReady": {
+        "desc": "确认处于大世界后检查背包中的消耗品",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "next": [
+            "UseConsumablePrecheckStart"
+        ]
+    }
+}

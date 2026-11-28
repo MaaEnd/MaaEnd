@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/pienv"
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -94,7 +95,17 @@ func (a *CharacterControllerRelativeMoveAction) Run(ctx *maa.Context, arg *maa.C
 	return true
 }
 
+// mobileMinMoveDuration 移动端摇杆起步要先加速，长按太短几乎走不动，每步至少按这么久（毫秒）。
+const mobileMinMoveDuration = 600
+
 func moveAxis(ctx *maa.Context, duration int) {
+	if pienv.IsAdbLikeControllerType(pienv.ResolveControllerKind(ctx.GetTasker().GetController())) {
+		if duration > 0 {
+			duration = max(duration, mobileMinMoveDuration)
+		} else if duration < 0 {
+			duration = min(duration, -mobileMinMoveDuration)
+		}
+	}
 	if duration > 0 {
 		override := map[string]any{
 			"__CharacterControllerAxisLongPressForwardAction": map[string]any{
@@ -176,16 +187,17 @@ func moveToTarget(ctx *maa.Context, arg *maa.CustomActionArg, alignThreshold int
 	rememberLastTarget(box, farTargetWidth)
 
 	if farTargetWidth != nil && box.Width() < *farTargetWidth {
-		// Keep original single W press, then Shift-sprint three times with gaps.
+		// Keep original single W press, then Shift-sprint twice.
+		// 两次冲刺间隔 2 秒：间隔太短时部分干员（如明河）会连续冲刺很久。
 		moveAxis(ctx, 200)
-		for i := 0; i < 3; i++ {
-			time.Sleep(300 * time.Millisecond)
-			sprintForward(ctx)
-		}
+		time.Sleep(300 * time.Millisecond)
+		sprintForward(ctx)
+		time.Sleep(2 * time.Second)
+		sprintForward(ctx)
 		log.Debug().
 			Int("width", box.Width()).
 			Int("far_target_width", *farTargetWidth).
-			Msg("target too far — walk, then shift-sprint x3")
+			Msg("target too far — walk, then shift-sprint x2")
 		return true
 	}
 
@@ -229,9 +241,8 @@ type lastTargetBox struct {
 }
 
 var (
-	targetNotFoundCounter = 0
-	lastTarget            *lastTargetBox
-	lastFarTargetWidth    *int
+	lastTarget         *lastTargetBox
+	lastFarTargetWidth *int
 )
 
 func rememberLastTarget(box maa.Rect, farTargetWidth *int) {
@@ -276,7 +287,6 @@ func signedDeltaFromLastBox(box *lastTargetBox, farW *int, absDelta int) (signed
 type CharacterMoveToTargetAction struct{}
 
 func (a *CharacterMoveToTargetAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-	targetNotFoundCounter = 0
 	var params struct {
 		AlignThreshold *int `json:"align_threshold"`
 		FarTargetWidth *int `json:"far_target_width"`
@@ -309,18 +319,6 @@ var (
 )
 
 func (a *CharacterMoveToTargetNotFoundAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-	targetNotFoundCounter++
-	if targetNotFoundCounter > 30 {
-		log.Warn().
-			Int("counter", targetNotFoundCounter).
-			Str("component", "CharacterController").
-			Str("action", "CharacterMoveToTargetNotFound").
-			Msg("target not found for too many times, stopping task")
-		targetNotFoundCounter = 0
-		clearLastTarget()
-		return false
-	}
-
 	var params struct {
 		Delta int `json:"delta"`
 	}
@@ -338,7 +336,6 @@ func (a *CharacterMoveToTargetNotFoundAction) Run(ctx *maa.Context, arg *maa.Cus
 	clearLastTarget()
 
 	evt := log.Debug().
-		Int("counter", targetNotFoundCounter).
 		Str("component", "CharacterController").
 		Str("action", "CharacterMoveToTargetNotFound").
 		Str("side", side).

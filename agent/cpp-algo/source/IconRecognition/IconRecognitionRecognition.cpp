@@ -6,16 +6,16 @@
 #include <mutex>
 #include <stdexcept>
 
-#include <MaaFramework/Instance/MaaContext.h>
 #include <MaaFramework/Utility/MaaBuffer.h>
 #include <MaaUtils/Logger.h>
 #include <meojson/json.hpp>
 
-#include "../Common/output_paths.h"
+#include "../Common/paths.h"
 #include "../utils.h"
 #include "IconRecognizer.h"
 #include "detail/Attach.h"
 #include "detail/DebugCapture.h"
+#include "detail/DiagnosticCapture.h"
 #include "detail/GridProfiles.h"
 
 #ifndef MAA_TRUE
@@ -88,12 +88,24 @@ std::string ReadString(const json::object& object, const char* key, std::string 
     return object.at(key).as_string();
 }
 
+std::optional<ResultOrder> ReadResultOrder(const json::object& object)
+{
+    const std::string order = ReadString(object, "order_by", "score");
+    if (order == "score") {
+        return ResultOrder::Score;
+    }
+    if (order == "natural") {
+        return ResultOrder::Natural;
+    }
+    return std::nullopt;
+}
+
 IconRecognizer& GetRecognizer()
 {
     static std::once_flag flag;
     static std::unique_ptr<IconRecognizer> recognizer;
     std::call_once(flag, [] {
-        recognizer = std::make_unique<IconRecognizer>(get_install_dir() / "data" / "IconRecognition");
+        recognizer = std::make_unique<IconRecognizer>(common::InstallPath("data/IconRecognition"));
         recognizer->initialize();
     });
     return *recognizer;
@@ -132,10 +144,28 @@ void WriteDetail(MaaStringBuffer* buffer, const RecognitionResult& result)
     MaaStringBufferSet(buffer, text.c_str());
 }
 
+void WriteMultiResultDetail(MaaStringBuffer* buffer, const RecognitionResult& result)
+{
+    if (buffer == nullptr) {
+        return;
+    }
+
+    json::array filtered;
+    for (const auto& match : result.matches) {
+        filtered.emplace_back(
+            json::object {
+                { "box", RectToJson(match.cell_box) },
+                { "detail", match.to_json() },
+            });
+    }
+    const std::string text = json::value(json::object { { "$filtered", std::move(filtered) } }).dumps();
+    MaaStringBufferSet(buffer, text.c_str());
+}
+
 void SaveDebugCaptureBestEffort(const cv::Mat& image, const RecognitionResult& result, MaaTaskId task_id) noexcept
 {
     try {
-        const auto root = common::OutputPath("debug/vision/IconRecognition");
+        const auto root = common::UserDataPath("debug/vision/IconRecognition");
         if (!detail::SaveDebugCapture(root, image, result, static_cast<std::uint64_t>(task_id))) {
             LogWarn << "IconRecognition debug capture failed" << VAR(task_id) << VAR(root);
         }
@@ -148,34 +178,31 @@ void SaveDebugCaptureBestEffort(const cv::Mat& image, const RecognitionResult& r
     }
 }
 
-void SaveVisionCaptureBestEffort(MaaContext* context, const MaaImageBuffer* image) noexcept
+void SaveDiagnosticCaptureBestEffort(
+    MaaContext* context,
+    const cv::Mat& image,
+    const RecognitionRequest& request,
+    const RecognitionResult& result,
+    MaaTaskId task_id,
+    const char* node_name,
+    const std::string& controller_type) noexcept
 {
-    if (context == nullptr || image == nullptr || MaaImageBufferIsEmpty(image)) {
-        return;
-    }
     try {
-        // DirectHit 不生成 Vision draw，临时覆写为 1×1 ColorMatch 以触发截图保存。
-        MaaContextRunRecognition(
+        // 单例初始化失败同样不能改变主识别返回值。
+        detail::GetDiagnosticCapture().submit(
             context,
-            "SubTaskExampleStepOne",
-            R"({
-                "SubTaskExampleStepOne": {
-                    "recognition": {
-                        "type": "ColorMatch",
-                        "param": {
-                            "roi": [0, 0, 1, 1],
-                            "method": 40,
-                            "lower": [0, 0, 0],
-                            "upper": [255, 255, 255],
-                            "connected": true,
-                            "count": 1
-                        }
-                    }
-                }
-            })",
-            image);
+            image,
+            request,
+            result,
+            static_cast<std::uint64_t>(task_id),
+            node_name == nullptr ? "" : node_name,
+            controller_type);
+    }
+    catch (const std::exception& error) {
+        LogWarn << "IconRecognition diagnostic initialization failed" << VAR(error.what());
     }
     catch (...) {
+        LogWarn << "IconRecognition diagnostic initialization failed";
     }
 }
 
@@ -190,7 +217,7 @@ MaaBool MAA_CALL IconRecognitionRun(
     const MaaImageBuffer* image,
     const MaaRect* roi,
     [[maybe_unused]] void* trans_arg,
-    MaaRect* out_box,
+    [[maybe_unused]] MaaRect* out_box,
     MaaStringBuffer* out_detail)
 {
     std::optional<GridType> parsed_grid_type;
@@ -262,27 +289,36 @@ MaaBool MAA_CALL IconRecognitionRun(
         request.grid_type = *parsed_grid_type;
         request.roi = cv::Rect(roi->x, roi->y, roi->width, roi->height);
         request.candidates = ReadCandidates(object);
-        request.grid_scale_hint = detail::GridScaleForControllerType(ControllerTypeFromContext(context));
+        const auto controller_type = ControllerTypeFromContext(context);
+        request.grid_scale_hint = detail::GridScaleForControllerType(controller_type);
         request.threshold = ReadDouble(object, "threshold", request.threshold);
         request.subpixel_threshold = ReadDouble(object, "subpixel_threshold", request.subpixel_threshold);
         request.deduplicate = ReadBool(object, "deduplicate", request.deduplicate);
         request.recognize_region_unavailable = ReadBool(object, "recognize_region_unavailable", request.recognize_region_unavailable);
+        const auto order = ReadResultOrder(object);
+        if (!order) {
+            RecognitionResult result;
+            result.grid_type = request.grid_type;
+            result.roi = request.roi;
+            result.error_code = "invalid_argument";
+            result.message = "IconRecognition order_by must be score or natural";
+            WriteDetail(out_detail, result);
+            LogError << result.message;
+            return MAA_FALSE;
+        }
+        request.order_by = *order;
+        request.reverse = ReadBool(object, "reverse", request.reverse);
         request.debug = debug;
-        SaveVisionCaptureBestEffort(context, image);
         RecognitionResult result = GetRecognizer().recognize(to_mat(image), request);
+        SaveDiagnosticCaptureBestEffort(context, to_mat(image), request, result, task_id, node_name, controller_type);
         if (debug) {
             SaveDebugCaptureBestEffort(to_mat(image), result, task_id);
         }
-        WriteDetail(out_detail, result);
         if (!result.matched || result.matches.empty()) {
+            WriteDetail(out_detail, result);
             return MAA_FALSE;
         }
-        if (out_box != nullptr) {
-            *out_box = MaaRect { result.matches.front().cell_box.x,
-                                 result.matches.front().cell_box.y,
-                                 result.matches.front().cell_box.width,
-                                 result.matches.front().cell_box.height };
-        }
+        WriteMultiResultDetail(out_detail, result);
         return MAA_TRUE;
     }
     catch (const std::invalid_argument& e) {

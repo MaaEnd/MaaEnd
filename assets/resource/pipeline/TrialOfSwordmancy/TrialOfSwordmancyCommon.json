@@ -115,20 +115,20 @@
         "desc": "本日剩余奖励演算次数（OCR，值 3/2/1/0）",
         "recognition": "OCR",
         "roi": [
-            547,
-            49,
-            187,
-            25
+            518,
+            52,
+            244,
+            19
         ]
     },
     "TrialOfSwordmancyRemainDoubleText": {
         "desc": "剩余翻倍次数（OCR，值 2/1/0）",
         "recognition": "OCR",
         "roi": [
-            669,
-            603,
-            111,
-            71
+            549,
+            617,
+            216,
+            42
         ]
     },
     "TrialOfSwordmancyDoubleRewardButton": {
@@ -185,20 +185,20 @@
         "desc": "放弃确认弹窗文本（OCR：『剩余放弃次数x次』）",
         "recognition": "OCR",
         "roi": [
-            276,
-            325,
-            784,
-            58
+            200,
+            300,
+            900,
+            120
         ]
     },
     "TrialOfSwordmancyAbandonPopupExhausted": {
         "desc": "放弃次数耗尽时的红色文本",
         "recognition": "ColorMatch",
         "roi": [
-            303,
-            344,
-            674,
-            18
+            200,
+            300,
+            900,
+            120
         ],
         "lower": [
             235,

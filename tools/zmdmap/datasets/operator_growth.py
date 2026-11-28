@@ -19,9 +19,9 @@
 消费端要单独统计货币时不必再认别的字段。
 """
 
-from pathlib import Path
 from typing import Any
 
+from ..utils.inputs import TableCfg
 from ..utils.log import logger
 from ..utils.tables import (
     CharacterRow,
@@ -31,7 +31,6 @@ from ..utils.tables import (
     ItemRow,
     ItemStack,
     SkillLevelUp,
-    load_table,
 )
 from .base import Dataset, DatasetError
 
@@ -58,6 +57,7 @@ def node_type(value: str | int) -> int:
         return value
     return NODE_TYPE_BY_NAME.get(value, 0)
 
+
 #: 满级（最后一个等级）在表里是 ``-1`` 的哨兵行，不参与累加。
 MAX_LEVEL_SENTINEL = -1
 
@@ -65,16 +65,13 @@ MAX_LEVEL_SENTINEL = -1
 class OperatorGrowth(Dataset):
     """干员培养素材需求（``operator_growth.json``）。"""
 
-    #: 只读 TableCfg，不要求 JsonData 目录。
-    requires_json_data = False
-
     @classmethod
-    def build(cls, table_cfg_dir: Path, json_data_dir: Path) -> dict[str, Any]:
+    def build(cls, table_cfg: TableCfg) -> dict[str, Any]:
         """等级曲线 + 各干员的突破/技能/天赋消耗 + 素材表。"""
-        characters = load_table(table_cfg_dir, "CharacterTable", CharacterRow)
-        growth = load_table(table_cfg_dir, "CharGrowthTable", CharGrowthRow)
-        level_up_table = load_table(table_cfg_dir, "CharLevelUpTable", CharLevelUpRow)
-        item_table = load_table(table_cfg_dir, "ItemTable", ItemRow)
+        characters = table_cfg.table("CharacterTable", CharacterRow)
+        growth = table_cfg.table("CharGrowthTable", CharGrowthRow)
+        level_up_table = table_cfg.table("CharLevelUpTable", CharLevelUpRow)
+        item_table = table_cfg.table("ItemTable", ItemRow)
 
         level_up = cls._level_up(level_up_table)
         used_items: set[str] = set()
@@ -87,7 +84,7 @@ class OperatorGrowth(Dataset):
                 raise DatasetError(f"CharacterTable 缺少干员 {char_id}")
 
             operators[char_id] = {
-                "names": cls.localized_names(character.name, table_cfg_dir, f"干员 {char_id}"),
+                "names": cls.localized_names(character.name, table_cfg, f"干员 {char_id}"),
                 "rarity": character.rarity,
                 "profession": character.profession,
                 "char_type": character.char_type_id,
@@ -98,7 +95,7 @@ class OperatorGrowth(Dataset):
                 "talent_nodes": cls._talent_nodes(entry, used_items),
             }
 
-        items = cls._items(table_cfg_dir, item_table, used_items)
+        items = cls._items(table_cfg, item_table, used_items)
         logger.info(f"Built operator growth: {len(operators)} operators, {len(items)} items")
         return {"level_up": level_up, "operators": operators, "items": items}
 
@@ -123,9 +120,7 @@ class OperatorGrowth(Dataset):
 
         突破/天赋节点写 ``requiredItem``，技能行写 ``itemBundle``，两种都收。
         """
-        stack: list[ItemStack] = (
-            node.required_item if isinstance(node, GrowthNode) else node.item_bundle
-        )
+        stack: list[ItemStack] = node.required_item if isinstance(node, GrowthNode) else node.item_bundle
         items: dict[str, int] = {}
         for bundle in stack:
             if not bundle.id or bundle.count <= 0:
@@ -204,9 +199,7 @@ class OperatorGrowth(Dataset):
         return sorted(nodes, key=lambda node: node["node_id"])
 
     @classmethod
-    def _items(
-        cls, table_cfg_dir: Path, item_table: dict[str, ItemRow], used: set[str]
-    ) -> dict[str, dict[str, Any]]:
+    def _items(cls, table_cfg: TableCfg, item_table: dict[str, ItemRow], used: set[str]) -> dict[str, dict[str, Any]]:
         """素材表：五语名字、稀有度、图标。"""
         items: dict[str, dict[str, Any]] = {}
         for item_id in sorted(used):
@@ -214,7 +207,7 @@ class OperatorGrowth(Dataset):
             if entry is None:
                 raise DatasetError(f"ItemTable 里没有素材 {item_id}")
             items[item_id] = {
-                "names": cls.localized_names(entry.name, table_cfg_dir, f"素材 {item_id}"),
+                "names": cls.localized_names(entry.name, table_cfg, f"素材 {item_id}"),
                 "rarity": entry.rarity,
                 "icon": entry.icon_id,
             }

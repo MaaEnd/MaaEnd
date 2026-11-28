@@ -1,5 +1,5 @@
 {
-    "DeliveryJobsCheckPowerPlateauDeliveryJob": {
+    "DeliveryJobsCheckPowerPlateauDeliveryJobText": {
         "desc": "检查供能高地的送货任务按钮",
         "recognition": "OCR",
         "roi": "DeliveryJobsCheckLocalDepotNodePowerPlateauText",
@@ -26,7 +26,7 @@
         "recognition": "And",
         "all_of": [
             "DeliveryJobsCheckLocalDepotNodePowerPlateauText",
-            "DeliveryJobsCheckPowerPlateauDeliveryJob"
+            "DeliveryJobsCheckPowerPlateauDeliveryJobText"
         ],
         "box_index": 1,
         "pre_delay": 0,
@@ -62,7 +62,7 @@
         "recognition": "And",
         "all_of": [
             "DeliveryJobsCheckLocalDepotNodePowerPlateauText",
-            "DeliveryJobsCheckPowerPlateauDeliveryJob"
+            "DeliveryJobsCheckPowerPlateauDeliveryJobText"
         ],
         "box_index": 1,
         "pre_delay": 0,
@@ -140,7 +140,7 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "DeliveryJobsCheckPowerPlateauCargo": {
+    "DeliveryJobsCheckPowerPlateauCargoText": {
         "desc": "检查供能高地的货物是否准备好",
         "recognition": "OCR",
         "roi": "DeliveryJobsCheckLocalDepotNodePowerPlateauText",
@@ -155,12 +155,12 @@
             "查看報價",
             "(?i)Check\\s*Bid",
             "希望価格確認",
+            "입찰 보기",
             "货物装箱",
             "貨物裝箱",
             "(?i)Pack\\s*Goods",
             "パッキング",
-            "화물 포장",
-            "입찰 보기"
+            "화물 포장"
         ],
         "pre_delay": 0,
         "post_delay": 0,
@@ -172,7 +172,7 @@
         "recognition": "And",
         "all_of": [
             "DeliveryJobsCheckLocalDepotNodePowerPlateauText",
-            "DeliveryJobsCheckPowerPlateauCargo"
+            "DeliveryJobsCheckPowerPlateauCargoText"
         ],
         "box_index": 1,
         "pre_delay": 0,
@@ -205,7 +205,7 @@
         "recognition": "Custom",
         "custom_recognition": "ExpressionRecognition",
         "custom_recognition_param": {
-            "expression": "{DeliveryJobsSelectedBidPrice}>=119000"
+            "expression": "{DeliveryJobsSelectedBidPrice}>=369000"
         },
         "pre_delay": 0,
         "anchor": {
@@ -222,7 +222,7 @@
         "recognition": "Custom",
         "custom_recognition": "ExpressionRecognition",
         "custom_recognition_param": {
-            "expression": "{DeliveryJobsSelectedBidPrice}<119000"
+            "expression": "{DeliveryJobsSelectedBidPrice}<369000"
         },
         "pre_delay": 0,
         "anchor": {

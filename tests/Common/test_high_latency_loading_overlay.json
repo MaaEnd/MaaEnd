@@ -1,0 +1,19 @@
+{
+    "configs": {
+        "name": "通用，测试高延迟加载遮罩",
+        "resource": "官服",
+        "controller": [
+            "Win32"
+        ]
+    },
+    "cases": [
+        {
+            "image": "高延迟加载_好友_好友列表.png",
+            "hits": [
+                "__HighLatencyLoadingOverlayIcon",
+                "__HighLatencyLoadingOverlayText",
+                "HighLatencyLoadingOverlay"
+            ]
+        }
+    ]
+}

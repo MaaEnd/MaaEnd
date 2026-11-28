@@ -1,0 +1,50 @@
+{
+    // 云端画面压缩后，已选角标的色相分布在 25~35，不只是 28。
+    "GiftOperatorNotSelect": {
+        "recognition": {
+            "param": {
+                "lower": [
+                    [
+                        36,
+                        0,
+                        0
+                    ],
+                    [
+                        0,
+                        0,
+                        0
+                    ]
+                ],
+                "upper": [
+                    [
+                        179,
+                        255,
+                        255
+                    ],
+                    [
+                        24,
+                        255,
+                        255
+                    ]
+                ]
+            }
+        }
+    },
+    // 云端边框达不到满饱和度；定位走 ADB 那份信赖图标锚点，这里只放宽角标颜色。
+    "GiftOperatorCheckSelectedLabelColor": {
+        "recognition": {
+            "param": {
+                "lower": [
+                    25,
+                    180,
+                    180
+                ],
+                "upper": [
+                    35,
+                    255,
+                    255
+                ]
+            }
+        }
+    }
+}

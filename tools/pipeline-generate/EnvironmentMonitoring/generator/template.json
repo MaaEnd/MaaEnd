@@ -87,7 +87,7 @@
         "template": "EnvironmentMonitoring/PhotoIcon.png",
         "threshold": 0.8
     },
-    "Check${Id}Job": {
+    "Check${Id}JobText": {
         "rate_limit": 0,
         "pre_delay": 0,
         "post_delay": 0,
@@ -150,7 +150,7 @@
         "all_of": [
             "Check${Id}Text",
             "Check${Id}Icon",
-            "Check${Id}Job"
+            "Check${Id}JobText"
         ],
         "box_index": 2,
         "pre_delay": 0,
@@ -220,7 +220,7 @@
         "desc": "${Name}任务已经在追踪中",
         "recognition": "And",
         "all_of": [
-            "AlreadyTrackedMissionButton",
+            "CheckAlreadyTrackingText",
             "In${Id}Mission"
         ],
         "next": "${AfterAlreadyTrackedNext}"
@@ -388,12 +388,12 @@
         "desc": "在${Name}任务拍照点开始拍照",
         "pre_delay": 0,
         "anchor": {
-            "EnvironmentMonitoringBackToTerminal": "${GoToMonitoringTerminal}"
+            "TakePhotoDone": "${GoToMonitoringTerminal}"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "EnvironmentMonitoringTakePhoto"
+            "TakePhoto"
         ]
     }
 }

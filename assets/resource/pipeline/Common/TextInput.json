@@ -1,0 +1,37 @@
+{
+    "TextInputClearBox": {
+        "desc": "清空输入框内上一次的内容；框内无内容时模板不命中，由调用方的 next 列表直接落到任务侧聚焦节点；聚焦节点经锚点 TextInputFocus 指定",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            1280,
+            720
+        ],
+        "template": "Common/TextInputClearBox.png",
+        "threshold": 0.9,
+        "pre_delay": 0,
+        "action": "Click",
+        "target_offset": [
+            4,
+            6,
+            -8,
+            -12
+        ],
+        "post_delay": 0,
+        "next": [
+            "[Anchor]TextInputFocus"
+        ]
+    },
+    "TextInput": {
+        "desc": "向当前聚焦的输入框输入队列中的下一段文本；聚焦由任务侧节点负责，输入框经锚点 TextInputFocus 指定；提交方式经锚点 TextInputSubmit 由调用方指定，未设置锚点将导致任务失败",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "TextInputAction",
+        "post_delay": 0,
+        "next": [
+            "[Anchor]TextInputSubmit"
+        ]
+    }
+}

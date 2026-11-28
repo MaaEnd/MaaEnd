@@ -5,10 +5,12 @@
 
 接口:
   GET  /api/catalog           -> 采集物类型、点位、底图与传送点
-  POST /api/preview           -> 选中的采集物 -> 采集顺序、路径与路线文件预览
+  GET  /api/routes            -> 已登记的路线: 各段路点、起点传送与路线采集的点
+  POST /api/preview           -> 选中的采集物 -> 采集顺序、路径与路线文件预览; 给 replace 时用来替换该路线
   GET  /api/progress          -> 当前这次生成已发出的规划查询数
-  POST /api/apply             -> 同上, 并写入路线文件与 AutoCollect 任务注册
-  POST /api/route-preview     -> 按 MapNavigateAction 运行时语义展开生成的路线
+  POST /api/apply             -> 同上, 并写入路线文件、登记路线后重新生成任务注册
+  POST /api/remove            -> 删除一条已登记的路线, 并重新生成任务注册
+  POST /api/route-preview     -> 按 MapNavigateAction 运行时语义展开路线
   GET  /basemap/{path}        -> assets/resource/image/ 下的底图与图标
 """
 
@@ -28,6 +30,7 @@ for _path in (MAPNAV_DIR, TOOL_DIR):
         sys.path.insert(0, str(_path))
 
 import route_builder  # noqa: E402
+import route_reader  # noqa: E402
 from fastapi import Body, FastAPI, HTTPException  # noqa: E402
 from fastapi.concurrency import run_in_threadpool  # noqa: E402
 from fastapi.responses import FileResponse, Response  # noqa: E402
@@ -68,13 +71,22 @@ app.add_middleware(NoStoreMiddleware)
 
 # --- 步行长度 -------------------------------------------------------------------------
 # 排序用的步行长度缓存；navmesh 包或禁区表变化后路径可能不同，整份作废
-_walks: dict[str, Any] = {"version": None, "lengths": {}}
+_walks: dict[str, Any] = {"version": None, "lengths": {}, "decks": {}, "zones": {}}
 # 当前这次生成实际发出的规划查询数，供页面显示进度
 _progress = {"queries": 0}
+_SAME_POINT_PX = 1e-3
+# 规划器 route 查询的失败原因（BaseNavPlanner 的 RouteFailure 文本）
+_NO_GO_REASONS = {"start is inside a no-go zone", "goal is inside a no-go zone"}
+_OFF_MESH_REASONS = {
+    "start is not near the mesh",
+    "goal is not near the mesh",
+    "endpoints do not reach the walkable layer",
+    "no walkable voxel near the start",
+}
 
 
-def walk_length() -> route_builder.WalkFn:
-    """两点间的步行长度：交给运行时按 NAVMESH 展开一段（与路线展开同一套规划），量展开后的折线。"""
+def planner() -> tuple[route_builder.WalkFn, route_builder.DeckFn]:
+    """两点间的步行长度：交给运行时按 NAVMESH 展开一段（与路线展开同一套规划），量展开后的折线；走不通时给出失败类别。"""
 
     def stamp(path: Path) -> int:
         try:
@@ -86,49 +98,127 @@ def walk_length() -> route_builder.WalkFn:
     if _walks["version"] != version:
         _walks["version"] = version
         _walks["lengths"] = {}
-    lengths: dict[tuple[str, str, str], float | None] = _walks["lengths"]
+        _walks["decks"] = {}
+        _walks["zones"] = {}
+    lengths: dict[tuple[str, str, str], float | str] = _walks["lengths"]
+    decks: dict[tuple[str, float, float], bool] = _walks["decks"]
+    zones: dict[str, int] = _walks["zones"]
 
-    def walk(zone_id: str, start: dict[str, Any], goal: dict[str, Any]) -> float | None:
+    def zone_number(zone_id: str) -> int:
+        if not zones:
+            try:
+                loaded = navmesh_backend.query("zones").get("zones", [])
+            except RuntimeError as exc:
+                raise route_builder.RouteError(f"navmesh 尚未就绪，无法查询区域: {exc}") from exc
+            zones.update({zone["name"]: zone["zone_id"] for zone in loaded})
+        if zone_id not in zones:
+            raise route_builder.RouteError(f"navmesh 包中没有区域 {zone_id}")
+        return zones[zone_id]
+
+    def target_deck(zone_id: str, point: dict[str, Any]) -> float | None:
+        if "y" not in point:
+            return None
+        key = (zone_id, point["u"], point["v"])
+        if key not in decks:
+            try:
+                probe = navmesh_backend.query(
+                    "deck_probe", zone_id=zone_number(zone_id), point=[point["u"], point["v"]]
+                )
+            except RuntimeError as exc:
+                raise route_builder.RouteError(f"navmesh 尚未就绪，无法查询可走面: {exc}") from exc
+            if not probe.get("ok"):
+                raise route_builder.RouteError(probe.get("error") or "无法查询可走面")
+            decks[key] = len(probe.get("decks", [])) >= 2
+        return round(point["y"], 2) if decks[key] else None
+
+    def failure(
+        zone_id: str, start: dict[str, Any], goal: dict[str, Any], deck_y: float | None, recovered: float | None
+    ) -> float | str:
+        """按规划器自己的失败原因归类；起点不在可走面上时运行时先走上去再规划，规划到了终点就照常计长。"""
+        try:
+            raw = navmesh_backend.query(
+                "route",
+                zone_id=zone_number(zone_id),
+                start=[start["u"], start["v"]],
+                goal=[goal["u"], goal["v"]],
+                floor_y=[start["y"]] if "y" in start else [],
+                goal_deck_y=[] if deck_y is None else [deck_y],
+            )
+        except RuntimeError as exc:
+            raise route_builder.RouteError(f"navmesh 尚未就绪，无法按步行距离排序: {exc}") from exc
+        if raw.get("ok"):
+            return float(raw["cost"])
+        reason = raw.get("error", "")
+        if reason in _NO_GO_REASONS:
+            return route_builder.NO_GO
+        if reason in _OFF_MESH_REASONS:
+            return route_builder.OFF_MESH if recovered is None else recovered
+        return route_builder.APART
+
+    def walk(zone_id: str, start: dict[str, Any], goal: dict[str, Any]) -> float | str:
         key = (zone_id, start["id"], goal["id"])
         if key not in lengths:
             target: dict[str, Any] = {"action": "NAVMESH", "target": [goal["u"], goal["v"]]}
-            if "y" in goal:
-                target["target_deck_y"] = goal["y"]
+            deck_y = target_deck(zone_id, goal)
+            if deck_y is not None:
+                target["target_deck_y"] = deck_y
             _progress["queries"] += 1
             try:
                 result = navmesh_backend.route_preview(
                     [start["u"], start["v"]],
                     zone_id,
-                    {"path": [{"action": "ZONE", "zone_id": zone_id}, target]},
+                    {"path": [{"action": "ZONE", "zone_id": zone_id}, target], "zip": False},
                     floor_y=start.get("y"),
                 )
             except RuntimeError as exc:
                 raise route_builder.RouteError(f"navmesh 尚未就绪，无法按步行距离排序: {exc}") from exc
-            points = result.get("points") or [] if result.get("ok") else None
-            lengths[key] = None if points is None else sum(math.dist(a[:2], b[:2]) for a, b in itertools.pairwise(points))
+            pieces = result.get("diagnostics") or []
+            # 规划不通时展开会用直线补上断开的部分，只有一段从起点规划到终点的结果直接计长
+            reached = (
+                bool(result.get("ok"))
+                and len(pieces) == 1
+                and math.dist(pieces[0]["goal"], [goal["u"], goal["v"]]) < _SAME_POINT_PX
+            )
+            walked = sum(math.dist(a[:2], b[:2]) for a, b in itertools.pairwise(result["points"])) if reached else None
+            if reached and math.dist(pieces[0]["start"], [start["u"], start["v"]]) < _SAME_POINT_PX:
+                lengths[key] = walked
+            else:
+                lengths[key] = failure(zone_id, start, goal, deck_y, walked)
         return lengths[key]
 
-    return walk
+    return walk, target_deck
+
+
+# 分层区域 -> navmesh 包里的 [sx, tx, sy, ty]，底图坐标 = s·分层坐标 + t
+_tier_transforms: dict[str, list[float]] = {}
+
+
+def tier_to_base(zone_id: str, x: float, y: float) -> tuple[float, float]:
+    if not _tier_transforms:
+        try:
+            zones = navmesh_backend.query("zones").get("zones", [])
+        except RuntimeError as exc:
+            raise route_builder.RouteError(f"navmesh 尚未就绪，无法换算分层坐标: {exc}") from exc
+        _tier_transforms.update({zone["name"]: zone["transform"] for zone in zones if zone["is_tier"]})
+    if zone_id not in _tier_transforms:
+        raise route_builder.RouteError(f"navmesh 包中没有区域 {zone_id}")
+    sx, tx, sy, ty = _tier_transforms[zone_id]
+    return sx * x + tx, sy * y + ty
 
 
 # --- 采集路线 -------------------------------------------------------------------------
-def _route_request(payload: dict[str, Any]) -> tuple[str, list[str], str, dict[str, str]]:
+def _route_request(payload: dict[str, Any]) -> tuple[str, list[str], str, str | None]:
     ids = payload.get("ids", [])
-    names = payload.get("names") or {}
-    if not isinstance(ids, list) or not isinstance(names, dict):
-        raise HTTPException(status_code=400, detail="ids 需为数组, names 需为对象")
-    return (
-        str(payload.get("map", "")),
-        [str(item) for item in ids],
-        str(payload.get("kind", "rare")),
-        {str(key): str(value) for key, value in names.items()},
-    )
+    if not isinstance(ids, list):
+        raise HTTPException(status_code=400, detail="ids 需为数组")
+    replace = str(payload.get("replace") or "") or None
+    return str(payload.get("map", "")), [str(item) for item in ids], str(payload.get("kind", "rare")), replace
 
 
 async def _run(task: Callable[[], dict[str, Any]]) -> dict[str, Any]:
     try:
         return await run_in_threadpool(task)
-    except route_builder.RouteError as exc:
+    except (route_builder.RouteError, route_builder.registry.RegistryError) as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
@@ -137,11 +227,21 @@ async def api_catalog() -> dict[str, Any]:
     return await _run(lambda: route_builder.Library().catalog())
 
 
+@app.get("/api/routes")
+async def api_routes() -> dict[str, Any]:
+    return await _run(lambda: route_reader.registered_routes(route_builder.Library(), tier_to_base))
+
+
 @app.post("/api/preview")
 async def api_preview(payload: dict[str, Any] = Body(default_factory=dict)) -> dict[str, Any]:
-    map_id, ids, kind, names = _route_request(payload)
+    map_id, ids, kind, replace = _route_request(payload)
     _progress["queries"] = 0
-    return await _run(lambda: route_builder.preview(route_builder.Library(), map_id, ids, kind, names, walk_length()))
+
+    def _preview() -> dict[str, Any]:
+        walk, target_deck = planner()
+        return route_builder.preview(route_builder.Library(), map_id, ids, kind, walk, target_deck, replace)
+
+    return await _run(_preview)
 
 
 @app.get("/api/progress")
@@ -151,8 +251,19 @@ async def api_progress() -> dict[str, int]:
 
 @app.post("/api/apply")
 async def api_apply(payload: dict[str, Any] = Body(default_factory=dict)) -> dict[str, Any]:
-    map_id, ids, kind, names = _route_request(payload)
-    return await _run(lambda: route_builder.apply(route_builder.Library(), map_id, ids, kind, names, walk_length()))
+    map_id, ids, kind, replace = _route_request(payload)
+
+    def _apply() -> dict[str, Any]:
+        walk, target_deck = planner()
+        return route_builder.apply(route_builder.Library(), map_id, ids, kind, walk, target_deck, replace)
+
+    return await _run(_apply)
+
+
+@app.post("/api/remove")
+async def api_remove(payload: dict[str, Any] = Body(default_factory=dict)) -> dict[str, Any]:
+    route_id = str(payload.get("id", ""))
+    return await _run(lambda: route_builder.remove(route_id))
 
 
 # --- 与 MapNavigator 前端同约定的底图与路线展开 -----------------------------------------

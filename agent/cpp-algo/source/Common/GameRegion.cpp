@@ -25,8 +25,8 @@
 #include <Psapi.h>
 #endif
 
-#include "../MapNavigator/controller_info_utils.h"
-#include "../MapNavigator/controller_type_utils.h"
+#include "../MapNavigator/control/controller_info_utils.h"
+#include "../MapNavigator/control/controller_type_utils.h"
 #include "../utils.h"
 #ifdef __APPLE__
 #include "MacAppHost.h"
@@ -39,6 +39,11 @@ namespace
 {
 
 constexpr const char* kEndfieldProcessName = "Endfield.exe";
+#ifdef _WIN32
+// 云终末地网页版外壳的窗口类名，与 interface.json 中 CloudWeb 控制器的 class_regex、
+// CloudShell/src/ShellWindow.h 的 kWindowClassName 保持一致
+constexpr const char* kCloudShellWindowClass = "MaaEnd.CloudShell";
+#endif
 constexpr const char* kSdkDllCN = "hgsdk.dll";
 constexpr const char* kSdkDllCNPCGame = "PCGameSDK.dll"; // Bilibili 服，仍归国服
 constexpr const char* kSdkDllGlobal = "gfsdk.dll";
@@ -139,6 +144,30 @@ std::vector<std::filesystem::path> CollectEndfieldInstallDirs()
 
     return dirs;
 }
+
+#ifdef _WIN32
+// 云终末地网页版的游戏跑在云端服务器上，本机只有一个串流外壳，没有 Endfield.exe 可供按 SDK DLL 判区。
+// 外壳只加载国服 https://endfield.hypergryph.com/cloud（见 CloudShell/src/main.cpp），
+// 且只允许导航 hypergryph.com，所以认到 CloudWeb 控制器的窗口就直接按国服处理。
+bool IsCloudShellController(MaaController* controller)
+{
+    uint64_t hwnd = 0;
+    if (!mapnavigator::TryGetWin32Hwnd(controller, &hwnd)) {
+        return false;
+    }
+
+    std::array<wchar_t, 256> class_name {};
+    const int length =
+        GetClassNameW(reinterpret_cast<HWND>(static_cast<uintptr_t>(hwnd)), class_name.data(), static_cast<int>(class_name.size()));
+    if (length <= 0) {
+        return false;
+    }
+
+    return EqualsIgnoreCase(
+        MAA_NS::from_osstring(MAA_NS::os_string_view(class_name.data(), static_cast<size_t>(length))),
+        kCloudShellWindowClass);
+}
+#endif
 
 Region DetectGameRegionUncached()
 {
@@ -256,6 +285,12 @@ Region DetectGameRegion(MaaController* controller)
     if (mapnavigator::IsAdbLikeControllerType(controller_type)) {
         return RegionOfRunningApps(ListAdbProcessNames(controller), controller_type);
     }
+#ifdef _WIN32
+    if (IsCloudShellController(controller)) {
+        LogInfo << "GameRegion: cloud shell controller detected, region is CN" << VAR(controller_type);
+        return Region::CN;
+    }
+#endif
     return DetectGameRegion();
 }
 

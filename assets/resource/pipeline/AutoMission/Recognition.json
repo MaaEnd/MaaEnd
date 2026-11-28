@@ -1,0 +1,198 @@
+{
+    "AutoMissionTitle": {
+        "desc": "位置图标、标题色块，再在色块上 only_rec 读标题",
+        "recognition": "And",
+        "all_of": [
+            "AutoMissionLocationIcon",
+            "AutoMissionTitleColor",
+            {
+                "recognition": "OCR",
+                "roi": "AutoMissionTitleColor",
+                "only_rec": true
+            }
+        ]
+    },
+    "AutoMissionDescription": {
+        "desc": "位置图标、说明图标、说明色块，再在色块上 only_rec 读说明",
+        "recognition": "And",
+        "all_of": [
+            "AutoMissionLocationIcon",
+            "AutoMissionDescriptionIcon",
+            "AutoMissionDescriptionColor",
+            {
+                "recognition": "OCR",
+                "roi": "AutoMissionDescriptionColor",
+                "only_rec": true,
+                "order_by": "Vertical"
+            }
+        ]
+    },
+    "AutoMissionLocationIcon": {
+        "desc": "任务面板上的位置图标",
+        "recognition": "TemplateMatch",
+        "roi": [
+            400,
+            55,
+            169,
+            108
+        ],
+        "template": "AutoMission/LocationIcon.png"
+    },
+    "AutoMissionTitleColor": {
+        "desc": "标题背景色块，相对位置图标。roi_offset、lower、upper 待补充",
+        "recognition": "ColorMatch",
+        "roi": "AutoMissionLocationIcon",
+        "roi_offset": [
+            -15,
+            -30,
+            300,
+            8
+        ],
+        "lower": [
+            90,
+            90,
+            90
+        ],
+        "upper": [
+            255,
+            255,
+            255
+        ],
+        "count": 250
+    },
+    "AutoMissionDescriptionIcon": {
+        "desc": "描述文本前方的色块，不同任务Y轴位置不一样",
+        "recognition": "TemplateMatch",
+        "roi": "AutoMissionLocationIcon",
+        "roi_offset": [
+            -15,
+            40,
+            40,
+            80
+        ],
+        "template": "AutoMission/DescriptionIcon.png"
+    },
+    "AutoMissionDescriptionColor": {
+        "desc": "说明背景色块，相对说明图标。roi_offset 待补充",
+        "recognition": "ColorMatch",
+        "roi": "AutoMissionDescriptionIcon",
+        "roi_offset": [
+            28,
+            -5,
+            300,
+            10
+        ],
+        // 包含白色和黄色文字
+        "lower": [
+            90,
+            90,
+            0
+        ],
+        "upper": [
+            255,
+            255,
+            255
+        ],
+        "count": 250
+    },
+    "AutoMissionNpcProxyActionInteractRecognition": {
+        "desc": "交互提示区域里的 NPC 名称，文本待注入",
+        "recognition": "OCR",
+        "roi": [
+            755,
+            330,
+            297,
+            312
+        ],
+        "expected": [
+            // NPC 名称待注入
+            // @i18n-skip
+            "物流负责人"
+        ]
+    },
+    "AutoMissionPosActionInteractRecognition": {
+        "desc": "交互提示区域里的 NPC 名称，文本待注入",
+        "recognition": "OCR",
+        "roi": [
+            755,
+            330,
+            297,
+            312
+        ],
+        "expected": [
+            // NPC 名称待注入，占位为永不匹配的正则
+            // @i18n-skip
+            "(?!)"
+        ]
+    },
+    "AutoMissionEntityActionInteractRecognition": {
+        "desc": "交互提示区域里的实体交互文字，文本待注入",
+        "recognition": "OCR",
+        "roi": [
+            755,
+            330,
+            297,
+            312
+        ],
+        "expected": [
+            // 交互文字待注入
+            // @i18n-skip
+            "接水"
+        ]
+    },
+    "AutoMissionEntityActionPuzzleRecognition": {
+        "desc": "交互提示区域里会进电路拼图的选项：上锁交互物的解锁、可修复设备的修复",
+        "recognition": "OCR",
+        "roi": [
+            755,
+            330,
+            297,
+            312
+        ],
+        "expected": [
+            // @i18n-skip
+            "解锁",
+            "解鎖",
+            "修复",
+            "修復"
+        ]
+    },
+    "AutoMissionEntityTrigger": {
+        "desc": "走向实体途中进入剧情或出现目标交互提示即停下",
+        "recognition": "Or",
+        "any_of": [
+            "InStory",
+            "AutoMissionEntityActionInteractRecognition"
+        ]
+    },
+    "AutoMissionWorldTrackRecognition": {
+        "desc": "大世界画面上的任务追踪图标",
+        "recognition": "TemplateMatch",
+        // 只会在这个roi里出现
+        "roi": [
+            250,
+            90,
+            780,
+            530
+        ],
+        // 支持正常颜色、透明颜色
+        "template": [
+            "AutoMission/ImportantMissionIcon.png",
+            "AutoMission/SecondaryMissionIcon.png",
+            "AutoMission/UrgentMissionIcon.png"
+        ]
+    },
+    "AutoMissionTrackDistanceNear": {
+        "desc": "左上角任务追踪的距离小于 10 m；任务描述换行时距离会下移，roi 留高一些",
+        "recognition": "OCR",
+        "roi": [
+            40,
+            230,
+            120,
+            60
+        ],
+        "expected": [
+            "^\\d\\s*m$"
+        ]
+    }
+}

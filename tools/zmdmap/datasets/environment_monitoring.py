@@ -1,10 +1,10 @@
 """环境监测（``environment_monitoring.json``）：监测终端、观察点与五语言名称，都取自 TableCfg。"""
 
-from pathlib import Path
 from typing import Any
 
+from ..utils.inputs import TableCfg
 from ..utils.log import logger
-from ..utils.tables import KiteStationEntrustRow, KiteStationLevelRow, load_table
+from ..utils.tables import KiteStationEntrustRow, KiteStationLevelRow
 from .base import Dataset, DatasetError
 
 
@@ -12,14 +12,14 @@ class EnvironmentMonitoring(Dataset):
     """监测终端、观察点与五语言名称（``environment_monitoring.json``）。"""
 
     @classmethod
-    def build(cls, table_cfg_dir: Path, json_data_dir: Path) -> dict[str, Any]:
+    def build(cls, table_cfg: TableCfg) -> dict[str, Any]:
         """监测终端 -> 它下面的观察点，以及观察点与终端的五语名字。
 
         同一个终端里的观察点按 ``entrustIdx`` 排序；观察点写了 ``kiteStation`` 就必须跟所在终端一致，
         写错直接报错。
         """
-        entrust_table = load_table(table_cfg_dir, "KiteStationEntrustTasksTable", KiteStationEntrustRow)
-        level_table = load_table(table_cfg_dir, "KiteStationLevelTable", KiteStationLevelRow)
+        entrust_table = table_cfg.table("KiteStationEntrustTasksTable", KiteStationEntrustRow)
+        level_table = table_cfg.table("KiteStationLevelTable", KiteStationLevelRow)
 
         terminals: dict[str, Any] = {}
 
@@ -40,8 +40,7 @@ class EnvironmentMonitoring(Dataset):
             ):
                 if mission_value.kite_station is not None and mission_value.kite_station != terminal_id:
                     raise DatasetError(
-                        f"观察点 {mission_value.mission_id} 引用了错误的监测终端 "
-                        + f"{mission_value.kite_station}"
+                        f"观察点 {mission_value.mission_id} 引用了错误的监测终端 " + f"{mission_value.kite_station}"
                     )
                 mission_id = mission_value.mission_id
                 if not mission_id:
@@ -51,12 +50,10 @@ class EnvironmentMonitoring(Dataset):
                     {
                         "mission_id": mission_id,
                         "entrust_index": mission_value.entrust_idx,
-                        "names": cls.localized_names(
-                            mission_value.name, table_cfg_dir, f"观察点 {mission_id}"
-                        ),
+                        "names": cls.localized_names(mission_value.name, table_cfg, f"观察点 {mission_id}"),
                         "shot_target_names": cls.localized_names(
                             mission_value.shot_target_name,
-                            table_cfg_dir,
+                            table_cfg,
                             f"观察点 {mission_id} 拍照目标",
                         ),
                     }
@@ -67,12 +64,9 @@ class EnvironmentMonitoring(Dataset):
 
             terminals[terminal_id] = {
                 "id": terminal_id,
-                "names": cls.localized_names(
-                    level_entry.name, table_cfg_dir, f"监测终端 {terminal_id}"
-                ),
+                "names": cls.localized_names(level_entry.name, table_cfg, f"监测终端 {terminal_id}"),
                 "missions": missions,
             }
 
         logger.info(f"Built maaend environment_monitoring ({len(terminals)} terminals)")
         return {"terminals": terminals}
-

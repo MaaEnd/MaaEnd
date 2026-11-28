@@ -7,8 +7,8 @@
             "type": "array",
             "description": "A 2D coordinate [x, y].",
             "prefixItems": [
-                { "type": "number" },
-                { "type": "number" }
+                {"type": "number"},
+                {"type": "number"}
             ],
             "minItems": 2,
             "maxItems": 2,
@@ -18,15 +18,15 @@
             "type": "object",
             "description": "Parameters for MapFind: work out where the open world map is currently showing, bring the given base map coordinate into view, and hand back the screen position it landed on. What to do with that position is the node's own action.",
             "additionalProperties": false,
-            "required": [ "zone" ],
+            "required": ["zone"],
             "oneOf": [
-                { "required": [ "at" ] },
-                { "required": [ "candidates" ] }
+                {"required": ["at"]},
+                {"required": ["candidates"]}
             ],
             "allOf": [
                 {
-                    "if": { "required": [ "candidates" ] },
-                    "then": { "required": [ "icon" ] }
+                    "if": {"required": ["candidates"]},
+                    "then": {"required": ["icon"]}
                 }
             ],
             "properties": {
@@ -49,7 +49,10 @@
                     "items": {
                         "type": "object",
                         "additionalProperties": false,
-                        "required": [ "at", "next" ],
+                        "required": [
+                            "at",
+                            "next"
+                        ],
                         "properties": {
                             "at": {
                                 "title": "At",
@@ -74,8 +77,17 @@
                 "state": {
                     "title": "State",
                     "description": "Which unlock state counts as a hit. Requires an icon whose table entry carries gold_ratio, since that is what tells the two states apart. Optional, defaults to unlocked.",
-                    "enum": [ "unlocked", "locked" ],
+                    "enum": [
+                        "unlocked",
+                        "locked"
+                    ],
                     "default": "unlocked"
+                },
+                "tier": {
+                    "title": "Tier",
+                    "description": "The tier layer the map has already been switched to, named like viewport_tier in the recognition detail: the tier image's file name without .png, e.g. IndieDg007Tier337, and <zone>_L<N>_<M> for LvNNNTierMMM files. The viewport is then solved on that tier only, never picked from the coordinate and never falling back to the base map, and at and every candidate's at are in that tier image's own pixel frame, as picked in the MapNavigator tool with that layer selected (the same as target_tier in MapNavigateAction). A name the zone does not have fails the node. Optional; omit it to pick the tier from the coordinate, with coordinates in the base map frame.",
+                    "type": "string",
+                    "minLength": 1
                 },
                 "max_attempts": {
                     "title": "Max Attempts",
@@ -83,13 +95,6 @@
                     "type": "integer",
                     "minimum": 1,
                     "default": 4
-                },
-                "vote_grid": {
-                    "title": "Vote Grid",
-                    "description": "Fallback for when matching the whole search window at once cannot solve the viewport. The window is split into vote_grid x vote_grid blocks matched separately and combined by a per-pixel median, so a locally occluded block gets outvoted instead of dragging the whole frame's score down. It only runs after the whole-window attempt, and the fog-masked retry when the frame shows fog, have already been rejected, so a frame that solves normally is unaffected. Set to 1 to turn the fallback off for this node. Optional, defaults to 3.",
-                    "type": "integer",
-                    "minimum": 1,
-                    "default": 3
                 }
             }
         }

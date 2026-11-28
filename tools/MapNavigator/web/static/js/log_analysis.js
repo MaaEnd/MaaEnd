@@ -1,7 +1,6 @@
 /**
  * Parse cpp-algo MaaFramework logs into MapNavigator runs that can be inspected on
- * the existing basemap. The parser is deliberately independent from DOM APIs so a
- * real log fragment can be covered by Node tests.
+ * the existing basemap.
  *
  * @module log_analysis
  */
@@ -9,7 +8,7 @@
 const REQUEST_PREFIX = "[req=";
 const REQUEST_SUFFIX = "] [ipc_addr_=";
 const OBSERVED_MIN_STEP = 1.0;
-const OBSERVED_CAPTURE_MARKER = /PositionProvider::(?:Capture|captureImpl)/;
+const OBSERVED_LOCATE_MARKER = "MapLocator [status=";
 
 const REASON_TEXT = Object.freeze({
   "the walk is too short for any zipline to pay off": "路程太短，上索固定开销无法回本",
@@ -255,7 +254,7 @@ function newRun(parsed, line, sourceName, index) {
     accountId: "",
     zone: "",
     _fallbackZone: String(param.map_name || (path.find((entry) => entry.zone) || {}).zone || ""),
-    zipRequested: param.zip === true,
+    zipRequested: param.zip !== false,
     authoredPath: path,
     authoredPoints: path.map((entry) => entry.point),
     walks: [],
@@ -345,7 +344,7 @@ function addObservedPosition(run, line) {
 
   const sample = {
     point,
-    zone: valueOf(line, "position.zoneId") || "",
+    zone: valueOf(line, "position.zone_id") || valueOf(line, "position.zoneId") || "",
   };
   if (run._ziplineInFlight) {
     run._ziplineLastPosition = sample;
@@ -689,7 +688,7 @@ export function parseMapNavigatorLog(text, sourceName = "maafw.log") {
       current._planning = false;
     }
 
-    if (OBSERVED_CAPTURE_MARKER.test(line) && line.includes("MapLocator")) {
+    if (line.includes(OBSERVED_LOCATE_MARKER)) {
       addObservedPosition(current, line);
     } else if (line.includes("NAVMESH generated path.")) addWalk(current, line);
     else if (line.includes("ZiplineRoute: picked")) rememberZiplinePick(current, line);

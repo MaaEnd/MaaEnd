@@ -12,7 +12,7 @@
             "image": "大世界_选择工具.png",
             "hits": [
                 "InSelectTool",
-                "EnterCameraModeChooseCamera"
+                "__TakePhotoChooseCamera"
             ]
         }
     ]

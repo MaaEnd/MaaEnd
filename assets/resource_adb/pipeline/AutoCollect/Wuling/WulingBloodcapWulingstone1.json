@@ -1,0 +1,15 @@
+{
+    "AutoCollectWulingBloodcapWulingstone1FindButtonUsing": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    766,
+                    355,
+                    144,
+                    100
+                ]
+            }
+        }
+    }
+}

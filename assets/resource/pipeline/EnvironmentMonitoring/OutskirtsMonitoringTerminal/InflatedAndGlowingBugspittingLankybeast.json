@@ -93,7 +93,7 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "CheckInflatedAndGlowingBugspittingLankybeastJob": {
+    "CheckInflatedAndGlowingBugspittingLankybeastJobText": {
         "desc": "检查肚子鼓气后发光的吐虫长股兽委托是否可以接取",
         "recognition": "OCR",
         "roi": "CheckInflatedAndGlowingBugspittingLankybeastIcon",
@@ -162,7 +162,7 @@
         "all_of": [
             "CheckInflatedAndGlowingBugspittingLankybeastText",
             "CheckInflatedAndGlowingBugspittingLankybeastIcon",
-            "CheckInflatedAndGlowingBugspittingLankybeastJob"
+            "CheckInflatedAndGlowingBugspittingLankybeastJobText"
         ],
         "box_index": 2,
         "pre_delay": 0,
@@ -234,7 +234,7 @@
         "desc": "肚子鼓气后发光的吐虫长股兽任务已经在追踪中",
         "recognition": "And",
         "all_of": [
-            "AlreadyTrackedMissionButton",
+            "CheckAlreadyTrackingText",
             "InInflatedAndGlowingBugspittingLankybeastMission"
         ],
         "pre_delay": 0,
@@ -460,12 +460,12 @@
         "desc": "在肚子鼓气后发光的吐虫长股兽任务拍照点开始拍照",
         "pre_delay": 0,
         "anchor": {
-            "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal"
+            "TakePhotoDone": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "EnvironmentMonitoringTakePhoto"
+            "TakePhoto"
         ]
     }
 }

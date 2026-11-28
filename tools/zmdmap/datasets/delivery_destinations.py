@@ -10,9 +10,9 @@ NAVMESH 终点的 ``target_deck_y``；``yaw`` 是朝向（度）：仓储与回�
 这里不做任何换算。
 """
 
-from pathlib import Path
 from typing import Any
 
+from ..utils.inputs import JsonData, TableCfg
 from ..utils.log import logger
 from ..utils.tables import (
     BuyerRow,
@@ -24,9 +24,6 @@ from ..utils.tables import (
     LevelMarkBasic,
     NpcProxyTable,
     RecycleBinRow,
-    load_config,
-    load_level_data,
-    load_table,
 )
 from .base import Dataset, DatasetError
 
@@ -45,18 +42,34 @@ _RECYCLE_INTERACTIVE_ID = "int_doodad_core_recycle"
 _RECYCLE_SYSTEM_COMPONENT = "RecycleBinSystemComponent"
 
 
-def _build_mark_index(level_map_mark: dict[str, list[LevelMark]]) -> dict[str, LevelMarkBasic]:
-    """LevelMapMark（{level: [mark...]}）-> {markInstId: basicData}。"""
-    index: dict[str, LevelMarkBasic] = {}
+def _build_mark_index(level_map_mark: dict[str, list[LevelMark]]) -> dict[str, list[LevelMarkBasic]]:
+    """LevelMapMark（{level: [mark...]}）-> {markInstId: [basicData, ...]}。
+
+    同一个 markInstId 在游戏数据里可能挂着两条不同的标记：旧水坝（``42200070000``）的采集点与配方宝箱就
+    共用 ``42200071016``，位置还不一样。这份数据只查仓储节点与回收站的 id，别的重复跟送货目的地无关，所以
+    按 id 收成列表、真要用时再挑（见 :func:`_mark_of`），不拿一条无关的重复把整份数据挡下来。
+    """
+    index: dict[str, list[LevelMarkBasic]] = {}
     for level_key in sorted(level_map_mark):
         for mark in level_map_mark[level_key]:
             basic = mark.basic_data
             if not basic.mark_inst_id:
                 continue
-            if basic.mark_inst_id in index:
-                raise DatasetError(f"标记 {basic.mark_inst_id} 在 LevelMapMark 中重复")
-            index[basic.mark_inst_id] = basic
+            index.setdefault(basic.mark_inst_id, []).append(basic)
     return index
+
+
+def _mark_of(index: dict[str, list[LevelMarkBasic]], mark_id: str, label: str) -> LevelMarkBasic | None:
+    """按 id 取那条标记；同一个 id 有多条、位置还不一样时报错（没法确定用哪条）。"""
+    candidates = index.get(mark_id)
+    if not candidates:
+        return None
+    first = candidates[0]
+    for other in candidates[1:]:
+        if (other.pos.x, other.pos.y, other.pos.z) != (first.pos.x, first.pos.y, first.pos.z):
+            places = "、".join(f"({basic.pos.x}, {basic.pos.y}, {basic.pos.z})" for basic in candidates)
+            raise DatasetError(f"{label} {mark_id} 在 LevelMapMark 里有 {len(candidates)} 条不同位置的记录：{places}")
+    return first
 
 
 def _build_depots_by_level(depot_table: dict[str, DomainDepotRow]) -> dict[str, str]:
@@ -81,7 +94,7 @@ def _extract_system_instance_id(entity: LevelInteractive, system_component: str)
 
 
 def _load_poses(
-    json_data_dir: Path,
+    json_data: JsonData,
     targets: list[tuple[str, str]],
     interactive_id: str,
     system_component: str,
@@ -93,7 +106,7 @@ def _load_poses(
     """
     poses: dict[str, float] = {}
     for level_id, target_id in targets:
-        yaw = _find_entity_yaw(json_data_dir, level_id, interactive_id, system_component, target_id)
+        yaw = _find_entity_yaw(json_data, level_id, interactive_id, system_component, target_id)
         if yaw is None:
             # 遍历完整个关卡目录仍未找到对应实体。
             logger.warning(f"{label} {target_id} 在 {level_id} 的 LevelData 中未找到朝向实体")
@@ -103,7 +116,7 @@ def _load_poses(
 
 
 def _find_entity_yaw(
-    json_data_dir: Path,
+    json_data: JsonData,
     level_id: str,
     interactive_id: str,
     system_component: str,
@@ -114,16 +127,11 @@ def _find_entity_yaw(
     按 ``entityDataIdKey == interactive_id`` 且 ``system_component.system_inst_key ==
     target_id`` 匹配；找到即返回，关卡目录缺失或未匹配到实体时返回 None。
     """
-    level_dir = json_data_dir / "LevelData" / level_id
-    if not level_dir.is_dir():
-        logger.warning(f"LevelData 目录不存在: {level_dir}")
+    levels = json_data.level_data(level_id)
+    if not levels:
+        logger.warning(f"LevelData 里没有 {level_id} 的文件")
         return None
-    for json_file in sorted(level_dir.glob("*.json")):
-        try:
-            data = load_level_data(json_file)
-        except Exception as error:
-            logger.warning(f"读取关卡文件失败 {json_file}: {error}")
-            continue
+    for data in levels:
         for entity in data.interactives:
             if entity.entity_data_id_key != interactive_id:
                 continue
@@ -146,11 +154,10 @@ class DeliveryDestinations(Dataset):
     """送货目的地（普通收货 NPC / 回收站）及其所属仓储节点（``delivery_destinations.json``）。"""
 
     needs_projection = True
-    requires_json_data = True
     projection_containers = ("depots", "destinations")
 
     @classmethod
-    def build(cls, table_cfg_dir: Path, json_data_dir: Path) -> dict[str, Any]:
+    def build(cls, table_cfg: TableCfg, json_data: JsonData) -> dict[str, Any]:
         """送货目的地（普通收货 NPC 与回收站）与它们所属的仓储节点。
 
         坐标按游戏世界坐标发布（``x`` / ``y`` / ``z`` 与朝向 ``yaw``），底图像素由 MaaEnd 侧的入库步骤投影。
@@ -158,24 +165,20 @@ class DeliveryDestinations(Dataset):
         文件里交互实体的 ``rotation.y``（回收站翻 180 度），读不到时按 0。目的地按「关卡 -> 仓储节点」挂到
         节点下，回收站还要与 ``RecycleBinTable`` 的层级和序号对上，对不上都直接报错。
         """
-        deliver_target_table = load_table(
-            table_cfg_dir, "DomainDepotDeliverTargetTable", DeliverTargetRow
-        )
-        buyer_table = load_table(table_cfg_dir, "DomainDepotBuyerTable", BuyerRow)
-        depot_table = load_table(table_cfg_dir, "DomainDepotTable", DomainDepotRow)
-        recycle_bin_table = load_table(table_cfg_dir, "RecycleBinTable", RecycleBinRow)
-        level_desc_table = load_table(table_cfg_dir, "LevelDescTable", LevelDescRow)
+        deliver_target_table = table_cfg.table("DomainDepotDeliverTargetTable", DeliverTargetRow)
+        buyer_table = table_cfg.table("DomainDepotBuyerTable", BuyerRow)
+        depot_table = table_cfg.table("DomainDepotTable", DomainDepotRow)
+        recycle_bin_table = table_cfg.table("RecycleBinTable", RecycleBinRow)
+        level_desc_table = table_cfg.table("LevelDescTable", LevelDescRow)
 
-        npc_positions = load_config(json_data_dir, "NpcProxyTable", NpcProxyTable).data_table
-        mark_index = _build_mark_index(
-            load_config(json_data_dir, "LevelMapMark", dict[str, list[LevelMark]])
-        )
+        npc_positions = json_data.config("NpcProxyTable", NpcProxyTable).data_table
+        mark_index = _build_mark_index(json_data.config("LevelMapMark", dict[str, list[LevelMark]]))
         # 关卡 -> 仓储节点，两半都要用（送货目的地要记自己属于哪个节点）。
         depot_by_level = _build_depots_by_level(depot_table)
 
         # ── 仓储节点 ────────────────────────────────────────────────
         depot_pose = _load_poses(
-            json_data_dir,
+            json_data,
             [(level_id, depot_id) for level_id, depot_id in depot_by_level.items()],
             _DEPOT_INTERACTIVE_ID,
             _DEPOT_SYSTEM_COMPONENT,
@@ -185,20 +188,16 @@ class DeliveryDestinations(Dataset):
         for depot_id, entry in sorted(depot_table.items()):
             level_id = entry.ref_level_id
             if level_id.count("_") != 1:
-                raise DatasetError(
-                    f"仓储节点 {depot_id} 的 refLevelId {level_id!r} 不是 mapXX_lvYYY"
-                )
+                raise DatasetError(f"仓储节点 {depot_id} 的 refLevelId {level_id!r} 不是 mapXX_lvYYY")
             map_id = level_id.split("_")[0]
 
-            basic = mark_index.get(depot_id)
+            basic = _mark_of(mark_index, depot_id, "仓储节点")
             if basic is None:
                 raise DatasetError(f"仓储节点 {depot_id} 在 LevelMapMark 中没有同名标记")
             depots.append(
                 {
                     "id": depot_id,
-                    "name": Dataset.localized_names(
-                        entry.depot_name, table_cfg_dir, f"仓储节点 {depot_id}"
-                    ),
+                    "name": Dataset.localized_names(entry.depot_name, table_cfg, f"仓储节点 {depot_id}"),
                     "map": map_id,
                     "x": basic.pos.x,
                     "y": round(basic.pos.y, 3),
@@ -211,7 +210,7 @@ class DeliveryDestinations(Dataset):
 
         # ── 送货目的地 ───────────────────────────────────────────────
         recycle_pose = _load_poses(
-            json_data_dir,
+            json_data,
             [
                 (entry.level, entry.target_id)
                 for entry in deliver_target_table.values()
@@ -248,7 +247,7 @@ class DeliveryDestinations(Dataset):
                 raw_yaw: float | None = npc.rotation.y
                 serial_id: int | None = None
             else:
-                basic = mark_index.get(entity_key)
+                basic = _mark_of(mark_index, entity_key, f"{label} 对应的回收站")
                 if basic is None:
                     raise DatasetError(f"{label} 在 LevelMapMark 中没有 {entity_key}")
                 x, y, z = basic.pos.x, basic.pos.y, basic.pos.z
@@ -257,9 +256,7 @@ class DeliveryDestinations(Dataset):
                 if recycle_bin is None:
                     raise DatasetError(f"{label} 对应的资源回收站 {entity_key} 不存在")
                 if recycle_bin.level_id != level_id:
-                    raise DatasetError(
-                        f"资源回收站 {entity_key} 的层级与{label}的层级 {level_id} 不一致"
-                    )
+                    raise DatasetError(f"资源回收站 {entity_key} 的层级与{label}的层级 {level_id} 不一致")
                 serial_id = recycle_bin.serial_id
                 if serial_id <= 0:
                     raise DatasetError(f"资源回收站 {entity_key} 的 serialId {serial_id!r} 无效")
@@ -274,7 +271,7 @@ class DeliveryDestinations(Dataset):
             level_desc = level_desc_table.get(level_id)
             if level_desc is None:
                 raise DatasetError(f"{label} 对应的关卡 {level_id} 不存在")
-            area = Dataset.localized_names(level_desc.show_name, table_cfg_dir, f"关卡 {level_id}")
+            area = Dataset.localized_names(level_desc.show_name, table_cfg, f"关卡 {level_id}")
 
             mission_ref = entry.mission_obj_desc
             if not mission_ref.id and not mission_ref.text:
@@ -285,11 +282,9 @@ class DeliveryDestinations(Dataset):
                 "id": target_id,
                 "kind": kind,
                 **({"serial_id": serial_id} if serial_id is not None else {}),
-                "name": Dataset.localized_names(
-                    buyer.buyer_name, table_cfg_dir, f"收货人 {buyer_id}"
-                ),
+                "name": Dataset.localized_names(buyer.buyer_name, table_cfg, f"收货人 {buyer_id}"),
                 "mission": Dataset.plain_names(
-                    Dataset.localized_names(mission_ref, table_cfg_dir, f"{label}任务目标"),
+                    Dataset.localized_names(mission_ref, table_cfg, f"{label}任务目标"),
                     f"{label}任务目标",
                 ),
                 "area": area,
@@ -313,9 +308,7 @@ class DeliveryDestinations(Dataset):
 
         _check_unique_names(destinations)
 
-        logger.info(
-            f"Built maaend delivery_destinations: {len(depots)} depots, {len(destinations)} destinations"
-        )
+        logger.info(f"Built maaend delivery_destinations: {len(depots)} depots, {len(destinations)} destinations")
         return {
             "depots": depots,
             "destinations": destinations,

@@ -1,0 +1,336 @@
+{
+    "BatchAddFriendsTriggerSearch": {
+        "desc": "点击搜索按钮",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1067,
+                    47,
+                    160,
+                    54
+                ],
+                "expected": [
+                    "搜索",
+                    "搜尋",
+                    "(?i)Search",
+                    "検索"
+                ],
+                "threshold": 0.7
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "BatchAddFriendsWaitSearchLoadingExit",
+            "BatchAddFriendsSearchReady"
+        ]
+    },
+    "BatchAddFriendsWaitSearchLoadingExit": {
+        "desc": "等待搜索加载结束",
+        "max_hit": 30,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    529,
+                    353,
+                    253,
+                    65
+                ],
+                "expected": [
+                    "加载中",
+                    "載入中",
+                    "(?i)Loading",
+                    "読み込み中"
+                ],
+                "threshold": 0.7
+            }
+        },
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        "post_wait_freezes": 1000,
+        "next": [
+            "BatchAddFriendsWaitSearchLoadingExit",
+            "BatchAddFriendsSearchReady"
+        ]
+    },
+    "BatchAddFriendsSearchReady": {
+        "desc": "搜索就绪",
+        "recognition": "DirectHit",
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        "next": [
+            "BatchAddFriendsHandleSearchResult"
+        ]
+    },
+    "BatchAddFriendsClickAddButton": {
+        "desc": "点击添加好友",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "BatchAddfriendsAddFriendButtonColor",
+                    "BatchAddfriendsAddFriendTextColor",
+                    "BatchAddfriendsAddFriendText"
+                ],
+                "box_index": 2
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "post_wait_freezes": 200,
+        "next": [
+            "BatchAddFriendsFriendListFullToast",
+            "BatchAddFriendsAfterAddEnd"
+        ]
+    },
+    "BatchAddfriendsAddFriendButtonColor": {
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    1122,
+                    102,
+                    157,
+                    570
+                ],
+                "method": 6,
+                "lower": [
+                    230
+                ],
+                "upper": [
+                    255
+                ],
+                "connected": true,
+                "count": 100
+            }
+        }
+    },
+    "BatchAddfriendsAddFriendTextColor": {
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "BatchAddfriendsAddFriendButtonColor",
+                "method": 6,
+                "lower": [
+                    0
+                ],
+                "upper": [
+                    120
+                ],
+                "count": 10
+            }
+        }
+    },
+    "BatchAddfriendsAddFriendText": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "BatchAddfriendsAddFriendTextColor",
+                "roi_offset": [
+                    -2,
+                    -2,
+                    4,
+                    4
+                ],
+                "expected": [
+                    "添加好友",
+                    "新增好友",
+                    "(?i)Add\\s*Friend",
+                    "フレンド追加"
+                ],
+                "replace": [
+                    [
+                        "反",
+                        "友"
+                    ]
+                ],
+                "threshold": 0.7
+            }
+        }
+    },
+    "BatchAddFriendsHandleSearchResult": {
+        "desc": "处理搜索结果",
+        "recognition": "DirectHit",
+        "next": [
+            "BatchAddFriendsSearchUidNotFound",
+            "BatchAddFriendsClickAddButton",
+            "BatchAddFriendsSearchEmptyResult",
+            "BatchAddFriendsSearchRequestPending"
+        ]
+    },
+    "BatchAddFriendsSearchRequestPending": {
+        "desc": "申请已发送，等待对方接受",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1072,
+                    118,
+                    138,
+                    85
+                ],
+                "expected": [
+                    "等待接受",
+                    // @i18n-skip
+                    "(?i).*Approval.*", // 原文：Waiting for Approval
+                    "承認待ち"
+                ],
+                "threshold": 0.7
+            }
+        },
+        "next": [
+            "BatchAddFriendsUIDLoopTop"
+        ]
+    },
+    "BatchAddFriendsSearchUidNotFound": {
+        "desc": "UID 不存在",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    537,
+                    102,
+                    209,
+                    43
+                ],
+                "expected": [
+                    "搜索的UID不存在",
+                    "搜尋的UID不存在",
+                    "(?i)Search\\s*has\\s*not\\s*found\\s*UID",
+                    "該当のUIDがありません"
+                ],
+                "threshold": 0.7
+            }
+        },
+        "next": [
+            "BatchAddFriendsUIDLoopTop"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "UID 不存在，尝试下一个"
+        }
+    },
+    "BatchAddFriendsSearchEmptyResult": {
+        "desc": "搜索结果为空",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    591,
+                    375,
+                    121,
+                    17
+                ],
+                "expected": [
+                    "未搜索到相关玩家",
+                    "未搜尋到相關玩家",
+                    "(?i)No\\s*matching\\s*players\\s*found",
+                    "当該プレイヤーが見つかりませんでした"
+                ],
+                "threshold": 0.7
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "BatchAddFriendsUIDOnEmptyAction"
+            }
+        },
+        "next": [
+            "BatchAddFriendsUIDLoopTop"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "未搜索到相关玩家"
+        }
+    },
+    "BatchAddFriendsUIDInit": {
+        "desc": "解析 UID 列表并重建输入队列",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "TextInputInitAction",
+                "custom_action_param": {
+                    "texts": ""
+                }
+            }
+        },
+        "anchor": {
+            "TextInputFocus": "BatchAddFriendsUIDFocusSearchBox",
+            "TextInputSubmit": "BatchAddFriendsTriggerSearch"
+        },
+        "next": [
+            "BatchAddFriendsUIDLoopTop"
+        ]
+    },
+    "BatchAddFriendsUIDLoopTop": {
+        "desc": "UID 列表循环入口：队列耗尽时结束分支",
+        "recognition": "DirectHit",
+        "next": [
+            "BatchAddFriendsUIDExhausted",
+            "BatchAddFriendsUIDFocusSearchBox",
+            "TextInputClearBox"
+        ]
+    },
+    "BatchAddFriendsUIDExhausted": {
+        "desc": "UID 输入队列耗尽",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "TextInputExhaustedRecognition"
+            }
+        },
+        "next": [
+            "BatchAddFriendsUIDEnd"
+        ]
+    },
+    "BatchAddFriendsUIDFocusSearchBox": {
+        "desc": "聚焦搜索框（UID 模式）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    36,
+                    66,
+                    191,
+                    26
+                ],
+                "expected": [
+                    "搜索玩家名称或UID添加好友",
+                    "搜尋玩家名稱或UID新增好友",
+                    "(?i)Search\\s*player\\s*name\\s*or\\s*UID\\s*to\\s*find\\s*friends",
+                    "プレイヤーの名前またはUIDを入力してください",
+                    "输入名称搜索好友",
+                    "輸入名稱搜尋好友",
+                    "(?i)Search\\s*friend\\s*by\\s*name",
+                    "名前を入力して検索"
+                ],
+                "threshold": 0.7
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    30,
+                    0,
+                    0,
+                    0
+                ]
+            }
+        },
+        "next": [
+            "TextInput"
+        ]
+    }
+}

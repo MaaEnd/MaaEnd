@@ -105,7 +105,9 @@ Go 侧的 `AutoDeliveryResolveDepotAction` / `AutoDeliveryResolveDestinationActi
 
 普通仓储和资源回收站由 `tools/zmdmap/datasets/delivery_destinations.py` 提供游戏数据坐标与 yaw。路线生成器先在目标 yaw 正方向 8 米处生成一个 `required: true` 的 `NAVMESH` 必经点，再前往实体正面 2 米处的交互范围中心（实体原点压在机体占地里，导航包把那块挖掉了），从而保证从交互正面接近（朝向不合适时用覆盖条目中的 `yaw` 修正，见下节）；普通收货 NPC 仍只生成原始坐标的单个 `NAVMESH` 目标。自动生成的点都带 `target_deck_y`，取值是该实体在数据源中的世界高度，接近点与终点同层、共用这个高度，用来在重叠可走面里选中目标层；人工覆盖路径的层声明按实测结果原样保留。只有断网格、分层或需要特殊站位时，才在 `routes.json` 中维护覆盖。
 
-交货的主路线与 retry 路线由生成器在末尾接一个 `INTERACT` 交互点：末点是 `NAVMESH` 时补 `required: true` 并在同一坐标接交互点；末点是裸坐标时整点换成交互点（回收站落到交互范围中心）。交互点用 `AutoDeliverySubmitGoodsInteractScan` 预筛交货图标，再按文字复核：资源回收站认 `AutoDeliverySubmitGoodsInteractText`（交货），收货 NPC 认终点的五语言名称。交互点写了 `interact_rec`，认到提示就结束导航、不按键；交货仍由 `AutoDeliveryCheckSubmitGoodsTarget` → `AutoDeliverySubmitGoods` 识别交货图标后点击。走到点上仍认不到提示时导航判失败。
+交货的主路线与 retry 路线由生成器在末尾接一个 `INTERACT` 交互点：末点是 `NAVMESH` 时补 `required: true` 并在同一坐标接交互点；末点是裸坐标时整点换成交互点（回收站落到交互范围中心）。交互点用 `AutoDeliverySubmitGoodsInteractScan` 预筛交货图标，再按文字复核：资源回收站认 `AutoDeliverySubmitGoodsInteractText`（交货），收货 NPC 认终点的五语言名称。交互点写了 `interact_rec`，认到提示就结束导航、不按键；交货仍由 `AutoDeliveryCheckSubmitGoodsTarget` → `AutoDeliverySubmitGoods` 识别交货图标后点击。走到点上仍认不到提示时导航判失败，由 `AutoDeliveryNavigateDestination` 的 `on_error` 接回识别交货图标、环绕搜索与站位修正。
+
+提交货物之后先认哪一屏由终点类型决定：`AutoDeliveryResolveDestinationAction` 解析出终点时会把 `AutoDeliverySubmitGoods` 的 `next` 整体重写成单一条路径——收货 NPC 只认对话跳过按钮 `AutoDeliveryCheckSkipChatReady`，资源回收站只认奖励结算框 `AutoDeliveryCloseRewardDialog`。两个画面若并列在 `next` 里，另一类终点的识别框有机会抢先命中，所以不再并列。
 
 两类目标不接交互点，路线结尾与原来一样：仓储路线（只走到仓储节点、不取货的调用方也用这条路线，取货在业务侧）只把终点挪到交互范围中心，人工路线的裸坐标末点同样挪过去；开了 `verify_name` 的 NPC 照旧由业务侧复核名字后点击。
 
@@ -149,7 +151,7 @@ Go 侧的 `AutoDeliveryResolveDepotAction` / `AutoDeliveryResolveDestinationActi
   -> 没有 retry 节点，或修正后仍未识别到：结束任务
 ```
 
-retry 节点不继承主路线的 `zip`，也不形成 anchor 或循环重试。一次取货或交付流程最多执行一次站位修正。带交互点的交货路线走到点上仍认不到提示时，导航本身失败并结束任务，不会进入环绕搜索和站位修正。
+retry 节点不继承主路线的 `zip`，也不形成 anchor 或循环重试。一次取货或交付流程最多执行一次站位修正。前往终点的导航失败时（如带交互点的交货路线走到点上仍认不到提示），同样按上面的流程识别、环绕搜索并修正站位。
 
 ### `yaw`
 
@@ -185,7 +187,7 @@ retry 节点不继承主路线的 `zip`，也不形成 anchor 或循环重试。
 交货图标模板只有十几像素，目标周围还有别的角色时，模板匹配可能命中别人的交互提示。`verify_name: true` 让「已站在送货目标前」的判定在图标之外再复核一次交互提示中的文本：
 
 - 世界交互提示把目标名称渲染在图标旁的提示区域里（NPC 显示角色名，如「赵昭」），这块提示区域和交货图标共用同一片 ROI，因此名称识别跟随控制器覆盖同步生效；
-- Go 侧解析出终点后，把该终点的五语言名称注入 `AutoDeliveryCheckSubmitGoodsName` 的 `expected`，并把 `AutoDeliveryCheckSubmitGoodsTarget` 的 `all_of` 扩成「交货图标 + 名称复核」；未开启的终点 `all_of` 只保留交货图标，行为与过去一致；
+- Go 侧解析出终点后，把该终点的五语言名称注入 `AutoDeliveryCheckSubmitGoodsNameText` 的 `expected`，并把 `AutoDeliveryCheckSubmitGoodsTarget` 的 `all_of` 扩成「交货图标 + 名称复核」；未开启的终点 `all_of` 只保留交货图标，行为与过去一致；
 - 名称不命中时按「未到位」处理：先由 `CharacterSearchAction` 环绕寻找，再执行一次站位修正路线，最终失败，而不是把货物交给提示里的另一个角色。
 
 只在确认过会被周围角色干扰的 NPC 终点上开启。资源回收站与仓储节点的提示文本不显示终点名称，生成器与运行时都会拒绝这类终点开启该选项（`kind` 必须为 `npc`）。

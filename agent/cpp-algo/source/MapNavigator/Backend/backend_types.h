@@ -1,0 +1,39 @@
+#pragma once
+
+#include <cstdint>
+
+#include "../navi_config.h"
+
+namespace mapnavigator
+{
+
+enum class BackendKind
+{
+    Desktop,
+    Linux,
+    Adb,
+    CloudWeb,
+};
+
+struct SteeringTransportProfile
+{
+    bool supports_concurrent_move_and_look = true;
+    int min_send_interval_ms = 0;
+    double min_emit_delta_deg = 1.0;
+    double max_batch_delta_deg = 18.0;
+    int max_batches_per_tick = kSteeringMaxBatchesPerTick;
+    int action_quiet_period_ms = 0;
+    // 孤立转向后需同时满足的最短静默时长，避免高延迟串流画面未落地就被灵敏度检测误判
+    int64_t sensitivity_min_quiet_ms = 0;
+    bool drops_turn_sends = false;
+};
+
+struct MovementState
+{
+    bool forward = false;
+    bool left = false;
+    bool backward = false;
+    bool right = false;
+};
+
+} // namespace mapnavigator

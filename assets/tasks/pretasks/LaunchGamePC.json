@@ -10,6 +10,7 @@
         ],
         "name": "LaunchGamePC",
         "label": "$pretask.LaunchGamePC.label",
+        "description": "$pretask.LaunchGamePC.description",
         "option": [
             "LaunchGamePCRegion",
             "LaunchGamePCLauncherPath",
@@ -76,7 +77,8 @@
                     "default": "",
                     "pipeline_type": "string",
                     "verify": "^\"?.+[\\\\/][Ll]auncher\\.exe\"?$",
-                    "pattern_msg": "$option.LaunchGamePCLauncherExe.LauncherExe.pattern_msg"
+                    "pattern_msg": "$option.LaunchGamePCLauncherExe.LauncherExe.pattern_msg",
+                    "input_type": "file"
                 }
             ]
         },

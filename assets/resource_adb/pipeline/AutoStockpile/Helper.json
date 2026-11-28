@@ -1,6 +1,6 @@
 {
     "AutoStockpileSwipeShelfDown": {
-        "desc": "货架向下滑动一页，露出下方商品（ADB）",
+        "desc": "货架向下滑动一页，露出下方商品（ADB）。慢速拖动几乎没有惯性，滚动距离与手势距离一致",
         "recognition": {
             "type": "DirectHit",
             "param": {}
@@ -23,7 +23,8 @@
                         320
                     ]
                 ],
-                "end_hold": 200
+                "end_hold": 200,
+                "duration": 700
             }
         },
         "post_wait_freezes": {
@@ -40,7 +41,7 @@
         "rate_limit": 0
     },
     "AutoStockpileSwipeShelfUp": {
-        "desc": "货架向上滑动一页，恢复到首屏（ADB）",
+        "desc": "货架向上滑到整页顶部（ADB）。列表顶部会夹紧，多滑几次不会越界；复位时先回到整页顶部，再点击市场入口跳到市场段顶部",
         "recognition": {
             "type": "DirectHit",
             "param": {}
@@ -51,19 +52,20 @@
             "param": {
                 "begin": [
                     640,
-                    320
+                    240
                 ],
                 "end": [
                     [
                         640,
-                        520
+                        560
                     ],
                     [
                         760,
-                        520
+                        560
                     ]
                 ],
-                "end_hold": 200
+                "end_hold": 200,
+                "duration": 700
             }
         },
         "post_wait_freezes": {

@@ -58,9 +58,10 @@ type RecognitionResult struct {
 type RecognitionData struct {
 	Quota QuotaInfo   `json:"Quota"`
 	Goods []GoodsItem `json:"Goods"`
-	// SecondPageOnlyIDs 仅在下滑后的第二屏扫到、首屏没有的商品 ID。
-	// 选中这类商品后需先下滑再点击；勿理解成“第一页专属”。
-	SecondPageOnlyIDs []string `json:"SecondPageOnlyIDs,omitempty"`
+	// SwipeCountToReveal 首屏看不到、必须下滑若干次才出现的商品 ID → 下滑次数。
+	// 选中这类商品后需先按该次数执行 AutoStockpileSwipeShelfDown 再点击；
+	// 首屏可见的商品不在其中。次数与逐屏扫描时实际执行的下滑次数一致。
+	SwipeCountToReveal map[string]int `json:"SwipeCountToReveal,omitempty"`
 }
 
 // QuotaInfo 表示额度识别结果。

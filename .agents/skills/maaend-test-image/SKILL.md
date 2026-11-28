@@ -1,6 +1,6 @@
 ---
 name: maaend-test-image
-description: 为 MaaEnd 添加、导入或补充节点识别测试截图，并按仓库约定脱敏图片、放入 tests/MaaEndTestset、维护 tests/**/test_*.json 和运行 pnpm check/pnpm test 验证。用户提到“添加测试图片/截图”“把截图加入 ADB 或 Win32 测试集”“给节点补正例或反例”“更新 hits/box”“UID 打码后提交测试图”时使用；即使用户只说把某张游戏截图放进 MaaEnd 测试，也要用本技能避免未脱敏原图进入仓库。
+description: 为 MaaEnd 添加、导入或补充节点识别测试截图，并按仓库约定脱敏图片、放入 tests/MaaEndTestset、维护 tests/**/test_*.json 和运行 pnpm check/pnpm test 验证。用户提到“添加测试图片/截图”“把截图加入 ADB、CloudADB、CloudWeb 或 Win32 测试集”“给节点补正例或反例”“更新 hits/box”“UID 打码后提交测试图”时使用；即使用户只说把某张游戏截图放进 MaaEnd 测试，也要用本技能避免未脱敏原图进入仓库。
 ---
 
 # MaaEnd 测试图片维护
@@ -10,13 +10,13 @@ description: 为 MaaEnd 添加、导入或补充节点识别测试截图，并�
 把原始游戏截图安全地加入 MaaEnd 的节点测试。最终同时满足：
 
 - 仓库内只出现脱敏后的 PNG，不先复制未打码原图；
-- 图片位于 `tests/MaaEndTestset/<controller>/<resource>/`；
+- 图片位于 `tests/MaaEndTestset/<controller>/<resource>/<任务目录>/`，任务目录和对应的 `tests/<任务>/` 同名；
 - 对应 `tests/**/test_*.json` 使用正确的 `controller`、`resource`、图片文件名和 `hits`；
 - JSON、图片引用、`pnpm check` 和 `pnpm test` 通过；
 - 需要提交时，测试图片提交到 `tests/MaaEndTestset` 子模块的 `main` 分支，主仓库再记录该提交指针；
 - 不改动无关图片、用例或用户已有工作。
 
-本技能适用于已有固定 ROI 的 `ADB` 和 `Win32`。`PlayCover` 或新分辨率没有可靠遮盖坐标时，先向用户确认脱敏规则，不要套用其它平台坐标。
+本技能适用于已有固定 ROI 的 `ADB`、`CloudADB`、`CloudWeb` 和 `Win32`。`CloudWeb` 是云网页版外壳，左下和 `CloudADB` 是同一套云 HUD，两者只能靠画面内容区分，平台判定给不出 `CloudWeb`。`PlayCover` 或新分辨率没有可靠遮盖坐标时，先向用户确认脱敏规则，不要套用其它平台坐标。
 
 ## 开始前确认上下文
 
@@ -26,8 +26,9 @@ description: 为 MaaEnd 添加、导入或补充节点识别测试截图，并�
 4. 阅读 `docs/zh_cn/developers/node-testing.md`，再查看语义最接近的图片和 `tests/**/test_*.json`。以当前文档、schema 和 `maatools.config.mts` 为准，不沿用旧测试集格式。
 5. 从用户输入或目标路径确定：
     - 原始截图路径；
-    - `controller`：`ADB` 或 `Win32`；
+    - `controller`：`ADB`、`CloudADB`、`CloudWeb` 或 `Win32`；
     - `resource`：当前官服目录为 `Official_CN`，测试配置写 `官服`；
+    - `任务目录`：图片放在哪一层，和用例所在的 `tests/<任务>/` 同名（`tests/DeliveryJobs/` 对 `Official_CN/DeliveryJobs/`）；
     - 无扩展名图片名和目标 `test_*.json`；
     - 期望命中节点 `hits`，以及确需校验时的 `box`。
 
@@ -38,8 +39,10 @@ description: 为 MaaEnd 添加、导入或补充节点识别测试截图，并�
 图片使用：
 
 ```text
-tests/MaaEndTestset/<controller>/<resource>/<图片名>.png
+tests/MaaEndTestset/<controller>/<resource>/<任务目录>/<图片名>.png
 ```
+
+新拍的截图一律放进任务目录，不要直接放在 `<resource>` 根目录：根目录里那批是早期一张图一个界面的老位置，只有用例不写 `imageRoot` 时才会去那里找，堆在一起以后分不清属于哪个任务。
 
 测试文件使用：
 
@@ -59,11 +62,12 @@ tests/<功能或组件>/test_<测试主题>.json
         "controller": [
             "Win32",
             "ADB"
-        ]
+        ],
+        "imageRoot": "DeliveryJobs"
     },
     "cases": [
         {
-            "image": "四号谷地_地区建设_仓储节点_送货任务_确认转交.png",
+            "image": "送货任务_确认转交.png",
             "hits": [
                 "DeliveryJobsConfirmTaskTransfer"
             ]
@@ -81,14 +85,14 @@ tests/<功能或组件>/test_<测试主题>.json
 ```powershell
 uv run .agents/skills/maaend-test-image/scripts/redact_test_image.py `
   "C:\path\raw.png" `
-  "tests\MaaEndTestset\ADB\Official_CN\四号谷地_确认转交.png"
+  "tests\MaaEndTestset\ADB\Official_CN\DeliveryJobs\四号谷地_确认转交.png"
 ```
 
 脚本会先判定原图平台，再用 MaaEnd 自带的 OCR 模型脱敏：
 
 1. 校验截图为 1280×720；
-2. 按 UID 文字判定原图来自 `ADB` 还是 `Win32`（见下节），并校验与目标路径是否一致；
-3. 用纯绿色 `RGB(0, 255, 0)` 覆盖该平台的固定 ROI：ADB `[84, 690, 114, 18]`、Win32 `[70, 696, 90, 13]`；
+2. 按左下状态行的 UID 文字判定原图来自 `ADB`、`CloudADB` 还是 `Win32`（见下节），并校验与目标路径是否一致；`CloudWeb` 与 `CloudADB` 判定不出来，按同一族放行；
+3. 用纯绿色 `RGB(0, 255, 0)` 覆盖该平台的固定 ROI：ADB `[84, 690, 114, 18]`、CloudADB 与 CloudWeb `[18, 690, 114, 18]`、Win32 `[70, 696, 90, 13]`；
 4. 用 `assets/resource/model/ocr/` 查找包含 `UID` 或 `#` 的区域；
 5. 用同样的纯绿色覆盖 OCR 命中框；
 6. 原子写入目标 PNG，外部原图不会先进入仓库。
@@ -98,7 +102,7 @@ uv run .agents/skills/maaend-test-image/scripts/redact_test_image.py `
 ```powershell
 uv run .agents/skills/maaend-test-image/scripts/redact_test_image.py `
   "C:\path\raw.png" `
-  "tests\MaaEndTestset\Win32\Official_CN\功能_画面.png" `
+  "tests\MaaEndTestset\Win32\Official_CN\DeliveryJobs\功能_画面.png" `
   --extra-roi 1100,20,160,40 `
   --extra-roi 20,620,240,60
 ```
@@ -112,7 +116,7 @@ uv run .agents/skills/maaend-test-image/scripts/redact_test_image.py `
 - 图片内容、方向和 1280×720 分辨率未被改变；
 - 仓库中没有原始副本或 `.redacting-*` 临时文件。
 
-固定 ROI 在 OCR 之前就已经涂掉，所以固定 ROI 没盖全 UID 时，剩下的数字不含 `UID` / `#` 标记词，OCR 只会返回空结果、不会提示漏涂。两个平台的 UID 文字大小不同：把 ADB 截图按 Win32 的 ROI 打码会漏出尾部数字；把图放错平台目录同样会让用例失准，因为 `hits` 是按控制器矩阵跑的，ADB 截图在 Win32 矩阵下识别会失败。脚本会在打码前判定原图平台，与目标路径不一致时直接报错（确认平台无误时可用 `--skip-platform-check` 跳过，并用 `--extra-roi` 补齐遮盖范围）。
+固定 ROI 在 OCR 之前就已经涂掉，所以固定 ROI 没盖全 UID 时，剩下的数字不含 `UID` / `#` 标记词，OCR 只会返回空结果、不会提示漏涂。各平台的 UID 文字位置不同：把 ADB 截图按 Win32 的 ROI 打码会漏出尾部数字；把 CloudADB 截图按 ADB 的 ROI 打码会漏出整段 `UID:` 前缀（云客户端没有延迟指示，UID 整行左移到 x≈18 起）；把图放错平台目录同样会让用例失准，因为 `hits` 是按控制器矩阵跑的，ADB 截图在 Win32 矩阵下识别会失败。脚本会在打码前判定原图平台，与目标路径不一致时直接报错（确认平台无误时可用 `--skip-platform-check` 跳过，并用 `--extra-roi` 补齐遮盖范围）。
 
 OCR 只是辅助检查，视觉复核才是隐私安全的最终门槛。无法确认脱敏完整时，不要把图片加入测试或提交。
 
@@ -124,7 +128,15 @@ OCR 只是辅助检查，视觉复核才是隐私安全的最终门槛。无法�
 uv run .agents/skills/maaend-test-image/scripts/detect_screenshot_platform.py "C:\path\raw.png"
 ```
 
-判定依据是底部 HUD 的 UID 文字范围：ADB 的文字更大（右边界约 x=196、高约 10），落在 `[84, 690, 114, 18]` 内；Win32 约 x=157、高约 8，落在 `[70, 696, 90, 13]` 内。两套 ROI 和判定阈值都在这个脚本里，`redact_test_image.py` 直接复用。平台明确时退出码为 0，判不出来（`unknown` / `ambiguous`）时为 2。只能拿原始截图来判：打过码的图里 UID 已被绿色块盖住，脚本会报 `unknown`。
+判定依据是左下状态行的文字布局，先看有几个文字段、再看 UID 文字范围：
+
+- `CloudADB` / `CloudWeb`：左下角**没有**"信号格 + xx ms"延迟指示，只有 UID 一段文字，且 UID 贴着左边缘（x≈18 起、右边界约 x=130，CloudWeb 实测 x=18..101、y=700..707），落在 `[18, 690, 114, 18]` 内；两者光看这里分不开，脚本会判成 `CloudADB`；
+- `ADB`：有延迟指示，UID 跟在它右边（x≈88 起、右边界约 x=196、高约 10、上边界约 y=694），落在 `[84, 690, 114, 18]` 内；
+- `Win32`：有延迟指示，字号最小（UID 从 x≈73 起、右边界约 x=157、高约 8、上边界约 y=700），落在 `[70, 696, 90, 13]` 内。
+
+三套 ROI 和判定阈值都在这个脚本里，`redact_test_image.py` 直接复用。平台明确时退出码为 0，判不出来（`unknown` / `ambiguous`）时为 2。只能拿原始截图来判：打过码的图里 UID 已被色块盖住，脚本会报 `unknown`。
+
+状态行是否出现延迟指示，也可以自己看一眼确认：同一界面下 CloudADB 左下角只有 `UID: 数字`，ADB 和 Win32 则是 `信号格 + 41ms + UID: 数字`。
 
 ## 编写测试用例
 
@@ -164,6 +176,12 @@ uv run .agents/skills/maaend-test-image/scripts/detect_screenshot_platform.py "C
         274,
         48
     ],
+    "CloudADB": [
+        91,
+        587,
+        274,
+        48
+    ],
     "Win32": [
         100,
         600,
@@ -185,10 +203,11 @@ uv run .agents/skills/maaend-test-image/scripts/detect_screenshot_platform.py "C
 
 - `configs.controller` 与图片目录一致，可写字符串或数组。
 - `configs.resource` 与 `tests/scripts/loader.mts` 的映射一致；当前官服写 `官服`。
-- 不手写 `imageRoot`；loader 会根据矩阵自动生成。
+- `configs.imageRoot` 写任务目录名（图片所在的那层目录，如 `DeliveryJobs`），loader 会拼成 `<controller>/<resource>/<imageRoot>`；只有图片直接放在 `<resource>` 下的老用例才不写。
 - `image` 必须是实际文件名并带 `.png`，不得包含 `/` 或 `\`。
 - `hits` 必须存在，允许空数组。
 - 同一文件内不要重复添加相同 `image`；需要增加节点时合并到已有用例。
+- 同一份用例里所有 `hits` 节点会在该组每张图上一起检查：没写进某张图、却在它上面命中的节点，同样算失败（`should missed but hit`）。同一个节点在这张图命中、在另一张图不命中（例如某平台的画面上标记已经消失），就要拆成两份用例文件。
 - 测试文件允许 JSONC 注释，格式必须遵循仓库 Prettier（通常为 4 空格）。
 - 只编辑目标测试文件，不顺手修正其它已有测试。
 
@@ -204,7 +223,7 @@ pnpm test
 
 随后确认：
 
-1. 每个新增 `image` 在对应 controller/resource 的目录下都存在，且该目录的平台与原图平台一致（`redact_test_image.py` 导入时已校验，事后移动或补图时要复查）；
+1. 每个新增 `image` 都在对应的 `<controller>/<resource>/<imageRoot>` 目录下存在，且该目录的平台与原图平台一致（`redact_test_image.py` 导入时已校验，事后移动或补图时要复查）；
 2. `tests/maatools/error_details.json` 没有本次用例的错误；
 3. `git diff --check` 没有文本问题；
 4. `git status --short` 和目标文件 diff 只包含预期变更。

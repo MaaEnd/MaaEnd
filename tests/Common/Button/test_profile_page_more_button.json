@@ -1,0 +1,17 @@
+{
+    "configs": {
+        "name": "通用按钮，测试名片更多按钮",
+        "resource": "官服",
+        "controller": [
+            "Win32"
+        ]
+    },
+    "cases": [
+        {
+            "image": "好友_名片_权限等级与增辉.png",
+            "hits": [
+                "ProfilePageMoreButton"
+            ]
+        }
+    ]
+}

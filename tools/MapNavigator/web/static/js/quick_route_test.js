@@ -72,8 +72,7 @@ export function buildQuickRouteTestRequest(state, {zip = false} = {}) {
   };
   if (goal.targetTier) target.target_tier = goal.targetTier;
 
-  const customActionParam = {path: [target]};
-  if (zip) customActionParam.zip = true;
+  const customActionParam = {path: [target], zip};
   return {
     ok: true,
     request: {

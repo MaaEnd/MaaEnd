@@ -1,9 +1,51 @@
 {
+    "GameLauncherWakeMain": {
+        "desc": "Windows 第一阶段（前台截图+前台输入）：息屏时点击唤醒显示器，直到看到左侧终末地图标",
+        // 光标停在右侧栏工具箱图标上会悬停展开工具面板并遮挡开始游戏按钮，先把光标移到窗口左上角
+        "action": "TouchMove",
+        "target": [
+            10,
+            10,
+            1,
+            1
+        ],
+        "next": [
+            "GameLauncherEndfieldIconVisible",
+            "GameLauncherWakePressEsc"
+        ]
+    },
+    "GameLauncherWakePressEsc": {
+        "desc": "看不到左侧终末地图标时先按一次 Esc，收起遮挡启动器的开始菜单",
+        // Win10 开启全屏开始屏幕后从开始菜单睡眠，唤醒后开始菜单会盖住启动器，且系统不允许把启动器切到前台
+        // 实测无论是否有全屏开始菜单，按一次 Esc 都能收起开始菜单（息屏时同时唤醒显示器）；没有开始菜单时按 Esc 也不影响启动器；Win11 同样测试通过
+        "action": "ClickKey",
+        "key": 27,
+        "next": [
+            "GameLauncherEndfieldIconVisible",
+            "GameLauncherBlackScreenClick"
+        ]
+    },
+    "GameLauncherEndfieldIconVisible": {
+        "desc": "左侧终末地图标可见，唤醒阶段结束",
+        "recognition": "TemplateMatch",
+        "roi": [
+            20,
+            60,
+            100,
+            600
+        ],
+        "template": "GameLauncher/EndfieldIcon.png",
+        "green_mask": true,
+        "pre_delay": 0,
+        "post_delay": 0
+    },
     "GameLauncherMain": {
-        "desc": "在鹰角启动器中启动终末地",
+        "desc": "在鹰角启动器中启动终末地；Windows 第二阶段（后台截图+后台输入）",
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
             "GameLauncherSelectEndfield",
-            "GameLauncherBlackScreenClick"
+            "[JumpBack]GameLauncherBlackScreenClick"
         ]
     },
     "GameLauncherBlackScreenClick": {
@@ -29,7 +71,7 @@
         // 显示器从息屏唤醒需要 1~3 秒，期间画面一直是黑屏不变，无法用 post_wait_freezes 等待
         "post_delay": 2000,
         "next": [
-            "GameLauncherSelectEndfield",
+            "GameLauncherEndfieldIconVisible",
             "GameLauncherBlackScreenClick"
         ]
     },
@@ -60,7 +102,50 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "GameLauncherClickStartGame"
+            "GameLauncherClickStartGame",
+            "GameLauncherClickUpdateGame"
+        ]
+    },
+    "GameLauncherClickUpdateGame": {
+        "desc": "右下角按钮显示更新游戏，点击更新",
+        "recognition": "And",
+        "all_of": [
+            "GameLauncherStartGameYellow",
+            "GameLauncherUpdateGameText"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": 500,
+        "action": "Click",
+        "next": [
+            "GameLauncherUpdateConfirm"
+        ]
+    },
+    "GameLauncherUpdateConfirm": {
+        "desc": "点击更新游戏后弹出系统提示（所需空间），点击确认开始下载",
+        "recognition": "And",
+        "all_of": [
+            "GameLauncherUpdateConfirmTitle",
+            "GameLauncherUpdateConfirmText"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": 100,
+        "action": "Click",
+        "next": [
+            "GameLauncherUpdating"
+        ]
+    },
+    "GameLauncherUpdating": {
+        "desc": "更新进行中（下载/解压/安装/校验），等待按钮变回开始游戏",
+        "recognition": "And",
+        "all_of": [
+            "GameLauncherStartGameYellow",
+            "GameLauncherUpdatingText"
+        ],
+        // 更新耗时取决于补丁大小与网速，可达数十分钟，放慢识别频率
+        "rate_limit": 5000,
+        "next": [
+            "GameLauncherClickStartGame",
+            "GameLauncherUpdating"
         ]
     },
     "GameLauncherClickStartGame": {
@@ -102,6 +187,56 @@
     },
     "GameLauncherInGame": {
         "desc": "右下角按钮显示游戏中，启动成功",
+        "recognition": "Or",
+        "any_of": [
+            "GameLauncherInGameText",
+            "GameLauncherInGameGray"
+        ]
+    },
+    "GameLauncherMenuButton": {
+        "desc": "右下角开始游戏按钮右侧的三横线菜单按钮",
+        "recognition": "TemplateMatch",
+        "roi": [
+            -320,
+            -140,
+            320,
+            140
+        ],
+        "template": "GameLauncher/MenuButton.png"
+    },
+    "GameLauncherInGameGray": {
+        "desc": "右下角游戏中按钮的灰色底",
+        // 实测不同机器上按钮灰度为 136~160；OCR 偶尔会把"游戏中"漏读成"游中"
+        // 背景是动态画面，以三横线按钮为锚点只看其左侧的按钮主体
+        "recognition": "And",
+        "all_of": [
+            "GameLauncherMenuButton",
+            {
+                "recognition": "ColorMatch",
+                "roi": "GameLauncherMenuButton",
+                "roi_offset": [
+                    -163,
+                    -7,
+                    120,
+                    20
+                ],
+                "lower": [
+                    120,
+                    120,
+                    120
+                ],
+                "upper": [
+                    180,
+                    180,
+                    180
+                ],
+                "connected": true,
+                "count": 6000
+            }
+        ]
+    },
+    "GameLauncherInGameText": {
+        "desc": "右下角游戏中按钮",
         "recognition": "OCR",
         "roi": [
             -320,
@@ -117,13 +252,14 @@
         ]
     },
     "GameLauncherMinimized": {
-        "desc": "启动器点击开始游戏后会最小化，截图右下角为黑屏，视为启动成功",
+        "desc": "启动器点击开始游戏后会最小化，截图变为全黑，开始游戏按钮所在区域几乎全黑时视为启动成功",
+        // 启动器窗口为圆角，未最小化时截图四角也是黑边，不能只看角落
         "recognition": "ColorMatch",
         "roi": [
-            -40,
-            -40,
-            40,
-            40
+            -320,
+            -140,
+            320,
+            140
         ],
         "lower": [
             0,
@@ -136,7 +272,7 @@
             10
         ],
         "connected": true,
-        "count": 400
+        "count": 40000
     },
     "GameLauncherExit": {
         "desc": "不写这个节点 CI 会报错"
@@ -177,6 +313,72 @@
             "开始游戏",
             "開始遊戲",
             "(?i)\\bPlay\\b"
+        ]
+    },
+    "GameLauncherUpdateGameText": {
+        "desc": "右下角更新游戏按钮",
+        "recognition": "OCR",
+        "roi": [
+            -320,
+            -140,
+            320,
+            140
+        ],
+        "expected": [
+            // @i18n-skip
+            "更新游戏",
+            "更新遊戲"
+        ]
+    },
+    "GameLauncherUpdatingText": {
+        "desc": "右下角按钮显示更新进度状态",
+        "recognition": "OCR",
+        "roi": [
+            -320,
+            -140,
+            320,
+            140
+        ],
+        "expected": [
+            // @i18n-skip
+            "正在下载",
+            "正在下載",
+            "解压中",
+            "解壓中",
+            "安装中",
+            "安裝中",
+            "校验中",
+            "校驗中"
+        ]
+    },
+    "GameLauncherUpdateConfirmTitle": {
+        "desc": "更新确认弹窗标题",
+        "recognition": "OCR",
+        "roi": [
+            560,
+            240,
+            160,
+            50
+        ],
+        "expected": [
+            // @i18n-skip
+            "系统提示",
+            "系統提示"
+        ]
+    },
+    "GameLauncherUpdateConfirmText": {
+        "desc": "更新确认弹窗的确认按钮",
+        "recognition": "OCR",
+        "roi": [
+            640,
+            420,
+            220,
+            60
+        ],
+        "expected": [
+            // @i18n-skip
+            "确认",
+            "確認"
         ]
     }
 }

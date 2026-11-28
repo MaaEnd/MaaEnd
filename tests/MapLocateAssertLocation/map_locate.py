@@ -15,12 +15,12 @@ from PIL import Image
 
 
 def collect_nodes(root: Path) -> dict:
-    """列出 Route1–17、CommonRoute1–8 的定位节点，排除未注册的 Route999。"""
+    """列出各地区采集路线的定位节点。"""
     nodes = {}
-    for file in sorted((root / "assets/resource/pipeline/AutoCollect").glob("*.json")):
+    for file in sorted((root / "assets/resource/pipeline/AutoCollect").glob("*/*.json")):
         for name, node in json5.loads(file.read_text(encoding="utf-8")).items():
             if (
-                re.fullmatch(r"AutoCollect(?:CommonRoute[1-8]|Route(?:[1-9]|1[0-7]))AssertLocation\d*", name)
+                re.fullmatch(r"AutoCollect\w+AssertLocation\d*", name)
                 and node.get("custom_recognition") == "MapLocateAssertLocation"
             ):
                 nodes[name] = node["custom_recognition_param"]
@@ -142,6 +142,7 @@ def run_cases(root: Path, log_dir: Path, cases: list[dict], report: dict) -> Non
     env = os.environ.copy()
     env["PATH"] = os.pathsep.join([str(install / "agent"), str(install / "maafw"), env.get("PATH", "")])
     env["LD_LIBRARY_PATH"] = os.pathsep.join([str(install / "maafw"), env.get("LD_LIBRARY_PATH", "")])
+    env["PI_USER_DATA_DIR"] = str(log_dir)
     options = {"creationflags": subprocess.CREATE_NO_WINDOW} if os.name == "nt" else {}
     client, process = None, None
     with (log_dir / "agent.log").open("w", encoding="utf-8") as agent_log:
@@ -159,7 +160,7 @@ def run_cases(root: Path, log_dir: Path, cases: list[dict], report: dict) -> Non
             if not client.bind(resource) or not client.set_timeout(30_000):
                 raise RuntimeError("C++ Agent 客户端初始化失败")
             process = subprocess.Popen(
-                [str(executable), identifier], cwd=log_dir, env=env,
+                [str(executable), identifier], cwd=install, env=env,
                 stdout=agent_log, stderr=subprocess.STDOUT, **options,
             )
             if not client.connect() or process.poll() is not None:

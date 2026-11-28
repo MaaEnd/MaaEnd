@@ -1,75 +1,59 @@
 {
-    "EssenceFilterMainFailed": {
-        "desc": "入口点失败",
+    "EssenceFilterEntry": {
+        "desc": "筛选模式入口",
+        "enabled": false,
+        "max_hit": 1,
         "pre_delay": 0,
         "action": {
-            "type": "DoNothing"
-        },
-        "post_delay": 0,
-        "next": [
-            "EssenceFilterFinish"
-        ],
-        "focus": {
-            "Node.Action.Failed": "未能进入基质界面，结束任务"
-        }
-    },
-    "EssenceFilterCheckInInventory": {
-        "desc": "检查是否在背包Essence页（已选中武器基质页签）",
-        "recognition": {
-            "type": "TemplateMatch",
+            "type": "Custom",
             "param": {
-                "roi": [
-                    435,
-                    3,
-                    150,
-                    49
-                ],
-                "template": "EssenceFilter/EssenceTabChoose.png",
-                "threshold": 0.9
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "EssenceFilterNavigateToInventory"
+                    ]
+                }
             }
         },
-        "pre_delay": 0,
+        "anchor": {
+            "EssenceFilterScanResult": "FailedNode"
+        },
         "post_delay": 0,
-        "timeout": 2000,
         "next": [
             "EssenceFilterInit"
-        ],
-        "on_error": [
-            "EssenceFilterNavigateToInventory"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": "确认在基质界面"
-        }
+        ]
     },
-    "EssenceFilterNavigateToInventory": {
-        "desc": "导航",
+    "EssenceFilterInventoryEntry": {
+        "desc": "库存盘点模式入口",
+        "enabled": false,
+        "max_hit": 1,
         "pre_delay": 0,
-        "action": "DoNothing",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "EssenceFilterNavigateToInventory"
+                    ]
+                }
+            }
+        },
+        "anchor": {
+            "EssenceFilterScanResult": "FailedNode"
+        },
         "post_delay": 0,
         "next": [
-            "EssenceFilterFinish"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": "不在基质界面"
-        }
+            "EssenceFilterInventoryInit"
+        ]
     },
     "EssenceFilterInit": {
         "desc": "初始化：加载数据与预设",
-        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
                 "custom_action": "EssenceFilterInitAction"
             }
-        },
-        "post_wait_freezes": {
-            "time": 50,
-            "target": [
-                38,
-                398,
-                922,
-                198
-            ]
         },
         "post_delay": 0,
         "next": [
@@ -77,6 +61,33 @@
         ],
         "focus": {
             "Node.Action.Succeeded": "初始化完成"
+        },
+        "attach": {
+            "mode": "filter"
+        }
+    },
+    "EssenceFilterInventoryInit": {
+        "desc": "只读盘点已锁定且适配五星、六星武器的无瑕基质",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "EssenceFilterInitAction"
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "EssenceGridAdvance"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "初始化完成"
+        },
+        "attach": {
+            "mode": "inventory",
+            "flawless_essence": true,
+            "pure_essence": true,
+            "rarity5_weapon": true,
+            "rarity6_weapon": true
         }
     },
     "EssenceFilterFinish": {
@@ -89,8 +100,21 @@
             }
         },
         "post_delay": 0,
+        "next": [
+            "EssenceFilterScanCompleted"
+        ],
+        "on_error": [
+            "FailedNode"
+        ],
         "focus": {
             "Node.Action.Succeeded": "任务完成"
         }
+    },
+    "EssenceFilterScanCompleted": {
+        "pre_delay": 0,
+        "anchor": {
+            "EssenceFilterScanResult": "EmptyNode"
+        },
+        "post_delay": 0
     }
 }

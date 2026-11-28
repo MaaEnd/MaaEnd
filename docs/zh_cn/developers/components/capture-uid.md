@@ -112,11 +112,10 @@ captureuid.ClearCache()
 | 使用方 | 文件 | 方式 | 用途 |
 | ---------------------- | ------------------------------------------------------------------------------------ | ------------------------- | ------------------------ |
 | AutoStockpile selector | `agent/go-service/autostockpile/selector.go` | Go API（`Capture`） | 上传物价时关联伪匿名身份 |
-| CreditShopping | `agent/go-service/creditshopping/action_record.go` | Go API（`Capture`） | 记录货架快照时关联 UID |
 | OutpostTrading | `assets/resource/pipeline/OutpostTrading.json`（`OutpostTradingCaptureUid` 节点）、`agent/go-service/outposttrading/operator/cache.go` | Pipeline（`CaptureUid`）+ Go API（`GetCachedUID`） | 按账号隔离干员缓存 |
 | AccountSwitch | `assets/resource/pipeline/AccountSwitch.json`（`__AccountSwitchClearUidCache` 节点） | Pipeline（`clear_cache`） | 切换账号后清空缓存 |
 | SceneImageCheck | `assets/resource/pipeline/SceneManager/SceneImageCheck.json`（`__SceneImageCaptureUid`） | Pipeline（空参 `CaptureUid`） | 场景画面检查时发布 `CurrentAccountIdentity` |
-| MapNavigator | `assets/resource/pipeline/Common/AccountIdentity.json` | Resource 通用状态节点 | 运行时自动选择当前账号的滑索记录 |
+| MapNavigator | `assets/resource/pipeline/Common/AccountIdentity.json`、`assets/resource/pipeline/MapNavigator/Zipline.json`（`MapNavigatorZiplineCaptureUid` 节点） | Resource 通用状态节点 + Pipeline（空参 `CaptureUid`） | 运行时自动选择当前账号的滑索记录，读不到账号标识时先捕获一次 |
 | ZiplineImport（Linux） | `agent/go-service/ziplineimport/parse.go` | Go API（`AccountIDFromRawUID`） | 从网页 `roleId` 生成同一账号标识，按账号落盘滑索记录 |
 
 `AccountSwitch` 成功后还会把场景图像检查状态重置为未完成，使同一次任务队列中的下一个场景任务重新做画面检查；同时清空 UID 缓存与 `CurrentAccountIdentity`，避免沿用切号前的账号身份。

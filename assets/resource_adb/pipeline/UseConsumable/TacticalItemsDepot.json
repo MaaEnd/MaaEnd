@@ -1,0 +1,64 @@
+{
+    "UseConsumableTacticalFindDepotItem": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    30,
+                    160,
+                    710,
+                    370
+                ]
+            }
+        }
+    },
+    "UseConsumableTacticalDepotTransferBegin": {
+        "desc": "ADB 触点 4 按住仓库目标物品并打开转移菜单",
+        "action": "TouchDown",
+        "target": "UseConsumableTacticalFindDepotItem",
+        "target_offset": [
+            26,
+            25,
+            -52,
+            -50
+        ],
+        "contact": 4,
+        "auto_up": true,
+        "post_delay": 1000,
+        "next": [
+            "UseConsumableTacticalDepotTransferMenuClick"
+        ]
+    },
+    "UseConsumableTacticalDepotTransferMenuClick": {
+        "desc": "ADB 触点 0 点击转移到背包菜单图标",
+        "recognition": "TemplateMatch",
+        "roi": [
+            937,
+            128,
+            309,
+            212
+        ],
+        "template": "UseConsumable/TransferToBackpack.png",
+        "threshold": 0.8,
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "custom_action": "AutoAltClickAction",
+            "wait_node": "UseConsumableTacticalDepotTransferMenuClick",
+            "repeat_count": 5,
+            "interval_ms": 500
+        },
+        "rate_limit": 250,
+        "next": [
+            "UseConsumableTacticalDepotTransferRelease"
+        ]
+    },
+    "UseConsumableTacticalDepotTransferRelease": {
+        "desc": "ADB 释放仓库物品触点并完成补充",
+        "recognition": "DirectHit",
+        "action": "TouchUp",
+        "contact": 4,
+        "next": [
+            "UseConsumableTacticalFinish"
+        ]
+    }
+}

@@ -181,6 +181,71 @@
             "[JumpBack]SceneEnterMapValleyIVAburreyQuarry"
         ]
     },
+    "SceneEnterWorldValleyIVOriginiumScienceParkCliffsideTrail": {
+        "desc": "从任意界面进入四号谷地-源石研究园-崖边山道大世界",
+        "pre_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": "__ScenePrivateMapValleyIVOriginiumScienceParkEnterWorldValleyIVOriginiumScienceParkCliffsideTrail"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMapValleyIVOriginiumScienceParkEnterWorldAnchorWithPick",
+            "[JumpBack]SceneEnterMapValleyIVOriginiumSciencePark"
+        ]
+    },
+    "SceneEnterWorldValleyIVOriginiumScienceParkOriginiumSciencePark": {
+        "desc": "从任意界面进入四号谷地-源石研究园-源石实验园区大世界",
+        "pre_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": "__ScenePrivateMapValleyIVOriginiumScienceParkEnterWorldValleyIVOriginiumScienceParkOriginiumSciencePark"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMapValleyIVOriginiumScienceParkEnterWorldAnchorWithPick",
+            "[JumpBack]SceneEnterMapValleyIVOriginiumSciencePark"
+        ]
+    },
+    "SceneEnterWorldValleyIVOriginiumScienceParkMountainPathSlope": {
+        "desc": "从任意界面进入四号谷地-源石研究园-山道缓坡大世界",
+        "pre_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": "__ScenePrivateMapValleyIVOriginiumScienceParkEnterWorldValleyIVOriginiumScienceParkMountainPathSlope"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMapValleyIVOriginiumScienceParkEnterWorldAnchorWithPick",
+            "[JumpBack]SceneEnterMapValleyIVOriginiumSciencePark"
+        ]
+    },
+    "SceneEnterWorldValleyIVOriginiumScienceParkRoute5": {
+        "desc": "从任意界面进入四号谷地-源石研究园-五号公路大世界",
+        "pre_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": "__ScenePrivateMapValleyIVOriginiumScienceParkEnterWorldValleyIVOriginiumScienceParkRoute5"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMapValleyIVOriginiumScienceParkEnterWorldAnchorWithPick",
+            "[JumpBack]SceneEnterMapValleyIVOriginiumSciencePark"
+        ]
+    },
+    "SceneEnterWorldValleyIVOriginiumScienceParkKohlPlant": {
+        "desc": "从任意界面进入四号谷地-源石研究园-醇化合物工厂大世界",
+        "pre_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": "__ScenePrivateMapValleyIVOriginiumScienceParkEnterWorldValleyIVOriginiumScienceParkKohlPlant"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMapValleyIVOriginiumScienceParkEnterWorldAnchorWithPick",
+            "[JumpBack]SceneEnterMapValleyIVOriginiumSciencePark"
+        ]
+    },
     "SceneEnterWorldValleyIVOriginLodespringMiningAreaClinic": {
         "desc": "从任意界面进入四号谷地-矿脉源区-矿区医疗站大世界",
         "pre_delay": 0,
@@ -194,11 +259,102 @@
             "[JumpBack]SceneEnterMapValleyIVOriginLodespring"
         ]
     },
+    "SceneEnterWorldValleyIVOriginLodespringOriginiumPassage": {
+        "desc": "从任意界面进入四号谷地-矿脉源区-源石隧道大世界",
+        "pre_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": "__ScenePrivateMapValleyIVOriginLodespringEnterWorldValleyIVOriginLodespringOriginiumPassage"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMapValleyIVOriginLodespringEnterWorldAnchorWithPick",
+            "[JumpBack]SceneEnterMapValleyIVOriginLodespring"
+        ]
+    },
+    "SceneEnterWorldValleyIVOriginLodespringLogisticsArea": {
+        "desc": "从任意界面进入四号谷地-矿脉源区-运输区大世界",
+        "pre_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": "__ScenePrivateMapValleyIVOriginLodespringEnterWorldValleyIVOriginLodespringLogisticsArea"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMapValleyIVOriginLodespringEnterWorldAnchorWithPick",
+            "[JumpBack]SceneEnterMapValleyIVOriginLodespring"
+        ]
+    },
+    "SceneEnterWorldValleyIVOriginLodespringOldMines": {
+        "desc": "从任意界面进入四号谷地-矿脉源区-旧矿区大世界",
+        "pre_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": "__ScenePrivateMapValleyIVOriginLodespringEnterWorldValleyIVOriginLodespringOldMines"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMapValleyIVOriginLodespringEnterWorldAnchorWithPick",
+            "[JumpBack]SceneEnterMapValleyIVOriginLodespring"
+        ]
+    },
+    "SceneEnterWorldValleyIVOriginLodespringLandbreakerCamp": {
+        "desc": "从任意界面进入四号谷地-矿脉源区-裂地者营地大世界",
+        "pre_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": "__ScenePrivateMapValleyIVOriginLodespringEnterWorldValleyIVOriginLodespringLandbreakerCamp"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMapValleyIVOriginLodespringEnterWorldAnchorWithPick",
+            "[JumpBack]SceneEnterMapValleyIVOriginLodespring"
+        ]
+    },
     "SceneEnterWorldValleyIVPowerPlateauEvacuationZone": {
         "desc": "从任意界面进入四号谷地-供能高地-疏散区大世界",
         "pre_delay": 0,
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": "__ScenePrivateMapValleyIVPowerPlateauEnterWorldValleyIVPowerPlateauEvacuationZone"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMapValleyIVPowerPlateauEnterWorldAnchorWithPick",
+            "[JumpBack]SceneEnterMapValleyIVPowerPlateau"
+        ]
+    },
+    "SceneEnterWorldValleyIVPowerPlateauPowerPlantCommStation": {
+        "desc": "从任意界面进入四号谷地-供能高地-电站通信站大世界",
+        "pre_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": "__ScenePrivateMapValleyIVPowerPlateauEnterWorldValleyIVPowerPlateauPowerPlantCommStation"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMapValleyIVPowerPlateauEnterWorldAnchorWithPick",
+            "[JumpBack]SceneEnterMapValleyIVPowerPlateau"
+        ]
+    },
+    "SceneEnterWorldValleyIVPowerPlateauPlateauTrunkway": {
+        "desc": "从任意界面进入四号谷地-供能高地-高地主路大世界",
+        "pre_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": "__ScenePrivateMapValleyIVPowerPlateauEnterWorldValleyIVPowerPlateauPlateauTrunkway"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMapValleyIVPowerPlateauEnterWorldAnchorWithPick",
+            "[JumpBack]SceneEnterMapValleyIVPowerPlateau"
+        ]
+    },
+    "SceneEnterWorldValleyIVPowerPlateauUnitedParkingLot": {
+        "desc": "从任意界面进入四号谷地-供能高地-联盟停车场大世界",
+        "pre_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": "__ScenePrivateMapValleyIVPowerPlateauEnterWorldValleyIVPowerPlateauUnitedParkingLot"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -624,7 +780,7 @@
         ]
     },
     "SceneEnterWorldWulingMarkerStoneCloudrestGrotto": {
-        "desc": "从任意界面进入武陵-首墩-栖云窟大世界",
+        "desc": "从任意界面进入武陵-首墩-栖云林地大世界",
         "pre_delay": 0,
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": "__ScenePrivateMapWulingMarkerStoneEnterWorldWulingMarkerStoneCloudrestGrotto"

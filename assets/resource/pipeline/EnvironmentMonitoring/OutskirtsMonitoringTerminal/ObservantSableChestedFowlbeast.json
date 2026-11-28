@@ -93,7 +93,7 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "CheckObservantSableChestedFowlbeastJob": {
+    "CheckObservantSableChestedFowlbeastJobText": {
         "desc": "检查东张西望的黑腹雉羽兽委托是否可以接取",
         "recognition": "OCR",
         "roi": "CheckObservantSableChestedFowlbeastIcon",
@@ -162,7 +162,7 @@
         "all_of": [
             "CheckObservantSableChestedFowlbeastText",
             "CheckObservantSableChestedFowlbeastIcon",
-            "CheckObservantSableChestedFowlbeastJob"
+            "CheckObservantSableChestedFowlbeastJobText"
         ],
         "box_index": 2,
         "pre_delay": 0,
@@ -234,7 +234,7 @@
         "desc": "东张西望的黑腹雉羽兽任务已经在追踪中",
         "recognition": "And",
         "all_of": [
-            "AlreadyTrackedMissionButton",
+            "CheckAlreadyTrackingText",
             "InObservantSableChestedFowlbeastMission"
         ],
         "pre_delay": 0,
@@ -438,12 +438,12 @@
         "desc": "在东张西望的黑腹雉羽兽任务拍照点开始拍照",
         "pre_delay": 0,
         "anchor": {
-            "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal"
+            "TakePhotoDone": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "EnvironmentMonitoringTakePhoto"
+            "TakePhoto"
         ]
     }
 }

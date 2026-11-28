@@ -142,17 +142,17 @@ Action 节点用于执行自定义动作。常见写法如下：
 
 ### CameraScanAction
 
-`CameraScanAction` 实现位于 `agent/go-service/common/camerascan`，用于在拍照模式中分步移动镜头并识别目标。动作从中心按九宫格螺旋扫描前方区域；仍未命中时，复位镜头并按中、上、下三档俯仰分别离散旋转一圈。每一步移动前、后各截图识别一次（一步可能连续移动多格，中间不识别），复位那一步不识别；任一目标命中即成功，完整扫描后仍未命中则失败。
+`CameraScanAction` 实现位于 `agent/go-service/common/camerascan`，用于在拍照模式中分步移动镜头并识别目标。动作从中心按 5 × 5 螺旋扫描前方区域，每个机位相差一个方向节点的一步（半格，约 22.5°）；仍未命中时，摇回中心并按中、上、下三档俯仰分别转一圈（每圈 8 次转动、每次 2 步，合计约一整圈）。每个机位移动后只识别一次（一步可能连续移动多格，中间不识别），摇回中心那一步不识别；任一目标命中即成功，完整扫描后仍未命中则失败。
 
-- `wait_nodes: string[]`：每一步移动前、后检查的 Pipeline 识别节点，必填；任一节点命中即成功。复位那一步不检查。
+- `wait_nodes: string[]`：每个机位移动后检查的 Pipeline 识别节点，必填；任一节点命中即成功。摇回中心那一步不检查。
 - `aim_target?: bool`：命中后是否从屏幕中心滑向该识别结果的 `Box` 中心，默认 `false`。
 - `move_up?: string`：上移镜头节点，默认 `__CameraScanMoveUp`。
 - `move_down?: string`：下移镜头节点，默认 `__CameraScanMoveDown`。
 - `move_left?: string`：左移镜头节点，默认 `__CameraScanMoveLeft`。
 - `move_right?: string`：右移镜头节点，默认 `__CameraScanMoveRight`。
-- `fallback_yaw_steps?: int`：fallback 每档俯仰绕圈的离散步数，默认 `8`，范围 `[4, 72]`。
+- `fallback_yaw_steps?: int`：fallback 每档俯仰绕圈的离散步数，默认 `8`（每步 2 个方向节点步，8 步约一整圈），范围 `[4, 72]`。
 
-镜头移动通过 `ctx.RunTask` 执行对应方向节点（默认节点见 `Common/Private/CameraScan/Action.json`）。需要等待画面静止时，在调用方自定义的方向节点上配置 `post_wait_freezes`。对准目标时仍使用私有节点 `__CameraScanAimSwipe`。
+镜头移动通过 `ctx.RunTask` 执行对应方向节点（默认节点见 `Common/Private/CameraScan/Action.json`）。方向节点默认带 `post_wait_freezes`（`time` 40ms、`timeout` 200ms、阈值 0.95、`rate_limit` 40ms）：滑屏结束后等画面静止再返回，避免拿镜头还在转的那一帧去做识别。比较区域写的是拍照停止节点 `__TakePhotoShutter` 的搜索范围并集 `[0, 100, 1174, 580]`，不是全屏——全屏会把界面动画一起算进去，导致每格都等满 `timeout`。换用别的 `wait_nodes` 时，把这几个方向节点的 `target` 改成对应节点的 `roi`，或改用自定义方向节点。每格都等一次，嫌慢可以调小 `timeout`。对准目标时仍使用私有节点 `__CameraScanAimSwipe`。
 
 ### PipelineOverride
 
@@ -253,6 +253,17 @@ PC 上悬停滑动从画面中心移到当前识别框，等待 200 毫秒后点
 - 参数：无。
 
 目标位置由 Pipeline 节点的 `box` 决定。
+
+### EveryNthHitReset
+
+`EveryNthHitReset` 实现位于 `agent/go-service/common/everynthhit`，用于把 `EveryNthHit` 在指定 `key` 上的计数清零，让下一趟从第 1 次重新开始数。
+
+- 参数：
+    - `key: string`：计数器标识，必填。须与 `EveryNthHit` 使用同一个 `key` 才能复位对应计数。
+
+对应 `key` 还没有计数时同样直接返回成功；`key` 为空或 `custom_action_param` 不是合法 JSON 时记录 error 日志并返回失败。
+
+示例文件：[`EveryNthHit.json`](../../../assets/resource/pipeline/Interface/Example/EveryNthHit.json)
 
 ---
 
@@ -559,6 +570,77 @@ Pipeline 布局与 `ListCompleteRecognition` 相同：将本识别放在滚动�
 
 省略某个工作日标志时，默认视为 `false`（当天不执行）。若当天不在调度范围内，该 Recognition 会通过 `maafocus` 输出本地化提示（`schedule.skip_today`）并返回未命中。
 
+### CountDownAction
+
+`CountDownAction` 实现位于 `agent/go-service/common/countdown`。等待一段时间，并在运行日志输出倒计时。
+
+剩余时间按总时长分档输出：总时长不超过 10 秒时只输出开始和结束；不超过 5 分钟时每 30 秒输出一次；超过 5 分钟时每 60 秒输出一次。
+
+参数：
+
+- `useOCRResult: bool`：可选，默认 `false`。是否使用当前节点的 OCR 识别结果作为等待时长。启用后忽略 `duration`，仍按 `duration_type` 解析 OCR 文本。
+- `duration: int | string`：`useOCRResult` 为 `false` 时必填。本次等待时长，具体格式和单位由 `duration_type` 决定，解析后的时长必须大于零且不超过 24 小时。
+- `duration_type: int`：可选，默认 `0`。等待时长的格式和单位：
+    - `0`：毫秒，使用整数，例如 `3000` 表示 3 秒。
+    - `1`：秒，使用整数，例如 `60` 表示 1 分钟。
+    - `2`：分钟，使用整数，例如 `20` 表示 20 分钟。
+    - `10`：Go duration 字符串，例如 `"1h20m30s"`。`h`、`m`、`s` 分别表示小时、分钟和秒，各部分可以省略，例如 `"20m"`、`"1h30s"`。
+    - `11`：`hh:mm:ss` 或 `mm:ss` 字符串，例如 `"01:20:30"`、`"20:30"`，支持中文冒号 `：`。
+- `duration_format_hms: string`：可选，默认 `countdown.format.hms`。剩余时间达到或超过 1 小时时使用的 i18n 键。
+- `duration_format_ms: string`：可选，默认 `countdown.format.ms`。剩余时间达到 1 分钟但不足 1 小时时使用的 i18n 键。
+- `duration_format_s: string`：可选，默认 `countdown.format.s`。剩余时间不足 1 分钟时使用的 i18n 键。
+    - `duration_format_s`中可以使用`{ss}`代表有前导0的秒数，`3`会被格式化为`03`；`{s}`则代表无前导0的秒数，`3`会原样输出。
+    - `duration_format_ms`中除了`{ss}`和`{s}`之外，还可以使用`{mm}`代表有前导0的分钟数，`{m}`代表无前导0的分钟数。
+    - `duration_format_hms`中除了`{mm}`、`{m}`、`{ss}`和`{s}`之外，还可以使用`{hh}`代表有前导0的小时数，`{h}`代表无前导0的小时数。
+- `step_message: string`：可选，默认 `countdown.message.step`。倒计时更新时输出的日志文案，填写 i18n 键。对应文案必须包含一个 `%s`，用于接收格式化后的剩余时间。
+- `done_message: string`：可选，默认 `countdown.message.done`。倒计时正常结束时输出的日志文案，填写 i18n 键。对应文案可以包含一个 `%s`，用于接收格式化后的本次等待时长。
+- `stop_message: string`：可选，默认 `countdown.message.stop`。倒计时因任务停止而提前结束时输出的日志文案，填写 i18n 键。
+- `complex_conf: object`：可选。复杂模式配置，用于设置累计等待时长上限和单次最大等待时长：
+    - `complex_mode: int`：可选，默认 `0`。`0` 表示关闭复杂模式；`1` 表示等待时长超过累计等待时长上限时直接跳过；`2` 表示等待时长超过累计等待时长上限时，按该上限等待。
+    - `long_duration_max: int | string`：可选。累计等待时长上限，按 `long_duration_type` 解析。复杂模式启用时必填，必须大于零且不超过 24 小时的值。
+    - `long_duration_type: int`：可选，默认 `0`。累计等待时长上限的格式和单位，取值与 `duration_type` 相同：`0` 为毫秒整数，`1` 为秒整数，`2` 为分钟整数，`10` 为 Go duration 字符串，`11` 为 `hh:mm:ss` 或 `mm:ss` 字符串。
+    - `long_duration_step_max: int`：可选，默认 `1200`。单次最大等待时长，单位为秒，即默认每次最多等待 20 分钟。
+    - `reset_start_time: bool`：可选，默认 `false`。复杂模式下，是否重新开始累计时间的计时，在预期的一批倒计时的第一次调用时，建议使用true，后续必须使用false。
+
+示例：
+
+```json
+{
+    "action": {
+        "type": "Custom",
+        "param": {
+            "custom_action": "CountDownAction",
+            "custom_action_param": {
+                "duration": 3000
+            }
+        }
+    }
+}
+```
+
+### EveryNthHit
+
+`EveryNthHit` 实现位于 `agent/go-service/common/everynthhit`，用于「每评估 N 次命中一次」的计数节流：该节点每被评估一次，对应 `key` 的计数加一，数到第 `every` 次时返回命中并把计数清零。
+
+**命中语义：`true` = 本次正好数到第 N 次（计数已清零）；`false` = 其余所有情况。**
+
+参数：
+
+- `key: string`：计数器标识，必填。计数按 `key` 隔离，不同 `key` 互不影响。
+- `every: int`：每评估多少次命中一次，必填。必须为正整数（`>= 1`）。
+
+行为：
+
+1. 计数保存在 go-service 进程内，按 `key` 隔离，不写入 Pipeline 的 `attach`；任务停止或重新进入不会自动清零。
+2. `every <= 0` 时不计数、不命中，识别始终返回 `false`，并记录一条 warn 日志；非整数值在 JSON 解析阶段就失败。
+3. 第 N 次命中后计数归零，下一次评估从 `1` 重新开始。
+4. 命中时以原生 `roi` 作为 `Box` 返回。
+5. 需要每趟都从干净计数开始时，用 `EveryNthHitReset` 复位同一个 `key`。
+
+注意：计数只随「评估」增长，节点被主循环反复轮询同样会消耗计数；只希望在真正走到该节点时计数，应把它放在明确的流程分支上。`key` 为空或 `custom_recognition_param` 不是合法 JSON 时记录 error 日志并返回未命中，不会 panic。
+
+示例文件：[`EveryNthHit.json`](../../../assets/resource/pipeline/Interface/Example/EveryNthHit.json)
+
 ## 小结
 
 写 Pipeline 时，内置的 `TemplateMatch` / `OCR` / `Click` / `Swipe` 能解决绝大多数需求。遇到它们搞不定的——比如要比较两个 OCR 数值、运行时动态调参数、批量跑子任务——再来查这篇，看有没有现成的 Custom 能用。
@@ -584,5 +666,8 @@ Pipeline 布局与 `ListCompleteRecognition` 相同：将本识别放在滚动�
 | 在指定位置 Ctrl + 点击 | `AutoCtrlClickAction` |
 | Alt + 滑动 | `AutoAltSwipeAction` |
 | 从画面中心悬停到识别框后再点击 | `AutoSwipeClickAction` |
+| 阻塞倒计时等待 | `CountDownAction` |
+| 每评估 N 次命中一次 | `EveryNthHit` |
+| 清零 EveryNthHit 的计数 | `EveryNthHitReset` |
 
 所有 Custom 的 Go 代码实现在 `agent/go-service/` 下，Pipeline 作者不需要关心，照文档参数写 JSON 就行。

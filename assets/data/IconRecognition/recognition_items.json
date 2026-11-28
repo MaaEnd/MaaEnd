@@ -272,6 +272,17 @@
         "sortId1": -21,
         "sortId2": 15
     },
+    "item_birthday_ap_supply_2027": {
+        "name": "第二年的生日蛋糕",
+        "category": "珍贵物品",
+        "storageKind": "ValuableDepot",
+        "categoryType": "CommercialItem",
+        "rarity": 5,
+        "iconId": "item_birthday_ap_supply_2027",
+        "fluidIconId": "",
+        "sortId1": -21,
+        "sortId2": 20
+    },
     "item_bottled_flower1spc_1": {
         "name": "小瓶荞复锭剂",
         "category": "可用道具",
@@ -578,7 +589,7 @@
         "iconId": "item_byproduct_bean_1",
         "fluidIconId": "",
         "sortId1": -1101,
-        "sortId2": 1
+        "sortId2": 30
     },
     "item_byproduct_bean_moss_1": {
         "name": "球豆壳粉末",
@@ -589,7 +600,7 @@
         "iconId": "item_byproduct_bean_moss_1",
         "fluidIconId": "",
         "sortId1": -1101,
-        "sortId2": 1
+        "sortId2": 31
     },
     "item_byproduct_potato_1": {
         "name": "平薯叶",
@@ -600,7 +611,7 @@
         "iconId": "item_byproduct_potato_1",
         "fluidIconId": "",
         "sortId1": -1101,
-        "sortId2": 1
+        "sortId2": 27
     },
     "item_byproduct_potato_moss_1": {
         "name": "平薯叶粉末",
@@ -611,7 +622,7 @@
         "iconId": "item_byproduct_potato_moss_1",
         "fluidIconId": "",
         "sortId1": -1101,
-        "sortId2": 1
+        "sortId2": 28
     },
     "item_carbon_enr": {
         "name": "稳定碳块",
@@ -831,7 +842,7 @@
         "iconId": "item_case_wpn_selfselect_bp_1",
         "fluidIconId": "",
         "sortId1": -20,
-        "sortId2": 121
+        "sortId2": 120
     },
     "item_case_wpn_selfselect_bp_2": {
         "name": "武器补给·暗流",
@@ -842,7 +853,7 @@
         "iconId": "item_case_wpn_selfselect_bp_2",
         "fluidIconId": "",
         "sortId1": -20,
-        "sortId2": 122
+        "sortId2": 121
     },
     "item_case_wpn_selfselect_bp_3": {
         "name": "武器补给·怒潮",
@@ -898,6 +909,17 @@
         "fluidIconId": "",
         "sortId1": -20,
         "sortId2": 126
+    },
+    "item_case_wpn_selfselect_bp_8": {
+        "name": "武器补给·蘑境",
+        "category": "珍贵物品",
+        "storageKind": "ValuableDepot",
+        "categoryType": "CommercialItem",
+        "rarity": 6,
+        "iconId": "item_case_wpn_selfselect_bp_8",
+        "fluidIconId": "",
+        "sortId1": -20,
+        "sortId2": 127
     },
     "item_case_wpn_selfselect_common_advlevel": {
         "name": "臻选武器补给",
@@ -1075,6 +1097,39 @@
         "sortId1": -20,
         "sortId2": 315
     },
+    "item_case_wpn_selfselect_gahca_1_6_2": {
+        "name": "补充武库箱·月映",
+        "category": "珍贵物品",
+        "storageKind": "ValuableDepot",
+        "categoryType": "CommercialItem",
+        "rarity": 6,
+        "iconId": "item_case_wpn_selfselect_gahca_1_6_2",
+        "fluidIconId": "",
+        "sortId1": -20,
+        "sortId2": 316
+    },
+    "item_case_wpn_selfselect_gahca_1_7_1": {
+        "name": "补充武库箱·恣游",
+        "category": "珍贵物品",
+        "storageKind": "ValuableDepot",
+        "categoryType": "CommercialItem",
+        "rarity": 6,
+        "iconId": "item_case_wpn_selfselect_gahca_1_7_1",
+        "fluidIconId": "",
+        "sortId1": -20,
+        "sortId2": 318
+    },
+    "item_case_wpn_selfselect_gahca_aglina": {
+        "name": "补充武库箱·飘行",
+        "category": "珍贵物品",
+        "storageKind": "ValuableDepot",
+        "categoryType": "CommercialItem",
+        "rarity": 6,
+        "iconId": "item_case_wpn_selfselect_gahca_0_3",
+        "fluidIconId": "",
+        "sortId1": -20,
+        "sortId2": 319
+    },
     "item_case_wpn_selfselect_gahca_c_1": {
         "name": "补充武库箱·坚冰",
         "category": "珍贵物品",
@@ -1140,6 +1195,17 @@
         "fluidIconId": "",
         "sortId1": -20,
         "sortId2": 317
+    },
+    "item_case_wpn_selfselect_gahca_wulfa": {
+        "name": "补充武库箱·赤獠",
+        "category": "珍贵物品",
+        "storageKind": "ValuableDepot",
+        "categoryType": "CommercialItem",
+        "rarity": 6,
+        "iconId": "item_case_wpn_selfselect_gahca_1_2",
+        "fluidIconId": "",
+        "sortId1": -20,
+        "sortId2": 320
     },
     "item_case_wpn_selfselect_gahca_yvonne": {
         "name": "补充武库箱·点绘",
@@ -1271,6 +1337,17 @@
         "sortId1": -21,
         "sortId2": 19
     },
+    "item_char_ap_supply_sweetpie": {
+        "name": "蜜饼山",
+        "category": "珍贵物品",
+        "storageKind": "ValuableDepot",
+        "categoryType": "CommercialItem",
+        "rarity": 5,
+        "iconId": "item_char_ap_supply_sweetpie",
+        "fluidIconId": "",
+        "sortId1": -21,
+        "sortId2": 21
+    },
     "item_char_ap_supply_tangtang": {
         "name": "鳞肉干",
         "category": "珍贵物品",
@@ -1391,6 +1468,28 @@
         "fluidIconId": "",
         "sortId1": -20,
         "sortId2": 701
+    },
+    "item_char_equip_supply_minghe": {
+        "name": "武库防具箱α·天河",
+        "category": "珍贵物品",
+        "storageKind": "ValuableDepot",
+        "categoryType": "CommercialItem",
+        "rarity": 5,
+        "iconId": "item_char_equip_supply_1",
+        "fluidIconId": "",
+        "sortId1": -20,
+        "sortId2": 705
+    },
+    "item_char_equip_supply_sweetpie": {
+        "name": "武库防具箱α·漫野",
+        "category": "珍贵物品",
+        "storageKind": "ValuableDepot",
+        "categoryType": "CommercialItem",
+        "rarity": 5,
+        "iconId": "item_char_equip_supply_1",
+        "fluidIconId": "",
+        "sortId1": -20,
+        "sortId2": 706
     },
     "item_char_equip_supply_typhoea": {
         "name": "武库防具箱α·冬猎",
@@ -1544,7 +1643,7 @@
         "iconId": "item_charpotentialup_chr_0004_pelica",
         "fluidIconId": "",
         "sortId1": -31,
-        "sortId2": 3
+        "sortId2": 4
     },
     "item_charpotentialup_chr_0005_chen": {
         "name": "陈千语的信物",
@@ -1555,7 +1654,7 @@
         "iconId": "item_charpotentialup_chr_0005_chen",
         "fluidIconId": "",
         "sortId1": -31,
-        "sortId2": 4
+        "sortId2": 5
     },
     "item_charpotentialup_chr_0006_wolfgd": {
         "name": "狼卫的信物",
@@ -1566,7 +1665,7 @@
         "iconId": "item_charpotentialup_chr_0006_wolfgd",
         "fluidIconId": "",
         "sortId1": -31,
-        "sortId2": 5
+        "sortId2": 6
     },
     "item_charpotentialup_chr_0007_ikut": {
         "name": "弧光的信物",
@@ -1577,7 +1676,7 @@
         "iconId": "item_charpotentialup_chr_0007_ikut",
         "fluidIconId": "",
         "sortId1": -31,
-        "sortId2": 6
+        "sortId2": 7
     },
     "item_charpotentialup_chr_0009_azrila": {
         "name": "余烬的信物",
@@ -1588,7 +1687,7 @@
         "iconId": "item_charpotentialup_chr_0009_azrila",
         "fluidIconId": "",
         "sortId1": -31,
-        "sortId2": 7
+        "sortId2": 8
     },
     "item_charpotentialup_chr_0011_seraph": {
         "name": "赛希的信物",
@@ -1599,7 +1698,7 @@
         "iconId": "item_charpotentialup_chr_0011_seraph",
         "fluidIconId": "",
         "sortId1": -31,
-        "sortId2": 8
+        "sortId2": 9
     },
     "item_charpotentialup_chr_0012_avywen": {
         "name": "艾维文娜的信物",
@@ -1610,7 +1709,7 @@
         "iconId": "item_charpotentialup_chr_0012_avywen",
         "fluidIconId": "",
         "sortId1": -31,
-        "sortId2": 9
+        "sortId2": 10
     },
     "item_charpotentialup_chr_0013_aglina": {
         "name": "洁尔佩塔的信物",
@@ -1621,7 +1720,7 @@
         "iconId": "item_charpotentialup_chr_0013_aglina",
         "fluidIconId": "",
         "sortId1": -31,
-        "sortId2": 10
+        "sortId2": 11
     },
     "item_charpotentialup_chr_0014_aurora": {
         "name": "昼雪的信物",
@@ -1632,7 +1731,7 @@
         "iconId": "item_charpotentialup_chr_0014_aurora",
         "fluidIconId": "",
         "sortId1": -31,
-        "sortId2": 11
+        "sortId2": 12
     },
     "item_charpotentialup_chr_0015_lifeng": {
         "name": "黎风的信物",
@@ -1643,7 +1742,7 @@
         "iconId": "item_charpotentialup_chr_0015_lifeng",
         "fluidIconId": "",
         "sortId1": -31,
-        "sortId2": 12
+        "sortId2": 13
     },
     "item_charpotentialup_chr_0016_laevat": {
         "name": "莱万汀的信物",
@@ -1654,7 +1753,7 @@
         "iconId": "item_charpotentialup_chr_0016_laevat",
         "fluidIconId": "",
         "sortId1": -31,
-        "sortId2": 13
+        "sortId2": 14
     },
     "item_charpotentialup_chr_0017_yvonne": {
         "name": "伊冯的信物",
@@ -1665,7 +1764,7 @@
         "iconId": "item_charpotentialup_chr_0017_yvonne",
         "fluidIconId": "",
         "sortId1": -31,
-        "sortId2": 14
+        "sortId2": 15
     },
     "item_charpotentialup_chr_0018_dapan": {
         "name": "大潘的信物",
@@ -1676,7 +1775,7 @@
         "iconId": "item_charpotentialup_chr_0018_dapan",
         "fluidIconId": "",
         "sortId1": -31,
-        "sortId2": 15
+        "sortId2": 16
     },
     "item_charpotentialup_chr_0019_karin": {
         "name": "秋栗的信物",
@@ -1687,7 +1786,7 @@
         "iconId": "item_charpotentialup_chr_0019_karin",
         "fluidIconId": "",
         "sortId1": -31,
-        "sortId2": 16
+        "sortId2": 17
     },
     "item_charpotentialup_chr_0020_meurs": {
         "name": "卡契尔的信物",
@@ -1698,7 +1797,7 @@
         "iconId": "item_charpotentialup_chr_0020_meurs",
         "fluidIconId": "",
         "sortId1": -31,
-        "sortId2": 17
+        "sortId2": 18
     },
     "item_charpotentialup_chr_0021_whiten": {
         "name": "埃特拉的信物",
@@ -1709,7 +1808,7 @@
         "iconId": "item_charpotentialup_chr_0021_whiten",
         "fluidIconId": "",
         "sortId1": -31,
-        "sortId2": 18
+        "sortId2": 19
     },
     "item_charpotentialup_chr_0022_bounda": {
         "name": "萤石的信物",
@@ -1720,7 +1819,7 @@
         "iconId": "item_charpotentialup_chr_0022_bounda",
         "fluidIconId": "",
         "sortId1": -31,
-        "sortId2": 19
+        "sortId2": 20
     },
     "item_charpotentialup_chr_0023_antal": {
         "name": "安塔尔的信物",
@@ -1731,7 +1830,7 @@
         "iconId": "item_charpotentialup_chr_0023_antal",
         "fluidIconId": "",
         "sortId1": -31,
-        "sortId2": 20
+        "sortId2": 21
     },
     "item_charpotentialup_chr_0024_deepfin": {
         "name": "阿列什的信物",
@@ -1742,7 +1841,7 @@
         "iconId": "item_charpotentialup_chr_0024_deepfin",
         "fluidIconId": "",
         "sortId1": -31,
-        "sortId2": 21
+        "sortId2": 22
     },
     "item_charpotentialup_chr_0025_ardelia": {
         "name": "艾尔黛拉的信物",
@@ -1753,7 +1852,7 @@
         "iconId": "item_charpotentialup_chr_0025_ardelia",
         "fluidIconId": "",
         "sortId1": -31,
-        "sortId2": 22
+        "sortId2": 23
     },
     "item_charpotentialup_chr_0026_lastrite": {
         "name": "别礼的信物",
@@ -1764,7 +1863,7 @@
         "iconId": "item_charpotentialup_chr_0026_lastrite",
         "fluidIconId": "",
         "sortId1": -31,
-        "sortId2": 23
+        "sortId2": 24
     },
     "item_charpotentialup_chr_0027_tangtang": {
         "name": "汤汤的信物",
@@ -1775,7 +1874,7 @@
         "iconId": "item_charpotentialup_chr_0027_tangtang",
         "fluidIconId": "",
         "sortId1": -31,
-        "sortId2": 25
+        "sortId2": 26
     },
     "item_charpotentialup_chr_0028_wulfa": {
         "name": "洛茜的信物",
@@ -1786,7 +1885,7 @@
         "iconId": "item_charpotentialup_chr_0028_wulfa",
         "fluidIconId": "",
         "sortId1": -31,
-        "sortId2": 26
+        "sortId2": 27
     },
     "item_charpotentialup_chr_0029_pograni": {
         "name": "骏卫的信物",
@@ -1797,7 +1896,7 @@
         "iconId": "item_charpotentialup_chr_0029_pograni",
         "fluidIconId": "",
         "sortId1": -31,
-        "sortId2": 24
+        "sortId2": 25
     },
     "item_charpotentialup_chr_0030_zhuangfy": {
         "name": "庄方宜的信物",
@@ -1808,7 +1907,7 @@
         "iconId": "item_charpotentialup_chr_0030_zhuangfy",
         "fluidIconId": "",
         "sortId1": -31,
-        "sortId2": 27
+        "sortId2": 28
     },
     "item_charpotentialup_chr_0031_mifu": {
         "name": "弭弗的信物",
@@ -1819,7 +1918,7 @@
         "iconId": "item_charpotentialup_chr_0031_mifu",
         "fluidIconId": "",
         "sortId1": -31,
-        "sortId2": 28
+        "sortId2": 29
     },
     "item_charpotentialup_chr_0032_lizhiyan": {
         "name": "诀的信物",
@@ -1830,7 +1929,7 @@
         "iconId": "item_charpotentialup_chr_0032_lizhiyan",
         "fluidIconId": "",
         "sortId1": -31,
-        "sortId2": 29
+        "sortId2": 31
     },
     "item_charpotentialup_chr_0033_camille": {
         "name": "卡缪的信物",
@@ -1852,7 +1951,7 @@
         "iconId": "item_charpotentialup_chr_0034_typhoea",
         "fluidIconId": "",
         "sortId1": -31,
-        "sortId2": 32
+        "sortId2": 33
     },
     "item_charpotentialup_chr_0035_liino": {
         "name": "梨诺的信物",
@@ -1863,7 +1962,7 @@
         "iconId": "item_charpotentialup_chr_0035_liino",
         "fluidIconId": "",
         "sortId1": -31,
-        "sortId2": 31
+        "sortId2": 32
     },
     "item_charpotentialup_chr_0036_jsspsi": {
         "name": "祀的信物",
@@ -1874,7 +1973,18 @@
         "iconId": "item_charpotentialup_chr_0036_jsspsi",
         "fluidIconId": "",
         "sortId1": -31,
-        "sortId2": 34
+        "sortId2": 35
+    },
+    "item_charpotentialup_chr_0037_minghe": {
+        "name": "明河的信物",
+        "category": "珍贵物品",
+        "storageKind": "ValuableDepot",
+        "categoryType": "CommercialItem",
+        "rarity": 6,
+        "iconId": "item_charpotentialup_chr_0037_minghe",
+        "fluidIconId": "",
+        "sortId1": -31,
+        "sortId2": 36
     },
     "item_charpotentialup_chr_0038_purrche": {
         "name": "噗切娜的信物",
@@ -1885,7 +1995,18 @@
         "iconId": "item_charpotentialup_chr_0038_purrche",
         "fluidIconId": "",
         "sortId1": -31,
-        "sortId2": 33
+        "sortId2": 34
+    },
+    "item_charpotentialup_chr_0040_sweetpie": {
+        "name": "小刻的信物",
+        "category": "珍贵物品",
+        "storageKind": "ValuableDepot",
+        "categoryType": "CommercialItem",
+        "rarity": 6,
+        "iconId": "item_charpotentialup_chr_0040_sweetpie",
+        "fluidIconId": "",
+        "sortId1": -31,
+        "sortId2": 37
     },
     "item_charpotentialup_chr_9000_endmin": {
         "name": "管理员的信物",
@@ -1896,7 +2017,7 @@
         "iconId": "item_charpotentialup_chr_0002_endminm",
         "fluidIconId": "",
         "sortId1": -31,
-        "sortId2": 2
+        "sortId2": 3
     },
     "item_copper_bottle": {
         "name": "赤铜瓶",
@@ -1908,6 +2029,39 @@
         "fluidIconId": "",
         "sortId1": -81,
         "sortId2": 41
+    },
+    "item_copper_bright": {
+        "name": "辉铜",
+        "category": "产物",
+        "storageKind": "Normal",
+        "categoryType": "Product",
+        "rarity": 4,
+        "iconId": "item_copper_bright",
+        "fluidIconId": "",
+        "sortId1": -81,
+        "sortId2": 56
+    },
+    "item_copper_bright_cmpt": {
+        "name": "辉铜零件",
+        "category": "产物",
+        "storageKind": "Normal",
+        "categoryType": "Product",
+        "rarity": 4,
+        "iconId": "item_copper_bright_cmpt",
+        "fluidIconId": "",
+        "sortId1": -82,
+        "sortId2": 215
+    },
+    "item_copper_bright_cube": {
+        "name": "辉铜能量块",
+        "category": "产物",
+        "storageKind": "Normal",
+        "categoryType": "Product",
+        "rarity": 4,
+        "iconId": "item_copper_bright_cube",
+        "fluidIconId": "",
+        "sortId1": -82,
+        "sortId2": 218
     },
     "item_copper_cmpt": {
         "name": "赤铜零件",
@@ -1975,6 +2129,39 @@
         "sortId1": -82,
         "sortId2": 211
     },
+    "item_copper_enr_heng": {
+        "name": "衡铜",
+        "category": "产物",
+        "storageKind": "Normal",
+        "categoryType": "Product",
+        "rarity": 3,
+        "iconId": "item_copper_enr_heng",
+        "fluidIconId": "",
+        "sortId1": -81,
+        "sortId2": 55
+    },
+    "item_copper_hui": {
+        "name": "晦状赤铜",
+        "category": "产物",
+        "storageKind": "Normal",
+        "categoryType": "Product",
+        "rarity": 3,
+        "iconId": "item_copper_hui",
+        "fluidIconId": "",
+        "sortId1": -81,
+        "sortId2": 54
+    },
+    "item_copper_hui_cmpt": {
+        "name": "晦状赤铜零件",
+        "category": "产物",
+        "storageKind": "Normal",
+        "categoryType": "Product",
+        "rarity": 4,
+        "iconId": "item_copper_hui_cmpt",
+        "fluidIconId": "",
+        "sortId1": -82,
+        "sortId2": 214
+    },
     "item_copper_jar": {
         "name": "赤铜耐压罐",
         "category": "产物",
@@ -1985,6 +2172,28 @@
         "fluidIconId": "",
         "sortId1": -81,
         "sortId2": 42
+    },
+    "item_copper_ming": {
+        "name": "明状赤铜",
+        "category": "产物",
+        "storageKind": "Normal",
+        "categoryType": "Product",
+        "rarity": 3,
+        "iconId": "item_copper_ming",
+        "fluidIconId": "",
+        "sortId1": -81,
+        "sortId2": 53
+    },
+    "item_copper_ming_cmpt": {
+        "name": "明状赤铜零件",
+        "category": "产物",
+        "storageKind": "Normal",
+        "categoryType": "Product",
+        "rarity": 4,
+        "iconId": "item_copper_ming_cmpt",
+        "fluidIconId": "",
+        "sortId1": -82,
+        "sortId2": 213
     },
     "item_copper_nugget": {
         "name": "赤铜块",
@@ -2018,6 +2227,28 @@
         "fluidIconId": "",
         "sortId1": -81,
         "sortId2": 12
+    },
+    "item_copper_xiranite_hui": {
+        "name": "铜封重装组件",
+        "category": "产物",
+        "storageKind": "Normal",
+        "categoryType": "Product",
+        "rarity": 4,
+        "iconId": "item_copper_xiranite_hui",
+        "fluidIconId": "",
+        "sortId1": -82,
+        "sortId2": 217
+    },
+    "item_copper_xiranite_ming": {
+        "name": "铜封明壤元件",
+        "category": "产物",
+        "storageKind": "Normal",
+        "categoryType": "Product",
+        "rarity": 4,
+        "iconId": "item_copper_xiranite_ming",
+        "fluidIconId": "",
+        "sortId1": -82,
+        "sortId2": 216
     },
     "item_corp1_animal_1": {
         "name": "谷地馅饼",
@@ -2116,7 +2347,7 @@
         "iconId": "item_corp_bean_seed_1",
         "fluidIconId": "",
         "sortId1": -80,
-        "sortId2": 30
+        "sortId2": 36
     },
     "item_corp_cabbage_1": {
         "name": "青菜",
@@ -2149,7 +2380,7 @@
         "iconId": "item_corp_cabbage_seed_1",
         "fluidIconId": "",
         "sortId1": -80,
-        "sortId2": 30
+        "sortId2": 34
     },
     "item_corp_cabbage_seed_2": {
         "name": "优质青菜种子",
@@ -2160,7 +2391,7 @@
         "iconId": "item_corp_cabbage_seed_2",
         "fluidIconId": "",
         "sortId1": -80,
-        "sortId2": 30
+        "sortId2": 41
     },
     "item_corp_canolaflower_1": {
         "name": "籽油花",
@@ -2182,7 +2413,7 @@
         "iconId": "item_corp_canolaflower_seed_1",
         "fluidIconId": "",
         "sortId1": -80,
-        "sortId2": 30
+        "sortId2": 40
     },
     "item_corp_mushroom_1": {
         "name": "多味菇",
@@ -2215,7 +2446,7 @@
         "iconId": "item_corp_mushroom_seed_1",
         "fluidIconId": "",
         "sortId1": -80,
-        "sortId2": 30
+        "sortId2": 37
     },
     "item_corp_mushroom_seed_2": {
         "name": "优质多味菇孢子",
@@ -2226,7 +2457,7 @@
         "iconId": "item_corp_mushroom_seed_2",
         "fluidIconId": "",
         "sortId1": -80,
-        "sortId2": 30
+        "sortId2": 42
     },
     "item_corp_potato_1": {
         "name": "平薯",
@@ -2248,7 +2479,7 @@
         "iconId": "item_corp_potato_seed_1",
         "fluidIconId": "",
         "sortId1": -80,
-        "sortId2": 30
+        "sortId2": 32
     },
     "item_corp_strawberry_1": {
         "name": "青叶莓",
@@ -2281,7 +2512,7 @@
         "iconId": "item_corp_strawberry_seed_1",
         "fluidIconId": "",
         "sortId1": -80,
-        "sortId2": 30
+        "sortId2": 38
     },
     "item_corp_strawberry_seed_2": {
         "name": "优质青叶莓种子",
@@ -2292,7 +2523,7 @@
         "iconId": "item_corp_strawberry_seed_2",
         "fluidIconId": "",
         "sortId1": -80,
-        "sortId2": 30
+        "sortId2": 43
     },
     "item_corp_sugarcane_1": {
         "name": "脆蔗",
@@ -2314,7 +2545,7 @@
         "iconId": "item_corp_sugarcane_seed_1",
         "fluidIconId": "",
         "sortId1": -80,
-        "sortId2": 30
+        "sortId2": 35
     },
     "item_corp_tomato_1": {
         "name": "茄果",
@@ -2336,7 +2567,7 @@
         "iconId": "item_corp_tomato_seed_1",
         "fluidIconId": "",
         "sortId1": -80,
-        "sortId2": 30
+        "sortId2": 33
     },
     "item_corp_whitegourd_1": {
         "name": "白瓜",
@@ -2358,7 +2589,7 @@
         "iconId": "item_corp_whitegourd_seed_1",
         "fluidIconId": "",
         "sortId1": -80,
-        "sortId2": 30
+        "sortId2": 39
     },
     "item_crystal_enr": {
         "name": "密制晶体",
@@ -2469,6 +2700,39 @@
         "fluidIconId": "",
         "sortId1": -85,
         "sortId2": 18
+    },
+    "item_device_buff_mushroom_1": {
+        "name": "暗恼的蘑菇",
+        "category": "随身装置",
+        "storageKind": "Normal",
+        "categoryType": "PortableDevice",
+        "rarity": 3,
+        "iconId": "item_device_buff_mushroom_1",
+        "fluidIconId": "",
+        "sortId1": -85,
+        "sortId2": 19
+    },
+    "item_device_buff_mushroom_2": {
+        "name": "愤怒的蘑菇",
+        "category": "随身装置",
+        "storageKind": "Normal",
+        "categoryType": "PortableDevice",
+        "rarity": 4,
+        "iconId": "item_device_buff_mushroom_2",
+        "fluidIconId": "",
+        "sortId1": -85,
+        "sortId2": 20
+    },
+    "item_device_buff_mushroom_3": {
+        "name": "暴怒的蘑菇",
+        "category": "随身装置",
+        "storageKind": "Normal",
+        "categoryType": "PortableDevice",
+        "rarity": 5,
+        "iconId": "item_device_buff_mushroom_3",
+        "fluidIconId": "",
+        "sortId1": -85,
+        "sortId2": 21
     },
     "item_device_buff_snow_1": {
         "name": "小型加速单元",
@@ -2649,7 +2913,7 @@
         "iconId": "item_drop_agshield_1",
         "fluidIconId": "",
         "sortId1": -65,
-        "sortId2": 38
+        "sortId2": 40
     },
     "item_drop_babyents_1": {
         "name": "柔嫩苔藓",
@@ -2726,7 +2990,7 @@
         "iconId": "item_drop_hsbear_1",
         "fluidIconId": "",
         "sortId1": -65,
-        "sortId2": 40
+        "sortId2": 42
     },
     "item_drop_hscrane_1": {
         "name": "竹林虫蛹",
@@ -2836,7 +3100,7 @@
         "iconId": "item_drop_inklion_1",
         "fluidIconId": "",
         "sortId1": -65,
-        "sortId2": 37
+        "sortId2": 39
     },
     "item_drop_jzmonk_1": {
         "name": "百年陈皮",
@@ -2959,6 +3223,28 @@
         "sortId1": -65,
         "sortId2": 18
     },
+    "item_drop_mushbug_1": {
+        "name": "菌王之尘",
+        "category": "采集材料",
+        "storageKind": "Normal",
+        "categoryType": "Doodad",
+        "rarity": 4,
+        "iconId": "item_drop_mushbug_1",
+        "fluidIconId": "",
+        "sortId1": -65,
+        "sortId2": 37
+    },
+    "item_drop_mushro_1": {
+        "name": "异彩菌块",
+        "category": "采集材料",
+        "storageKind": "Normal",
+        "categoryType": "Doodad",
+        "rarity": 4,
+        "iconId": "item_drop_mushro_1",
+        "fluidIconId": "",
+        "sortId1": -65,
+        "sortId2": 38
+    },
     "item_drop_sandb_1": {
         "name": "大斧角",
         "category": "采集材料",
@@ -3001,7 +3287,7 @@
         "iconId": "item_drop_wgabyss_1",
         "fluidIconId": "",
         "sortId1": -65,
-        "sortId2": 39
+        "sortId2": 41
     },
     "item_drop_wgshoal_1": {
         "name": "甜腻黑水",
@@ -3045,6 +3331,17 @@
         "iconId": "item_equip_enhance_wuling",
         "fluidIconId": "",
         "sortId1": -54,
+        "sortId2": 1
+    },
+    "item_equip_prime_enhance_wuling": {
+        "name": "起源锻造液·Ⅰ型",
+        "category": "培养素材",
+        "storageKind": "ValuableDepot",
+        "categoryType": "SpecialItem",
+        "rarity": 5,
+        "iconId": "item_equip_prime_enhance_wuling",
+        "fluidIconId": "",
+        "sortId1": -55,
         "sortId2": 1
     },
     "item_equip_script_1": {
@@ -3936,7 +4233,7 @@
         "iconId": "item_filter_core",
         "fluidIconId": "",
         "sortId1": -81,
-        "sortId2": 48
+        "sortId2": 49
     },
     "item_firebat_1_agrange_1_1": {
         "name": "可食用巢雕",
@@ -4013,7 +4310,7 @@
         "iconId": "item_gacha_introletter",
         "fluidIconId": "",
         "sortId1": -10,
-        "sortId2": 22
+        "sortId2": 25
     },
     "item_gacha_introletter_1_3_1": {
         "name": "寻访情报书",
@@ -4024,7 +4321,7 @@
         "iconId": "item_gacha_introletter",
         "fluidIconId": "",
         "sortId1": -10,
-        "sortId2": 27
+        "sortId2": 30
     },
     "item_gacha_introletter_1_3_2": {
         "name": "寻访情报书",
@@ -4035,7 +4332,7 @@
         "iconId": "item_gacha_introletter",
         "fluidIconId": "",
         "sortId1": -10,
-        "sortId2": 30
+        "sortId2": 33
     },
     "item_gacha_introletter_1_4_1": {
         "name": "寻访情报书",
@@ -4046,7 +4343,7 @@
         "iconId": "item_gacha_introletter",
         "fluidIconId": "",
         "sortId1": -10,
-        "sortId2": 33
+        "sortId2": 36
     },
     "item_gacha_introletter_1_4_2": {
         "name": "寻访情报书",
@@ -4057,7 +4354,7 @@
         "iconId": "item_gacha_introletter",
         "fluidIconId": "",
         "sortId1": -10,
-        "sortId2": 36
+        "sortId2": 39
     },
     "item_gacha_introletter_1_5_1": {
         "name": "寻访情报书",
@@ -4068,7 +4365,7 @@
         "iconId": "item_gacha_introletter",
         "fluidIconId": "",
         "sortId1": -10,
-        "sortId2": 38
+        "sortId2": 41
     },
     "item_gacha_introletter_1_6_1": {
         "name": "寻访情报书",
@@ -4079,7 +4376,29 @@
         "iconId": "item_gacha_introletter",
         "fluidIconId": "",
         "sortId1": -10,
-        "sortId2": 40
+        "sortId2": 43
+    },
+    "item_gacha_introletter_1_6_2": {
+        "name": "寻访情报书",
+        "category": "珍贵物品",
+        "storageKind": "ValuableDepot",
+        "categoryType": "CommercialItem",
+        "rarity": 6,
+        "iconId": "item_gacha_introletter",
+        "fluidIconId": "",
+        "sortId1": -10,
+        "sortId2": 45
+    },
+    "item_gacha_introletter_1_7_1": {
+        "name": "寻访情报书",
+        "category": "珍贵物品",
+        "storageKind": "ValuableDepot",
+        "categoryType": "CommercialItem",
+        "rarity": 6,
+        "iconId": "item_gacha_introletter",
+        "fluidIconId": "",
+        "sortId1": -10,
+        "sortId2": 47
     },
     "item_gachabyproducts_charticket": {
         "name": "保障配额",
@@ -4145,6 +4464,28 @@
         "sortId1": -81,
         "sortId2": 42
     },
+    "item_gasjar_copper_gas_copper_bright_clear": {
+        "name": "赤铜耐压罐(清型辉铜气)",
+        "category": "产物",
+        "storageKind": "Normal",
+        "categoryType": "Product",
+        "rarity": 3,
+        "iconId": "item_copper_jar_gas",
+        "fluidIconId": "item_gas_copper_bright_clear",
+        "sortId1": -81,
+        "sortId2": 42
+    },
+    "item_gasjar_copper_gas_copper_bright_turbid": {
+        "name": "赤铜耐压罐(浊型辉铜气)",
+        "category": "产物",
+        "storageKind": "Normal",
+        "categoryType": "Product",
+        "rarity": 3,
+        "iconId": "item_copper_jar_gas",
+        "fluidIconId": "item_gas_copper_bright_turbid",
+        "sortId1": -81,
+        "sortId2": 42
+    },
     "item_gasjar_copper_gas_copper_enr": {
         "name": "赤铜耐压罐(气态赫铜)",
         "category": "产物",
@@ -4164,6 +4505,17 @@
         "rarity": 3,
         "iconId": "item_copper_jar_gas",
         "fluidIconId": "item_gas_copper_enr2",
+        "sortId1": -81,
+        "sortId2": 42
+    },
+    "item_gasjar_copper_gas_copper_enr_heng": {
+        "name": "赤铜耐压罐(气态衡铜)",
+        "category": "产物",
+        "storageKind": "Normal",
+        "categoryType": "Product",
+        "rarity": 3,
+        "iconId": "item_copper_jar_gas",
+        "fluidIconId": "item_gas_copper_enr_heng",
         "sortId1": -81,
         "sortId2": 42
     },
@@ -4211,6 +4563,17 @@
         "sortId1": -81,
         "sortId2": 42
     },
+    "item_gasjar_copper_gas_xiranite_enr_heng": {
+        "name": "赤铜耐压罐(气态衡息壤)",
+        "category": "产物",
+        "storageKind": "Normal",
+        "categoryType": "Product",
+        "rarity": 3,
+        "iconId": "item_copper_jar_gas",
+        "fluidIconId": "item_gas_xiranite_enr_heng",
+        "sortId1": -81,
+        "sortId2": 42
+    },
     "item_gem_stable_energy_point_tundra": {
         "name": "谷地刻写券",
         "category": "珍贵物品",
@@ -4231,7 +4594,7 @@
         "iconId": "item_gem_stable_energy_point_wuling",
         "fluidIconId": "",
         "sortId1": -43,
-        "sortId2": 1
+        "sortId2": 2
     },
     "item_gemcustomization_tundra_4": {
         "name": "谷地多痕刻写箱",
@@ -4243,6 +4606,17 @@
         "fluidIconId": "",
         "sortId1": -20,
         "sortId2": 8
+    },
+    "item_gemcustomization_wuling_4": {
+        "name": "武陵多痕刻写箱",
+        "category": "珍贵物品",
+        "storageKind": "ValuableDepot",
+        "categoryType": "CommercialItem",
+        "rarity": 5,
+        "iconId": "item_gemcustomization_wuling_4",
+        "fluidIconId": "",
+        "sortId1": -20,
+        "sortId2": 15
     },
     "item_gift_jinlong_1": {
         "name": "岳研茶盒",
@@ -4298,6 +4672,28 @@
         "fluidIconId": "",
         "sortId1": -301,
         "sortId2": 38
+    },
+    "item_gift_jinlong_14": {
+        "name": "风味蜜饼·联名款",
+        "category": "珍贵物品",
+        "storageKind": "ValuableDepot",
+        "categoryType": "CommercialItem",
+        "rarity": 5,
+        "iconId": "item_gift_jinlong_14",
+        "fluidIconId": "",
+        "sortId1": -301,
+        "sortId2": 39
+    },
+    "item_gift_jinlong_15": {
+        "name": "《团结号》",
+        "category": "珍贵物品",
+        "storageKind": "ValuableDepot",
+        "categoryType": "CommercialItem",
+        "rarity": 5,
+        "iconId": "item_gift_jinlong_15",
+        "fluidIconId": "",
+        "sortId1": -301,
+        "sortId2": 40
     },
     "item_gift_jinlong_2": {
         "name": "应龙哑铃",
@@ -4577,11 +4973,11 @@
         "category": "可用道具",
         "storageKind": "Normal",
         "categoryType": "Usable",
-        "rarity": 4,
+        "rarity": 5,
         "iconId": "item_inkbiter_1_wgshoal_1_1",
         "fluidIconId": "",
         "sortId1": -82,
-        "sortId2": 64
+        "sortId2": 69
     },
     "item_inkkirin_1_hscrane_1_1": {
         "name": "酥麻炸虫蛹",
@@ -4592,7 +4988,491 @@
         "iconId": "item_inkkirin_1_hscrane_1",
         "fluidIconId": "",
         "sortId1": -82,
-        "sortId2": 64
+        "sortId2": 68
+    },
+    "item_inn_dish_1": {
+        "name": "肉包子",
+        "category": "客栈菜品",
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "rarity": 2,
+        "iconId": "item_inn_dish_1",
+        "fluidIconId": "",
+        "sortId1": -1100,
+        "sortId2": 1
+    },
+    "item_inn_dish_10": {
+        "name": "糯米凉糕",
+        "category": "客栈菜品",
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "rarity": 3,
+        "iconId": "item_inn_dish_10",
+        "fluidIconId": "",
+        "sortId1": -1100,
+        "sortId2": 7
+    },
+    "item_inn_dish_11": {
+        "name": "鲜奶炖蛋",
+        "category": "客栈菜品",
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "rarity": 3,
+        "iconId": "item_inn_dish_11",
+        "fluidIconId": "",
+        "sortId1": -1100,
+        "sortId2": 10
+    },
+    "item_inn_dish_12": {
+        "name": "豌杂拌面",
+        "category": "客栈菜品",
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "rarity": 4,
+        "iconId": "item_inn_dish_12",
+        "fluidIconId": "",
+        "sortId1": -1100,
+        "sortId2": 20
+    },
+    "item_inn_dish_13": {
+        "name": "手抓饭",
+        "category": "客栈菜品",
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "rarity": 4,
+        "iconId": "item_inn_dish_13",
+        "fluidIconId": "",
+        "sortId1": -1100,
+        "sortId2": 14
+    },
+    "item_inn_dish_14": {
+        "name": "鳞肉水饺",
+        "category": "客栈菜品",
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "rarity": 4,
+        "iconId": "item_inn_dish_14",
+        "fluidIconId": "",
+        "sortId1": -1100,
+        "sortId2": 16
+    },
+    "item_inn_dish_15": {
+        "name": "炸薯条",
+        "category": "客栈菜品",
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "rarity": 4,
+        "iconId": "item_inn_dish_15",
+        "fluidIconId": "",
+        "sortId1": -1100,
+        "sortId2": 17
+    },
+    "item_inn_dish_16": {
+        "name": "酸菜鳞肉",
+        "category": "客栈菜品",
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "rarity": 4,
+        "iconId": "item_inn_dish_16",
+        "fluidIconId": "",
+        "sortId1": -1100,
+        "sortId2": 18
+    },
+    "item_inn_dish_17": {
+        "name": "烤肉串",
+        "category": "客栈菜品",
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "rarity": 4,
+        "iconId": "item_inn_dish_17",
+        "fluidIconId": "",
+        "sortId1": -1100,
+        "sortId2": 21
+    },
+    "item_inn_dish_18": {
+        "name": "鳞香肉丝",
+        "category": "客栈菜品",
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "rarity": 4,
+        "iconId": "item_inn_dish_18",
+        "fluidIconId": "",
+        "sortId1": -1100,
+        "sortId2": 12
+    },
+    "item_inn_dish_19": {
+        "name": "豆沙汤圆",
+        "category": "客栈菜品",
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "rarity": 4,
+        "iconId": "item_inn_dish_19",
+        "fluidIconId": "",
+        "sortId1": -1100,
+        "sortId2": 15
+    },
+    "item_inn_dish_2": {
+        "name": "手擀素面",
+        "category": "客栈菜品",
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "rarity": 2,
+        "iconId": "item_inn_dish_2",
+        "fluidIconId": "",
+        "sortId1": -1100,
+        "sortId2": 2
+    },
+    "item_inn_dish_20": {
+        "name": "酸莓布丁",
+        "category": "客栈菜品",
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "rarity": 4,
+        "iconId": "item_inn_dish_20",
+        "fluidIconId": "",
+        "sortId1": -1100,
+        "sortId2": 19
+    },
+    "item_inn_dish_21": {
+        "name": "咸酪脆饼",
+        "category": "客栈菜品",
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "rarity": 4,
+        "iconId": "item_inn_dish_21",
+        "fluidIconId": "",
+        "sortId1": -1100,
+        "sortId2": 13
+    },
+    "item_inn_dish_22": {
+        "name": "雪绵豆沙",
+        "category": "客栈菜品",
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "rarity": 4,
+        "iconId": "item_inn_dish_22",
+        "fluidIconId": "",
+        "sortId1": -1100,
+        "sortId2": 22
+    },
+    "item_inn_dish_23": {
+        "name": "老麻抄手",
+        "category": "客栈菜品",
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "rarity": 5,
+        "iconId": "item_inn_dish_23",
+        "fluidIconId": "",
+        "sortId1": -1100,
+        "sortId2": 35
+    },
+    "item_inn_dish_24": {
+        "name": "八宝饭",
+        "category": "客栈菜品",
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "rarity": 5,
+        "iconId": "item_inn_dish_24",
+        "fluidIconId": "",
+        "sortId1": -1100,
+        "sortId2": 25
+    },
+    "item_inn_dish_25": {
+        "name": "至臻鳞肉卷",
+        "category": "客栈菜品",
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "rarity": 5,
+        "iconId": "item_inn_dish_25",
+        "fluidIconId": "",
+        "sortId1": -1100,
+        "sortId2": 28
+    },
+    "item_inn_dish_26": {
+        "name": "界龙肉卷",
+        "category": "客栈菜品",
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "rarity": 5,
+        "iconId": "item_inn_dish_26",
+        "fluidIconId": "",
+        "sortId1": -1100,
+        "sortId2": 43
+    },
+    "item_inn_dish_27": {
+        "name": "果味沙拉",
+        "category": "客栈菜品",
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "rarity": 5,
+        "iconId": "item_inn_dish_27",
+        "fluidIconId": "",
+        "sortId1": -1100,
+        "sortId2": 26
+    },
+    "item_inn_dish_28": {
+        "name": "麻辣香锅",
+        "category": "客栈菜品",
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "rarity": 5,
+        "iconId": "item_inn_dish_28",
+        "fluidIconId": "",
+        "sortId1": -1100,
+        "sortId2": 29
+    },
+    "item_inn_dish_29": {
+        "name": "坛子肉",
+        "category": "客栈菜品",
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "rarity": 5,
+        "iconId": "item_inn_dish_29",
+        "fluidIconId": "",
+        "sortId1": -1100,
+        "sortId2": 30
+    },
+    "item_inn_dish_3": {
+        "name": "番茄炒蛋",
+        "category": "客栈菜品",
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "rarity": 2,
+        "iconId": "item_inn_dish_3",
+        "fluidIconId": "",
+        "sortId1": -1100,
+        "sortId2": 3
+    },
+    "item_inn_dish_30": {
+        "name": "福寿全",
+        "category": "客栈菜品",
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "rarity": 5,
+        "iconId": "item_inn_dish_30",
+        "fluidIconId": "",
+        "sortId1": -1100,
+        "sortId2": 39
+    },
+    "item_inn_dish_31": {
+        "name": "糖醋宝鳞",
+        "category": "客栈菜品",
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "rarity": 5,
+        "iconId": "item_inn_dish_31",
+        "fluidIconId": "",
+        "sortId1": -1100,
+        "sortId2": 41
+    },
+    "item_inn_dish_32": {
+        "name": "“银耳莲子”羹",
+        "category": "客栈菜品",
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "rarity": 5,
+        "iconId": "item_inn_dish_32",
+        "fluidIconId": "",
+        "sortId1": -1100,
+        "sortId2": 40
+    },
+    "item_inn_dish_33": {
+        "name": "茄果鳞肉汤",
+        "category": "客栈菜品",
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "rarity": 5,
+        "iconId": "item_inn_dish_33",
+        "fluidIconId": "",
+        "sortId1": -1100,
+        "sortId2": 31
+    },
+    "item_inn_dish_34": {
+        "name": "酸辣汤",
+        "category": "客栈菜品",
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "rarity": 5,
+        "iconId": "item_inn_dish_34",
+        "fluidIconId": "",
+        "sortId1": -1100,
+        "sortId2": 23
+    },
+    "item_inn_dish_35": {
+        "name": "白瓜肉丸汤",
+        "category": "客栈菜品",
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "rarity": 5,
+        "iconId": "item_inn_dish_35",
+        "fluidIconId": "",
+        "sortId1": -1100,
+        "sortId2": 32
+    },
+    "item_inn_dish_36": {
+        "name": "奶油蘑菇汤",
+        "category": "客栈菜品",
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "rarity": 5,
+        "iconId": "item_inn_dish_36",
+        "fluidIconId": "",
+        "sortId1": -1100,
+        "sortId2": 36
+    },
+    "item_inn_dish_37": {
+        "name": "白鳞高汤",
+        "category": "客栈菜品",
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "rarity": 5,
+        "iconId": "item_inn_dish_37",
+        "fluidIconId": "",
+        "sortId1": -1100,
+        "sortId2": 38
+    },
+    "item_inn_dish_38": {
+        "name": "莓果甜汤",
+        "category": "客栈菜品",
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "rarity": 5,
+        "iconId": "item_inn_dish_38",
+        "fluidIconId": "",
+        "sortId1": -1100,
+        "sortId2": 24
+    },
+    "item_inn_dish_39": {
+        "name": "簇锦豆腐羹",
+        "category": "客栈菜品",
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "rarity": 5,
+        "iconId": "item_inn_dish_39",
+        "fluidIconId": "",
+        "sortId1": -1100,
+        "sortId2": 42
+    },
+    "item_inn_dish_4": {
+        "name": "红椒土豆丝",
+        "category": "客栈菜品",
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "rarity": 2,
+        "iconId": "item_inn_dish_4",
+        "fluidIconId": "",
+        "sortId1": -1100,
+        "sortId2": 4
+    },
+    "item_inn_dish_40": {
+        "name": "金丝小贝",
+        "category": "客栈菜品",
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "rarity": 5,
+        "iconId": "item_inn_dish_40",
+        "fluidIconId": "",
+        "sortId1": -1100,
+        "sortId2": 27
+    },
+    "item_inn_dish_41": {
+        "name": "雪纱蛋黄月饼",
+        "category": "客栈菜品",
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "rarity": 5,
+        "iconId": "item_inn_dish_41",
+        "fluidIconId": "",
+        "sortId1": -1100,
+        "sortId2": 33
+    },
+    "item_inn_dish_42": {
+        "name": "千果珍珠圆",
+        "category": "客栈菜品",
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "rarity": 5,
+        "iconId": "item_inn_dish_42",
+        "fluidIconId": "",
+        "sortId1": -1100,
+        "sortId2": 37
+    },
+    "item_inn_dish_43": {
+        "name": "红蕊奶酪蛋糕",
+        "category": "客栈菜品",
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "rarity": 5,
+        "iconId": "item_inn_dish_43",
+        "fluidIconId": "",
+        "sortId1": -1100,
+        "sortId2": 44
+    },
+    "item_inn_dish_44": {
+        "name": "“勺里游”",
+        "category": "客栈菜品",
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "rarity": 5,
+        "iconId": "item_inn_dish_44",
+        "fluidIconId": "",
+        "sortId1": -1100,
+        "sortId2": 34
+    },
+    "item_inn_dish_5": {
+        "name": "缘缘菜饭",
+        "category": "客栈菜品",
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "rarity": 3,
+        "iconId": "item_inn_dish_5",
+        "fluidIconId": "",
+        "sortId1": -1100,
+        "sortId2": 5
+    },
+    "item_inn_dish_6": {
+        "name": "菌菇蒸饺",
+        "category": "客栈菜品",
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "rarity": 3,
+        "iconId": "item_inn_dish_6",
+        "fluidIconId": "",
+        "sortId1": -1100,
+        "sortId2": 8
+    },
+    "item_inn_dish_7": {
+        "name": "青菜养生粥",
+        "category": "客栈菜品",
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "rarity": 3,
+        "iconId": "item_inn_dish_7",
+        "fluidIconId": "",
+        "sortId1": -1100,
+        "sortId2": 11
+    },
+    "item_inn_dish_8": {
+        "name": "香煎鳞肉",
+        "category": "客栈菜品",
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "rarity": 3,
+        "iconId": "item_inn_dish_8",
+        "fluidIconId": "",
+        "sortId1": -1100,
+        "sortId2": 6
+    },
+    "item_inn_dish_9": {
+        "name": "茄汁白瓜",
+        "category": "客栈菜品",
+        "storageKind": "Restaurant",
+        "categoryType": "Dish",
+        "rarity": 3,
+        "iconId": "item_inn_dish_9",
+        "fluidIconId": "",
+        "sortId1": -1100,
+        "sortId2": 9
     },
     "item_inn_drink_1": {
         "name": "大碗碎茶",
@@ -4704,6 +5584,17 @@
         "sortId1": -82,
         "sortId2": 509
     },
+    "item_inn_drink_water": {
+        "name": "直饮水",
+        "category": "客栈饮品",
+        "storageKind": "Restaurant",
+        "categoryType": "Drink",
+        "rarity": 1,
+        "iconId": "item_inn_drink_water",
+        "fluidIconId": "",
+        "sortId1": -82,
+        "sortId2": 500
+    },
     "item_iron_bottle": {
         "name": "蓝铁瓶",
         "category": "产物",
@@ -4814,6 +5705,17 @@
         "sortId1": -82,
         "sortId2": 64
     },
+    "item_jzmonk_1_mushbug_spmushroom1_1": {
+        "name": "僭越的蜜饼",
+        "category": "可用道具",
+        "storageKind": "Normal",
+        "categoryType": "Usable",
+        "rarity": 4,
+        "iconId": "item_jzmonk_1_mushbug_spmushroom1_1",
+        "fluidIconId": "",
+        "sortId1": -82,
+        "sortId2": 71
+    },
     "item_klbuds_1_hsfly_1_1": {
         "name": "洗灾秘剂",
         "category": "可用道具",
@@ -4911,7 +5813,7 @@
         "iconId": "item_muck_feces_1",
         "fluidIconId": "",
         "sortId1": -80,
-        "sortId2": 34
+        "sortId2": 47
     },
     "item_muck_inn_1": {
         "name": "增速膨地啪",
@@ -4922,7 +5824,7 @@
         "iconId": "item_muck_inn_1",
         "fluidIconId": "",
         "sortId1": -1101,
-        "sortId2": 1
+        "sortId2": 33
     },
     "item_muck_inn_2": {
         "name": "优质膨地啪",
@@ -4933,7 +5835,7 @@
         "iconId": "item_muck_inn_2",
         "fluidIconId": "",
         "sortId1": -1101,
-        "sortId2": 1
+        "sortId2": 34
     },
     "item_muck_inn_3": {
         "name": "双效膨地啪",
@@ -4944,7 +5846,7 @@
         "iconId": "item_muck_inn_3",
         "fluidIconId": "",
         "sortId1": -1101,
-        "sortId2": 1
+        "sortId2": 35
     },
     "item_muck_inn_4": {
         "name": "臻品膨地啪",
@@ -4955,7 +5857,7 @@
         "iconId": "item_muck_inn_4",
         "fluidIconId": "",
         "sortId1": -1101,
-        "sortId2": 1
+        "sortId2": 36
     },
     "item_muck_xiranite_1": {
         "name": "膨地啪",
@@ -4966,7 +5868,7 @@
         "iconId": "item_muck_xiranite_1",
         "fluidIconId": "",
         "sortId1": -80,
-        "sortId2": 35
+        "sortId2": 48
     },
     "item_originium_enr_powder": {
         "name": "致密源石粉末",
@@ -5019,7 +5921,7 @@
         "iconId": "item_plant_bbflower_1",
         "fluidIconId": "",
         "sortId1": -80,
-        "sortId2": 15
+        "sortId2": 16
     },
     "item_plant_bbflower_powder_1": {
         "name": "酮化灌木粉末",
@@ -5041,7 +5943,7 @@
         "iconId": "item_plant_bbflower_seed_1",
         "fluidIconId": "",
         "sortId1": -80,
-        "sortId2": 16
+        "sortId2": 17
     },
     "item_plant_crylplant_1_1": {
         "name": "晶化多齿叶",
@@ -5052,7 +5954,7 @@
         "iconId": "item_plant_crylplant_1_1",
         "fluidIconId": "",
         "sortId1": -60,
-        "sortId2": 9
+        "sortId2": 13
     },
     "item_plant_crylplant_1_2": {
         "name": "纯晶多齿叶",
@@ -5063,7 +5965,7 @@
         "iconId": "item_plant_crylplant_1_2",
         "fluidIconId": "",
         "sortId1": -60,
-        "sortId2": 11
+        "sortId2": 15
     },
     "item_plant_crylplant_1_3": {
         "name": "至晶多齿叶",
@@ -5074,7 +5976,7 @@
         "iconId": "item_plant_crylplant_1_3",
         "fluidIconId": "",
         "sortId1": -60,
-        "sortId2": 13
+        "sortId2": 17
     },
     "item_plant_crylplant_2_1": {
         "name": "受蚀玉化叶",
@@ -5085,7 +5987,7 @@
         "iconId": "item_plant_crylplant_2_1",
         "fluidIconId": "",
         "sortId1": -60,
-        "sortId2": 15
+        "sortId2": 19
     },
     "item_plant_crylplant_2_2": {
         "name": "岩天使叶",
@@ -5096,7 +5998,7 @@
         "iconId": "item_plant_crylplant_2_2",
         "fluidIconId": "",
         "sortId1": -60,
-        "sortId2": 15
+        "sortId2": 21
     },
     "item_plant_crylplant_2_3": {
         "name": "红矛叶",
@@ -5107,7 +6009,7 @@
         "iconId": "item_plant_crylplant_2_3",
         "fluidIconId": "",
         "sortId1": -60,
-        "sortId2": 15
+        "sortId2": 23
     },
     "item_plant_crylplant_seed_1_1": {
         "name": "晶化多齿叶根茎",
@@ -5118,7 +6020,7 @@
         "iconId": "item_plant_crylplant_seed_1_1",
         "fluidIconId": "",
         "sortId1": -60,
-        "sortId2": 10
+        "sortId2": 14
     },
     "item_plant_crylplant_seed_1_2": {
         "name": "纯晶多齿叶根茎",
@@ -5129,7 +6031,7 @@
         "iconId": "item_plant_crylplant_seed_1_2",
         "fluidIconId": "",
         "sortId1": -60,
-        "sortId2": 12
+        "sortId2": 16
     },
     "item_plant_crylplant_seed_1_3": {
         "name": "至晶多齿叶根茎",
@@ -5140,7 +6042,7 @@
         "iconId": "item_plant_crylplant_seed_1_3",
         "fluidIconId": "",
         "sortId1": -60,
-        "sortId2": 14
+        "sortId2": 18
     },
     "item_plant_crylplant_seed_2_1": {
         "name": "受蚀玉化叶根茎",
@@ -5151,7 +6053,7 @@
         "iconId": "item_plant_crylplant_seed_2_1",
         "fluidIconId": "",
         "sortId1": -60,
-        "sortId2": 16
+        "sortId2": 20
     },
     "item_plant_crylplant_seed_2_2": {
         "name": "岩天使叶根茎",
@@ -5162,7 +6064,7 @@
         "iconId": "item_plant_crylplant_seed_2_2",
         "fluidIconId": "",
         "sortId1": -60,
-        "sortId2": 16
+        "sortId2": 22
     },
     "item_plant_crylplant_seed_2_3": {
         "name": "红矛叶根茎",
@@ -5173,7 +6075,7 @@
         "iconId": "item_plant_crylplant_seed_2_3",
         "fluidIconId": "",
         "sortId1": -60,
-        "sortId2": 16
+        "sortId2": 24
     },
     "item_plant_grass_1": {
         "name": "锦草",
@@ -5184,7 +6086,7 @@
         "iconId": "item_plant_grass_1",
         "fluidIconId": "",
         "sortId1": -80,
-        "sortId2": 17
+        "sortId2": 18
     },
     "item_plant_grass_2": {
         "name": "芽针",
@@ -5195,7 +6097,7 @@
         "iconId": "item_plant_grass_2",
         "fluidIconId": "",
         "sortId1": -80,
-        "sortId2": 19
+        "sortId2": 20
     },
     "item_plant_grass_powder_1": {
         "name": "锦草粉末",
@@ -5228,7 +6130,7 @@
         "iconId": "item_plant_grass_seed_1",
         "fluidIconId": "",
         "sortId1": -80,
-        "sortId2": 18
+        "sortId2": 19
     },
     "item_plant_grass_seed_2": {
         "name": "芽针种子",
@@ -5239,7 +6141,7 @@
         "iconId": "item_plant_grass_seed_2",
         "fluidIconId": "",
         "sortId1": -80,
-        "sortId2": 20
+        "sortId2": 21
     },
     "item_plant_grass_spc_1": {
         "name": "蓬茸锦草",
@@ -5250,7 +6152,7 @@
         "iconId": "item_plant_grass_spc_1",
         "fluidIconId": "",
         "sortId1": -80,
-        "sortId2": 21
+        "sortId2": 22
     },
     "item_plant_grass_spc_2": {
         "name": "荆刺芽针",
@@ -5261,7 +6163,7 @@
         "iconId": "item_plant_grass_spc_2",
         "fluidIconId": "",
         "sortId1": -80,
-        "sortId2": 22
+        "sortId2": 23
     },
     "item_plant_grass_spc_powder_1": {
         "name": "蓬茸锦草粉末",
@@ -5285,6 +6187,17 @@
         "sortId1": -81,
         "sortId2": 22
     },
+    "item_plant_grass_spmushroom_1": {
+        "name": "健谈的蘑菇",
+        "category": "植物",
+        "storageKind": "Normal",
+        "categoryType": "Plant",
+        "rarity": 1,
+        "iconId": "item_plant_grass_spmushroom_1",
+        "fluidIconId": "",
+        "sortId1": -80,
+        "sortId2": 49
+    },
     "item_plant_moss_1": {
         "name": "荞花",
         "category": "植物",
@@ -5294,7 +6207,7 @@
         "iconId": "item_plant_moss_1",
         "fluidIconId": "",
         "sortId1": -80,
-        "sortId2": 7
+        "sortId2": 8
     },
     "item_plant_moss_2": {
         "name": "柑实",
@@ -5305,7 +6218,7 @@
         "iconId": "item_plant_moss_2",
         "fluidIconId": "",
         "sortId1": -80,
-        "sortId2": 10
+        "sortId2": 11
     },
     "item_plant_moss_3": {
         "name": "砂叶",
@@ -5316,7 +6229,7 @@
         "iconId": "item_plant_moss_3",
         "fluidIconId": "",
         "sortId1": -80,
-        "sortId2": 13
+        "sortId2": 14
     },
     "item_plant_moss_enr_powder_1": {
         "name": "细磨荞花粉末",
@@ -5382,7 +6295,7 @@
         "iconId": "item_plant_moss_seed_1",
         "fluidIconId": "",
         "sortId1": -80,
-        "sortId2": 8
+        "sortId2": 9
     },
     "item_plant_moss_seed_2": {
         "name": "柑实种子",
@@ -5393,7 +6306,7 @@
         "iconId": "item_plant_moss_seed_2",
         "fluidIconId": "",
         "sortId1": -80,
-        "sortId2": 11
+        "sortId2": 12
     },
     "item_plant_moss_seed_3": {
         "name": "砂叶种子",
@@ -5404,7 +6317,7 @@
         "iconId": "item_plant_moss_seed_3",
         "fluidIconId": "",
         "sortId1": -80,
-        "sortId2": 14
+        "sortId2": 15
     },
     "item_plant_moss_spc_1": {
         "name": "映火荞花",
@@ -5415,7 +6328,7 @@
         "iconId": "item_plant_moss_spc_1",
         "fluidIconId": "",
         "sortId1": -80,
-        "sortId2": 9
+        "sortId2": 10
     },
     "item_plant_moss_spc_2": {
         "name": "黯银柑实",
@@ -5426,7 +6339,7 @@
         "iconId": "item_plant_moss_spc_2",
         "fluidIconId": "",
         "sortId1": -80,
-        "sortId2": 12
+        "sortId2": 13
     },
     "item_plant_moss_spc_powder_1": {
         "name": "荞愈药粉",
@@ -5503,7 +6416,7 @@
         "iconId": "item_plant_mushroom_2_2",
         "fluidIconId": "",
         "sortId1": -60,
-        "sortId2": 7
+        "sortId2": 9
     },
     "item_plant_mushroom_2_3": {
         "name": "塔罗斯菌",
@@ -5514,7 +6427,7 @@
         "iconId": "item_plant_mushroom_2_3",
         "fluidIconId": "",
         "sortId1": -60,
-        "sortId2": 7
+        "sortId2": 11
     },
     "item_plant_mushroom_seed_1_1": {
         "name": "轻红柱状菌块",
@@ -5569,7 +6482,7 @@
         "iconId": "item_plant_mushroom_seed_2_2",
         "fluidIconId": "",
         "sortId1": -60,
-        "sortId2": 8
+        "sortId2": 10
     },
     "item_plant_mushroom_seed_2_3": {
         "name": "塔罗斯菌块",
@@ -5580,7 +6493,7 @@
         "iconId": "item_plant_mushroom_seed_2_3",
         "fluidIconId": "",
         "sortId1": -60,
-        "sortId2": 8
+        "sortId2": 12
     },
     "item_plant_sp_1": {
         "name": "灰芦麦",
@@ -5591,7 +6504,7 @@
         "iconId": "item_plant_sp_1",
         "fluidIconId": "",
         "sortId1": -80,
-        "sortId2": 23
+        "sortId2": 24
     },
     "item_plant_sp_2": {
         "name": "苦叶椒",
@@ -5602,7 +6515,7 @@
         "iconId": "item_plant_sp_2",
         "fluidIconId": "",
         "sortId1": -80,
-        "sortId2": 24
+        "sortId2": 25
     },
     "item_plant_sp_3": {
         "name": "琼叶参",
@@ -5613,7 +6526,7 @@
         "iconId": "item_plant_sp_3",
         "fluidIconId": "",
         "sortId1": -80,
-        "sortId2": 25
+        "sortId2": 26
     },
     "item_plant_sp_4": {
         "name": "金石稻",
@@ -5624,7 +6537,7 @@
         "iconId": "item_plant_sp_4",
         "fluidIconId": "",
         "sortId1": -80,
-        "sortId2": 26
+        "sortId2": 27
     },
     "item_plant_sp_seed_1": {
         "name": "灰芦麦种子",
@@ -5635,7 +6548,7 @@
         "iconId": "item_plant_sp_seed_1",
         "fluidIconId": "",
         "sortId1": -80,
-        "sortId2": 27
+        "sortId2": 28
     },
     "item_plant_sp_seed_2": {
         "name": "苦叶椒种子",
@@ -5646,7 +6559,7 @@
         "iconId": "item_plant_sp_seed_2",
         "fluidIconId": "",
         "sortId1": -80,
-        "sortId2": 28
+        "sortId2": 29
     },
     "item_plant_sp_seed_3": {
         "name": "琼叶参种子",
@@ -5657,7 +6570,7 @@
         "iconId": "item_plant_sp_seed_3",
         "fluidIconId": "",
         "sortId1": -80,
-        "sortId2": 29
+        "sortId2": 30
     },
     "item_plant_sp_seed_4": {
         "name": "金石稻种子",
@@ -5668,7 +6581,7 @@
         "iconId": "item_plant_sp_seed_4",
         "fluidIconId": "",
         "sortId1": -80,
-        "sortId2": 30
+        "sortId2": 31
     },
     "item_plant_spcstone_1_1": {
         "name": "轻黯石",
@@ -5679,7 +6592,7 @@
         "iconId": "item_plant_spcstone_1_1",
         "fluidIconId": "",
         "sortId1": -60,
-        "sortId2": 17
+        "sortId2": 25
     },
     "item_plant_spcstone_1_2": {
         "name": "中黯石",
@@ -5690,7 +6603,7 @@
         "iconId": "item_plant_spcstone_1_2",
         "fluidIconId": "",
         "sortId1": -60,
-        "sortId2": 19
+        "sortId2": 27
     },
     "item_plant_spcstone_1_3": {
         "name": "重黯石",
@@ -5701,7 +6614,7 @@
         "iconId": "item_plant_spcstone_1_3",
         "fluidIconId": "",
         "sortId1": -60,
-        "sortId2": 21
+        "sortId2": 29
     },
     "item_plant_spcstone_2_1": {
         "name": "燎石",
@@ -5712,7 +6625,7 @@
         "iconId": "item_plant_spcstone_2_1",
         "fluidIconId": "",
         "sortId1": -60,
-        "sortId2": 23
+        "sortId2": 31
     },
     "item_plant_spcstone_2_2": {
         "name": "武陵石",
@@ -5723,7 +6636,7 @@
         "iconId": "item_plant_spcstone_2_2",
         "fluidIconId": "",
         "sortId1": -60,
-        "sortId2": 23
+        "sortId2": 33
     },
     "item_plant_spcstone_2_3": {
         "name": "协议纹石",
@@ -5734,7 +6647,7 @@
         "iconId": "item_plant_spcstone_2_3",
         "fluidIconId": "",
         "sortId1": -60,
-        "sortId2": 23
+        "sortId2": 35
     },
     "item_plant_spcstone_seed_1_1": {
         "name": "轻黯石子簇",
@@ -5745,7 +6658,7 @@
         "iconId": "item_plant_spcstone_seed_1_1",
         "fluidIconId": "",
         "sortId1": -60,
-        "sortId2": 18
+        "sortId2": 26
     },
     "item_plant_spcstone_seed_1_2": {
         "name": "中黯石子簇",
@@ -5756,7 +6669,7 @@
         "iconId": "item_plant_spcstone_seed_1_2",
         "fluidIconId": "",
         "sortId1": -60,
-        "sortId2": 20
+        "sortId2": 28
     },
     "item_plant_spcstone_seed_1_3": {
         "name": "重黯石子簇",
@@ -5767,7 +6680,7 @@
         "iconId": "item_plant_spcstone_seed_1_3",
         "fluidIconId": "",
         "sortId1": -60,
-        "sortId2": 22
+        "sortId2": 30
     },
     "item_plant_spcstone_seed_2_1": {
         "name": "燎石子簇",
@@ -5778,7 +6691,7 @@
         "iconId": "item_plant_spcstone_seed_2_1",
         "fluidIconId": "",
         "sortId1": -60,
-        "sortId2": 24
+        "sortId2": 32
     },
     "item_plant_spcstone_seed_2_2": {
         "name": "武陵石子簇",
@@ -5789,7 +6702,7 @@
         "iconId": "item_plant_spcstone_seed_2_2",
         "fluidIconId": "",
         "sortId1": -60,
-        "sortId2": 24
+        "sortId2": 34
     },
     "item_plant_spcstone_seed_2_3": {
         "name": "协议纹石子簇",
@@ -5800,7 +6713,7 @@
         "iconId": "item_plant_spcstone_seed_2_3",
         "fluidIconId": "",
         "sortId1": -60,
-        "sortId2": 24
+        "sortId2": 36
     },
     "item_plant_tundra_impts": {
         "name": "植物杂质",
@@ -5822,7 +6735,7 @@
         "iconId": "item_plant_tundra_insect_1",
         "fluidIconId": "",
         "sortId1": -80,
-        "sortId2": 32
+        "sortId2": 45
     },
     "item_plant_tundra_insect_2": {
         "name": "灼壳虫",
@@ -5833,7 +6746,7 @@
         "iconId": "item_plant_tundra_insect_2",
         "fluidIconId": "",
         "sortId1": -80,
-        "sortId2": 33
+        "sortId2": 46
     },
     "item_plant_tundra_insect_powder_1": {
         "name": "萤壳虫粉末",
@@ -5866,7 +6779,7 @@
         "iconId": "item_plant_tundra_wood",
         "fluidIconId": "",
         "sortId1": -80,
-        "sortId2": 31
+        "sortId2": 44
     },
     "item_port_air_dancer_1": {
         "name": "充气教授",
@@ -6077,6 +6990,17 @@
         "sortId1": -104,
         "sortId2": 17
     },
+    "item_port_biscuitmountain_1": {
+        "name": "甜美祈愿",
+        "category": "生产工具",
+        "storageKind": "Normal",
+        "categoryType": "Producer",
+        "rarity": 5,
+        "iconId": "item_port_biscuitmountain_1",
+        "fluidIconId": "",
+        "sortId1": -105,
+        "sortId2": 20
+    },
     "item_port_burger_1": {
         "name": "汉堡之王",
         "category": "生产工具",
@@ -6142,6 +7066,17 @@
         "fluidIconId": "",
         "sortId1": -100,
         "sortId2": 8
+    },
+    "item_port_dg017oven_1": {
+        "name": "“甜有蜜炉”",
+        "category": "生产工具",
+        "storageKind": "Normal",
+        "categoryType": "Producer",
+        "rarity": 5,
+        "iconId": "item_port_dg017oven_1",
+        "fluidIconId": "",
+        "sortId1": -105,
+        "sortId2": 21
     },
     "item_port_dismantler_1": {
         "name": "拆解机",
@@ -6258,6 +7193,17 @@
         "sortId1": -100,
         "sortId2": 3
     },
+    "item_port_horse_1": {
+        "name": "摇摇怒骊",
+        "category": "生产工具",
+        "storageKind": "Normal",
+        "categoryType": "Producer",
+        "rarity": 5,
+        "iconId": "item_port_horse_1",
+        "fluidIconId": "",
+        "sortId1": -105,
+        "sortId2": 17
+    },
     "item_port_jail_1": {
         "name": "虎·牢·关",
         "category": "生产工具",
@@ -6270,7 +7216,7 @@
         "sortId2": 5
     },
     "item_port_liquid_cleaner_1": {
-        "name": "废水处理机",
+        "name": "废料处理机",
         "category": "生产工具",
         "storageKind": "Normal",
         "categoryType": "Producer",
@@ -6338,6 +7284,42 @@
         "fluidIconId": "",
         "sortId1": -100,
         "sortId2": 31,
+        "regionRestricted": true
+    },
+    "item_port_magic_balancer_1": {
+        "name": "平衡炉",
+        "category": "生产工具",
+        "storageKind": "Normal",
+        "categoryType": "Producer",
+        "rarity": 4,
+        "iconId": "item_port_magic_balancer_1",
+        "fluidIconId": "",
+        "sortId1": -100,
+        "sortId2": 39,
+        "regionRestricted": true
+    },
+    "item_port_magic_spawner_1": {
+        "name": "明晦炉",
+        "category": "生产工具",
+        "storageKind": "Normal",
+        "categoryType": "Producer",
+        "rarity": 4,
+        "iconId": "item_port_magic_spawner_1",
+        "fluidIconId": "",
+        "sortId1": -100,
+        "sortId2": 37,
+        "regionRestricted": true
+    },
+    "item_port_magic_spawner_2": {
+        "name": "分影明晦炉",
+        "category": "生产工具",
+        "storageKind": "Normal",
+        "categoryType": "Producer",
+        "rarity": 4,
+        "iconId": "item_port_magic_spawner_2",
+        "fluidIconId": "",
+        "sortId1": -100,
+        "sortId2": 38,
         "regionRestricted": true
     },
     "item_port_marker_1": {
@@ -6431,6 +7413,17 @@
         "sortId1": -100,
         "sortId2": 21,
         "regionRestricted": true
+    },
+    "item_port_mushman_1": {
+        "name": "“真核之子”",
+        "category": "生产工具",
+        "storageKind": "Normal",
+        "categoryType": "Producer",
+        "rarity": 5,
+        "iconId": "item_port_mushman_1",
+        "fluidIconId": "",
+        "sortId1": -105,
+        "sortId2": 22
     },
     "item_port_pear_blossom_bonsai_1": {
         "name": "山樆小景",
@@ -7065,6 +8058,18 @@
         "sortId1": -100,
         "sortId2": 4
     },
+    "item_port_wonder_supply_port_1": {
+        "name": "重建供应端口",
+        "category": "生产工具",
+        "storageKind": "Normal",
+        "categoryType": "Producer",
+        "rarity": 4,
+        "iconId": "item_port_wonder_supply_port_1",
+        "fluidIconId": "",
+        "sortId1": -100,
+        "sortId2": 40,
+        "regionRestricted": true
+    },
     "item_port_xiranite_oven_1": {
         "name": "天有洪炉",
         "category": "生产工具",
@@ -7128,6 +8133,17 @@
         "categoryType": "Product",
         "rarity": 4,
         "iconId": "item_proc_battery_5",
+        "fluidIconId": "",
+        "sortId1": -82,
+        "sortId2": 205
+    },
+    "item_proc_battery_6": {
+        "name": "高容武陵电池",
+        "category": "产物",
+        "storageKind": "Normal",
+        "categoryType": "Product",
+        "rarity": 4,
+        "iconId": "item_proc_battery_6",
         "fluidIconId": "",
         "sortId1": -82,
         "sortId2": 205
@@ -7251,7 +8267,7 @@
         "iconId": "item_ranch_fodder_1",
         "fluidIconId": "",
         "sortId1": -1101,
-        "sortId2": 1
+        "sortId2": 29
     },
     "item_ranch_fodder_2": {
         "name": "双效饱食饲料",
@@ -7262,7 +8278,7 @@
         "iconId": "item_ranch_fodder_2",
         "fluidIconId": "",
         "sortId1": -1101,
-        "sortId2": 1
+        "sortId2": 32
     },
     "item_ranch_meat_1": {
         "name": "肉块",
@@ -7449,6 +8465,17 @@
         "sortId1": -303,
         "sortId2": 7
     },
+    "item_spaceship_exhibits_mushroom": {
+        "name": "华丽蘑菇吉祥物",
+        "category": "珍贵物品",
+        "storageKind": "ValuableDepot",
+        "categoryType": "CommercialItem",
+        "rarity": 5,
+        "iconId": "item_spaceship_exhibits_mushroom",
+        "fluidIconId": "",
+        "sortId1": -303,
+        "sortId2": 12
+    },
     "item_spaceship_exhibits_shanshantu": {
         "name": "同行者的小雕像",
         "category": "珍贵物品",
@@ -7524,7 +8551,7 @@
         "iconId": "item_icon_springloft_usual",
         "fluidIconId": "",
         "sortId1": -20,
-        "sortId2": 103
+        "sortId2": 113
     },
     "item_springbox_02": {
         "name": "连连乐·好运款",
@@ -7535,7 +8562,7 @@
         "iconId": "item_icon_springloft_all",
         "fluidIconId": "",
         "sortId1": -20,
-        "sortId2": 103
+        "sortId2": 113
     },
     "item_ticketgacha_beginner_ten": {
         "name": "十连启程寻访凭证",
@@ -8560,6 +9587,17 @@
         "sortId1": -82,
         "sortId2": 55
     },
+    "item_wgthorns_1_mushbug_spmushroom1_1": {
+        "name": "菌王之血",
+        "category": "可用道具",
+        "storageKind": "Normal",
+        "categoryType": "Usable",
+        "rarity": 4,
+        "iconId": "item_wgthorns_1_mushbug_spmushroom1_1",
+        "fluidIconId": "",
+        "sortId1": -82,
+        "sortId2": 70
+    },
     "item_wpngem_enhance_dust": {
         "name": "冷却脂",
         "category": "培养素材",
@@ -8615,6 +9653,17 @@
         "sortId1": -61,
         "sortId2": 6
     },
+    "item_xiranite_enr_heng": {
+        "name": "衡息壤",
+        "category": "产物",
+        "storageKind": "Normal",
+        "categoryType": "Product",
+        "rarity": 3,
+        "iconId": "item_xiranite_enr_heng",
+        "fluidIconId": "",
+        "sortId1": -81,
+        "sortId2": 52
+    },
     "item_xiranite_enr_powder": {
         "name": "重息壤",
         "category": "产物",
@@ -8626,6 +9675,17 @@
         "sortId1": -81,
         "sortId2": 45
     },
+    "item_xiranite_hui": {
+        "name": "晦状息壤",
+        "category": "产物",
+        "storageKind": "Normal",
+        "categoryType": "Product",
+        "rarity": 3,
+        "iconId": "item_xiranite_hui",
+        "fluidIconId": "",
+        "sortId1": -81,
+        "sortId2": 51
+    },
     "item_xiranite_lowpoly": {
         "name": "轻壤晶",
         "category": "产物",
@@ -8635,7 +9695,18 @@
         "iconId": "item_xiranite_lowpoly",
         "fluidIconId": "",
         "sortId1": -81,
-        "sortId2": 47
+        "sortId2": 48
+    },
+    "item_xiranite_ming": {
+        "name": "明状息壤",
+        "category": "产物",
+        "storageKind": "Normal",
+        "categoryType": "Product",
+        "rarity": 3,
+        "iconId": "item_xiranite_ming",
+        "fluidIconId": "",
+        "sortId1": -81,
+        "sortId2": 50
     },
     "item_xiranite_poly": {
         "name": "壤晶",
@@ -8646,7 +9717,7 @@
         "iconId": "item_xiranite_poly",
         "fluidIconId": "",
         "sortId1": -81,
-        "sortId2": 46
+        "sortId2": 47
     },
     "item_xiranite_powder": {
         "name": "息壤",
@@ -8679,7 +9750,7 @@
         "iconId": "item_ticketgacha_joint_single_lt_1_2_2",
         "fluidIconId": "",
         "sortId1": -10,
-        "sortId2": 23
+        "sortId2": 26
     },
     "ticketgacha_joint_ten_lt_1_2_2": {
         "name": "流光庆时十连凭证",
@@ -8690,7 +9761,7 @@
         "iconId": "item_ticketgacha_joint_ten_lt_1_2_2",
         "fluidIconId": "",
         "sortId1": -10,
-        "sortId2": 24
+        "sortId2": 27
     },
     "ticketgacha_special_single_lt_1_0_1": {
         "name": "行火留烬寻访凭证",
@@ -8756,7 +9827,7 @@
         "iconId": "item_ticketgacha_special_single_lt_1_2_1",
         "fluidIconId": "",
         "sortId1": -10,
-        "sortId2": 20
+        "sortId2": 23
     },
     "ticketgacha_special_single_lt_1_3_1": {
         "name": "拳与心合寻访凭证",
@@ -8767,7 +9838,7 @@
         "iconId": "item_ticketgacha_special_single_lt_1_3_1",
         "fluidIconId": "",
         "sortId1": -10,
-        "sortId2": 25
+        "sortId2": 28
     },
     "ticketgacha_special_single_lt_1_3_2": {
         "name": "夜趋逐罪寻访凭证",
@@ -8778,7 +9849,7 @@
         "iconId": "item_ticketgacha_special_single_lt_1_3_2",
         "fluidIconId": "",
         "sortId1": -10,
-        "sortId2": 28
+        "sortId2": 31
     },
     "ticketgacha_special_single_lt_1_4_1": {
         "name": "踞渊北眺寻访凭证",
@@ -8789,7 +9860,7 @@
         "iconId": "item_ticketgacha_special_single_lt_1_4_1",
         "fluidIconId": "",
         "sortId1": -10,
-        "sortId2": 31
+        "sortId2": 34
     },
     "ticketgacha_special_single_lt_1_4_2": {
         "name": "明耀晨星寻访凭证",
@@ -8800,7 +9871,7 @@
         "iconId": "item_ticketgacha_special_single_lt_1_4_2",
         "fluidIconId": "",
         "sortId1": -10,
-        "sortId2": 34
+        "sortId2": 37
     },
     "ticketgacha_special_single_lt_1_5_1": {
         "name": "镞砺括羽寻访凭证",
@@ -8811,7 +9882,7 @@
         "iconId": "item_ticketgacha_special_single_lt_1_5_1",
         "fluidIconId": "",
         "sortId1": -10,
-        "sortId2": 37
+        "sortId2": 40
     },
     "ticketgacha_special_single_lt_1_6_1": {
         "name": "万物有灵寻访凭证",
@@ -8822,7 +9893,29 @@
         "iconId": "item_ticketgacha_special_single_lt_1_6_1",
         "fluidIconId": "",
         "sortId1": -10,
-        "sortId2": 39
+        "sortId2": 42
+    },
+    "ticketgacha_special_single_lt_1_6_2": {
+        "name": "星河共我寻访凭证",
+        "category": "珍贵物品",
+        "storageKind": "ValuableDepot",
+        "categoryType": "CommercialItem",
+        "rarity": 6,
+        "iconId": "item_ticketgacha_special_single_lt_1_6_2",
+        "fluidIconId": "",
+        "sortId1": -10,
+        "sortId2": 44
+    },
+    "ticketgacha_special_single_lt_1_7_1": {
+        "name": "漫野探奇寻访凭证",
+        "category": "珍贵物品",
+        "storageKind": "ValuableDepot",
+        "categoryType": "CommercialItem",
+        "rarity": 6,
+        "iconId": "item_ticketgacha_special_single_lt_1_7_1",
+        "fluidIconId": "",
+        "sortId1": -10,
+        "sortId2": 46
     },
     "ticketgacha_special_ten_lt_1_0_1": {
         "name": "行火留烬十连凭证",
@@ -8888,7 +9981,7 @@
         "iconId": "item_ticketgacha_special_ten_lt_1_2_1",
         "fluidIconId": "",
         "sortId1": -10,
-        "sortId2": 21
+        "sortId2": 24
     },
     "ticketgacha_special_ten_lt_1_3_1": {
         "name": "拳与心合十连凭证",
@@ -8899,7 +9992,7 @@
         "iconId": "item_ticketgacha_special_ten_lt_1_3_1",
         "fluidIconId": "",
         "sortId1": -10,
-        "sortId2": 26
+        "sortId2": 29
     },
     "ticketgacha_special_ten_lt_1_3_2": {
         "name": "夜趋逐罪十连凭证",
@@ -8910,7 +10003,7 @@
         "iconId": "item_ticketgacha_special_ten_lt_1_3_2",
         "fluidIconId": "",
         "sortId1": -10,
-        "sortId2": 29
+        "sortId2": 32
     },
     "ticketgacha_special_ten_lt_1_4_1": {
         "name": "踞渊北眺十连凭证",
@@ -8921,7 +10014,7 @@
         "iconId": "item_ticketgacha_special_ten_lt_1_4_1",
         "fluidIconId": "",
         "sortId1": -10,
-        "sortId2": 32
+        "sortId2": 35
     },
     "ticketgacha_special_ten_lt_1_4_2": {
         "name": "明耀晨星十连凭证",
@@ -8932,7 +10025,7 @@
         "iconId": "item_ticketgacha_special_ten_lt_1_4_2",
         "fluidIconId": "",
         "sortId1": -10,
-        "sortId2": 35
+        "sortId2": 38
     },
     "ticketgacha_weaponbox_lt_1_2_2": {
         "name": "融火于风申领凭证",
@@ -8954,7 +10047,7 @@
         "iconId": "item_ticketgacha_special_ten",
         "fluidIconId": "",
         "sortId1": -10,
-        "sortId2": 5
+        "sortId2": 4
     },
     "wpn_claym_0003": {
         "name": "工业零点一",
@@ -9397,6 +10490,24 @@
         "iconId": "wpn_lance_0016",
         "fluidIconId": ""
     },
+    "wpn_lance_0017": {
+        "name": "甜美交易",
+        "category": "武器",
+        "storageKind": "ValuableDepot",
+        "categoryType": "Weapon",
+        "rarity": 6,
+        "iconId": "wpn_lance_0017",
+        "fluidIconId": ""
+    },
+    "wpn_lance_0018": {
+        "name": "突击流星",
+        "category": "武器",
+        "storageKind": "ValuableDepot",
+        "categoryType": "Weapon",
+        "rarity": 6,
+        "iconId": "wpn_lance_0018",
+        "fluidIconId": ""
+    },
     "wpn_pistol_0001": {
         "name": "佩科5",
         "category": "武器",
@@ -9503,6 +10614,15 @@
         "categoryType": "Weapon",
         "rarity": 5,
         "iconId": "wpn_pistol_0012",
+        "fluidIconId": ""
+    },
+    "wpn_pistol_0013": {
+        "name": "明日之星",
+        "category": "武器",
+        "storageKind": "ValuableDepot",
+        "categoryType": "Weapon",
+        "rarity": 5,
+        "iconId": "wpn_pistol_0013",
         "fluidIconId": ""
     },
     "wpn_sword_0003": {
@@ -9659,15 +10779,6 @@
         "fluidIconId": ""
     },
     "wpn_sword_0021": {
-        "name": "宏愿",
-        "category": "武器",
-        "storageKind": "ValuableDepot",
-        "categoryType": "Weapon",
-        "rarity": 6,
-        "iconId": "wpn_sword_0021",
-        "fluidIconId": ""
-    },
-    "wpn_sword_0021_ink": {
         "name": "宏愿",
         "category": "武器",
         "storageKind": "ValuableDepot",

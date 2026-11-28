@@ -93,7 +93,7 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "CheckAncientTreeJob": {
+    "CheckAncientTreeJobText": {
         "desc": "检查古树委托是否可以接取",
         "recognition": "OCR",
         "roi": "CheckAncientTreeIcon",
@@ -162,7 +162,7 @@
         "all_of": [
             "CheckAncientTreeText",
             "CheckAncientTreeIcon",
-            "CheckAncientTreeJob"
+            "CheckAncientTreeJobText"
         ],
         "box_index": 2,
         "pre_delay": 0,
@@ -234,7 +234,7 @@
         "desc": "古树任务已经在追踪中",
         "recognition": "And",
         "all_of": [
-            "AlreadyTrackedMissionButton",
+            "CheckAlreadyTrackingText",
             "InAncientTreeMission"
         ],
         "pre_delay": 0,
@@ -460,12 +460,12 @@
         "desc": "在古树任务拍照点开始拍照",
         "pre_delay": 0,
         "anchor": {
-            "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal"
+            "TakePhotoDone": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "EnvironmentMonitoringTakePhoto"
+            "TakePhoto"
         ]
     }
 }

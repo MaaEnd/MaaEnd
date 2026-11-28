@@ -32,7 +32,7 @@ var defaultWindowSelectors = map[string]windowSelector{
 		WindowName: "Endfield",
 	},
 	windowForm: {
-		ClassName:  "Qt5158QWindowIcon",
+		ClassName:  "Qt5158QWindowToolSaveBits",
 		WindowName: "UIPlatform",
 	},
 	windowCombo: {

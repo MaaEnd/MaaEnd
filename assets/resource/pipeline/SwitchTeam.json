@@ -1,4 +1,42 @@
 {
+    "SwitchTeamSchedule": {
+        "desc": "切换编队计划任务",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "SwitchTeamScheduleEnabled",
+            "SwitchTeamScheduleEnd"
+        ]
+    },
+    "SwitchTeamScheduleEnabled": {
+        "desc": "切换编队计划任务命中",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ScheduleRecognition",
+                "custom_recognition_param": {}
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "SwitchTeamMain"
+        ],
+        "attach": {
+            "monday": false,
+            "tuesday": false,
+            "wednesday": false,
+            "thursday": false,
+            "friday": false,
+            "saturday": false,
+            "sunday": false
+        }
+    },
+    "SwitchTeamScheduleEnd": {
+        "desc": "切换编队计划任务跳过",
+        "pre_delay": 0,
+        "post_delay": 0
+    },
     "SwitchTeamMain": {
         "desc": "切换编队入口",
         "pre_delay": 0,
@@ -160,7 +198,7 @@
         "post_wait_freezes": 200,
         "post_delay": 0,
         "next": [
-            "SceneAnyEnterWorld"
+            "SwitchTeamBackToWorld"
         ]
     },
     "SwitchTeamConfirm": {
@@ -189,7 +227,267 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SceneAnyEnterWorld"
+            "SwitchTeamBackToWorld"
+        ]
+    },
+    "SwitchTeamBackToWorld": {
+        "desc": "返回大世界",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SwitchTeamOperatorPosSkip",
+            "SwitchTeamOperatorPosDijiangEscape",
+            "SwitchTeamOperatorPos1",
+            "SwitchTeamOperatorPos2",
+            "SwitchTeamOperatorPos3",
+            "SwitchTeamOperatorPos4"
+        ]
+    },
+    "SwitchTeamOperatorPosSkip": {
+        "desc": "不切换干员位置",
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "SwitchTeamOperatorPosDijiangEscape": {
+        "desc": "在帝江号中，传送到四号谷地枢纽区",
+        "recognition": "And",
+        "all_of": [
+            "InDijiangWorld"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldValleyIVTheHubHubBasePowerPlant"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SwitchTeamOperatorPos1",
+            "SwitchTeamOperatorPos2",
+            "SwitchTeamOperatorPos3",
+            "SwitchTeamOperatorPos4"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.SwitchTeam.focus.dijiang_escape"
+        }
+    },
+    "SwitchTeamOperatorPos1": {
+        "desc": "切换到 1 号位干员",
+        "enabled": false,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SwitchTeamOperatorPos1Active",
+            "SwitchTeamOperatorPos1Press"
+        ]
+    },
+    "SwitchTeamOperatorPos1Active": {
+        "desc": "1 号位干员已激活",
+        "recognition": "TemplateMatch",
+        "roi": [
+            37,
+            587,
+            38,
+            34
+        ],
+        "template": [
+            "AutoFight/CharacterBar.png"
+        ],
+        "green_mask": true,
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "SwitchTeamOperatorPos1Press": {
+        "desc": "按键切换到 1 号位干员",
+        "max_hit": 5,
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "pre_delay": 0,
+        "action": "ClickKey",
+        "key": 112, // F1
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                0,
+                580,
+                340,
+                60
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "SwitchTeamOperatorPos1Active",
+            "SwitchTeamOperatorPos1Press"
+        ]
+    },
+    "SwitchTeamOperatorPos2": {
+        "desc": "切换到 2 号位干员",
+        "enabled": false,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SwitchTeamOperatorPos2Active",
+            "SwitchTeamOperatorPos2Press"
+        ]
+    },
+    "SwitchTeamOperatorPos2Active": {
+        "desc": "2 号位干员已激活",
+        "recognition": "TemplateMatch",
+        "roi": [
+            115,
+            587,
+            38,
+            34
+        ],
+        "template": [
+            "AutoFight/CharacterBar.png"
+        ],
+        "green_mask": true,
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "SwitchTeamOperatorPos2Press": {
+        "desc": "按键切换到 2 号位干员",
+        "max_hit": 5,
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "pre_delay": 0,
+        "action": "ClickKey",
+        "key": 113, // F2
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                0,
+                580,
+                340,
+                60
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "SwitchTeamOperatorPos2Active",
+            "SwitchTeamOperatorPos2Press"
+        ]
+    },
+    "SwitchTeamOperatorPos3": {
+        "desc": "切换到 3 号位干员",
+        "enabled": false,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SwitchTeamOperatorPos3Active",
+            "SwitchTeamOperatorPos3Press"
+        ]
+    },
+    "SwitchTeamOperatorPos3Active": {
+        "desc": "3 号位干员已激活",
+        "recognition": "TemplateMatch",
+        "roi": [
+            193,
+            587,
+            38,
+            34
+        ],
+        "template": [
+            "AutoFight/CharacterBar.png"
+        ],
+        "green_mask": true,
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "SwitchTeamOperatorPos3Press": {
+        "desc": "按键切换到 3 号位干员",
+        "max_hit": 5,
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "pre_delay": 0,
+        "action": "ClickKey",
+        "key": 114, // F3
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                0,
+                580,
+                340,
+                60
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "SwitchTeamOperatorPos3Active",
+            "SwitchTeamOperatorPos3Press"
+        ]
+    },
+    "SwitchTeamOperatorPos4": {
+        "desc": "切换到 4 号位干员",
+        "enabled": false,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SwitchTeamOperatorPos4Active",
+            "SwitchTeamOperatorPos4Press"
+        ]
+    },
+    "SwitchTeamOperatorPos4Active": {
+        "desc": "4 号位干员已激活",
+        "recognition": "TemplateMatch",
+        "roi": [
+            271,
+            587,
+            38,
+            34
+        ],
+        "template": [
+            "AutoFight/CharacterBar.png"
+        ],
+        "green_mask": true,
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "SwitchTeamOperatorPos4Press": {
+        "desc": "按键切换到 4 号位干员",
+        "max_hit": 5,
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "pre_delay": 0,
+        "action": "ClickKey",
+        "key": 115, // F4
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                0,
+                580,
+                340,
+                60
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "SwitchTeamOperatorPos4Active",
+            "SwitchTeamOperatorPos4Press"
         ]
     }
 }

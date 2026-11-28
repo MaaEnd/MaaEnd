@@ -1,0 +1,18 @@
+{
+    "AutoSellFriendsPricesExpectedGoToHighlightRecognition": {
+        // 云端画面的黄色标记可达 G=255；保留 ADB 的定位、像素数及蓝通道范围。
+        "upper": [
+            255,
+            255,
+            40
+        ]
+    },
+    "AutoSellFriendsPriceCurrentAreaRecognition": {
+        // 「当前」标签也会达到 G=255；保留公共 B 上限 10 及 count=150，排除普通好友行的细竖条。
+        "upper": [
+            255,
+            255,
+            10
+        ]
+    }
+}

@@ -73,6 +73,29 @@
             }
         }
     },
+    "CreditShoppingRefreshBalanceGate": {
+        "desc": "刷新前余额检查",
+        "enabled": false,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "{CreditShoppingReserveCreditOCRInternal}-{RefreshCost}<400"
+                }
+            }
+        },
+        "next": [
+            "CreditShoppingNothingToBuy"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.refresh_limit_reached"
+        }
+    },
+    "CreditShoppingRefreshReserveCreditGate": {
+        "desc": "刷新商品的保留信用点准入判断（选项：刷新前检查保留信用点）",
+        "recognition": "DirectHit"
+    },
     "RefreshColor": {
         "recognition": {
             "type": "ColorMatch",

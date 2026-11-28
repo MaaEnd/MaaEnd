@@ -102,6 +102,9 @@
         "next": [
             "GotoTriggerPointMoveExact_WLWulingCity"
         ],
+        "on_error": [
+            "[Anchor]AutoEssenceMoveToTriggerPointMaybeTeleport"
+        ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点附近",
             "Node.Action.Succeeded": {
@@ -211,6 +214,9 @@
         },
         "next": [
             "GotoTriggerPointMoveExact_WLWulingCity"
+        ],
+        "on_error": [
+            "[Anchor]AutoEssenceMoveToTriggerPointMaybeTeleport"
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点附近",

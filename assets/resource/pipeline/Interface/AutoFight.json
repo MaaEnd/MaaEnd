@@ -26,7 +26,8 @@
             "skill_mode_1": "cycle",
             "skill_mode_2": "cycle",
             "skill_mode_3": "cycle",
-            "skill_mode_4": "cycle"
+            "skill_mode_4": "cycle",
+            "start_operator": 0
         }
     }
 }

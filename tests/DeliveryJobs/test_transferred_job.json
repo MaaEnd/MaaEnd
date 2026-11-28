@@ -1,0 +1,23 @@
+{
+    "configs": {
+        "name": "转交委托，测试「我转交的委托」列表",
+        "resource": "官服",
+        "controller": [
+            "Win32",
+            "CloudWeb",
+            "ADB",
+            "CloudADB"
+        ],
+        "imageRoot": "DeliveryJobs"
+    },
+    "cases": [
+        {
+            "name": "我转交的委托列表",
+            "image": "我转交的委托.png",
+            "hits": [
+                "InClaimDeliveryJobsNode",
+                "DeliveryJobsQuickTransferBackToLocalDepotNode"
+            ]
+        }
+    ]
+}

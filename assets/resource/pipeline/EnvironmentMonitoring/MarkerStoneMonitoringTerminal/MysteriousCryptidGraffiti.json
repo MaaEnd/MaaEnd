@@ -93,7 +93,7 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "CheckMysteriousCryptidGraffitiJob": {
+    "CheckMysteriousCryptidGraffitiJobText": {
         "desc": "检查谜之生物的涂鸦委托是否可以接取",
         "recognition": "OCR",
         "roi": "CheckMysteriousCryptidGraffitiIcon",
@@ -162,7 +162,7 @@
         "all_of": [
             "CheckMysteriousCryptidGraffitiText",
             "CheckMysteriousCryptidGraffitiIcon",
-            "CheckMysteriousCryptidGraffitiJob"
+            "CheckMysteriousCryptidGraffitiJobText"
         ],
         "box_index": 2,
         "pre_delay": 0,
@@ -234,7 +234,7 @@
         "desc": "谜之生物的涂鸦任务已经在追踪中",
         "recognition": "And",
         "all_of": [
-            "AlreadyTrackedMissionButton",
+            "CheckAlreadyTrackingText",
             "InMysteriousCryptidGraffitiMission"
         ],
         "pre_delay": 0,
@@ -460,12 +460,12 @@
         "desc": "在谜之生物的涂鸦任务拍照点开始拍照",
         "pre_delay": 0,
         "anchor": {
-            "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal"
+            "TakePhotoDone": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "EnvironmentMonitoringTakePhoto"
+            "TakePhoto"
         ]
     }
 }

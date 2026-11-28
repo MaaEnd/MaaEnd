@@ -1,6 +1,6 @@
 {
-    "version": "1.6.3",
-    "sha256": "1a16f73ec344e5c65f872c2acf775139c5ad4f732f79bf87200e0f9cb8d5b742",
+    "version": "1.7.2+12026241-3",
+    "sha256": "fba430087da157ebf248cf196f1a47b0a053b9154bd53755e153c67b8ac0aeee",
     "regions": {
         "domain_1": {
             "names": {
@@ -31,6 +31,7 @@
                 "ja_jp": "源石研究パーク",
                 "ko_kr": "오리지늄 연구 구역"
             },
+            "max_base_quote": 192000,
             "fillable_items": [
                 "item_agfly_1_agmelee_1_moss_2_1",
                 "item_agmelee_1_moss_1_lbmob_1_1",
@@ -69,16 +70,26 @@
                 "item_carbon_mtl",
                 "item_carbon_powder",
                 "item_copper_bottle",
+                "item_copper_bright",
+                "item_copper_bright_cmpt",
+                "item_copper_bright_cube",
                 "item_copper_cmpt",
                 "item_copper_enr",
                 "item_copper_enr2",
                 "item_copper_enr2_cmpt",
                 "item_copper_enr_bottle",
                 "item_copper_enr_cmpt",
+                "item_copper_enr_heng",
+                "item_copper_hui",
+                "item_copper_hui_cmpt",
                 "item_copper_jar",
+                "item_copper_ming",
+                "item_copper_ming_cmpt",
                 "item_copper_nugget",
                 "item_copper_ore",
                 "item_copper_powder",
+                "item_copper_xiranite_hui",
+                "item_copper_xiranite_ming",
                 "item_corp1_animal_1",
                 "item_corp2_animal_1",
                 "item_corp3_animal_1",
@@ -183,12 +194,16 @@
                 "item_firebat_1_agrange_1_1",
                 "item_gasjar_copper_gas_acid",
                 "item_gasjar_copper_gas_copper",
+                "item_gasjar_copper_gas_copper_bright_clear",
+                "item_gasjar_copper_gas_copper_bright_turbid",
                 "item_gasjar_copper_gas_copper_enr",
                 "item_gasjar_copper_gas_copper_enr2",
+                "item_gasjar_copper_gas_copper_enr_heng",
                 "item_gasjar_copper_gas_inert",
                 "item_gasjar_copper_gas_water",
                 "item_gasjar_copper_gas_xiranite",
                 "item_gasjar_copper_gas_xiranite_enr",
+                "item_gasjar_copper_gas_xiranite_enr_heng",
                 "item_glass_bottle",
                 "item_glass_cmpt",
                 "item_glass_enr_bottle",
@@ -214,6 +229,7 @@
                 "item_iron_ore",
                 "item_iron_powder",
                 "item_jzmonk_1_hsmob_1_1",
+                "item_jzmonk_1_mushbug_spmushroom1_1",
                 "item_klbuds_1_hsfly_1_1",
                 "item_klcreatures_1_wgthorns_1_1",
                 "item_lbmob_1_dog_1_moss_1_1",
@@ -273,6 +289,7 @@
                 "item_proc_battery_3",
                 "item_proc_battery_4",
                 "item_proc_battery_5",
+                "item_proc_battery_6",
                 "item_proc_bomb_1",
                 "item_quartz_enr",
                 "item_quartz_enr_powder",
@@ -288,8 +305,12 @@
                 "item_wgslime_1_hsmob_1_grass_2_1",
                 "item_wgslime_1_wgthorns_1_1",
                 "item_wgthorns_1_hshog_1_hsmob_1_1",
+                "item_wgthorns_1_mushbug_spmushroom1_1",
+                "item_xiranite_enr_heng",
                 "item_xiranite_enr_powder",
+                "item_xiranite_hui",
                 "item_xiranite_lowpoly",
+                "item_xiranite_ming",
                 "item_xiranite_poly",
                 "item_xiranite_powder"
             ]
@@ -303,6 +324,7 @@
                 "ja_jp": "鉱山エリア",
                 "ko_kr": "광맥 구역"
             },
+            "max_base_quote": 312000,
             "fillable_items": [
                 "item_agfly_1_agmelee_1_moss_2_1",
                 "item_agmelee_1_moss_1_lbmob_1_1",
@@ -341,16 +363,26 @@
                 "item_carbon_mtl",
                 "item_carbon_powder",
                 "item_copper_bottle",
+                "item_copper_bright",
+                "item_copper_bright_cmpt",
+                "item_copper_bright_cube",
                 "item_copper_cmpt",
                 "item_copper_enr",
                 "item_copper_enr2",
                 "item_copper_enr2_cmpt",
                 "item_copper_enr_bottle",
                 "item_copper_enr_cmpt",
+                "item_copper_enr_heng",
+                "item_copper_hui",
+                "item_copper_hui_cmpt",
                 "item_copper_jar",
+                "item_copper_ming",
+                "item_copper_ming_cmpt",
                 "item_copper_nugget",
                 "item_copper_ore",
                 "item_copper_powder",
+                "item_copper_xiranite_hui",
+                "item_copper_xiranite_ming",
                 "item_corp1_animal_1",
                 "item_corp2_animal_1",
                 "item_corp3_animal_1",
@@ -455,12 +487,16 @@
                 "item_firebat_1_agrange_1_1",
                 "item_gasjar_copper_gas_acid",
                 "item_gasjar_copper_gas_copper",
+                "item_gasjar_copper_gas_copper_bright_clear",
+                "item_gasjar_copper_gas_copper_bright_turbid",
                 "item_gasjar_copper_gas_copper_enr",
                 "item_gasjar_copper_gas_copper_enr2",
+                "item_gasjar_copper_gas_copper_enr_heng",
                 "item_gasjar_copper_gas_inert",
                 "item_gasjar_copper_gas_water",
                 "item_gasjar_copper_gas_xiranite",
                 "item_gasjar_copper_gas_xiranite_enr",
+                "item_gasjar_copper_gas_xiranite_enr_heng",
                 "item_glass_bottle",
                 "item_glass_cmpt",
                 "item_glass_enr_bottle",
@@ -486,6 +522,7 @@
                 "item_iron_ore",
                 "item_iron_powder",
                 "item_jzmonk_1_hsmob_1_1",
+                "item_jzmonk_1_mushbug_spmushroom1_1",
                 "item_klbuds_1_hsfly_1_1",
                 "item_klcreatures_1_wgthorns_1_1",
                 "item_lbmob_1_dog_1_moss_1_1",
@@ -545,6 +582,7 @@
                 "item_proc_battery_3",
                 "item_proc_battery_4",
                 "item_proc_battery_5",
+                "item_proc_battery_6",
                 "item_proc_bomb_1",
                 "item_quartz_enr",
                 "item_quartz_enr_powder",
@@ -560,8 +598,12 @@
                 "item_wgslime_1_hsmob_1_grass_2_1",
                 "item_wgslime_1_wgthorns_1_1",
                 "item_wgthorns_1_hshog_1_hsmob_1_1",
+                "item_wgthorns_1_mushbug_spmushroom1_1",
+                "item_xiranite_enr_heng",
                 "item_xiranite_enr_powder",
+                "item_xiranite_hui",
                 "item_xiranite_lowpoly",
+                "item_xiranite_ming",
                 "item_xiranite_poly",
                 "item_xiranite_powder"
             ]
@@ -575,6 +617,7 @@
                 "ja_jp": "エネルギー高地",
                 "ko_kr": "에너지 공급 고지"
             },
+            "max_base_quote": 336000,
             "fillable_items": [
                 "item_agfly_1_agmelee_1_moss_2_1",
                 "item_agmelee_1_moss_1_lbmob_1_1",
@@ -613,16 +656,26 @@
                 "item_carbon_mtl",
                 "item_carbon_powder",
                 "item_copper_bottle",
+                "item_copper_bright",
+                "item_copper_bright_cmpt",
+                "item_copper_bright_cube",
                 "item_copper_cmpt",
                 "item_copper_enr",
                 "item_copper_enr2",
                 "item_copper_enr2_cmpt",
                 "item_copper_enr_bottle",
                 "item_copper_enr_cmpt",
+                "item_copper_enr_heng",
+                "item_copper_hui",
+                "item_copper_hui_cmpt",
                 "item_copper_jar",
+                "item_copper_ming",
+                "item_copper_ming_cmpt",
                 "item_copper_nugget",
                 "item_copper_ore",
                 "item_copper_powder",
+                "item_copper_xiranite_hui",
+                "item_copper_xiranite_ming",
                 "item_corp1_animal_1",
                 "item_corp2_animal_1",
                 "item_corp3_animal_1",
@@ -727,12 +780,16 @@
                 "item_firebat_1_agrange_1_1",
                 "item_gasjar_copper_gas_acid",
                 "item_gasjar_copper_gas_copper",
+                "item_gasjar_copper_gas_copper_bright_clear",
+                "item_gasjar_copper_gas_copper_bright_turbid",
                 "item_gasjar_copper_gas_copper_enr",
                 "item_gasjar_copper_gas_copper_enr2",
+                "item_gasjar_copper_gas_copper_enr_heng",
                 "item_gasjar_copper_gas_inert",
                 "item_gasjar_copper_gas_water",
                 "item_gasjar_copper_gas_xiranite",
                 "item_gasjar_copper_gas_xiranite_enr",
+                "item_gasjar_copper_gas_xiranite_enr_heng",
                 "item_glass_bottle",
                 "item_glass_cmpt",
                 "item_glass_enr_bottle",
@@ -758,6 +815,7 @@
                 "item_iron_ore",
                 "item_iron_powder",
                 "item_jzmonk_1_hsmob_1_1",
+                "item_jzmonk_1_mushbug_spmushroom1_1",
                 "item_klbuds_1_hsfly_1_1",
                 "item_klcreatures_1_wgthorns_1_1",
                 "item_lbmob_1_dog_1_moss_1_1",
@@ -817,6 +875,7 @@
                 "item_proc_battery_3",
                 "item_proc_battery_4",
                 "item_proc_battery_5",
+                "item_proc_battery_6",
                 "item_proc_bomb_1",
                 "item_quartz_enr",
                 "item_quartz_enr_powder",
@@ -832,8 +891,12 @@
                 "item_wgslime_1_hsmob_1_grass_2_1",
                 "item_wgslime_1_wgthorns_1_1",
                 "item_wgthorns_1_hshog_1_hsmob_1_1",
+                "item_wgthorns_1_mushbug_spmushroom1_1",
+                "item_xiranite_enr_heng",
                 "item_xiranite_enr_powder",
+                "item_xiranite_hui",
                 "item_xiranite_lowpoly",
+                "item_xiranite_ming",
                 "item_xiranite_poly",
                 "item_xiranite_powder"
             ]
@@ -847,6 +910,7 @@
                 "ja_jp": "武陵城",
                 "ko_kr": "무릉성"
             },
+            "max_base_quote": 129600,
             "fillable_items": [
                 "item_agfly_1_agmelee_1_moss_2_1",
                 "item_agmelee_1_moss_1_lbmob_1_1",
@@ -885,16 +949,26 @@
                 "item_carbon_mtl",
                 "item_carbon_powder",
                 "item_copper_bottle",
+                "item_copper_bright",
+                "item_copper_bright_cmpt",
+                "item_copper_bright_cube",
                 "item_copper_cmpt",
                 "item_copper_enr",
                 "item_copper_enr2",
                 "item_copper_enr2_cmpt",
                 "item_copper_enr_bottle",
                 "item_copper_enr_cmpt",
+                "item_copper_enr_heng",
+                "item_copper_hui",
+                "item_copper_hui_cmpt",
                 "item_copper_jar",
+                "item_copper_ming",
+                "item_copper_ming_cmpt",
                 "item_copper_nugget",
                 "item_copper_ore",
                 "item_copper_powder",
+                "item_copper_xiranite_hui",
+                "item_copper_xiranite_ming",
                 "item_corp1_animal_1",
                 "item_corp2_animal_1",
                 "item_corp3_animal_1",
@@ -999,12 +1073,16 @@
                 "item_firebat_1_agrange_1_1",
                 "item_gasjar_copper_gas_acid",
                 "item_gasjar_copper_gas_copper",
+                "item_gasjar_copper_gas_copper_bright_clear",
+                "item_gasjar_copper_gas_copper_bright_turbid",
                 "item_gasjar_copper_gas_copper_enr",
                 "item_gasjar_copper_gas_copper_enr2",
+                "item_gasjar_copper_gas_copper_enr_heng",
                 "item_gasjar_copper_gas_inert",
                 "item_gasjar_copper_gas_water",
                 "item_gasjar_copper_gas_xiranite",
                 "item_gasjar_copper_gas_xiranite_enr",
+                "item_gasjar_copper_gas_xiranite_enr_heng",
                 "item_glass_bottle",
                 "item_glass_cmpt",
                 "item_glass_enr_bottle",
@@ -1030,6 +1108,7 @@
                 "item_iron_ore",
                 "item_iron_powder",
                 "item_jzmonk_1_hsmob_1_1",
+                "item_jzmonk_1_mushbug_spmushroom1_1",
                 "item_klbuds_1_hsfly_1_1",
                 "item_klcreatures_1_wgthorns_1_1",
                 "item_lbmob_1_dog_1_moss_1_1",
@@ -1089,6 +1168,7 @@
                 "item_proc_battery_3",
                 "item_proc_battery_4",
                 "item_proc_battery_5",
+                "item_proc_battery_6",
                 "item_proc_bomb_1",
                 "item_quartz_enr",
                 "item_quartz_enr_powder",
@@ -1104,8 +1184,12 @@
                 "item_wgslime_1_hsmob_1_grass_2_1",
                 "item_wgslime_1_wgthorns_1_1",
                 "item_wgthorns_1_hshog_1_hsmob_1_1",
+                "item_wgthorns_1_mushbug_spmushroom1_1",
+                "item_xiranite_enr_heng",
                 "item_xiranite_enr_powder",
+                "item_xiranite_hui",
                 "item_xiranite_lowpoly",
+                "item_xiranite_ming",
                 "item_xiranite_poly",
                 "item_xiranite_powder"
             ]
@@ -1119,6 +1203,7 @@
                 "ja_jp": "実験区域",
                 "ko_kr": "실험 구역"
             },
+            "max_base_quote": 172800,
             "fillable_items": [
                 "item_agfly_1_agmelee_1_moss_2_1",
                 "item_agmelee_1_moss_1_lbmob_1_1",
@@ -1157,16 +1242,26 @@
                 "item_carbon_mtl",
                 "item_carbon_powder",
                 "item_copper_bottle",
+                "item_copper_bright",
+                "item_copper_bright_cmpt",
+                "item_copper_bright_cube",
                 "item_copper_cmpt",
                 "item_copper_enr",
                 "item_copper_enr2",
                 "item_copper_enr2_cmpt",
                 "item_copper_enr_bottle",
                 "item_copper_enr_cmpt",
+                "item_copper_enr_heng",
+                "item_copper_hui",
+                "item_copper_hui_cmpt",
                 "item_copper_jar",
+                "item_copper_ming",
+                "item_copper_ming_cmpt",
                 "item_copper_nugget",
                 "item_copper_ore",
                 "item_copper_powder",
+                "item_copper_xiranite_hui",
+                "item_copper_xiranite_ming",
                 "item_corp1_animal_1",
                 "item_corp2_animal_1",
                 "item_corp3_animal_1",
@@ -1271,12 +1366,16 @@
                 "item_firebat_1_agrange_1_1",
                 "item_gasjar_copper_gas_acid",
                 "item_gasjar_copper_gas_copper",
+                "item_gasjar_copper_gas_copper_bright_clear",
+                "item_gasjar_copper_gas_copper_bright_turbid",
                 "item_gasjar_copper_gas_copper_enr",
                 "item_gasjar_copper_gas_copper_enr2",
+                "item_gasjar_copper_gas_copper_enr_heng",
                 "item_gasjar_copper_gas_inert",
                 "item_gasjar_copper_gas_water",
                 "item_gasjar_copper_gas_xiranite",
                 "item_gasjar_copper_gas_xiranite_enr",
+                "item_gasjar_copper_gas_xiranite_enr_heng",
                 "item_glass_bottle",
                 "item_glass_cmpt",
                 "item_glass_enr_bottle",
@@ -1302,6 +1401,7 @@
                 "item_iron_ore",
                 "item_iron_powder",
                 "item_jzmonk_1_hsmob_1_1",
+                "item_jzmonk_1_mushbug_spmushroom1_1",
                 "item_klbuds_1_hsfly_1_1",
                 "item_klcreatures_1_wgthorns_1_1",
                 "item_lbmob_1_dog_1_moss_1_1",
@@ -1361,6 +1461,7 @@
                 "item_proc_battery_3",
                 "item_proc_battery_4",
                 "item_proc_battery_5",
+                "item_proc_battery_6",
                 "item_proc_bomb_1",
                 "item_quartz_enr",
                 "item_quartz_enr_powder",
@@ -1376,8 +1477,12 @@
                 "item_wgslime_1_hsmob_1_grass_2_1",
                 "item_wgslime_1_wgthorns_1_1",
                 "item_wgthorns_1_hshog_1_hsmob_1_1",
+                "item_wgthorns_1_mushbug_spmushroom1_1",
+                "item_xiranite_enr_heng",
                 "item_xiranite_enr_powder",
+                "item_xiranite_hui",
                 "item_xiranite_lowpoly",
+                "item_xiranite_ming",
                 "item_xiranite_poly",
                 "item_xiranite_powder"
             ]
@@ -1717,6 +1822,33 @@
                 "ko_kr": "적동 병"
             }
         },
+        "item_copper_bright": {
+            "names": {
+                "zh_cn": "辉铜",
+                "zh_tw": "輝銅",
+                "en_us": "Lucidolite",
+                "ja_jp": "輝銅",
+                "ko_kr": "휘동"
+            }
+        },
+        "item_copper_bright_cmpt": {
+            "names": {
+                "zh_cn": "辉铜零件",
+                "zh_tw": "輝銅零件",
+                "en_us": "Lucidolite Part",
+                "ja_jp": "輝銅部品",
+                "ko_kr": "휘동 부품"
+            }
+        },
+        "item_copper_bright_cube": {
+            "names": {
+                "zh_cn": "辉铜能量块",
+                "zh_tw": "輝銅能量塊",
+                "en_us": "Lucidolite Energy Brick",
+                "ja_jp": "輝銅エネルギーブロック",
+                "ko_kr": "휘동 에너지 블록"
+            }
+        },
         "item_copper_cmpt": {
             "names": {
                 "zh_cn": "赤铜零件",
@@ -1771,6 +1903,33 @@
                 "ko_kr": "혁동 부품"
             }
         },
+        "item_copper_enr_heng": {
+            "names": {
+                "zh_cn": "衡铜",
+                "zh_tw": "衡銅",
+                "en_us": "Equprium",
+                "ja_jp": "衡銅",
+                "ko_kr": "형동"
+            }
+        },
+        "item_copper_hui": {
+            "names": {
+                "zh_cn": "晦状赤铜",
+                "zh_tw": "晦狀赤銅",
+                "en_us": "T-Cuprium",
+                "ja_jp": "赤銅・晦",
+                "ko_kr": "회형 적동"
+            }
+        },
+        "item_copper_hui_cmpt": {
+            "names": {
+                "zh_cn": "晦状赤铜零件",
+                "zh_tw": "晦狀赤銅零件",
+                "en_us": "T-Cuprium Part",
+                "ja_jp": "赤銅部品・晦",
+                "ko_kr": "회형 적동 부품"
+            }
+        },
         "item_copper_jar": {
             "names": {
                 "zh_cn": "赤铜耐压罐",
@@ -1778,6 +1937,24 @@
                 "en_us": "Cuprium Canister",
                 "ja_jp": "赤銅圧力タンク",
                 "ko_kr": "적동 내압 캔"
+            }
+        },
+        "item_copper_ming": {
+            "names": {
+                "zh_cn": "明状赤铜",
+                "zh_tw": "明狀赤銅",
+                "en_us": "L-Cuprium",
+                "ja_jp": "赤銅・明",
+                "ko_kr": "명형 적동"
+            }
+        },
+        "item_copper_ming_cmpt": {
+            "names": {
+                "zh_cn": "明状赤铜零件",
+                "zh_tw": "明狀赤銅零件",
+                "en_us": "L-Cuprium Part",
+                "ja_jp": "赤銅部品・明",
+                "ko_kr": "명형 적동 부품"
             }
         },
         "item_copper_nugget": {
@@ -1805,6 +1982,24 @@
                 "en_us": "Cuprium Powder",
                 "ja_jp": "赤銅粉末",
                 "ko_kr": "적동 가루"
+            }
+        },
+        "item_copper_xiranite_hui": {
+            "names": {
+                "zh_cn": "铜封重装组件",
+                "zh_tw": "銅封重裝組件",
+                "en_us": "CuPKG Heavy IC",
+                "ja_jp": "銅封重モジュール",
+                "ko_kr": "적동 중장갑 부품"
+            }
+        },
+        "item_copper_xiranite_ming": {
+            "names": {
+                "zh_cn": "铜封明壤元件",
+                "zh_tw": "銅封明壤元件",
+                "en_us": "CuPKG Luminarite Component",
+                "ja_jp": "銅封明壌部品",
+                "ko_kr": "적동 명양 부품"
             }
         },
         "item_corp1_animal_1": {
@@ -2743,6 +2938,24 @@
                 "ko_kr": "적동 내압 캔"
             }
         },
+        "item_gasjar_copper_gas_copper_bright_clear": {
+            "names": {
+                "zh_cn": "赤铜耐压罐",
+                "zh_tw": "赤銅耐壓罐",
+                "en_us": "Cuprium Canister",
+                "ja_jp": "赤銅圧力タンク",
+                "ko_kr": "적동 내압 캔"
+            }
+        },
+        "item_gasjar_copper_gas_copper_bright_turbid": {
+            "names": {
+                "zh_cn": "赤铜耐压罐",
+                "zh_tw": "赤銅耐壓罐",
+                "en_us": "Cuprium Canister",
+                "ja_jp": "赤銅圧力タンク",
+                "ko_kr": "적동 내압 캔"
+            }
+        },
         "item_gasjar_copper_gas_copper_enr": {
             "names": {
                 "zh_cn": "赤铜耐压罐",
@@ -2753,6 +2966,15 @@
             }
         },
         "item_gasjar_copper_gas_copper_enr2": {
+            "names": {
+                "zh_cn": "赤铜耐压罐",
+                "zh_tw": "赤銅耐壓罐",
+                "en_us": "Cuprium Canister",
+                "ja_jp": "赤銅圧力タンク",
+                "ko_kr": "적동 내압 캔"
+            }
+        },
+        "item_gasjar_copper_gas_copper_enr_heng": {
             "names": {
                 "zh_cn": "赤铜耐压罐",
                 "zh_tw": "赤銅耐壓罐",
@@ -2789,6 +3011,15 @@
             }
         },
         "item_gasjar_copper_gas_xiranite_enr": {
+            "names": {
+                "zh_cn": "赤铜耐压罐",
+                "zh_tw": "赤銅耐壓罐",
+                "en_us": "Cuprium Canister",
+                "ja_jp": "赤銅圧力タンク",
+                "ko_kr": "적동 내압 캔"
+            }
+        },
+        "item_gasjar_copper_gas_xiranite_enr_heng": {
             "names": {
                 "zh_cn": "赤铜耐压罐",
                 "zh_tw": "赤銅耐壓罐",
@@ -2902,7 +3133,7 @@
                 "zh_tw": "瓶裝霞莓飲",
                 "en_us": "Bottled Duskberry Juice",
                 "ja_jp": "瓶入りダスクベリーネクター",
-                "ko_kr": "병에 담긴 노을베리"
+                "ko_kr": "병에 담긴 노을베리 음료"
             }
         },
         "item_inn_drink_2": {
@@ -2920,7 +3151,7 @@
                 "zh_tw": "瓶裝脆蔗汁",
                 "en_us": "Bottled Canejuice",
                 "ja_jp": "瓶入りシャキキビジュース",
-                "ko_kr": "병에 담긴 사탕수수즙"
+                "ko_kr": "병에 담긴 사탕수수 주스"
             }
         },
         "item_inn_drink_7": {
@@ -3020,6 +3251,15 @@
                 "en_us": "Rind-Flavored Sprouts",
                 "ja_jp": "陳皮と筍の和え物",
                 "ko_kr": "진피 죽순 무침"
+            }
+        },
+        "item_jzmonk_1_mushbug_spmushroom1_1": {
+            "names": {
+                "zh_cn": "僭越的蜜饼",
+                "zh_tw": "僭越的蜜餅",
+                "en_us": "Usurper's Waffle",
+                "ja_jp": "はちみつワッフルもどき",
+                "ko_kr": "모양만 벌꿀 와플"
             }
         },
         "item_klbuds_1_hsfly_1_1": {
@@ -3553,6 +3793,15 @@
                 "ko_kr": "중용량 무릉 배터리"
             }
         },
+        "item_proc_battery_6": {
+            "names": {
+                "zh_cn": "高容武陵电池",
+                "zh_tw": "高容量武陵電池",
+                "en_us": "HC Wuling Battery",
+                "ja_jp": "大容量武陵バッテリー",
+                "ko_kr": "대용량 무릉 배터리"
+            }
+        },
         "item_proc_bomb_1": {
             "names": {
                 "zh_cn": "工业爆炸物",
@@ -3688,6 +3937,24 @@
                 "ko_kr": "기름 폭발 볶음"
             }
         },
+        "item_wgthorns_1_mushbug_spmushroom1_1": {
+            "names": {
+                "zh_cn": "菌王之血",
+                "zh_tw": "菌王之血",
+                "en_us": "Fungal King's Blood",
+                "ja_jp": "キノコ菌グの血",
+                "ko_kr": "버섯 대왕의 피"
+            }
+        },
+        "item_xiranite_enr_heng": {
+            "names": {
+                "zh_cn": "衡息壤",
+                "zh_tw": "衡息壤",
+                "en_us": "Equiranite",
+                "ja_jp": "衡息壌",
+                "ko_kr": "형식양"
+            }
+        },
         "item_xiranite_enr_powder": {
             "names": {
                 "zh_cn": "重息壤",
@@ -3697,6 +3964,15 @@
                 "ko_kr": "중식양"
             }
         },
+        "item_xiranite_hui": {
+            "names": {
+                "zh_cn": "晦状息壤",
+                "zh_tw": "晦狀息壤",
+                "en_us": "Turbidarite",
+                "ja_jp": "息壌・晦",
+                "ko_kr": "회형 식양"
+            }
+        },
         "item_xiranite_lowpoly": {
             "names": {
                 "zh_cn": "轻壤晶",
@@ -3704,6 +3980,15 @@
                 "en_us": "Light Xircon",
                 "ja_jp": "軽壌晶",
                 "ko_kr": "경양정"
+            }
+        },
+        "item_xiranite_ming": {
+            "names": {
+                "zh_cn": "明状息壤",
+                "zh_tw": "明狀息壤",
+                "en_us": "Luminarite",
+                "ja_jp": "息壌・明",
+                "ko_kr": "명형 식양"
             }
         },
         "item_xiranite_poly": {

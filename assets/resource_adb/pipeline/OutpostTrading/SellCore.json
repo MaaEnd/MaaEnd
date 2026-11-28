@@ -1,13 +1,5 @@
 {
-    "OutpostTradingZeroProductColorMatch": {
-        "roi": [
-            1054,
-            240,
-            109,
-            26
-        ]
-    },
-    "OutpostTradingWhiteTextPosition": {
+    "OutpostTradingCheckLowStockText": {
         "roi": [
             1054,
             240,

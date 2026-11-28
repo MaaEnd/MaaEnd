@@ -9,13 +9,7 @@
                     53
                 ]
             }
-        },
-        "next": [
-            "EssenceFilterCheckItemSlot1Level"
-        ],
-        "on_error": [
-            "EssenceFilterCheckItemOCRFallback"
-        ]
+        }
     },
     "EssenceFilterCheckItemSlot1Level": {
         "recognition": {
@@ -27,13 +21,7 @@
                     35
                 ]
             }
-        },
-        "next": [
-            "EssenceFilterCheckItemSlot2"
-        ],
-        "on_error": [
-            "EssenceFilterCheckItemOCRFallback"
-        ]
+        }
     },
     "EssenceFilterCheckItemSlot2": {
         "recognition": {
@@ -45,13 +33,7 @@
                     53
                 ]
             }
-        },
-        "next": [
-            "EssenceFilterCheckItemSlot2Level"
-        ],
-        "on_error": [
-            "EssenceFilterCheckItemOCRFallback"
-        ]
+        }
     },
     "EssenceFilterCheckItemSlot2Level": {
         "recognition": {
@@ -63,13 +45,7 @@
                     35
                 ]
             }
-        },
-        "next": [
-            "EssenceFilterCheckItemSlot3"
-        ],
-        "on_error": [
-            "EssenceFilterCheckItemOCRFallback"
-        ]
+        }
     },
     "EssenceFilterCheckItemSlot3": {
         "recognition": {
@@ -81,13 +57,7 @@
                     53
                 ]
             }
-        },
-        "next": [
-            "EssenceFilterCheckItemSlot3Level"
-        ],
-        "on_error": [
-            "EssenceFilterCheckItemOCRFallback"
-        ]
+        }
     },
     "EssenceFilterCheckItemSlot3Level": {
         "recognition": {
@@ -99,12 +69,6 @@
                     35
                 ]
             }
-        },
-        "next": [
-            "EssenceFilterSkillDecision"
-        ],
-        "on_error": [
-            "EssenceFilterCheckItemOCRFallback"
-        ]
+        }
     }
 }

@@ -13,22 +13,42 @@
                     "name": "KeymapInteract",
                     "label": "$option.KeymapGeneral.inputs.KeymapInteract.label",
                     "default": "F"
+                },
+                {
+                    "name": "KeymapTrackCurrentMission",
+                    "label": "$option.KeymapGeneral.inputs.KeymapTrackCurrentMission.label",
+                    "default": "V"
                 }
             ],
             "pipeline_override": {
-                "EnterCameraModeLongPress": {
+                "__TakePhotoHoldR": {
                     "key": "{KeymapUseCurrentQuickTool.primary}"
                 },
-                "EnterCameraModeKeyUp": {
+                "__TakePhotoKeyUp": {
                     "key": "{KeymapUseCurrentQuickTool.primary}"
                 },
-                "AutoCollectClick": {
+                "__WorldToolSprayHoldR": {
+                    "key": "{KeymapUseCurrentQuickTool.primary}"
+                },
+                "__WorldToolSprayKeyUp": {
+                    "key": "{KeymapUseCurrentQuickTool.primary}"
+                },
+                "__WorldToolFillWaterHoldR": {
+                    "key": "{KeymapUseCurrentQuickTool.primary}"
+                },
+                "__WorldToolFillWaterKeyUp": {
+                    "key": "{KeymapUseCurrentQuickTool.primary}"
+                },
+                "AutoCollectClickKey": {
                     "key": "{KeymapInteract.primary}"
                 },
                 "MapNavigatorInteract": {
                     "key": "{KeymapInteract.primary}"
                 },
                 "AutoSellPressStockRedistribution": {
+                    "key": "{KeymapInteract.primary}"
+                },
+                "VisitFriendsPressStockRedistribution": {
                     "key": "{KeymapInteract.primary}"
                 },
                 "AutoPickFalls": {
@@ -40,8 +60,8 @@
                 "ProtocolSpaceTouchExitTouch": {
                     "key": "{KeymapInteract.primary}"
                 },
-                "ProtocolSpaceTouchExitTouchRetry": {
-                    "key": "{KeymapInteract.primary}"
+                "AutoMissionNpcProxyTrackCurrentMission": {
+                    "key": "{KeymapTrackCurrentMission.primary}"
                 }
             }
         },
@@ -133,6 +153,18 @@
                     "key": "{KeymapFightSwitchOperator3.primary}"
                 },
                 "__AutoFightActionSwitchCharacterOperators4": {
+                    "key": "{KeymapFightSwitchOperator4.primary}"
+                },
+                "SwitchTeamOperatorPos1Press": {
+                    "key": "{KeymapFightSwitchOperator1.primary}"
+                },
+                "SwitchTeamOperatorPos2Press": {
+                    "key": "{KeymapFightSwitchOperator2.primary}"
+                },
+                "SwitchTeamOperatorPos3Press": {
+                    "key": "{KeymapFightSwitchOperator3.primary}"
+                },
+                "SwitchTeamOperatorPos4Press": {
                     "key": "{KeymapFightSwitchOperator4.primary}"
                 }
             }

@@ -38,6 +38,7 @@ type autoFightAttach struct {
 	SkillMode2                   string   `json:"skill_mode_2"`
 	SkillMode3                   string   `json:"skill_mode_3"`
 	SkillMode4                   string   `json:"skill_mode_4"`
+	StartOperator                int      `json:"start_operator"`
 }
 
 // 每名干员的战技释放方式；空值按 cycle 处理。
@@ -115,6 +116,31 @@ func hitExitNode(ctx *maa.Context, img image.Image, nodes []string) string {
 		return node
 	}
 	return ""
+}
+
+// switchOffDisplacingOperator 战斗结束后，若当前操控的干员终结技结束后会位移（如庄方宜），切到其他干员。
+// 切走后终结技在后台继续，切上来的干员不会位移，避免后续流程中人物离开交互范围。
+func switchOffDisplacingOperator(ctx *maa.Context) {
+	img, ok := captureAndUpdateScreenDetail(ctx)
+	slot := screenAnalyzer.GetCharacterSelect()
+	if !ok || slot == 0 {
+		return
+	}
+	region := characterRegion(slot - 1)
+	detail, err := ctx.RunRecognition("__AutoFightRecognitionSwitchOffOperator", img, map[string]any{
+		"__AutoFightRecognitionSwitchOffOperator": map[string]any{
+			"roi": []int{region[0], region[1], region[2], region[3]},
+		},
+	})
+	if err != nil || detail == nil || !detail.Hit {
+		return
+	}
+	switchTo := 1
+	if slot == 1 {
+		switchTo = 2
+	}
+	maafocus.Print(ctx, i18n.T("autofight.switch_off_operator", slot, switchTo))
+	ctx.RunAction(fmt.Sprintf("__AutoFightActionSwitchCharacterOperators%d", switchTo), maa.Rect{600, 320, 80, 80}, "", nil)
 }
 
 func screencapImage(ctx *maa.Context) (image.Image, bool) {
@@ -255,23 +281,31 @@ func (r *AutoFightEntryRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogni
 		return nil, false
 	}
 
-	if screenAnalyzer.GetEnergyLevel(false) < 0 {
-		return nil, false
+	// 间隔很久才识别一次时（如寻路到怪旁边后识别一次），历史里的旧非战斗画面会在多帧投票里
+	// 压过当前的战斗画面。最新一帧已有能量条却没判进战斗时，补截至多 2 帧，让投票按最新的画面来。
+	var ctrl *maa.Controller
+	for extra := 0; ; extra++ {
+		if screenAnalyzer.GetEnergyLevel(false) >= 0 &&
+			!screenAnalyzer.GetCharacterLevel() {
+			return &maa.CustomRecognitionResult{
+				Box:    arg.Roi,
+				Detail: `{"custom": "fake result"}`,
+			}, true
+		}
+		if extra == 2 ||
+			!screenAnalyzer.hasLabelInFrames(LabelEnergyLevelFull, 1, false) &&
+				!screenAnalyzer.hasLabelInFrames(LabelEnergyLevelEmpty, 1, false) {
+			return nil, false
+		}
+		if ctrl == nil {
+			ctrl = ctx.GetTasker().GetController()
+		}
+		ctrl.PostScreencap().Wait()
+		img, err := ctrl.CacheImage()
+		if err != nil || img == nil || !screenAnalyzer.UpdateScreenDetail(ctx, img) {
+			return nil, false
+		}
 	}
-
-	comboFull := screenAnalyzer.GetCharacterComboFull()
-	if len(comboFull) == 0 {
-		return nil, false
-	}
-
-	if screenAnalyzer.GetCharacterLevel() {
-		return nil, false
-	}
-
-	return &maa.CustomRecognitionResult{
-		Box:    arg.Roi,
-		Detail: `{"custom": "fake result"}`,
-	}, true
 }
 
 // saveExitImage 将当前画面保存到 debug/autofight_exit 目录，用于排查退出时的画面。
@@ -279,7 +313,7 @@ func saveExitImage(img image.Image, reason string) {
 	if img == nil {
 		return
 	}
-	dir := fsutil.OutputPath("debug", "autofight_exit")
+	dir := fsutil.UserDataPath("debug", "autofight_exit")
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		log.Debug().Err(err).Str("component", "AutoFight").Str("dir", dir).Msg("failed to create debug dir for exit image")
 		return
@@ -303,9 +337,16 @@ type lockStage int
 
 const (
 	lockStageLocked  lockStage = -1
-	lockStageInitial lockStage = 0
-	lockStageRetry   lockStage = 1
 	lockStageRecover lockStage = 2
+)
+
+// 丢失锁定后的找敌时序（从最后一次识别到 EnemyLocked 开始计时），整个周期 lockCycleDuration 后重来。
+// 锁定键在已锁定时会取消锁定，重试间隔必须覆盖游戏响应与识别延迟，避免把刚锁上的目标按掉。
+const (
+	lockLostConfirmDuration = 1 * time.Second // 持续未锁定超过该时长才视为真正丢失；EnemyLocked 实测漏检空窗最长约 0.55s
+	lockRetryInterval       = 1 * time.Second // 两次锁定尝试的最小间隔
+	lockMoveAfter           = 3 * time.Second // 仍未锁定则按 EnemyFacing 移动找敌
+	lockCycleDuration       = 5 * time.Second
 )
 
 // attackReassertInterval 是 ADB 普攻的补按周期。ADB 的普攻靠整场按住的触点流维持，
@@ -421,6 +462,10 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 			timeline = tl
 			log.Info().Str("component", "AutoFight").Msg("endaxis timeline enabled")
 			maafocus.Print(ctx, i18n.T("autofight.endaxis.timeline_enabled"))
+			if !tl.HasUltimateFreeScenario() {
+				log.Warn().Str("component", "AutoFight").Msg("endaxis timeline has no scenario without ultimate")
+				maafocus.Print(ctx, i18n.T("autofight.endaxis.no_ultimate_free_scenario"))
+			}
 		} else {
 			log.Info().Str("component", "AutoFight").Msg("endaxis timeline code invalid, fallback to default skill logic")
 			maafocus.Print(ctx, i18n.T("autofight.endaxis.timeline_invalid_fallback"))
@@ -433,6 +478,7 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 	var pauseStart time.Time
 	var lastLevelShowCheck time.Time
 	var noLockStart time.Time
+	var lastLockAttempt time.Time
 	var lastAttackReassert time.Time
 	var lockTargetStage lockStage
 	lastDodgeAt = time.Now()
@@ -442,6 +488,12 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 	skillCycleIndex := 1
 	skillModes := params.skillModes()
 	var skillUsedOnce [4]bool
+
+	// 战斗开始前切换到用户指定的干员，0 表示不切换
+	if params.StartOperator >= 1 && params.StartOperator <= 4 {
+		maafocus.Print(ctx, i18n.T("autofight.start_operator", params.StartOperator))
+		ctx.RunAction(fmt.Sprintf("__AutoFightActionSwitchCharacterOperators%d", params.StartOperator), maa.Rect{600, 320, 80, 80}, "", nil)
+	}
 
 	if params.EnableAttack {
 		ctx.RunAction("__AutoFightActionAttackTouchDown", maa.Rect{600, 320, 80, 80}, "", nil)
@@ -469,6 +521,9 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 		if inFightSpace {
 			pauseStart = time.Time{}
 		} else {
+			// 暂停期间（终结技动画等）看不到锁定状态，不计入丢失锁定的确认时长
+			noLockStart = time.Now()
+			lockTargetStage = lockStageLocked
 			if pauseStart.IsZero() {
 				pauseStart = time.Now()
 				log.Info().Str("component", "AutoFight").Msg("not in fight space, start pause timer")
@@ -554,15 +609,19 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 
 		if params.EnableLockTarget {
 			// 锁定目标时序状态机（按距上次检测到 EnemyLocked 的累计时长划分）：
-			//   首次未锁定的那一帧               -> 直接 continue，过滤瞬时识别抖动
-			//   阶段 0 [0, 3s)    -> 宽限期，不特殊处理，正常进入战斗决策
-			//   阶段 1 [3s, 6s)   -> 进入时发一次 ActionLockTarget
-			//   阶段 2 [6s, 9s)   -> 进入时根据 EnemyFacing 方向升级动作：
-			//                        左/右/后 -> 对应方向移动 + Sleep + Sleep + ActionLockTarget
-			//                        无 facing -> 前进 + ActionLockTarget
-			//   阶段 3 [9s, ∞)    -> 重置 noLockStart 重新进入阶段 0（含首帧 continue），循环重试
-			//   任意时刻检测到 EnemyLocked     -> 把 noLockStart 推回当前时刻、回到阶段 0，并重置首帧标记
-			if screenAnalyzer.GetEnemyLocked() {
+			//   开局第一帧未锁定                         -> 立即发一次 ActionLockTarget
+			//   [0, lockLostConfirmDuration)             -> 等待确认，过滤单帧识别抖动
+			//   [lockLostConfirmDuration, lockMoveAfter) -> 每隔 lockRetryInterval 发一次 ActionLockTarget
+			//   [lockMoveAfter, lockCycleDuration)       -> 进入时根据 EnemyFacing 方向移动一次：
+			//                                               左/右/后 -> 对应方向移动 + Sleep + Sleep（阻塞队列）+ ActionLockTarget
+			//                                               无 facing -> 前进 + ActionLockTarget
+			//   [lockCycleDuration, ∞)                   -> 重置 noLockStart，从头循环重试
+			//   任意时刻检测到 EnemyLocked               -> 把 noLockStart 推回当前时刻
+			//   当前帧 HUD 不可见（终结技等动画）        -> 无法判断锁定，把 noLockStart 推回当前时刻并重置阶段，不发锁定
+			if !screenAnalyzer.hasLabelInFrames(LabelCharacterSelect, 1, false) {
+				noLockStart = time.Now()
+				lockTargetStage = lockStageLocked
+			} else if screenAnalyzer.GetEnemyLocked() {
 				noLockStart = time.Now()
 				lockTargetStage = lockStageLocked
 				firstNoLockIteration = false
@@ -574,36 +633,29 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 					})
 				}
 			} else {
-				if noLockStart.IsZero() {
-					noLockStart = time.Now()
+				now := time.Now()
+				if noLockStart.IsZero() || now.Sub(noLockStart) >= lockCycleDuration {
+					noLockStart = now
 					lockTargetStage = lockStageLocked
 				}
-				if time.Since(noLockStart) >= 9*time.Second {
-					noLockStart = time.Now()
-					lockTargetStage = lockStageLocked
-				}
-				elapsed := time.Since(noLockStart)
+				elapsed := now.Sub(noLockStart)
 
 				switch {
-				case elapsed < 3*time.Second:
+				case elapsed < lockMoveAfter:
 					if firstNoLockIteration {
-						if lockTargetStage < lockStageInitial {
-							maafocus.Print(ctx, i18n.T("autofight.start_combat_lock_target"))
-							enqueueAction(fightAction{
-								executeAt: time.Now().Add(time.Millisecond),
-								action:    ActionLockTarget,
-							})
-							lockTargetStage = lockStageInitial
-						}
-					}
-				case elapsed < 6*time.Second:
-					if lockTargetStage < lockStageRetry {
-						maafocus.Print(ctx, i18n.T("autofight.lock_target"))
+						maafocus.Print(ctx, i18n.T("autofight.start_combat_lock_target"))
 						enqueueAction(fightAction{
-							executeAt: time.Now().Add(time.Millisecond),
+							executeAt: now.Add(time.Millisecond),
 							action:    ActionLockTarget,
 						})
-						lockTargetStage = lockStageRetry
+						lastLockAttempt = now
+						firstNoLockIteration = false
+					} else if elapsed >= lockLostConfirmDuration && now.Sub(lastLockAttempt) >= lockRetryInterval {
+						enqueueAction(fightAction{
+							executeAt: now.Add(time.Millisecond),
+							action:    ActionLockTarget,
+						})
+						lastLockAttempt = now
 					}
 				default:
 					if lockTargetStage < lockStageRecover {
@@ -612,44 +664,45 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 						facingRight := screenAnalyzer.GetEnemyFacingRight()
 						switch {
 						case facingBack:
-							maafocus.Print(ctx, i18n.T("autofight.move_back"))
 							enqueueAction(fightAction{
-								executeAt: time.Now().Add(time.Millisecond),
+								executeAt: now.Add(time.Millisecond),
 								action:    ActionMoveBack,
 							})
 						case facingLeft:
-							maafocus.Print(ctx, i18n.T("autofight.move_left"))
 							enqueueAction(fightAction{
-								executeAt: time.Now().Add(time.Millisecond),
+								executeAt: now.Add(time.Millisecond),
 								action:    ActionMoveLeft,
 							})
 						case facingRight:
-							maafocus.Print(ctx, i18n.T("autofight.move_right"))
 							enqueueAction(fightAction{
-								executeAt: time.Now().Add(time.Millisecond),
+								executeAt: now.Add(time.Millisecond),
 								action:    ActionMoveRight,
 							})
 						default:
-							maafocus.Print(ctx, i18n.T("autofight.move_forward"))
 							enqueueAction(fightAction{
-								executeAt: time.Now().Add(time.Millisecond),
+								executeAt: now.Add(time.Millisecond),
 								action:    ActionMoveForward,
 							})
 						}
+						// 侧向/向后移动后阻塞整个动作队列等待转身完成，再锁定。
+						// 队列按 executeAt 排序，用递增偏移保证 移动 -> Sleep -> Sleep -> 锁定 的顺序
+						lockAt := now.Add(2 * time.Millisecond)
 						if facingBack || facingLeft || facingRight {
 							enqueueAction(fightAction{
-								executeAt: time.Now().Add(time.Millisecond),
+								executeAt: now.Add(2 * time.Millisecond),
 								action:    ActionSleepSecond,
 							})
 							enqueueAction(fightAction{
-								executeAt: time.Now().Add(time.Millisecond),
+								executeAt: now.Add(3 * time.Millisecond),
 								action:    ActionSleepSecond,
 							})
+							lockAt = now.Add(4 * time.Millisecond)
 						}
 						enqueueAction(fightAction{
-							executeAt: time.Now().Add(time.Millisecond),
+							executeAt: lockAt,
 							action:    ActionLockTarget,
 						})
+						lastLockAttempt = lockAt
 						lockTargetStage = lockStageRecover
 					}
 				}
@@ -793,6 +846,9 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 		}
 
 		drainActionQueue(ctx)
+	}
+	if result && !ctx.GetTasker().Stopping() {
+		switchOffDisplacingOperator(ctx)
 	}
 	if params.EnableAttack {
 		ctx.RunAction("__AutoFightActionAttackTouchUp", maa.Rect{600, 320, 80, 80}, "", nil)

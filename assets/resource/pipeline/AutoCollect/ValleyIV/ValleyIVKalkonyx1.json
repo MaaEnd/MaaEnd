@@ -1,0 +1,116 @@
+{
+    "AutoCollectValleyIVKalkonyx1Start": {
+        "enabled": false,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldValleyIVTheHubRockhillPassage"
+            ]
+        },
+        "next": [
+            "AutoCollectValleyIVKalkonyx1AssertLocation"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.ValleyIVKalkonyx1.label"
+        }
+    },
+    "AutoCollectValleyIVKalkonyx1End": {
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "AutoCollectValleyIVKalkonyx1AssertLocation": {
+        "desc": "传送到采集点",
+        "recognition": "Custom",
+        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition_param": {
+            "zone_id": "ValleyIV_Base",
+            "target": [
+                520,
+                688,
+                20,
+                20
+            ]
+        },
+        "action": "DoNothing",
+        "next": [
+            "AutoCollectValleyIVKalkonyx1Goto"
+        ]
+    },
+    "AutoCollectValleyIVKalkonyx1Goto": {
+        "desc": "前往采集点",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "ValleyIV_Base"
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                532.43,
+                                754.71
+                            ]
+                        },
+                        [
+                            532.43,
+                            754.71,
+                            "DIG",
+                            true
+                        ],
+                        [
+                            539.26,
+                            754.71,
+                            "DIG",
+                            true
+                        ],
+                        [
+                            538.15,
+                            758.12,
+                            "DIG",
+                            true
+                        ],
+                        [
+                            539.26,
+                            761.54,
+                            "DIG",
+                            true
+                        ],
+                        [
+                            532.52,
+                            756,
+                            "DIG",
+                            true
+                        ]
+                    ]
+                }
+            }
+        },
+        "next": [
+            "AutoCollectValleyIVKalkonyx1Wait10sec"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoCollectValleyIVKalkonyx1Wait10sec": {
+        "desc": "等待10s完成收集",
+        "pre_delay": 0,
+        "post_delay": 10000,
+        "next": [
+            "AutoCollectValleyIVKalkonyx1End"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "等待10s完成收集"
+        }
+    }
+}

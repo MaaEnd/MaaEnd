@@ -105,6 +105,61 @@
         ],
         "box_index": 2
     },
+    // 恢复理智对话框中「当前理智 » 用药后理智」两个数字
+    // 关卡消耗只有 80 和 160 两档：当前 <80 时补到 80，当前 ≥80 时补到 160
+    "__AutoUseSpMedicationSanityAfterBelow80": {
+        "desc": "用药后理智低于 80",
+        "recognition": "OCR",
+        "roi": [
+            750,
+            245,
+            115,
+            65
+        ],
+        "expected": [
+            "^[1-7]?\\d(?!\\d)"
+        ]
+    },
+    "__AutoUseSpMedicationSanityAfterBelow160": {
+        "desc": "用药后理智低于 160",
+        "recognition": "OCR",
+        "roi": [
+            750,
+            245,
+            115,
+            65
+        ],
+        "expected": [
+            "^(1[0-5]|[1-9])?\\d(?!\\d)"
+        ]
+    },
+    "__AutoUseSpMedicationSanityCurrentAtLeast80": {
+        "desc": "当前理智不低于 80",
+        "recognition": "OCR",
+        "roi": [
+            525,
+            245,
+            110,
+            65
+        ],
+        "expected": [
+            "^([89]|[1-9]\\d)\\d(?!\\d)"
+        ]
+    },
+    "__AutoUseSpMedicationSanityNotEnough": {
+        "desc": "用药后理智仍未达到阈值",
+        "recognition": "Or",
+        "any_of": [
+            "__AutoUseSpMedicationSanityAfterBelow80",
+            {
+                "recognition": "And",
+                "all_of": [
+                    "__AutoUseSpMedicationSanityCurrentAtLeast80",
+                    "__AutoUseSpMedicationSanityAfterBelow160"
+                ]
+            }
+        ]
+    },
     "AutoUseSpMedicationDialogText": {
         "desc": "识别恢复理智界面标题",
         "recognition": "OCR",

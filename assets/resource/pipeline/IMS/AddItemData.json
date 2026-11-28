@@ -66,10 +66,6 @@
             "type": "Click"
         },
         "post_delay": 0,
-        "rate_limit": 0,
-        "next": [],
-        "focus": {
-            "Node.Action.Starting": "关闭奖励界面"
-        }
+        "rate_limit": 0
     }
 }

@@ -203,7 +203,7 @@ func (a *AddItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	}
 
 	if cacheReady && applied > 0 {
-		if err := persistItemsPreserveSync(persistItems, lastSync, hasData); err != nil {
+		if err := persistItemsPreserveSync(componentAddItemData, persistItems, lastSync, hasData); err != nil {
 			log.Error().
 				Err(err).
 				Str("component", componentAddItemData).

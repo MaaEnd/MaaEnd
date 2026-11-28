@@ -15,6 +15,8 @@
                 "Linux-Gamescope",
                 "Linux-ScreenCast",
                 "Linux-Wlroots",
+                // TODO: CloudWeb 尚未实机验证，验证通过后取消注释
+                // "CloudWeb",
                 "Win32-Front"
             ],
             "option": [
@@ -127,6 +129,7 @@
                     "name": "Yes",
                     "option": [
                         "AutoFightHealthDangerousSwitch",
+                        "AutoFightStartOperator",
                         "AutoFightDodge",
                         "AutoFightLockTarget",
                         "AutoFightAxis"

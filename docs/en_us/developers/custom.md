@@ -142,17 +142,17 @@ Example file: [`CharacterController.json`](../../../assets/resource/pipeline/Int
 
 ### CameraScanAction
 
-`CameraScanAction` lives in `agent/go-service/common/camerascan`. It moves the camera in discrete steps while recognizing targets in photo mode. The action scans the forward area in a center-out nine-grid spiral; if nothing hits, it resets the camera and performs discrete yaw rings at middle, upper, and lower pitch levels. It recognizes once before and once after each scan step (a step may move the camera several times, with no recognition in between), except the reset step; it succeeds when any target hits, and fails after the complete scan misses.
+`CameraScanAction` lives in `agent/go-service/common/camerascan`. It moves the camera in discrete steps while recognizing targets in photo mode. The action scans the forward area in a center-out 5 × 5 spiral, where adjacent positions differ by one direction-node step (half a cell, about 22.5°); if nothing hits, it swings back to the center and performs yaw rings at middle, upper, and lower pitch levels (8 turns per ring, 2 steps each, about one full turn). It recognizes once after moving to each position (a step may move the camera several times, with no recognition in between), and not at all on the reset step; it succeeds when any target hits, and fails after the complete scan misses.
 
-- `wait_nodes: string[]`: Pipeline recognition nodes checked before and after each scan step. Required; any hit succeeds. The reset step is not checked.
+- `wait_nodes: string[]`: Pipeline recognition nodes checked after moving to each camera position. Required; any hit succeeds. The reset step is not checked.
 - `aim_target?: bool`: Whether to swipe from the screen center to the hit recognition result's `Box` center before returning. Defaults to `false`.
 - `move_up?: string`: Node for one upward camera step. Defaults to `__CameraScanMoveUp`.
 - `move_down?: string`: Node for one downward camera step. Defaults to `__CameraScanMoveDown`.
 - `move_left?: string`: Node for one leftward camera step. Defaults to `__CameraScanMoveLeft`.
 - `move_right?: string`: Node for one rightward camera step. Defaults to `__CameraScanMoveRight`.
-- `fallback_yaw_steps?: int`: Discrete yaw movements in each fallback ring. Defaults to `8`; range `[4, 72]`.
+- `fallback_yaw_steps?: int`: Discrete yaw movements in each fallback ring. Defaults to `8` (2 direction-node steps each, so 8 makes about one full turn); range `[4, 72]`.
 
-Camera movement runs through `ctx.RunTask` on the corresponding direction nodes (defaults in `Common/Private/CameraScan/Action.json`). Configure `post_wait_freezes` on caller-provided direction nodes when the screen must settle after each move. Aiming still uses the private node `__CameraScanAimSwipe`.
+Camera movement runs through `ctx.RunTask` on the corresponding direction nodes (defaults in `Common/Private/CameraScan/Action.json`). Those defaults carry `post_wait_freezes` (`time` 40ms, `timeout` 200ms, threshold 0.95, `rate_limit` 40ms): each swipe returns only after the screen settles, so recognition never runs on a frame captured while the camera is still turning. The compared area is the union of the photo stop node's search ranges, `__TakePhotoShutter` → `[0, 100, 1174, 580]`, not the full screen: a full-screen comparison also counts UI animations and makes every cell wait for the whole `timeout`. When using different `wait_nodes`, set these direction nodes' `target` to the matching node's `roi`, or supply custom direction nodes. It waits once per cell, so lower `timeout` if that is too slow. Aiming still uses the private node `__CameraScanAimSwipe`.
 
 ### PipelineOverride
 
@@ -253,6 +253,17 @@ On PC, the hover swipe moves from the screen center to the current recognition b
 - Parameters: None.
 
 The target position is determined by the Pipeline node's `box`.
+
+### EveryNthHitReset
+
+The `EveryNthHitReset` implementation is located in `agent/go-service/common/everynthhit`. It clears the `EveryNthHit` counter of the given `key` so the next run starts counting again from 1.
+
+- Parameters:
+    - `key: string`: Counter identifier. Required. It must match the `key` used by `EveryNthHit`.
+
+It still returns success when that `key` has no counter yet; an empty `key` or a `custom_action_param` that is not valid JSON logs an error and returns failure.
+
+Example file: [`EveryNthHit.json`](../../../assets/resource/pipeline/Interface/Example/EveryNthHit.json)
 
 ---
 
@@ -559,6 +570,77 @@ The `ScheduleRecognition` implementation is located in `agent/go-service/common/
 
 When a weekday flag is omitted, it defaults to `false` (do not execute that day). If the current day is not within the scheduling range, this Recognition emits the localized `schedule.skip_today` message via `maafocus` and returns no match.
 
+### CountDownAction
+
+`CountDownAction` is implemented in `agent/go-service/common/countdown`. It pauses execution for a specified duration and displays a countdown timer in the execution log.
+
+The remaining time is logged at an interval based on the total duration: only the start and end are logged for durations up to 10 seconds; every 30 seconds for durations up to 5 minutes; every 60 seconds for longer durations.
+
+Parameters:
+
+- `useOCRResult: bool`: Optional, default `false`. Specifies whether to use the OCR recognition result of the current node as the wait duration. When enabled, `duration` is ignored, but the OCR text is still parsed according to `duration_type`.
+- `duration: int | string`: Required when `useOCRResult` is `false`. The wait duration for this instance. The specific format and unit are determined by `duration_type`. The parsed duration must be greater than zero and cannot exceed 24 hours.
+- `duration_type: int`: Optional, default `0`. The format and unit of the wait duration:
+    - `0`: Milliseconds, specified as an integer. For example, `3000` represents 3 seconds.
+    - `1`: Seconds, specified as an integer. For example, `60` represents 1 minute.
+    - `2`: Minutes, specified as an integer. For example, `20` represents 20 minutes.
+    - `10`: Go duration string. For example, `"1h20m30s"`. Here, `h`, `m`, and `s` represent hours, minutes, and seconds respectively; each component can be omitted, such as `"20m"` or `"1h30s"`.
+    - `11`: `hh:mm:ss` or `mm:ss` string. For example, `"01:20:30"` or `"20:30"`. Both standard and Chinese full-width colons (`：`) are supported.
+- `duration_format_hms: string`: Optional, default `countdown.format.hms`. The i18n key used when the remaining time is equal to or greater than 1 hour.
+- `duration_format_ms: string`: Optional, default `countdown.format.ms`. The i18n key used when the remaining time is equal to or greater than 1 minute but less than 1 hour.
+- `duration_format_s: string`: Optional, default `countdown.format.s`. The i18n key used when the remaining time is less than 1 minute.
+    - In `duration_format_s`, `{ss}` can be used to represent seconds with a leading zero (e.g., `3` is formatted as `03`), while `{s}` represents seconds without a leading zero (e.g., `3` is output as-is).
+    - In `duration_format_ms`, in addition to `{ss}` and `{s}`, you can use `{mm}` to represent minutes with a leading zero and `{m}` to represent minutes without a leading zero.
+    - In `duration_format_hms`, in addition to `{mm}`, `{m}`, `{ss}`, and `{s}`, you can use `{hh}` to represent hours with a leading zero and `{h}` to represent hours without a leading zero.
+- `step_message: string`: Optional, default `countdown.message.step`. The i18n key for the log message output when the countdown updates. The corresponding text must contain exactly one `%s` to receive the formatted remaining time.
+- `done_message: string`: Optional, default `countdown.message.done`. The i18n key for the log message output when the countdown finishes normally. The corresponding text can contain one `%s` to receive the formatted total wait duration of this instance.
+- `stop_message: string`: Optional, default `countdown.message.stop`. The i18n key for the log message output when the countdown is terminated prematurely due to a task stop event.
+- `complex_conf: object`: Optional. Complex mode configuration, used to set the cumulative wait duration ceiling and the maximum single wait duration:
+    - `complex_mode: int`: Optional, default `0`. `0` means complex mode is disabled; `1` means the step is directly skipped if the wait duration exceeds the cumulative wait duration ceiling; `2` means if the wait duration exceeds the cumulative ceiling, the wait will proceed but will be capped at that ceiling.
+    - `long_duration_max: int | string`: Optional. The cumulative wait duration ceiling, parsed according to `long_duration_type`. Required when complex mode is enabled. Must be greater than zero and cannot exceed 24 hours.
+    - `long_duration_type: int`: Optional, default `0`. The format and unit of the cumulative wait duration ceiling. Takes the same values as `duration_type`: `0` for millisecond integers, `1` for second integers, `2` for minute integers, `10` for Go duration strings, and `11` for `hh:mm:ss` or `mm:ss` strings.
+    - `long_duration_step_max: int`: Optional, default `1200`. The maximum duration for a single wait step, in seconds (defaults to 20 minutes per step).
+    - `reset_start_time: bool`: Optional, default `false`. In complex mode, whether to restart the cumulative duration tracking. It is recommended to set this to `true` during the first call of an expected batch of countdowns, and it must be set to `false` for subsequent calls.
+
+Example:
+
+```json
+{
+    "action": {
+        "type": "Custom",
+        "param": {
+            "custom_action": "CountDownAction",
+            "custom_action_param": {
+                "duration": 3000
+            }
+        }
+    }
+}
+```
+
+### EveryNthHit
+
+The `EveryNthHit` implementation is located in `agent/go-service/common/everynthhit`. It provides count-based throttling: every time the node is evaluated, the counter for its `key` increases by one; the Nth evaluation hits and resets the counter.
+
+**Hit semantics: `true` = this evaluation is exactly the Nth one (the counter has been reset); `false` = everything else.**
+
+Parameters:
+
+- `key: string`: Counter identifier. Required. Counters are isolated per `key`, so different keys never affect each other.
+- `every: int`: How many evaluations produce one hit. Required. Must be a positive integer (`>= 1`).
+
+Behavior:
+
+1. Counters live inside the go-service process, are isolated per `key`, and are not written to Pipeline `attach`; stopping or re-entering a task does not clear them automatically.
+2. When `every <= 0`, nothing is counted and recognition always returns `false`, with a warn log entry; non-integer values already fail during JSON parsing.
+3. After the Nth hit the counter resets to zero, and the next evaluation starts again at `1`.
+4. On a hit, the native `roi` is returned as the `Box`.
+5. Use `EveryNthHitReset` on the same `key` when every run must start from a clean count.
+
+Note: the counter only grows by evaluation, so a node that the main loop keeps polling also consumes counts; put it on an explicit flow branch if it should count only when the flow really reaches it. An empty `key` or a `custom_recognition_param` that is not valid JSON logs an error and returns no match; it never panics.
+
+Example file: [`EveryNthHit.json`](../../../assets/resource/pipeline/Interface/Example/EveryNthHit.json)
+
 ## Summary
 
 When writing a Pipeline, the built-in `TemplateMatch` / `OCR` / `Click` / `Swipe` can handle most needs. When they fall short—for example, comparing two OCR values, dynamically adjusting parameters at runtime, or batch running subtasks—then refer to this document to see if there's an existing Custom action or recognition to use.
@@ -584,5 +666,8 @@ When writing a Pipeline, the built-in `TemplateMatch` / `OCR` / `Click` / `Swipe
 | Ctrl + Click at specified position | `AutoCtrlClickAction` |
 | Alt + Swipe | `AutoAltSwipeAction` |
 | Hover from the screen center to the recognition box, then click | `AutoSwipeClickAction` |
+| Blocking Countdown Delay | `CountDownAction` |
+| Hit once every N evaluations | `EveryNthHit` |
+| Clear an EveryNthHit counter | `EveryNthHitReset` |
 
 All Custom Go code implementations are located under `agent/go-service/`. Pipeline authors do not need to concern themselves with this; just write the JSON according to the documentation parameters.

@@ -19,7 +19,7 @@
 | 终端分组（生成） | `assets/resource/pipeline/EnvironmentMonitoring/Terminals.json` | 城郊监测终端 / 首墩监测终端的入口节点与各自的观察点 `next` 列表（**生成**） |
 | 终端跳转 | `assets/resource/pipeline/EnvironmentMonitoring/Locations.json` | `EnvironmentMonitoringGoTo*` 与 `Select*` 节点，从主菜单进入对应终端 |
 | 拍照流程 | `assets/resource/pipeline/EnvironmentMonitoring/TakePhoto.json` | 进入拍照模式、调整朝向、识别拍照按钮、达成目标后回到终端 |
-| 镜头扫描 | `assets/resource/pipeline/EnvironmentMonitoring/TakePhoto.json`、`agent/go-service/common/camerascan/` | 前方九宫格扫描，未命中时按中、上、下三档俯仰离散绕圈 |
+| 镜头扫描 | `assets/resource/pipeline/EnvironmentMonitoring/TakePhoto.json`、`agent/go-service/common/camerascan/` | 前方 5 × 5 网格扫描，未命中时按中、上、下三档俯仰离散绕圈 |
 | 公共按钮 | `assets/resource/pipeline/EnvironmentMonitoring/Button.json` | `TrackMissionButton` 等环境监测专用通用按钮 |
 | 观察点节点（生成） | `assets/resource/pipeline/EnvironmentMonitoring/{Station}/{Id}.json` | **每个观察点一份 JSON**，由模板渲染（**生成**）；`Id` 由 `model.mjs` 自动生成，通常不用手写 |
 | 观察点模板 | `tools/pipeline-generate/EnvironmentMonitoring/generator/template.json` | 单观察点 Pipeline 模板（识别文本、接取/前往、传送、寻路、拍照） |
@@ -91,10 +91,10 @@ GoTo{Id}Move                         （寻路动作；直拍有 Heading 时只�
        └─ 有 FightAfterMove → [JumpBack]AutoFight → GoTo{Id}MoveAfterFight
                                                    └─ {Id}TakePhoto
 {Id}TakePhoto                        （包装节点：设置 anchor，再进入公共拍照流程）
-  ├─ anchor: EnvironmentMonitoringBackToTerminal → ${GoToMonitoringTerminal}
-  └─ next: EnvironmentMonitoringTakePhoto
-EnvironmentMonitoringTakePhoto       （进入拍照模式 → 朝向 → 拍照）
-  └─ [Anchor]EnvironmentMonitoringBackToTerminal
+  ├─ anchor: TakePhotoDone → ${GoToMonitoringTerminal}
+  └─ next: TakePhoto
+TakePhoto                            （公共拍照接口，见 Interface/TakePhoto.json：进入拍照模式 → 隐藏干员 → 扫描镜头 → 拍照）
+  └─ [Anchor]TakePhotoDone
        └─ EnvironmentMonitoringGoTo{Outskirts|MarkerStone}MonitoringTerminal
 ```
 
@@ -104,9 +104,9 @@ EnvironmentMonitoringTakePhoto       （进入拍照模式 → 朝向 → 拍照
 >
 > `anchor` 字段的 key 是模板里硬编码的占位符名，运行时被替换为：
 >
-> - `EnvironmentMonitoringBackToTerminal` → 当前观察点所属终端的 `EnvironmentMonitoringGoTo{Station}` 节点（拍完回到正确终端）
+> - `TakePhotoDone` → 当前观察点所属终端的 `EnvironmentMonitoringGoTo{Station}` 节点（拍完回到正确终端）
 >
-> 拍照目标未命中时统一调用 `EnvironmentMonitoringCameraScan`。该节点通过 `CameraScanAction` 执行九宫格与 fallback 镜头扫描，不再按观察点生成调整镜头的 anchor。
+> 拍照目标未命中时，公共拍照接口统一调用 `__TakePhotoCameraScan`。该节点通过 `CameraScanAction` 执行 5 × 5 网格与 fallback 镜头扫描，不再按观察点生成调整镜头的 anchor。
 
 ## 命名规则
 
@@ -232,7 +232,7 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 - `MapLocateAssertLocation`（识别）：根据当前小地图判断是否在 `NavAssert` 矩形内，普通传送路线用它决定要不要调用 `EnterMap`；`QuickTeleport` 从固定传送落点直接开始寻路，不进入该节点，可省略 `NavZoneId` / `NavAssert`。
 - `MapNavigateAction`（动作）：`NavPath` 原样作为它的 path，其中 `NAVMESH` 航点可按需携带 `target_tier` / `target_deck_y`；断言坐标取 `NavZoneId` 分区。传送后直接进入寻路动作，不再复核起点。
 - `FightAfterMove`（仅完整寻路路线可选）：直接填写与 `NavPath` 相同格式的独立 path。首次寻路后若进入战斗先执行 `AutoFight`（未进战则跳过），再由第二个 `MapNavigateAction` 沿此路径归位；不要复用首次前往路线。直拍路线无需战斗，不配置该字段。
-- `${Id}TakePhoto`（包装节点）：为寻路和直拍路线统一设置 `EnvironmentMonitoringBackToTerminal` anchor，再进入公共拍照流程。
+- `${Id}TakePhoto`（包装节点）：为寻路和直拍路线统一设置 `TakePhotoDone` anchor，再进入公共拍照接口 `TakePhoto`。
 - 传送后直拍不执行寻路，配置 `Heading` 时生成一条只含 `HEADING` 动作的 `MapNavigateAction`，原地调整角色朝向再拍照。
 
 详细参数与坐标录制方式见 [map-locator.md](../components/map-locator.md) 与 [map-navigator.md](../components/map-navigator.md)。
@@ -336,7 +336,7 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 - `NavZoneId` 填 MapLocate 的 `zone_id`（如 `Wuling_Base`），它决定 `NavAssert` 坐标按哪个分区解释；终点落在分层平台上时，`NavPath` 里的 `NAVMESH` 动作按 tier 坐标写并带上 `target_tier`；目标点存在上下重叠面时带上工具选出的 `target_deck_y`。
 - `routes.json` 中 `NavPath` 的前置 `ZONE` 表示传送落地后角色所在的地图，`FightAfterMove` 的前置 `ZONE` 表示清场结束、开始归位时所在的地图，供 WebUI 选择初始地图；必须按实测填写，不能从终点坐标推断。`target_tier` 只解释目标点坐标系，不代表传送落地地图。多分区或过图路径还应保留录制工具导出的必要 `ZONE`。
 
-- 站位是否能让 `EnvironmentMonitoringTakePhoto` 正常进入拍照模式。目标未命中时会自动执行公共九宫格 + fallback 镜头扫描，无需记录单向滑屏配置。
+- 站位是否能让 `TakePhoto` 正常进入拍照模式。目标未命中时会自动执行公共 5 × 5 网格 + fallback 镜头扫描，无需记录单向滑屏配置。
 
 ### 5. 重新生成 Pipeline
 
@@ -390,5 +390,5 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 - **路线经过未解锁区域 / 战斗 / 互动物**：寻路组件不会自行处理战斗、剧情和机关交互；过图须保留录制工具导出的 `ZONE` / `PORTAL`，沿途稳定遇敌改用 `FightAfterMove`，其余路段只选纯通行段。
 - **把缺路线数据误写成直拍**：只有游戏实测确认传送落点能完成拍照时，才能保留只有传送入口的精简配置；缺少真实路线数据时应继续保留 metadata-only 未适配条目。
 - **`Station` 新增但 `Locations.json` / `EnvironmentMonitoringLoop.next` 没同步**：新终端无法被识别进入，所有观察点都跑不到。
-- **`anchor` 占位符名一致性**：`template.json` 中 `anchor` 的 key 名 `EnvironmentMonitoringBackToTerminal` 必须与 `TakePhoto.json` 中的 `[Anchor]EnvironmentMonitoringBackToTerminal` 保持完全一致，否则 anchor 机制失效。
+- **`anchor` 占位符名一致性**：`template.json` 中 `anchor` 的 key 名 `TakePhotoDone` 必须与 `Common/Private/TakePhoto/TakePhoto.json` 中的 `[Anchor]TakePhotoDone` 保持完全一致，否则 anchor 机制失效。
 - **「生成成功 ≠ 已完整适配」**：没有 `routes.json` 条目、或条目存在但必填字段缺失的观察点会生成成降级流程，只接取并追踪，不会前往拍照。完整自动化必须选择真实传送入口；随后要么使用经过实测的传送后直拍精简写法，要么补齐地图断言和寻路配置。

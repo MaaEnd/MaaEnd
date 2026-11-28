@@ -1,0 +1,31 @@
+{
+    // 云端画面有延迟：点保存后头几帧仍是筛选弹窗，底栏静止就放行，会隔着弹窗读到「已选择 0/200」。
+    // 先确认弹窗已关、回到回收页（底部提示语被弹窗遮住时不会命中），再读已选择数量。
+    "AutoEssenceCapacityClickSave": {
+        "next": [
+            "AutoEssenceCapacitySaveClosed"
+        ]
+    },
+    "AutoEssenceCapacitySaveClosed": {
+        "desc": "筛选弹窗已关闭，回到回收页",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoEssenceCapacityDecomposePrompt"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "DoNothing"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceCapacityBatchReady",
+            "AutoEssenceCapacityCannotReach",
+            "AutoEssenceCapacityNothingLeft"
+        ]
+    }
+}

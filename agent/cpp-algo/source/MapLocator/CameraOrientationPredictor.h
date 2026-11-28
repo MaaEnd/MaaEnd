@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cstddef>
 #include <memory>
 #include <mutex>
 #include <optional>
@@ -31,54 +30,36 @@ namespace maplocator
 //
 // 识别目标与角色箭头（InferYellowArrowRotation）完全无关，结果仅供上层参考，
 // 不参与定位匹配与遮挡判定。
-class CameraOrientationPredictor
+struct OrientationModel
 {
-public:
-    explicit CameraOrientationPredictor(const std::string& refModelPath, int threads = 2);
-    ~CameraOrientationPredictor() = default;
-
-    // 输入 minimap 应为 TryExtractMinimap 产物（720p 基准下 118x120 的小地图）。
-    // referenceAsset 为 zone 底图（BGRA）；缺失或非 BGRA 时以全透明占位资产喂入。
-    // (x, y) 为定位结果，scale 为 ZoneTemplateScale(zoneId)。模型未加载、输入不
-    // 合法或推理失败时返回 std::nullopt。
-    // camera_heading_prior 为预期镜头方位角（北为 0 度）。它是观测而非指令：调用方
-    // 只能传上一次成功识别到的镜头方位角，且必须确认自此没有任何转向指令。
-    std::optional<CameraOrientation> predict(
-        const cv::Mat& minimap,
-        const cv::Mat& referenceAsset,
-        double x,
-        double y,
-        double scale,
-        const std::string& zoneId,
-        std::optional<double> camera_heading_prior = std::nullopt);
-
-    // 参考配对分类器可用才允许推理。
-    bool isLoaded() const { return refSession != nullptr; }
-
-private:
-    std::optional<CameraOrientation> infer(
-        const cv::Mat& minimap,
-        const cv::Mat& asset,
-        double x,
-        double y,
-        double scale,
-        const std::string& zoneId,
-        std::optional<double> camera_heading_prior);
-    bool loadSession(
-        const std::string& modelPath,
-        const char* tag,
-        const Ort::SessionOptions& options,
-        std::unique_ptr<Ort::Session>* out_session);
-
-    std::optional<CameraOrientation> decodePmf(const float* pmf, size_t count, std::optional<double> camera_heading_prior) const;
-
-    std::unique_ptr<Ort::Env> ortEnv;
-    std::unique_ptr<Ort::Session> refSession;
+    std::unique_ptr<Ort::Env> env;
+    std::unique_ptr<Ort::Session> ref_session;
 
     // Ort::Session::Run 线程安全，但预测共用的条带与拼接 scratch 不是；防多帧 locate 并发。
-    std::mutex predictMutex;
-    OrientationStrips stripScratch;
-    cv::Mat refInputScratch; // 7 通道 NHWC 拼接输入
+    std::mutex predict_mutex;
+    OrientationStrips strip_scratch;
+    cv::Mat ref_input_scratch; // 7 通道 NHWC 拼接输入
 };
+
+std::unique_ptr<OrientationModel> LoadOrientationModel(const std::string& refModelPath, int threads);
+
+// 参考配对分类器可用才允许推理。
+bool OrientationModelLoaded(const OrientationModel& model);
+
+// 输入 minimap 应为 TryExtractMinimap 产物（720p 基准下 118x120 的小地图）。
+// referenceAsset 为 zone 底图（BGRA）；缺失或非 BGRA 时以全透明占位资产喂入。
+// (x, y) 为定位结果，scale 为 ZoneTemplateScale(zoneId)。模型未加载、输入不
+// 合法或推理失败时返回 std::nullopt。
+// camera_heading_prior 为预期镜头方位角（北为 0 度）。它是观测而非指令：调用方
+// 只能传上一次成功识别到的镜头方位角，且必须确认自此没有任何转向指令。
+std::optional<CameraOrientation> PredictCameraOrientation(
+    OrientationModel* model,
+    const cv::Mat& minimap,
+    const cv::Mat& referenceAsset,
+    double x,
+    double y,
+    double scale,
+    const std::string& zoneId,
+    std::optional<double> camera_heading_prior);
 
 } // namespace maplocator

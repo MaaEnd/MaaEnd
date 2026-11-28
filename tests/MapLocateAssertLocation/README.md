@@ -4,7 +4,7 @@
 
 `MapLocateAssertLocation` 由 C++ Agent 提供，`maa-tools test` 不启动 Agent，无法覆盖这类节点，因此本测试使用独立的 Python 执行器，不依赖 `maa-tools`、`loader.mts` 或普通测试 Schema。
 
-当前纳入范围为自动采集已注册路线（Route1–17、CommonRoute1–8）中的定位节点，范围由 `collect_nodes` 决定。
+当前纳入范围为自动采集各地区路线（`assets/resource/pipeline/AutoCollect/<地区>/`）中的定位节点，范围由 `collect_nodes` 决定。
 
 ## 工作方式
 
@@ -27,7 +27,7 @@
     "cases": [
         {
             "image": "自动采集_路线1_定位点.png",
-            "hits": ["AutoCollectRoute1AssertLocation"]
+            "hits": ["AutoCollectWulingBlightedJadeleaf1AssertLocation"]
         }
     ]
 }
@@ -52,7 +52,7 @@ uv run build-and-install --cpp-algo
 uv run tests/MapLocateAssertLocation/map_locate.py
 ```
 
-也可以用 `pnpm test:map-locate`。运行前确认 `install/agent/cpp-algo` 由当前源码构建，`install/maafw` 与 Agent 版本匹配，`install/resource` 包含定位底图和模型。
+也可以用 `pnpm test:map-locate`。运行前确认 `install/agent/cpp-algo` 由当前源码构建，`install/maafw` 与 Agent 版本匹配，`install/resource` 包含定位底图和模型。脚本以 `install/` 作为 Agent 的工作目录启动它，资源按该目录解析；同时用 `PI_USER_DATA_DIR` 把 Agent 的日志与调试产物指到 `--output` 目录，安装目录不落盘。
 
 可选参数：`--cases <文件>` 指定其它用例文件，`--output <目录>` 指定输出目录。
 

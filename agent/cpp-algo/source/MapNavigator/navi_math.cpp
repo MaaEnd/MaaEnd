@@ -1,4 +1,3 @@
-#include <algorithm>
 #include <cmath>
 
 #include "navi_math.h"
@@ -6,7 +5,7 @@
 namespace mapnavigator
 {
 
-double NaviMath::CalcTargetRotation(double from_x, double from_y, double to_x, double to_y)
+double CalcTargetRotation(double from_x, double from_y, double to_x, double to_y)
 {
     const double dx = to_x - from_x;
     const double dy = to_y - from_y;
@@ -17,12 +16,12 @@ double NaviMath::CalcTargetRotation(double from_x, double from_y, double to_x, d
     return std::fmod(std::round(angle_deg), 360.0);
 }
 
-double NaviMath::CalcDeltaRotation(double current, double target)
+double CalcDeltaRotation(double current, double target)
 {
     return NormalizeAngle(target - current);
 }
 
-double NaviMath::NormalizeAngle(double angle)
+double NormalizeAngle(double angle)
 {
     while (angle > 180.0) {
         angle -= 360.0;
@@ -33,7 +32,7 @@ double NaviMath::NormalizeAngle(double angle)
     return angle;
 }
 
-double NaviMath::NormalizeHeading(double angle)
+double NormalizeHeading(double angle)
 {
     angle = std::fmod(angle, 360.0);
     if (angle < 0.0) {
@@ -42,11 +41,14 @@ double NaviMath::NormalizeHeading(double angle)
     return angle;
 }
 
-double NaviMath::BlendAngle(double from, double to, double weight)
+// 仰角只能用世界坐标算, 平面 x/y 按地图比例缩放过, 和高度不同尺
+double CalcElevation(const ZiplineNodeRef& from, const ZiplineNodeRef& to)
 {
-    const double clamped_weight = std::clamp(weight, 0.0, 1.0);
-    const double delta = NormalizeAngle(to - from);
-    return NormalizeHeading(from + delta * clamped_weight);
+    if (!from.has_world || !to.has_world) {
+        return 0.0;
+    }
+    const double run = std::hypot(to.world_x - from.world_x, to.world_z - from.world_z);
+    return std::atan2(to.world_y - from.world_y, run) * 180.0 / kPi;
 }
 
 } // namespace mapnavigator

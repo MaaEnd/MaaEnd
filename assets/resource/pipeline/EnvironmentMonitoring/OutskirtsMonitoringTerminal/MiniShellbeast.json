@@ -98,7 +98,7 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "CheckMiniShellbeastJob": {
+    "CheckMiniShellbeastJobText": {
         "desc": "检查小壳兽委托是否可以接取",
         "recognition": "OCR",
         "roi": "CheckMiniShellbeastIcon",
@@ -172,7 +172,7 @@
         "all_of": [
             "CheckMiniShellbeastText",
             "CheckMiniShellbeastIcon",
-            "CheckMiniShellbeastJob"
+            "CheckMiniShellbeastJobText"
         ],
         "box_index": 2,
         "pre_delay": 0,
@@ -244,7 +244,7 @@
         "desc": "小壳兽任务已经在追踪中",
         "recognition": "And",
         "all_of": [
-            "AlreadyTrackedMissionButton",
+            "CheckAlreadyTrackingText",
             "InMiniShellbeastMission"
         ],
         "pre_delay": 0,
@@ -470,12 +470,12 @@
         "desc": "在小壳兽任务拍照点开始拍照",
         "pre_delay": 0,
         "anchor": {
-            "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal"
+            "TakePhotoDone": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "EnvironmentMonitoringTakePhoto"
+            "TakePhoto"
         ]
     }
 }

@@ -1,0 +1,64 @@
+#pragma once
+
+#include "../planning/navigation_session.h"
+#include "../state_machine/navigation_runtime_state.h"
+#include "action_executor.h"
+struct MaaContext;
+
+namespace mapnavigator
+{
+
+struct Motion;
+struct PositionSensor;
+struct InputBackend;
+struct Navigator;
+
+namespace semantic_nodes
+{
+
+struct Result
+{
+    bool consumed = false;
+    bool stay_in_current_tick = false;
+    bool request_failure = false;
+    const char* failure_reason = "";
+    const char* failure_log_message = "";
+    // 绳底认不出交互提示时填该升降索的底端 uid
+    uint32_t rope_unavailable = 0;
+};
+
+inline Result Handled()
+{
+    return { .consumed = true, .stay_in_current_tick = true };
+}
+
+inline Result Pending()
+{
+    return { .stay_in_current_tick = true };
+}
+
+inline Result Failure(const char* reason, const char* log_message)
+{
+    return { .request_failure = true, .failure_reason = reason, .failure_log_message = log_message };
+}
+
+inline Result ConsumedFailure(const char* reason, const char* log_message)
+{
+    return {
+        .consumed = true,
+        .stay_in_current_tick = true,
+        .request_failure = true,
+        .failure_reason = reason,
+        .failure_log_message = log_message,
+    };
+}
+
+Result TickWaitPhase(Navigator* nav, NaviPhase phase);
+Result ConsumeInlineSemantics(Navigator* nav);
+Result HandleArrival(Navigator* nav, const Waypoint& waypoint, double actual_distance);
+// 调用前绳底交互须已按下, 当前点须已推进到绳顶落脚点
+Result StartRopeRide(Navigator* nav, const RopeRideInfo& ride);
+
+} // namespace semantic_nodes
+
+} // namespace mapnavigator

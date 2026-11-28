@@ -1,0 +1,831 @@
+{
+    "AutoDailyMissionFriendOfBotsListItem": {
+        "desc": "委派任务列表里的日常·机械之友",
+        "recognition": "OCR",
+        "roi": [
+            42,
+            70,
+            360,
+            590
+        ],
+        // 完整文本："日常·机械之友" / "日常·機械之友" / "Daily: Friend of Bots" / "日常・機械の友" / "일상 · 로봇 친구"
+        // 中点常被 OCR 认成别的点号或漏掉，去掉「日常」和中点只认后半段
+        "expected": [
+            // @i18n-skip
+            "机械之友",
+            "機械之友",
+            "(?i)Friend\\s*of\\s*Bots",
+            "機械の友",
+            "로봇\\s*친구"
+        ]
+    },
+    "AutoDailyMissionFriendOfBotsNotFinished": {
+        "desc": "做完后列表里仍有日常·机械之友，任务失败",
+        "recognition": "And",
+        "all_of": [
+            "InMenuMission",
+            "AutoDailyMissionFriendOfBotsListItem"
+        ],
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                42,
+                70,
+                360,
+                590
+            ]
+        },
+        "action": "Custom",
+        "custom_action": "FalseAction"
+    },
+    "AutoDailyMissionFriendOfBotsDetail": {
+        "desc": "右侧详情已选中日常·机械之友",
+        "recognition": "OCR",
+        "roi": [
+            410,
+            55,
+            400,
+            45
+        ],
+        "expected": [
+            "日常·机械之友",
+            "日常·機械之友",
+            "(?i)Daily:\\s*Friend\\s*of\\s*Bots",
+            "日常・機械の友",
+            "일상\\s*·\\s*로봇\\s*친구"
+        ]
+    },
+    "AutoDailyMissionFriendOfBotsMapPanel": {
+        "desc": "任务地图右侧详情栏是日常·机械之友",
+        "recognition": "OCR",
+        "roi": [
+            950,
+            45,
+            320,
+            45
+        ],
+        // 完整文本："日常·机械之友" / "日常·機械之友" / "Daily: Friend of Bots" / "日常・機械の友" / "일상 · 로봇 친구"
+        // 中点常被 OCR 认成别的点号或漏掉，去掉「日常」和中点只认后半段
+        "expected": [
+            // @i18n-skip
+            "机械之友",
+            "機械之友",
+            "(?i)Friend\\s*of\\s*Bots",
+            "機械の友",
+            "로봇\\s*친구"
+        ]
+    },
+    "AutoDailyMissionFriendOfBotsEntry": {
+        "desc": "在委派任务列表中点击日常·机械之友",
+        "recognition": "And",
+        "all_of": [
+            "InMenuMission",
+            "AutoDailyMissionFriendOfBotsListItem"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "AutoDailyMissionSnsTracked",
+            "AutoDailyMissionSnsUntracked",
+            "AutoDailyMissionFriendOfBotsOpenMap",
+            "AutoDailyMissionFriendOfBotsStartTracking"
+        ]
+    },
+    "AutoDailyMissionFriendOfBotsOpenMap": {
+        "desc": "点击定位按钮打开机械之友的任务地图",
+        "recognition": "And",
+        "all_of": [
+            "AutoDailyMissionFriendOfBotsDetail",
+            "TrackedMissionMapButton"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                410,
+                55,
+                400,
+                45
+            ]
+        },
+        "action": "Click",
+        "next": [
+            "AutoDailyMissionFriendOfBotsClosePanel"
+        ]
+    },
+    "AutoDailyMissionFriendOfBotsStartTracking": {
+        "desc": "机械之友还没追踪时点击开始追踪，打开任务地图",
+        "recognition": "And",
+        "all_of": [
+            "AutoDailyMissionFriendOfBotsDetail",
+            "AutoDailyMissionStartTrackingButton"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                410,
+                55,
+                400,
+                45
+            ]
+        },
+        "action": "Click",
+        "next": [
+            "AutoDailyMissionFriendOfBotsClosePanel"
+        ]
+    },
+    "AutoDailyMissionFriendOfBotsClosePanel": {
+        "desc": "确认已打开机械之友的任务地图，关闭右侧详情栏",
+        "recognition": "And",
+        "all_of": [
+            "CloseButtonType1",
+            "AutoDailyMissionFriendOfBotsMapPanel"
+        ],
+        "box_index": 0,
+        "action": "Click",
+        "post_wait_freezes": 500,
+        "next": [
+            "AutoDailyMissionFriendOfBotsRegionTheHub",
+            "AutoDailyMissionFriendOfBotsRegionOriginiumSciencePark",
+            "AutoDailyMissionFriendOfBotsRegionOriginLodespring",
+            "AutoDailyMissionFriendOfBotsRegionPowerPlateau"
+        ]
+    },
+    "AutoDailyMissionFriendOfBotsRegionTheHub": {
+        "desc": "地图左上角子区域是枢纽区",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            320,
+            60
+        ],
+        "expected": [
+            "枢纽区",
+            "樞紐區",
+            "(?i)The\\s*Hub",
+            "中枢エリア",
+            "거점\\s*지역"
+        ],
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                0,
+                0,
+                320,
+                60
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        // 工人之家那处在地图缩到最小时落在画面下沿，地图到底拖不上来，追踪图标认不了；
+        // 南部草甸认不到时按排除法认定是工人之家
+        "next": [
+            "AutoDailyMissionFriendOfBotsCandidatesTheHub",
+            "AutoDailyMissionFriendOfBotsWorkerDorms"
+        ]
+    },
+    "AutoDailyMissionFriendOfBotsCandidatesTheHub": {
+        "desc": "在地图上确认今天的机械之友是枢纽区里的南部草甸那一处",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "MissionTrack",
+            // 工人之家那处不放在这里认，见 AutoDailyMissionFriendOfBotsWorkerDorms
+            "candidates": [
+                {
+                    "at": [
+                        648.442,
+                        961.065
+                    ],
+                    "next": "AutoDailyMissionFriendOfBotsSouthernMeadows"
+                }
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": 500
+    },
+    "AutoDailyMissionFriendOfBotsRegionOriginiumSciencePark": {
+        "desc": "地图左上角子区域是源石研究园",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            320,
+            60
+        ],
+        "expected": [
+            "源石研究园",
+            "源石研究園",
+            "(?i)Originium\\s*Science\\s*Park",
+            "源石研究パーク",
+            "오리지늄\\s*연구\\s*구역"
+        ],
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                0,
+                0,
+                320,
+                60
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDailyMissionFriendOfBotsCandidatesOriginiumSciencePark"
+        ]
+    },
+    "AutoDailyMissionFriendOfBotsCandidatesOriginiumSciencePark": {
+        "desc": "在地图上确认今天的机械之友是源石研究园里的那一处",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "MissionTrack",
+            "candidates": [
+                {
+                    "at": [
+                        1215.386,
+                        724.154
+                    ],
+                    "next": "AutoDailyMissionFriendOfBotsCliffsideTrail"
+                }
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": 500
+    },
+    "AutoDailyMissionFriendOfBotsRegionOriginLodespring": {
+        "desc": "地图左上角子区域是矿脉源区",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            320,
+            60
+        ],
+        "expected": [
+            "矿脉源区",
+            "礦脈源區",
+            "(?i)Origin\\s*Lodespring",
+            "鉱山エリア",
+            "광맥\\s*구역"
+        ],
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                0,
+                0,
+                320,
+                60
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDailyMissionFriendOfBotsCandidatesOriginLodespring"
+        ]
+    },
+    "AutoDailyMissionFriendOfBotsCandidatesOriginLodespring": {
+        "desc": "在地图上确认今天的机械之友是矿脉源区里的那一处",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "MissionTrack",
+            "candidates": [
+                {
+                    "at": [
+                        892.737,
+                        266.651
+                    ],
+                    "next": "AutoDailyMissionFriendOfBotsLogisticsArea"
+                }
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": 500
+    },
+    "AutoDailyMissionFriendOfBotsRegionPowerPlateau": {
+        "desc": "地图左上角子区域是供能高地",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            320,
+            60
+        ],
+        "expected": [
+            "供能高地",
+            "(?i)Power\\s*Plateau",
+            "エネルギー高地",
+            "에너지\\s*공급\\s*고지"
+        ],
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                0,
+                0,
+                320,
+                60
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDailyMissionFriendOfBotsCandidatesPowerPlateau"
+        ]
+    },
+    "AutoDailyMissionFriendOfBotsCandidatesPowerPlateau": {
+        "desc": "在地图上确认今天的机械之友是供能高地里的那一处",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "MissionTrack",
+            "candidates": [
+                {
+                    "at": [
+                        706.713,
+                        329.687
+                    ],
+                    "next": "AutoDailyMissionFriendOfBotsEvacuationZone"
+                }
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": 500
+    },
+    "AutoDailyMissionFriendOfBotsSouthernMeadows": {
+        "desc": "今天的机械之友在南部草甸附近",
+        "pre_delay": 0,
+        "anchor": {
+            "AutoDailyMissionRoute": "AutoDailyMissionFriendOfBotsRouteSouthernMeadows"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDailyMissionQuickTeleport",
+            "AutoDailyMissionSelectTrackedMission"
+        ]
+    },
+    "AutoDailyMissionFriendOfBotsWorkerDorms": {
+        "desc": "通过万能跳转传送到工人之家前往今天的机械之友",
+        // 这处的追踪图标在地图缩到最小时落在画面下沿，地图拖不上来，认不了；
+        // 南部草甸没认到才会走到这里，按排除法认定是工人之家，改用万能跳转传送到工人之家传送点
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldValleyIVTheHubWorkerDorms"
+            ]
+        },
+        "rate_limit": 0,
+        "next": [
+            "AutoDailyMissionFriendOfBotsRouteWorkerDorms"
+        ]
+    },
+    "AutoDailyMissionFriendOfBotsCliffsideTrail": {
+        "desc": "今天的机械之友在崖边山道附近",
+        "pre_delay": 0,
+        "anchor": {
+            "AutoDailyMissionRoute": "AutoDailyMissionFriendOfBotsRouteCliffsideTrail"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDailyMissionQuickTeleport",
+            "AutoDailyMissionSelectTrackedMission"
+        ]
+    },
+    "AutoDailyMissionFriendOfBotsLogisticsArea": {
+        "desc": "今天的机械之友在运输区附近",
+        "pre_delay": 0,
+        "anchor": {
+            "AutoDailyMissionRoute": "AutoDailyMissionFriendOfBotsRouteLogisticsArea"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDailyMissionQuickTeleport",
+            "AutoDailyMissionSelectTrackedMission"
+        ]
+    },
+    "AutoDailyMissionFriendOfBotsEvacuationZone": {
+        "desc": "今天的机械之友在疏散区附近",
+        "pre_delay": 0,
+        "anchor": {
+            "AutoDailyMissionRoute": "AutoDailyMissionFriendOfBotsRouteEvacuationZone"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDailyMissionQuickTeleport",
+            "AutoDailyMissionSelectTrackedMission"
+        ]
+    },
+    "AutoDailyMissionFriendOfBotsRouteSouthernMeadows": {
+        "desc": "走到南部草甸附近的故障机器人并修复",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "interact_text": {
+                "node": "AutoDailyMissionRepairRobotInteractText"
+            },
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        648.442,
+                        961.065
+                    ]
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        648.442,
+                        961.065
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionFriendOfBotsRepairPuzzle"
+        ]
+    },
+    "AutoDailyMissionFriendOfBotsRouteWorkerDorms": {
+        "desc": "走到工人之家附近的故障机器人并修复",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "interact_text": {
+                "node": "AutoDailyMissionRepairRobotInteractText"
+            },
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        746.339,
+                        1043.826
+                    ]
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        746.339,
+                        1043.826
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionFriendOfBotsRepairPuzzle"
+        ]
+    },
+    "AutoDailyMissionFriendOfBotsRouteCliffsideTrail": {
+        "desc": "走到崖边山道附近的故障机器人并修复",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "interact_text": {
+                "node": "AutoDailyMissionRepairRobotInteractText"
+            },
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1215.386,
+                        724.154
+                    ]
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1215.386,
+                        724.154
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionFriendOfBotsRepairPuzzle"
+        ]
+    },
+    "AutoDailyMissionFriendOfBotsElevatorCallText": {
+        "desc": "电梯呼叫按钮的交互提示",
+        "recognition": "OCR",
+        "roi": [
+            755,
+            330,
+            297,
+            312
+        ],
+        "expected": [
+            "^呼叫$",
+            "(?i)^Call$",
+            "^呼び出し$",
+            "^호출$"
+        ]
+    },
+    "AutoDailyMissionFriendOfBotsElevatorFloorText": {
+        "desc": "站在电梯上时的楼层交互提示",
+        "recognition": "OCR",
+        "roi": [
+            755,
+            330,
+            297,
+            312
+        ],
+        // 完整文本形如："1层" / "1層" / "1F" / "1階" / "1층"
+        // 楼层数字 OCR 认不准，只认「层」
+        "expected": [
+            // @i18n-skip
+            "层$",
+            "層$",
+            "(?i)^\\w{0,2}\\s*F$",
+            "(?i)Floor$",
+            "階$",
+            "층$"
+        ]
+    },
+    "AutoDailyMissionFriendOfBotsRouteLogisticsArea": {
+        "desc": "走到运输区机器人楼下的电梯按钮呼叫电梯",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "interact_text": {
+                "node": "AutoDailyMissionFriendOfBotsElevatorCallText"
+            },
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        881.37,
+                        251.03
+                    ]
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        881.37,
+                        251.03
+                    ]
+                }
+            ]
+        },
+        "post_delay": 3000, // 呼叫后电梯要过一会才下来，之前上不去
+        "next": [
+            "AutoDailyMissionFriendOfBotsLogisticsAreaBoardElevator"
+        ]
+    },
+    "AutoDailyMissionFriendOfBotsLogisticsAreaBoardElevator": {
+        "desc": "走上运输区的电梯并上楼",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "interact_text": {
+                "node": "AutoDailyMissionFriendOfBotsElevatorFloorText"
+            },
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                // 呼叫后先往西挪一点，直接走向电梯会被东西挡住
+                [
+                    880.0,
+                    251.03
+                ],
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        879.55,
+                        252.99
+                    ]
+                }
+            ]
+        },
+        "post_delay": 3000, // 交互后楼层提示不会马上消失，等电梯开动后再识别楼层提示重新出现
+        "next": [
+            "AutoDailyMissionFriendOfBotsLogisticsAreaElevatorArrived"
+        ]
+    },
+    "AutoDailyMissionFriendOfBotsLogisticsAreaElevatorArrived": {
+        "desc": "电梯楼层提示再次出现，已到楼上",
+        "recognition": "And",
+        "all_of": [
+            "InWorld",
+            "AutoDailyMissionFriendOfBotsElevatorFloorText"
+        ],
+        "next": [
+            "AutoDailyMissionFriendOfBotsLogisticsAreaUpstairs"
+        ]
+    },
+    "AutoDailyMissionFriendOfBotsLogisticsAreaUpstairs": {
+        "desc": "下电梯走到运输区楼上的怪物处，有敌人时先自动战斗",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            // 新开的寻路按区域主楼层吸附起点，在电梯顶用 NAVMESH 会规划回楼下，楼上这段用固定路点
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                [
+                    878.12,
+                    252.88
+                ],
+                [
+                    876.62,
+                    253.38
+                ],
+                [
+                    867.29,
+                    256.32
+                ]
+            ]
+        },
+        "next": [
+            "[JumpBack]AutoFight",
+            "AutoDailyMissionFriendOfBotsLogisticsAreaUpstairsRobot"
+        ]
+    },
+    "AutoDailyMissionFriendOfBotsLogisticsAreaUpstairsRobot": {
+        "desc": "清完怪继续走到运输区楼上的故障机器人并修复",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "interact_text": {
+                "node": "AutoDailyMissionRepairRobotInteractText"
+            },
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                [
+                    867.29,
+                    256.32
+                ],
+                [
+                    878.38,
+                    260.12
+                ],
+                [
+                    879.62,
+                    261.38
+                ],
+                [
+                    880.38,
+                    261.38
+                ],
+                [
+                    882.12,
+                    260.38
+                ],
+                [
+                    887.62,
+                    264.12
+                ],
+                [
+                    892.62,
+                    265.88
+                ],
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        892.737,
+                        266.651
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionFriendOfBotsRepairPuzzle"
+        ]
+    },
+    "AutoDailyMissionFriendOfBotsRouteEvacuationZone": {
+        "desc": "走到疏散区附近的台沿跳下去",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        660.36,
+                        352.48
+                    ]
+                },
+                // 机器人在台下，NAVMESH 没有下落连接会绕一大圈，按实测路点走到台沿跳下去
+                [
+                    674.64,
+                    353.71
+                ],
+                {
+                    "action": "RUN",
+                    "target": [
+                        94.91,
+                        314.99
+                    ],
+                    "target_tier": "ValleyIV_L7_133"
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionFriendOfBotsRouteEvacuationZoneRobot"
+        ]
+    },
+    "AutoDailyMissionFriendOfBotsRouteEvacuationZoneRobot": {
+        "desc": "跳到台下后走到疏散区附近的故障机器人并修复",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "heading_source": "camera",
+            "interact_text": {
+                "node": "AutoDailyMissionRepairRobotInteractText"
+            },
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        706.713,
+                        329.687
+                    ]
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        706.713,
+                        329.687
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "AutoDailyMissionFriendOfBotsRepairPuzzle"
+        ]
+    },
+    "AutoDailyMissionFriendOfBotsRepairPuzzle": {
+        "desc": "修复故障机器人的电路拼图，有第二盘时再解一次",
+        // 一个机器人最多两盘，解不出时别无限重试
+        "max_hit": 4,
+        "recognition": "Or",
+        "any_of": [
+            "PuzzleSolverOnScenePrepare",
+            "PuzzleSolverOnSceneMain"
+        ],
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "PuzzleSolverMain"
+            ]
+        },
+        "next": [
+            "AutoDailyMissionFriendOfBotsRepairPuzzle",
+            "AutoDailyMissionWaitSnsPopup"
+        ]
+    }
+}

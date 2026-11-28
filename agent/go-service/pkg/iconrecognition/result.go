@@ -3,7 +3,6 @@ package iconrecognition
 import (
 	"encoding/json"
 	"fmt"
-	"strings"
 
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 )
@@ -23,6 +22,11 @@ const (
 type DetailError struct {
 	Code    ErrorCode `json:"code"`
 	Message string    `json:"message"`
+}
+
+// Error 返回带稳定错误码的诊断信息。
+func (detail *DetailError) Error() string {
+	return fmt.Sprintf("IconRecognition %s: %s", detail.Code, detail.Message)
 }
 
 // Alias 是与代表物品共用同一组图标的候选物品。
@@ -50,50 +54,82 @@ type Match struct {
 	Column            *int `json:"column,omitempty"`
 }
 
-// Detail 是 IconRecognition custom recognition 返回的 detail JSON。
+// Detail 是单个 Custom 结果的物品详情，失败时只携带 Error。
 type Detail struct {
-	DetailVersion int          `json:"detail_version"`
-	Matched       bool         `json:"matched"`
-	GridType      GridType     `json:"grid_type"`
-	ROI           maa.Rect     `json:"roi"`
-	Matches       []Match      `json:"matches"`
-	Error         *DetailError `json:"error,omitempty"`
+	Match
+	Error *DetailError `json:"error,omitempty"`
 }
 
-// ParseDetail 解析 IconRecognition 返回的 detail JSON。
-func ParseDetail(raw string) (Detail, error) {
-	var detail Detail
-	if strings.TrimSpace(raw) == "" {
-		return detail, fmt.Errorf("IconRecognition detail is empty")
+// Results 是框架返回的有序结果集合，读取时不自动转换详情。
+type Results []*maa.RecognitionResult
+
+// Matches 按需解析每项物品详情，保留结果顺序；失败详情以 DetailError 返回。
+func (results Results) Matches() ([]Match, error) {
+	matches := make([]Match, 0, len(results))
+	for index, result := range results {
+		if result == nil {
+			return nil, fmt.Errorf("IconRecognition result %d is nil", index)
+		}
+		custom, ok := result.AsCustom()
+		if !ok || custom == nil {
+			return nil, fmt.Errorf("IconRecognition result %d is not custom recognition", index)
+		}
+		var detail Detail
+		if err := json.Unmarshal([]byte(custom.Detail), &detail); err != nil {
+			return nil, fmt.Errorf("parse IconRecognition result %d: %w", index, err)
+		}
+		if detail.Error != nil {
+			return nil, detail.Error
+		}
+		if detail.ItemID == "" {
+			return nil, fmt.Errorf("IconRecognition result %d has no item_id", index)
+		}
+		matches = append(matches, detail.Match)
 	}
-	if err := json.Unmarshal([]byte(raw), &detail); err != nil {
-		return detail, fmt.Errorf("parse IconRecognition detail: %w", err)
-	}
-	return detail, nil
+	return matches, nil
 }
 
-// ParseRecognitionDetail 从 Maa Custom Recognition 结果中解析 IconRecognition detail。
-// 命中时使用 Best，未命中时使用 All 的首项；Custom Recognition 不需要合并结果桶。
-func ParseRecognitionDetail(detail *maa.RecognitionDetail) (Detail, string, error) {
+// RecognitionDetail 是框架识别结果的轻量封装，不解析或汇总结果详情。
+type RecognitionDetail struct {
+	base *maa.RecognitionDetail
+}
+
+// NewRecognitionDetail 封装 IconRecognition 的框架结果，实际转换由 Matches 执行。
+func NewRecognitionDetail(detail *maa.RecognitionDetail) (RecognitionDetail, error) {
 	if detail == nil || detail.Results == nil {
-		return Detail{}, "", fmt.Errorf("IconRecognition recognition detail is empty")
+		return RecognitionDetail{}, fmt.Errorf("IconRecognition recognition detail is empty")
 	}
+	if detail.Algorithm != string(maa.RecognitionTypeCustom) {
+		return RecognitionDetail{}, fmt.Errorf("IconRecognition algorithm is not custom recognition")
+	}
+	return RecognitionDetail{base: detail}, nil
+}
 
-	result := detail.Results.Best
-	if result == nil && len(detail.Results.All) > 0 {
-		result = detail.Results.All[0]
+// All 返回框架的全部结果，不回退到其它结果集合。
+func (detail RecognitionDetail) All() Results {
+	if detail.base == nil {
+		return nil
 	}
-	if result == nil {
-		return Detail{}, "", fmt.Errorf("IconRecognition custom result is empty")
-	}
+	return Results(detail.base.Results.All)
+}
 
-	custom, ok := result.AsCustom()
-	if !ok || custom == nil {
-		return Detail{}, "", fmt.Errorf("IconRecognition result is not custom recognition")
+// Filter 返回框架筛选后的结果。
+func (detail RecognitionDetail) Filter() Results {
+	if detail.base == nil {
+		return nil
 	}
-	parsed, err := ParseDetail(custom.Detail)
-	if err != nil {
-		return Detail{}, "", err
+	return Results(detail.base.Results.Filtered)
+}
+
+// Best 返回框架选中的单项集合；未命中时为空，可继续调用 Matches。
+func (detail RecognitionDetail) Best() Results {
+	if detail.base == nil || detail.base.Results.Best == nil {
+		return nil
 	}
-	return parsed, custom.Detail, nil
+	return Results{detail.base.Results.Best}
+}
+
+// Base 返回未经转换的原始框架识别结果。
+func (detail RecognitionDetail) Base() *maa.RecognitionDetail {
+	return detail.base
 }

@@ -25,16 +25,11 @@ enum class BaseNavLoadStatus
     ZoneNotFound,
 };
 
-// Sentinel for BaseNavZone::floor_y: the zone has no baked dominant-floor height (the
-// "…_Base" overview tiers, geometry zones, and any v2 pack which predates the field). The
-// floor-aware snap treats anything <= kBaseNavFloorYValidMin as "no floor" and falls back to
-// the floor-blind path.
+// floor_y 哨兵值, 不大于 kBaseNavFloorYValidMin 即表示该区没有烘焙楼层高
 inline constexpr float kBaseNavFloorYNone = -1.0e30F;
 inline constexpr float kBaseNavFloorYValidMin = -1.0e29F;
 
-// Half-width (in pixels == world Y == mesh height) of the band around a zone's baked floor_y that
-// the floor-aware snap PREFERS. A surface within the band always outranks an off-band one; the band
-// is a preference, never a hard gate (the nearest surface is still returned if nothing is in-band).
+// 吸附偏好的 floor_y 上下半宽 px, 带内无面时仍取最近面
 inline constexpr float kBaseNavFloorBand = 12.0F;
 
 struct BaseNavZone
@@ -48,14 +43,11 @@ struct BaseNavZone
     float width = 0.0F;
     float height = 0.0F;
     std::array<float, 4> transform { 1.0F, 0.0F, 1.0F, 0.0F };
-    // v3: dominant walkable-floor height (== world Y) the tier depicts; snap prefers triangles
-    // within kBaseNavFloorBand of it so a multi-floor base resolves onto the right floor.
+    // v3 起才有, 该层主楼面高度, 即世界 Y
     float floor_y = kBaseNavFloorYNone;
 };
 
-// Bit0 of BaseNavZone::flags marks a "tier" zone: a 0-triangle zone that carries only the
-// tier-template-pixel -> base-pixel affine onto its parent geometry zone (parent zone_id in
-// component_count, affine in transform = {sx, tx, sy, ty}).
+// tier 区没有三角, 父区 zone_id 存在 component_count, 仿射存在 transform = {sx, tx, sy, ty}
 inline constexpr uint16_t kBaseNavTierFlag = 0x0001U;
 
 inline bool IsTierZone(const BaseNavZone& zone)
@@ -63,9 +55,6 @@ inline bool IsTierZone(const BaseNavZone& zone)
     return (zone.flags & kBaseNavTierFlag) != 0U;
 }
 
-// Result of mapping a (zone_name, x, y) query onto the base-pixel frame via the navmesh's own
-// baked affine. For a non-tier (geometry) zone the projection is the identity; for an unknown
-// zone projectToBase returns std::nullopt (callers treat that as identity / no-op).
 struct BaseNavBaseProjection
 {
     const BaseNavZone* geometry_zone = nullptr;
@@ -103,9 +92,9 @@ struct BaseNavSurface
 inline constexpr uint8_t kBaseNavOffMeshRegular = 0;
 inline constexpr uint8_t kBaseNavOffMeshExtended = 1;
 
-// 两沿三角的哨兵值:v1 记录与未落上的锚点。
+// 两沿三角的哨兵值, 用于 v1 记录与未落上的锚点
 inline constexpr uint32_t kBaseNavOffMeshTriangleNone = 0xFFFFFFFFU;
-// bit0 = 起→终可走,bit1 = 终→起可走。
+// bit0 = 起→终可走, bit1 = 终→起可走
 inline constexpr uint8_t kBaseNavDirOkStartEnd = 0x01U;
 inline constexpr uint8_t kBaseNavDirOkEndStart = 0x02U;
 
@@ -121,124 +110,68 @@ struct BaseNavOffMeshLink
     float radius = 0.0F;
     float cost_modifier = 0.0F;
     std::array<BaseNavVertex, 4> points;
-    // v2 新增;v1 记录保持默认值。
+    // v2 起才有, v1 记录保持默认值
     uint8_t dir_ok = 0;
     uint32_t start_triangle = kBaseNavOffMeshTriangleNone;
     uint32_t end_triangle = kBaseNavOffMeshTriangleNone;
-
-    // 两沿三角齐备且不同,才算带方向信息。
-    bool anchored() const
-    {
-        return start_triangle != kBaseNavOffMeshTriangleNone && end_triangle != kBaseNavOffMeshTriangleNone
-               && start_triangle != end_triangle;
-    }
 };
 
-// v4 起包尾可以挂若干独立数据段,靠头里的段目录定位。四段原有数据一个字节不动,
-// 认不出某个 tag 的读取器跳过它即可。
+inline bool OffMeshLinkAnchored(const BaseNavOffMeshLink& link)
+{
+    return link.start_triangle != kBaseNavOffMeshTriangleNone && link.end_triangle != kBaseNavOffMeshTriangleNone
+           && link.start_triangle != link.end_triangle;
+}
+
+// v4 起包尾的附加段, 由头里的段目录定位, 认不出的 tag 跳过
 struct BaseNavSection
 {
     std::array<char, 4> tag { ' ', ' ', ' ', ' ' };
     uint32_t flags = 0;
-    // 只有要活过载入的段才有字节, 其余为空。内容相同的段共用一份。
+    // 只有要活过载入的段才有字节, 其余为空
     std::shared_ptr<const std::vector<uint8_t>> bytes;
 };
 
-class BaseNavPack;
-
-namespace detail
+struct BaseNavPack
 {
-
-BaseNavPack MakeBaseNavPack(
-    std::filesystem::path path,
-    std::vector<BaseNavZone> zones,
-    std::vector<BaseNavVertex> vertices,
-    std::vector<BaseNavTriangle> triangles,
-    std::vector<BaseNavLink> links,
-    std::vector<BaseNavSurface> surfaces,
-    std::vector<BaseNavOffMeshLink> off_mesh_links,
-    std::vector<BaseNavSection> sections,
-    uint64_t build_hash,
-    uint64_t file_fnv);
-
-}
-
-class BaseNavPack
-{
-public:
-    BaseNavPack() = default;
-
-    const std::vector<BaseNavZone>& zones() const;
-    const std::vector<BaseNavVertex>& vertices() const;
-    const std::vector<BaseNavTriangle>& triangles() const;
-    const std::vector<BaseNavLink>& links() const;
-    const std::vector<BaseNavSurface>& surfaces() const;
-    const std::vector<BaseNavOffMeshLink>& offMeshLinks() const;
-    const BaseNavZone* findZone(uint16_t zone_id) const;
-    const BaseNavZone* findZoneByName(const std::string& name) const;
-
-    // The zone that actually owns the triangles: a tier carries none, its parent's zone_id sits in
-    // component_count. Non-tier and unknown ids map to themselves. Snap / A* / mesh all address this.
-    uint16_t geometryZoneId(uint16_t zone_id) const;
-
-    // Maps (zone_name, x, y) onto the base-pixel frame using the navmesh's OWN baked tier affine,
-    // mirroring the python tool (is_tier -> geometry_zone_id + base = s*tier + t). A geometry zone
-    // projects to identity; an unknown zone returns std::nullopt. Never consults any external table.
-    std::optional<BaseNavBaseProjection> projectToBase(const std::string& zone_name, double x, double y) const;
-
-    // Baked dominant-floor height of the named zone (a tier carries the floor it depicts; geometry / base /
-    // unknown zones return kBaseNavFloorYNone -> floor-blind). The route planner feeds this into snap so a
-    // multi-floor base resolves onto the right floor.
-    float floorYForZoneName(const std::string& zone_name) const;
-
-    // v4 附加段的原始字节;认不出的 tag 直接留着不解析。没有该段返回 nullptr。
-    const BaseNavSection* section(const char (&tag)[5]) const;
-
-    // 连接表只被 BaseNavPlanner 的 CSR 邻接读一遍,之后全仓无读者。持有方在 planner
-    // 建完后调这个把它还给系统 —— 单区 map02base 有 1050 万条,占 80MB。
-    void releaseLinks();
-
-    // 包的身份:载入路径、头里的 build_hash、解压后整份字节的 FNV-1a。
-    // 旁包(预烘场)靠后两者认主包,按区裁剪载入也照样算整份文件。
-    const std::filesystem::path& path() const { return path_; }
-
-    uint64_t buildHash() const { return build_hash_; }
-
-    uint64_t fileFnv() const { return file_fnv_; }
-
-private:
-    friend BaseNavPack detail::MakeBaseNavPack(
-        std::filesystem::path path,
-        std::vector<BaseNavZone> zones,
-        std::vector<BaseNavVertex> vertices,
-        std::vector<BaseNavTriangle> triangles,
-        std::vector<BaseNavLink> links,
-        std::vector<BaseNavSurface> surfaces,
-        std::vector<BaseNavOffMeshLink> off_mesh_links,
-        std::vector<BaseNavSection> sections,
-        uint64_t build_hash,
-        uint64_t file_fnv);
-
-    std::filesystem::path path_;
-    uint64_t build_hash_ = 0;
-    uint64_t file_fnv_ = 0;
-    std::vector<BaseNavZone> zones_;
-    std::vector<BaseNavVertex> vertices_;
-    std::vector<BaseNavTriangle> triangles_;
-    std::vector<BaseNavLink> links_;
-    std::vector<BaseNavSurface> surfaces_;
-    std::vector<BaseNavOffMeshLink> off_mesh_links_;
-    std::vector<BaseNavSection> sections_;
+    std::filesystem::path path;
+    uint64_t build_hash = 0;
+    // 解压后整份字节的 FNV-1a, 按区裁剪载入也按整份文件算
+    uint64_t file_fnv = 0;
+    std::vector<BaseNavZone> zones;
+    std::vector<BaseNavVertex> vertices;
+    std::vector<BaseNavTriangle> triangles;
+    // 只供 BuildBaseNavPlanner 移走一次
+    std::vector<BaseNavLink> links;
+    std::vector<BaseNavSurface> surfaces;
+    std::vector<BaseNavOffMeshLink> off_mesh_links;
+    std::vector<BaseNavSection> sections;
 };
+
+const BaseNavZone* FindBaseNavZone(const BaseNavPack& pack, uint16_t zone_id);
+const BaseNavZone* FindBaseNavZoneByName(const BaseNavPack& pack, const std::string& name);
+
+// 非 tier 与未知 id 原样返回
+uint16_t GeometryZoneId(const BaseNavPack& pack, uint16_t zone_id);
+
+// 几何区原样返回, 未知区返回 std::nullopt
+std::optional<BaseNavBaseProjection> ProjectToBase(const BaseNavPack& pack, const std::string& zone_name, double x, double y);
+
+// 没有烘焙楼层高的区与未知区返回 kBaseNavFloorYNone
+float FloorYForZoneName(const BaseNavPack& pack, const std::string& zone_name);
+
+const BaseNavSection* FindBaseNavSection(const BaseNavPack& pack, const char (&tag)[5]);
 
 struct BaseNavLoadResult
 {
     BaseNavLoadStatus status = BaseNavLoadStatus::Success;
     std::string message;
     std::optional<BaseNavPack> pack;
-
-    bool ok() const { return status == BaseNavLoadStatus::Success && pack.has_value(); }
 };
+
+inline bool LoadSucceeded(const BaseNavLoadResult& result)
+{
+    return result.status == BaseNavLoadStatus::Success && result.pack.has_value();
+}
 
 const char* ToString(BaseNavLoadStatus status);
 

@@ -254,6 +254,414 @@
         "post_delay": 0,
         "rate_limit": 0
     },
+    "__ScenePrivateMenuMissionEnterTabAll": {
+        "desc": "在任务界面点击「进行中」页签",
+        "recognition": "And",
+        "all_of": [
+            "InMenuMission",
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    300,
+                    0,
+                    680,
+                    60
+                ],
+                "template": [
+                    "SceneManager/MissionTab/AllSelected.png",
+                    "SceneManager/MissionTab/AllUnselected.png"
+                ],
+                "threshold": 0.85,
+                "order_by": "Score"
+            }
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                300,
+                0,
+                680,
+                60
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMenuMissionEnterTabAllSuccess"
+        ]
+    },
+    "__ScenePrivateMenuMissionEnterTabAllSuccess": {
+        "desc": "确认任务界面已切到「进行中」页签",
+        "recognition": "OCR",
+        "roi": [
+            100,
+            38,
+            320,
+            32
+        ],
+        "expected": [
+            "进行中",
+            "進行中",
+            "(?i)In\\s*Progress",
+            "(?i)Ongoing",
+            "진행 중"
+        ],
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                100,
+                38,
+                320,
+                32
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__ScenePrivateMenuMissionEnterTabMain": {
+        "desc": "在任务界面点击「主线任务」页签",
+        "recognition": "And",
+        "all_of": [
+            "InMenuMission",
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    300,
+                    0,
+                    680,
+                    60
+                ],
+                "template": [
+                    "SceneManager/MissionTab/MainSelected.png",
+                    "SceneManager/MissionTab/MainUnselected.png"
+                ],
+                "threshold": 0.85,
+                "order_by": "Score"
+            }
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                300,
+                0,
+                680,
+                60
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMenuMissionEnterTabMainSuccess"
+        ]
+    },
+    "__ScenePrivateMenuMissionEnterTabMainSuccess": {
+        "desc": "确认任务界面已切到「主线任务」页签",
+        "recognition": "OCR",
+        "roi": [
+            100,
+            38,
+            320,
+            32
+        ],
+        "expected": [
+            "主线任务",
+            "主線任務",
+            "(?i)Main\\s*Missions?",
+            "メイン任務",
+            "메인 임무"
+        ],
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                100,
+                38,
+                320,
+                32
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__ScenePrivateMenuMissionEnterTabExploration": {
+        "desc": "在任务界面点击「探索任务」页签",
+        "recognition": "And",
+        "all_of": [
+            "InMenuMission",
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    300,
+                    0,
+                    680,
+                    60
+                ],
+                "template": [
+                    "SceneManager/MissionTab/ExplorationSelected.png",
+                    "SceneManager/MissionTab/ExplorationUnselected.png"
+                ],
+                "threshold": 0.85,
+                "order_by": "Score"
+            }
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                300,
+                0,
+                680,
+                60
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMenuMissionEnterTabExplorationSuccess"
+        ]
+    },
+    "__ScenePrivateMenuMissionEnterTabExplorationSuccess": {
+        "desc": "确认任务界面已切到「探索任务」页签",
+        "recognition": "OCR",
+        "roi": [
+            100,
+            38,
+            320,
+            32
+        ],
+        "expected": [
+            "探索任务",
+            "探索任務",
+            "(?i)Exploration\\s*Missions?",
+            "탐색 임무"
+        ],
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                100,
+                38,
+                320,
+                32
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__ScenePrivateMenuMissionEnterTabSide": {
+        "desc": "在任务界面点击「支线任务」页签",
+        "recognition": "And",
+        "all_of": [
+            "InMenuMission",
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    300,
+                    0,
+                    680,
+                    60
+                ],
+                "template": [
+                    "SceneManager/MissionTab/SideSelected.png",
+                    "SceneManager/MissionTab/SideUnselected.png"
+                ],
+                "threshold": 0.85,
+                "order_by": "Score"
+            }
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                300,
+                0,
+                680,
+                60
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMenuMissionEnterTabSideSuccess"
+        ]
+    },
+    "__ScenePrivateMenuMissionEnterTabSideSuccess": {
+        "desc": "确认任务界面已切到「支线任务」页签",
+        "recognition": "OCR",
+        "roi": [
+            100,
+            38,
+            320,
+            32
+        ],
+        "expected": [
+            "支线任务",
+            "支線任務",
+            "(?i)Side\\s*Missions?",
+            "サブ任務",
+            "서브 임무"
+        ],
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                100,
+                38,
+                320,
+                32
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__ScenePrivateMenuMissionEnterTabEvent": {
+        "desc": "在任务界面点击「活动任务」页签",
+        "recognition": "And",
+        "all_of": [
+            "InMenuMission",
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    300,
+                    0,
+                    680,
+                    60
+                ],
+                "template": [
+                    "SceneManager/MissionTab/EventSelected.png",
+                    "SceneManager/MissionTab/EventUnselected.png"
+                ],
+                "threshold": 0.85,
+                "order_by": "Score"
+            }
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                300,
+                0,
+                680,
+                60
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMenuMissionEnterTabEventSuccess"
+        ]
+    },
+    "__ScenePrivateMenuMissionEnterTabEventSuccess": {
+        "desc": "确认任务界面已切到「活动任务」页签",
+        "recognition": "OCR",
+        "roi": [
+            100,
+            38,
+            320,
+            32
+        ],
+        "expected": [
+            "活动任务",
+            "活動任務",
+            "(?i)Event\\s*Missions?",
+            "特殊クエスト",
+            "特殊任務",
+            "이벤트 임무"
+        ],
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                100,
+                38,
+                320,
+                32
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__ScenePrivateMenuMissionEnterTabCommission": {
+        "desc": "在任务界面点击「委派任务」页签",
+        "recognition": "And",
+        "all_of": [
+            "InMenuMission",
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    300,
+                    0,
+                    680,
+                    60
+                ],
+                "template": [
+                    "SceneManager/MissionTab/CommissionSelected.png",
+                    "SceneManager/MissionTab/CommissionUnselected.png"
+                ],
+                "threshold": 0.85,
+                "order_by": "Score"
+            }
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                300,
+                0,
+                680,
+                60
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMenuMissionEnterTabCommissionSuccess"
+        ]
+    },
+    "__ScenePrivateMenuMissionEnterTabCommissionSuccess": {
+        "desc": "确认任务界面已切到「委派任务」页签",
+        "recognition": "OCR",
+        "roi": [
+            100,
+            38,
+            320,
+            32
+        ],
+        "expected": [
+            "委派任务",
+            "委派任務",
+            "(?i)Commissions?",
+            "協力任務",
+            "파견 임무"
+        ],
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                100,
+                38,
+                320,
+                32
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
     "__ScenePrivateWorldMenuLeftExpand": {
         "desc": "打开大世界界面左侧展开的菜单",
         "recognition": {
@@ -1016,14 +1424,19 @@
                     500,
                     150
                 ],
+                // 以下到期理智药剂已最大化自动使用，超出上限部分已销毁
+                // 以下到期理智藥劑已最大化自動使用，超出上限部分已銷毀
                 "expected": [
+                    // @i18n-skip
                     "以下限时道具已过期",
                     "以下限時道具已過期",
                     "These limited-time items have expired",
                     "以下の時限アイテムは有効期限が切れました",
                     "다음 기간 한정 아이템이 만료되었습니다",
                     "以下到期理智药剂已自动使用",
-                    "以下到期理智藥劑已自動使用"
+                    "以下到期理智藥劑已自動使用",
+                    "以下到期理智药剂已最大化自动使用",
+                    "以下到期理智藥劑已最大化自動使用"
                 ]
             },
             "YellowConfirmButtonType1"
@@ -1310,16 +1723,222 @@
             }
         },
         "pre_wait_freezes": {
-            "time": 100,
+            "time": 200,
             "target": [
-                0,
-                0,
-                200,
-                100
+                130,
+                140,
+                1020,
+                40
             ]
         },
         "pre_delay": 0,
         "post_delay": 0
+    },
+    "__ScenePrivateMenuOperationalManualEnterIndexTab": {
+        "desc": "在行动手册界面，切换到索引标签页",
+        "recognition": "And",
+        "all_of": [
+            "InOperationalManual",
+            {
+                "recognition": {
+                    "type": "OCR",
+                    "param": {
+                        "roi": [
+                            150,
+                            50,
+                            1000,
+                            150
+                        ],
+                        "expected": [
+                            "索引",
+                            "(?i)Index",
+                            "協約空間"
+                        ]
+                    }
+                }
+            }
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "__ScenePrivateAnyEnterMenuOperationalManualIndexSuccess"
+        ]
+    },
+    "__ScenePrivateMenuOperationalManualIndexTabSelected": {
+        "desc": "行动手册索引标签页处于选中状态",
+        "recognition": "ColorMatch",
+        "roi": [
+            481,
+            140,
+            160,
+            40
+        ],
+        "lower": [
+            230,
+            210,
+            0
+        ],
+        "upper": [
+            255,
+            255,
+            60
+        ],
+        "connected": true,
+        "count": 3000
+    },
+    "__ScenePrivateAnyEnterMenuOperationalManualIndexSuccess": {
+        "desc": "成功进入行动手册索引标签页",
+        "recognition": "And",
+        "all_of": [
+            "InOperationalManual",
+            "__ScenePrivateMenuOperationalManualIndexTabSelected"
+        ],
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                160,
+                185,
+                960,
+                430
+            ]
+        }
+    },
+    "__ScenePrivateMenuOperationalManualEnterDailyTab": {
+        "desc": "在行动手册界面，切换到日常标签页",
+        "recognition": "And",
+        "all_of": [
+            "InOperationalManual",
+            {
+                "recognition": {
+                    "type": "OCR",
+                    "param": {
+                        "roi": [
+                            150,
+                            50,
+                            1000,
+                            150
+                        ],
+                        "expected": [
+                            "日常",
+                            "Daily"
+                        ]
+                    }
+                }
+            }
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "__ScenePrivateAnyEnterMenuOperationalManualDailySuccess"
+        ]
+    },
+    "__ScenePrivateMenuOperationalManualDailyTabSelected": {
+        "desc": "行动手册日常标签页处于选中状态",
+        "recognition": "ColorMatch",
+        "roi": [
+            321,
+            140,
+            160,
+            40
+        ],
+        "lower": [
+            230,
+            210,
+            0
+        ],
+        "upper": [
+            255,
+            255,
+            60
+        ],
+        "connected": true,
+        "count": 3000
+    },
+    "__ScenePrivateAnyEnterMenuOperationalManualDailySuccess": {
+        "desc": "成功进入行动手册日常标签页",
+        "recognition": "And",
+        "all_of": [
+            "InOperationalManual",
+            "__ScenePrivateMenuOperationalManualDailyTabSelected"
+        ],
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                160,
+                185,
+                960,
+                430
+            ]
+        }
+    },
+    "__ScenePrivateMenuOperationalManualEnterSimulationTab": {
+        "desc": "在行动手册界面，切换到模拟标签页",
+        "recognition": "And",
+        "all_of": [
+            "InOperationalManual",
+            {
+                "recognition": {
+                    "type": "OCR",
+                    "param": {
+                        "roi": [
+                            150,
+                            50,
+                            1000,
+                            150
+                        ],
+                        "expected": [
+                            "模拟",
+                            "模擬",
+                            "(?i)Simulation"
+                        ]
+                    }
+                }
+            }
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "__ScenePrivateAnyEnterMenuOperationalManualSimulationSuccess"
+        ]
+    },
+    "__ScenePrivateMenuOperationalManualSimulationTabSelected": {
+        "desc": "行动手册模拟标签页处于选中状态",
+        "recognition": "ColorMatch",
+        "roi": [
+            801,
+            140,
+            158,
+            40
+        ],
+        "lower": [
+            230,
+            210,
+            0
+        ],
+        "upper": [
+            255,
+            255,
+            60
+        ],
+        "connected": true,
+        "count": 3000
+    },
+    "__ScenePrivateAnyEnterMenuOperationalManualSimulationSuccess": {
+        "desc": "成功进入行动手册模拟标签页",
+        "recognition": "And",
+        "all_of": [
+            "InOperationalManual",
+            "__ScenePrivateMenuOperationalManualSimulationTabSelected"
+        ],
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                160,
+                185,
+                960,
+                430
+            ]
+        }
     },
     "__ScenePrivateMenuOperationalManualEnterPermanentTab": {
         "desc": "在行动手册界面，切换到常驻标签页",
@@ -1351,10 +1970,45 @@
         "action": {
             "type": "Click"
         },
-        "post_wait_freezes": 200,
         "next": [
-            "__ScenePrivateMenuOperationalManualEnterUmbralMonument"
+            "__ScenePrivateMenuOperationalManualPermanentTabSelected"
         ]
+    },
+    "__ScenePrivateMenuOperationalManualPermanentTabSelected": {
+        "desc": "常驻标签页已选中",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "__ScenePrivateMenuOperationalManualEnterPermanentTab",
+                "roi_offset": [
+                    -30,
+                    -10,
+                    60,
+                    20
+                ],
+                "lower": [
+                    230,
+                    210,
+                    0
+                ],
+                "upper": [
+                    255,
+                    255,
+                    60
+                ],
+                "connected": true,
+                "count": 2000
+            }
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                160,
+                185,
+                960,
+                430
+            ]
+        }
     },
     "__ScenePrivateMenuOperationalManualEnterUmbralMonument": {
         "desc": "在行动手册常驻标签页，进入影拓丰碑",
@@ -1406,6 +2060,46 @@
                 60
             ]
         },
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "__ScenePrivateMenuOperationalManualEnterWarEcho": {
+        "desc": "在行动手册常驻标签页，进入战争回响",
+        "recognition": "And",
+        "all_of": [
+            "InOperationalManual",
+            {
+                "recognition": {
+                    "type": "OCR",
+                    "param": {
+                        "roi": [
+                            160,
+                            200,
+                            960,
+                            80
+                        ],
+                        "expected": [
+                            "战争回响",
+                            "戰爭回響"
+                        ]
+                    }
+                }
+            }
+        ],
+        "box_index": 1,
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "__ScenePrivateAnyEnterMenuOperationalManualWarEchoSuccess"
+        ]
+    },
+    "__ScenePrivateAnyEnterMenuOperationalManualWarEchoSuccess": {
+        "desc": "成功进入行动手册-战争回响",
+        "recognition": "And",
+        "all_of": [
+            "InOperationalManualWarEcho"
+        ],
         "pre_delay": 0,
         "post_delay": 0
     },

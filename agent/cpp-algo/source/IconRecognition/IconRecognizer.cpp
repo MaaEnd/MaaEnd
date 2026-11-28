@@ -797,6 +797,11 @@ public:
             result.grid_type = request.grid_type;
             result.roi = request.roi;
             result.diagnostics = std::make_shared<detail::RecognitionDiagnostics>();
+            result.diagnostics->candidate_scope_complete = detail::CandidateSelectionCoversScene(
+                single_roi ? RoiTemplates(request.roi.width) : TemplatesFor(request.grid_type, grid_scale),
+                selected,
+                request.candidates,
+                detail::DefaultItemFilters(request.grid_type));
             for (const auto& grid : detected_grids) {
                 if (grid.selection_diagnostics) {
                     result.diagnostics->grids.push_back(*grid.selection_diagnostics);
@@ -822,14 +827,15 @@ public:
                     }
                     // 判空不依赖候选模板；混合背包中的空格也跳过稀有度分类、匹配和地区禁用后备。
                     if (transfer_foreground_texture && *transfer_foreground_texture < detail::kDefaultLowTextureThreshold) {
-                        result.diagnostics->cells.push_back(detail::CellRecognitionDiagnostics {
-                            .cell_box = cell.cell_box,
-                            .rejected_reason = "low-foreground-texture",
-                            .foreground_texture = transfer_foreground_texture,
-                            .row = cell.row,
-                            .column = cell.column,
-                            .template_matching_skipped = true,
-                        });
+                        result.diagnostics->cells.push_back(
+                            detail::CellRecognitionDiagnostics {
+                                .cell_box = cell.cell_box,
+                                .rejected_reason = "low-foreground-texture",
+                                .foreground_texture = transfer_foreground_texture,
+                                .row = cell.row,
+                                .column = cell.column,
+                                .template_matching_skipped = true,
+                            });
                         continue;
                     }
                 }
@@ -946,48 +952,52 @@ public:
                 const auto assembly_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
                 const auto& best = evaluation.ranking.best;
                 const auto& templ = evaluation.bestTemplate();
-                result.diagnostics->cells.push_back(detail::CellRecognitionDiagnostics {
-                    .cell_box = cell.cell_box,
-                    .candidate_box = cv::Rect(best.diagnostics.position, templ.image.size()),
-                    .best_candidate_id = templ.record.item_id,
-                    .baseline_score = evaluation.ranking.baseline_score,
-                    .score = best.diagnostics.score,
-                    .top2_margin = evaluation.top2_margin,
-                    .candidate_count = evaluation.ranking.ranked.size(),
-                    .fallback_used = evaluation.ranking.fallback_used || evaluation.edge_recovery_used,
-                    .region_unavailable_fallback_used = region_unavailable_fallback_used,
-                    .best_phase = cv::Point2d(best.phase.x, best.phase.y),
-                    .rejected_reason = evaluation.rejected_reason,
-                    .foreground_texture = evaluation.foreground_texture,
-                    .rarity = single_roi && evaluation.accepted ? std::optional<int>(templ.record.rarity) : rarity.rarity,
-                    .rarity_coverage = single_roi ? 0.0 : rarity.coverage,
-                    .rarity_row_offset = single_roi ? std::optional<int> {} : rarity.row_offset,
-                    .mask_kind = evaluation.mask_kind,
-                    .edge_occlusion_side = evaluation.edge_recovery_used ? std::optional<std::string>(
-                                               evaluation.edge_occlusion->side == detail::EdgeOcclusionSide::Top ? "top" : "bottom")
-                                                                         : std::nullopt,
-                    .edge_occlusion_cutoff =
-                        evaluation.edge_recovery_used ? std::optional<int>(evaluation.edge_occlusion->cutoff) : std::nullopt,
-                    .edge_occlusion_residual_ratio =
-                        evaluation.edge_recovery_used ? std::optional<double>(evaluation.edge_occlusion->residual_ratio) : std::nullopt,
-                    .row = single_roi ? std::optional<int> {} : std::optional<int>(cell.row),
-                    .column = single_roi ? std::optional<int> {} : std::optional<int>(cell.column),
-                });
+                result.diagnostics->cells.push_back(
+                    detail::CellRecognitionDiagnostics {
+                        .cell_box = cell.cell_box,
+                        .candidate_box = cv::Rect(best.diagnostics.position, templ.image.size()),
+                        .best_candidate_id = templ.record.item_id,
+                        .baseline_score = evaluation.ranking.baseline_score,
+                        .score = best.diagnostics.score,
+                        .top2_margin = evaluation.top2_margin,
+                        .candidate_count = evaluation.ranking.ranked.size(),
+                        .fallback_used = evaluation.ranking.fallback_used || evaluation.edge_recovery_used,
+                        .region_unavailable_fallback_used = region_unavailable_fallback_used,
+                        .best_phase = cv::Point2d(best.phase.x, best.phase.y),
+                        .rejected_reason = evaluation.rejected_reason,
+                        .foreground_texture = evaluation.foreground_texture,
+                        .rarity = single_roi && evaluation.accepted ? std::optional<int>(templ.record.rarity) : rarity.rarity,
+                        .rarity_coverage = single_roi ? 0.0 : rarity.coverage,
+                        .rarity_row_offset = single_roi ? std::optional<int> {} : rarity.row_offset,
+                        .mask_kind = evaluation.mask_kind,
+                        .edge_occlusion_side =
+                            evaluation.edge_recovery_used
+                                ? std::optional<std::string>(
+                                      evaluation.edge_occlusion->side == detail::EdgeOcclusionSide::Top ? "top" : "bottom")
+                                : std::nullopt,
+                        .edge_occlusion_cutoff =
+                            evaluation.edge_recovery_used ? std::optional<int>(evaluation.edge_occlusion->cutoff) : std::nullopt,
+                        .edge_occlusion_residual_ratio =
+                            evaluation.edge_recovery_used ? std::optional<double>(evaluation.edge_occlusion->residual_ratio) : std::nullopt,
+                        .row = single_roi ? std::optional<int> {} : std::optional<int>(cell.row),
+                        .column = single_roi ? std::optional<int> {} : std::optional<int>(cell.column),
+                    });
                 if (!evaluation.accepted) {
                     if (performance) {
                         performance->result_assembly_ms += ElapsedMilliseconds(assembly_started);
                     }
                     continue;
                 }
-                result.matches.push_back(ItemMatch {
-                    .item = ItemFromTemplate(templ),
-                    .cell_box = cell.cell_box,
-                    .item_box = cv::Rect(best.diagnostics.position, templ.image.size()),
-                    .score = best.diagnostics.score,
-                    .region_unavailable = templ.region_unavailable,
-                    .row = single_roi ? std::optional<int> {} : std::optional<int>(cell.row),
-                    .column = single_roi ? std::optional<int> {} : std::optional<int>(cell.column),
-                });
+                result.matches.push_back(
+                    ItemMatch {
+                        .item = ItemFromTemplate(templ),
+                        .cell_box = cell.cell_box,
+                        .item_box = cv::Rect(best.diagnostics.position, templ.image.size()),
+                        .score = best.diagnostics.score,
+                        .region_unavailable = templ.region_unavailable,
+                        .row = single_roi ? std::optional<int> {} : std::optional<int>(cell.row),
+                        .column = single_roi ? std::optional<int> {} : std::optional<int>(cell.column),
+                    });
                 if (performance) {
                     performance->result_assembly_ms += ElapsedMilliseconds(assembly_started);
                 }
@@ -1052,6 +1062,23 @@ public:
             }
             if (request.deduplicate && !recheck_enabled) {
                 DeduplicateMatches(result.matches);
+            }
+            if (request.order_by == ResultOrder::Natural) {
+                std::ranges::stable_sort(result.matches, [](const ItemMatch& left, const ItemMatch& right) {
+                    return std::tuple(
+                               left.row.value_or(left.cell_box.y),
+                               left.column.value_or(left.cell_box.x),
+                               left.cell_box.y,
+                               left.cell_box.x)
+                           < std::tuple(
+                               right.row.value_or(right.cell_box.y),
+                               right.column.value_or(right.cell_box.x),
+                               right.cell_box.y,
+                               right.cell_box.x);
+                });
+            }
+            if (request.reverse) {
+                std::ranges::reverse(result.matches);
             }
             if (performance) {
                 performance->result_sort_ms += ElapsedMilliseconds(sort_started);

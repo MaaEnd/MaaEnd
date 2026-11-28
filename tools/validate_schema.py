@@ -3,6 +3,7 @@ import argparse
 import json
 import sys
 import tempfile
+from copy import deepcopy
 from pathlib import Path
 
 from jsonschema import Draft7Validator, Draft202012Validator
@@ -159,9 +160,7 @@ def validate_file(file_path, validator):
                         f"::error file={file_path},line={line_num},title=Schema Validation Error::{path}: {error.message}"
                     )
                 else:
-                    print(
-                        f"::error file={file_path},title=Schema Validation Error::{path}: {error.message}"
-                    )
+                    print(f"::error file={file_path},title=Schema Validation Error::{path}: {error.message}")
             return False
 
         print(f"✓ {file_path}")
@@ -186,9 +185,7 @@ def create_validator(schema, schema_store):
 
         # 添加所有 schema 到 registry
         for uri, schema_content in schema_store.items():
-            resource = Resource.from_contents(
-                schema_content, default_specification=spec
-            )
+            resource = Resource.from_contents(schema_content, default_specification=spec)
             registry = registry.with_resource(uri, resource)
 
         return ValidatorClass(schema, registry=registry)
@@ -208,10 +205,26 @@ def create_validator(schema, schema_store):
         return ValidatorClass(schema, resolver=resolver)
 
 
+def create_overlay_schema(pipeline_schema):
+    """允许覆盖片段省略内置算法参数，不模拟资源栈合并。
+
+    仅放宽主 Schema 中算法参数的必填约束，保留结构约束、条件分支和 Custom 参数 Schema。
+    未显式提供 Custom 名称的片段无法选择对应的参数 Schema，这里不模拟资源栈合并。
+    """
+    schema = deepcopy(pipeline_schema)
+    for name, definition in schema["$defs"].items():
+        if name in ("And", "Or", "Shell"):
+            definition.pop("required", None)
+        if name in ("CustomAction", "CustomRecognition"):
+            continue
+        alternatives = definition.get("anyOf")
+        if alternatives and all(set(option) == {"required"} for option in alternatives):
+            definition.pop("anyOf")
+    return schema
+
+
 def main():
-    parser = argparse.ArgumentParser(
-        description="Validate JSON/JSONC files against JSON Schema"
-    )
+    parser = argparse.ArgumentParser(description="Validate JSON/JSONC files against JSON Schema")
     parser.add_argument(
         "--schema-dir",
         type=str,
@@ -224,6 +237,13 @@ def main():
         nargs="+",
         default=["assets/resource"],
         help="Directories containing resource files to validate (default: assets/resource)",
+    )
+    parser.add_argument(
+        "--overlay-dirs",
+        type=str,
+        nargs="*",
+        default=[],
+        help="Platform pipeline overrides (inherited built-in parameters may be omitted; Custom schemas remain strict)",
     )
     parser.add_argument(
         "--exclude-dirs",
@@ -276,10 +296,22 @@ def main():
     # 加载并创建 pipeline validator
     pipeline_schema_path = schema_dir / "pipeline.schema.json"
     pipeline_schema = load_jsonc(pipeline_schema_path)
+    # 主 Schema 由上游同步，在此补齐省略类型时的 Custom 参数校验，基础与覆盖资源共用。
+    for kind, custom_field in (("Action", "custom_action"), ("Recognition", "custom_recognition")):
+        condition = {
+            "if": {"required": [custom_field]},
+            "then": {"$ref": f"#/$defs/Custom{kind}Schema"},
+        }
+        pipeline_schema["$defs"][f"{kind}PropertyFieldsV1"]["allOf"].append(condition)
+        pipeline_schema["$defs"][f"{kind}PropertyFieldsV2"]["properties"]["param"]["allOf"].append(condition)
     pipeline_schema_uri = pipeline_schema_path.as_uri()
+    pipeline_schema.setdefault("$id", pipeline_schema_uri)
     schema_store[pipeline_schema_uri] = pipeline_schema
 
     pipeline_validator = create_validator(pipeline_schema, schema_store)
+    overlay_schema = create_overlay_schema(pipeline_schema)
+    overlay_schema_store = {**schema_store, pipeline_schema_uri: overlay_schema}
+    overlay_validator = create_validator(overlay_schema, overlay_schema_store)
 
     # 准备排除目录列表
     exclude_paths = [Path(d).resolve() for d in args.exclude_dirs]
@@ -297,24 +329,26 @@ def main():
 
     print("Validating pipeline resources...")
     # 验证 pipeline 资源文件
-    for resource_dir in args.resource_dirs:
+    resource_validators = [
+        *((directory, pipeline_validator) for directory in args.resource_dirs),
+        *((directory, overlay_validator) for directory in args.overlay_dirs),
+    ]
+    for resource_dir, validator in resource_validators:
         resource_path = Path(resource_dir)
         if not resource_path.exists():
-            print(
-                f"Warning: Resource directory {resource_dir} does not exist, skipping..."
-            )
+            print(f"Warning: Resource directory {resource_dir} does not exist, skipping...")
             continue
 
         for file_path in resource_path.rglob("*.json"):
             if is_excluded(file_path):
                 continue
-            if not validate_file(file_path, pipeline_validator):
+            if not validate_file(file_path, validator):
                 all_valid = False
 
         for file_path in resource_path.rglob("*.jsonc"):
             if is_excluded(file_path):
                 continue
-            if not validate_file(file_path, pipeline_validator):
+            if not validate_file(file_path, validator):
                 all_valid = False
 
     print("\nValidating interface files...")
@@ -333,9 +367,7 @@ def main():
                 if not validate_file(interface_path, interface_validator):
                     all_valid = False
             else:
-                print(
-                    f"Warning: Interface file {interface_file} does not exist, skipping..."
-                )
+                print(f"Warning: Interface file {interface_file} does not exist, skipping...")
 
     # 验证 task 文件
     if args.task_dirs:
@@ -351,9 +383,7 @@ def main():
             for task_dir in args.task_dirs:
                 task_path = Path(task_dir)
                 if not task_path.exists():
-                    print(
-                        f"Warning: Task directory {task_dir} does not exist, skipping..."
-                    )
+                    print(f"Warning: Task directory {task_dir} does not exist, skipping...")
                     continue
 
                 for file_path in task_path.rglob("*.json"):
@@ -368,9 +398,7 @@ def main():
                     if not validate_file(file_path, task_validator):
                         all_valid = False
         else:
-            print(
-                f"Warning: Task schema {task_schema_path} does not exist, skipping task validation..."
-            )
+            print(f"Warning: Task schema {task_schema_path} does not exist, skipping task validation...")
 
     if all_valid:
         print("\n✅ All validations passed!")

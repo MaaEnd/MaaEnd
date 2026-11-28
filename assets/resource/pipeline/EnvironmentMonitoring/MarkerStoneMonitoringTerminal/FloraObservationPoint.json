@@ -93,7 +93,7 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "CheckFloraObservationPointJob": {
+    "CheckFloraObservationPointJobText": {
         "desc": "检查植物观察点委托是否可以接取",
         "recognition": "OCR",
         "roi": "CheckFloraObservationPointIcon",
@@ -162,7 +162,7 @@
         "all_of": [
             "CheckFloraObservationPointText",
             "CheckFloraObservationPointIcon",
-            "CheckFloraObservationPointJob"
+            "CheckFloraObservationPointJobText"
         ],
         "box_index": 2,
         "pre_delay": 0,
@@ -234,7 +234,7 @@
         "desc": "植物观察点任务已经在追踪中",
         "recognition": "And",
         "all_of": [
-            "AlreadyTrackedMissionButton",
+            "CheckAlreadyTrackingText",
             "InFloraObservationPointMission"
         ],
         "pre_delay": 0,
@@ -454,12 +454,12 @@
         "desc": "在植物观察点任务拍照点开始拍照",
         "pre_delay": 0,
         "anchor": {
-            "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal"
+            "TakePhotoDone": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "EnvironmentMonitoringTakePhoto"
+            "TakePhoto"
         ]
     }
 }

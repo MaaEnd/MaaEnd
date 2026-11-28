@@ -4,18 +4,17 @@
 
 #include <meojson/json.hpp>
 
-#include "navi_controller.h"
+#include "navi_param.h"
 
 struct MaaContext;
 
 namespace mapnavigator
 {
 
-bool TryParseNaviParam(const json::value& custom_action_param, NaviParam& out_param, std::string_view caller_name = "MapNavigateAction");
-bool TryParseNaviParam(const char* custom_action_param, NaviParam& out_param, std::string_view caller_name = "MapNavigateAction");
+bool TryParseNaviParam(NaviParam* out_param, const json::value& custom_action_param, std::string_view caller_name = "MapNavigateAction");
+bool TryParseNaviParam(NaviParam* out_param, const char* custom_action_param, std::string_view caller_name = "MapNavigateAction");
 
-// Second pass, run once the pipeline is reachable and before walking starts: turns every text node an INTERACT point
-// named into the texts it holds. Best-effort - an unreadable node costs that point its async upgrade, not the route.
-void ResolveInteractTextNodes(MaaContext* context, NaviParam& param);
+// 须在 pipeline 可查询后, 开走前调用, 读不出的节点只让该点退回普通交互
+void ResolveInteractTextNodes(NaviParam* param, MaaContext* context);
 
 } // namespace mapnavigator

@@ -93,7 +93,7 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "CheckWitheredBranchesJob": {
+    "CheckWitheredBranchesJobText": {
         "desc": "检查枯枝委托是否可以接取",
         "recognition": "OCR",
         "roi": "CheckWitheredBranchesIcon",
@@ -162,7 +162,7 @@
         "all_of": [
             "CheckWitheredBranchesText",
             "CheckWitheredBranchesIcon",
-            "CheckWitheredBranchesJob"
+            "CheckWitheredBranchesJobText"
         ],
         "box_index": 2,
         "pre_delay": 0,
@@ -234,7 +234,7 @@
         "desc": "枯枝任务已经在追踪中",
         "recognition": "And",
         "all_of": [
-            "AlreadyTrackedMissionButton",
+            "CheckAlreadyTrackingText",
             "InWitheredBranchesMission"
         ],
         "pre_delay": 0,
@@ -438,12 +438,12 @@
         "desc": "在枯枝任务拍照点开始拍照",
         "pre_delay": 0,
         "anchor": {
-            "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal"
+            "TakePhotoDone": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "EnvironmentMonitoringTakePhoto"
+            "TakePhoto"
         ]
     }
 }

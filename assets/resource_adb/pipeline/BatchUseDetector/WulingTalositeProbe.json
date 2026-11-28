@@ -1,0 +1,18 @@
+{
+    "BatchUseDetectorFindWulingTalositeProbe": {
+        "roi": [
+            100,
+            85,
+            790,
+            535
+        ]
+    },
+    "BatchUseDetectorConfirmWulingTalositeProbeName": {
+        "roi": [
+            905,
+            76,
+            165,
+            40
+        ]
+    }
+}

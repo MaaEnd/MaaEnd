@@ -33,7 +33,7 @@ var (
 )
 
 func defaultRecordPath() string {
-	return fsutil.OutputPath("debug", "record", recordFileName)
+	return fsutil.UserDataPath("debug", "record", recordFileName)
 }
 
 func emptyRecord() recordFile {

@@ -1,0 +1,637 @@
+{
+    "ArenaOfGamesInDrawMenu": {
+        "desc": "确认位于百趣演武抽牌界面",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    20,
+                    14,
+                    185,
+                    35
+                ],
+                "expected": [
+                    "百趣演武",
+                    "(?i)Arena\\s*of\\s*Games",
+                    "다채로운 연무"
+                    // 繁中、日文标题与简中相同
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "ArenaOfGamesDailyHandText": {
+        "desc": "今日好运组合牌型名文本（裸 OCR，无 expected），由手牌识别器按 attach 名单映射为当日目标牌型",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    123,
+                    595,
+                    160,
+                    32
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        // 牌型名取自游戏 I18nTextTable（1.6.4@11343132-9）；zh_tw「同花」与国际服「Flush」同名，匹配时按名字最长优先
+        // 本名单是唯一源：节点不写 expected，文本到牌型的匹配全部在 ArenaOfGames.CheckHand 中按名单完成（同 TrialOfSwordmancy 的裸 OCR 模式）
+        "attach": {
+            "straight_flush": [
+                "同花顺",
+                "同花順",
+                "Straight Flush",
+                "ストレートフラッシュ",
+                "스트레이트 플러시"
+            ],
+            "four_of_a_kind": [
+                "四条",
+                "四條",
+                "Quad",
+                "フォーカード",
+                "포카드"
+            ],
+            "flush": [
+                "同花",
+                "Flush",
+                "フラッシュ",
+                "플러시"
+            ],
+            "full_house": [
+                "葫芦",
+                "葫蘆",
+                "Full House",
+                "フルハウス",
+                "풀하우스"
+            ],
+            "straight": [
+                "顺子",
+                "順子",
+                "Straight",
+                "ストレート",
+                "스트레이트"
+            ],
+            "two_pair": [
+                "两对",
+                "兩對",
+                "Two Pair",
+                "ツーペア",
+                "투 페어"
+            ],
+            "three_of_a_kind": [
+                "三条",
+                "三條",
+                "Triplet",
+                "スリーカード",
+                "트리플"
+            ],
+            "pair": [
+                "对子",
+                "對子",
+                "Pair",
+                "ワンペア",
+                "원 페어"
+            ]
+        }
+    },
+    "ArenaOfGamesDrawCardButton": {
+        "desc": "抽牌按钮固定图形，兼容常态和悬停态",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1090,
+                    505,
+                    190,
+                    90
+                ],
+                "template": [
+                    "ArenaOfGames/DrawCardButton.png",
+                    "ArenaOfGames/DrawCardButtonHover.png"
+                ],
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "ArenaOfGamesAbandonButton": {
+        "desc": "放弃挑战按钮",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    830,
+                    620,
+                    140,
+                    75
+                ],
+                "expected": [
+                    "放弃挑战",
+                    "放棄挑戰",
+                    "(?i)Forfeit",
+                    "諦める",
+                    "도전 포기"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "ArenaOfGamesHandPosition1": {
+        "desc": "第1张手牌花色点数位置",
+        "recognition": {
+            "type": "DirectHit",
+            "param": {
+                "roi": [
+                    229,
+                    160,
+                    46,
+                    60
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "ArenaOfGamesHandPosition2": {
+        "desc": "第2张手牌花色点数位置",
+        "recognition": {
+            "type": "DirectHit",
+            "param": {
+                "roi": [
+                    413,
+                    160,
+                    46,
+                    60
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "ArenaOfGamesHandPosition3": {
+        "desc": "第3张手牌花色点数位置",
+        "recognition": {
+            "type": "DirectHit",
+            "param": {
+                "roi": [
+                    597,
+                    160,
+                    46,
+                    60
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "ArenaOfGamesHandPosition4": {
+        "desc": "第4张手牌花色点数位置",
+        "recognition": {
+            "type": "DirectHit",
+            "param": {
+                "roi": [
+                    781,
+                    160,
+                    46,
+                    60
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "ArenaOfGamesHandPosition5": {
+        "desc": "第5张手牌花色点数位置",
+        "recognition": {
+            "type": "DirectHit",
+            "param": {
+                "roi": [
+                    965,
+                    160,
+                    46,
+                    60
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "ArenaOfGamesHandDot1": {
+        "desc": "手牌筒子1点模板",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    229,
+                    160,
+                    782,
+                    60
+                ],
+                "template": "ArenaOfGames/Dot1.png",
+                "threshold": 0.9,
+                "order_by": "Horizontal"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "ArenaOfGamesHandDot2": {
+        "desc": "手牌筒子2点模板",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    229,
+                    160,
+                    782,
+                    60
+                ],
+                "template": "ArenaOfGames/Dot2.png",
+                "threshold": 0.9,
+                "order_by": "Horizontal"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "ArenaOfGamesHandDot3": {
+        "desc": "手牌筒子3点模板",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    229,
+                    160,
+                    782,
+                    60
+                ],
+                "template": "ArenaOfGames/Dot3.png",
+                "threshold": 0.9,
+                "order_by": "Horizontal"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "ArenaOfGamesHandDot4": {
+        "desc": "手牌筒子4点模板",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    229,
+                    160,
+                    782,
+                    60
+                ],
+                "template": "ArenaOfGames/Dot4.png",
+                "threshold": 0.9,
+                "order_by": "Horizontal"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "ArenaOfGamesHandDot5": {
+        "desc": "手牌筒子5点模板",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    229,
+                    160,
+                    782,
+                    60
+                ],
+                "template": "ArenaOfGames/Dot5.png",
+                "threshold": 0.9,
+                "order_by": "Horizontal"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "ArenaOfGamesHandBamboo1": {
+        "desc": "手牌索子1点模板",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    229,
+                    160,
+                    782,
+                    60
+                ],
+                "template": "ArenaOfGames/Bamboo1.png",
+                "threshold": 0.9,
+                "order_by": "Horizontal"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "ArenaOfGamesHandBamboo2": {
+        "desc": "手牌索子2点模板",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    229,
+                    160,
+                    782,
+                    60
+                ],
+                "template": "ArenaOfGames/Bamboo2.png",
+                "threshold": 0.9,
+                "order_by": "Horizontal"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "ArenaOfGamesHandBamboo3": {
+        "desc": "手牌索子3点模板",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    229,
+                    160,
+                    782,
+                    60
+                ],
+                "template": "ArenaOfGames/Bamboo3.png",
+                "threshold": 0.9,
+                "order_by": "Horizontal"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "ArenaOfGamesHandBamboo4": {
+        "desc": "手牌索子4点模板",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    229,
+                    160,
+                    782,
+                    60
+                ],
+                "template": "ArenaOfGames/Bamboo4.png",
+                "threshold": 0.9,
+                "order_by": "Horizontal"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "ArenaOfGamesHandBamboo5": {
+        "desc": "手牌索子5点模板",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    229,
+                    160,
+                    782,
+                    60
+                ],
+                "template": "ArenaOfGames/Bamboo5.png",
+                "threshold": 0.9,
+                "order_by": "Horizontal"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "ArenaOfGamesHandCharacter1": {
+        "desc": "手牌万子1点模板",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    229,
+                    160,
+                    782,
+                    60
+                ],
+                "template": "ArenaOfGames/Character1.png",
+                "threshold": 0.9,
+                "order_by": "Horizontal"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "ArenaOfGamesHandCharacter2": {
+        "desc": "手牌万子2点模板",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    229,
+                    160,
+                    782,
+                    60
+                ],
+                "template": "ArenaOfGames/Character2.png",
+                "threshold": 0.9,
+                "order_by": "Horizontal"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "ArenaOfGamesHandCharacter3": {
+        "desc": "手牌万子3点模板",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    229,
+                    160,
+                    782,
+                    60
+                ],
+                "template": "ArenaOfGames/Character3.png",
+                "threshold": 0.9,
+                "order_by": "Horizontal"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "ArenaOfGamesHandCharacter4": {
+        "desc": "手牌万子4点模板",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    229,
+                    160,
+                    782,
+                    60
+                ],
+                "template": "ArenaOfGames/Character4.png",
+                "threshold": 0.9,
+                "order_by": "Horizontal"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "ArenaOfGamesHandCharacter5": {
+        "desc": "手牌万子5点模板",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    229,
+                    160,
+                    782,
+                    60
+                ],
+                "template": "ArenaOfGames/Character5.png",
+                "threshold": 0.9,
+                "order_by": "Horizontal"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "ArenaOfGamesCardBack": {
+        "desc": "空手牌槽的背面图案",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    114,
+                    260,
+                    886,
+                    60
+                ],
+                "template": "ArenaOfGames/CardBack.png",
+                "threshold": 0.9,
+                "order_by": "Horizontal"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "ArenaOfGamesBackPosition1": {
+        "desc": "第1张空手牌槽背面位置",
+        "recognition": {
+            "type": "DirectHit",
+            "param": {
+                "roi": [
+                    114,
+                    260,
+                    150,
+                    60
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "ArenaOfGamesBackPosition2": {
+        "desc": "第2张空手牌槽背面位置",
+        "recognition": {
+            "type": "DirectHit",
+            "param": {
+                "roi": [
+                    298,
+                    260,
+                    150,
+                    60
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "ArenaOfGamesBackPosition3": {
+        "desc": "第3张空手牌槽背面位置",
+        "recognition": {
+            "type": "DirectHit",
+            "param": {
+                "roi": [
+                    482,
+                    260,
+                    150,
+                    60
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "ArenaOfGamesBackPosition4": {
+        "desc": "第4张空手牌槽背面位置",
+        "recognition": {
+            "type": "DirectHit",
+            "param": {
+                "roi": [
+                    666,
+                    260,
+                    150,
+                    60
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "ArenaOfGamesBackPosition5": {
+        "desc": "第5张空手牌槽背面位置",
+        "recognition": {
+            "type": "DirectHit",
+            "param": {
+                "roi": [
+                    850,
+                    260,
+                    150,
+                    60
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

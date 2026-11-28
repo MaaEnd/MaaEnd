@@ -500,12 +500,12 @@ int main(int argc, char** argv)
             const bool expected_checked =
                 expected_results && expected_results->find(image_name, test_case.grid_type, test_case.roi_name) != nullptr;
             const auto expected_error = expected_results ? iconrecognition::test::CompareExpectedCase(
-                                            *expected_results,
-                                            image_name,
-                                            test_case.grid_type,
-                                            test_case.roi_name,
-                                            result,
-                                            iconrecognition::test::IsSupplementalLocalImage(image_name))
+                                                               *expected_results,
+                                                               image_name,
+                                                               test_case.grid_type,
+                                                               test_case.roi_name,
+                                                               result,
+                                                               iconrecognition::test::IsSupplementalLocalImage(image_name))
                                                          : std::nullopt;
             const auto annotation_started = RunnerClock::now();
             const cv::Mat annotated = DrawResult(image, result, audit_catalog);
@@ -564,16 +564,17 @@ int main(int argc, char** argv)
                 }
                 const auto& test_case = cases[index];
                 const std::string image_name = test_case.image_path.lexically_relative(input_root).generic_string();
-                reports.emplace_back(json::object {
-                    { "image", image_name },
-                    { "grid_type", std::string(iconrecognition::GridTypeName(test_case.grid_type)) },
-                    { "roi_name", test_case.roi_name },
-                    { "roi", iconrecognition::RectToJson(test_case.roi) },
-                    { "matched", false },
-                    { "match_count", 0 },
-                    { "failed", true },
-                    { "case_error", message },
-                });
+                reports.emplace_back(
+                    json::object {
+                        { "image", image_name },
+                        { "grid_type", std::string(iconrecognition::GridTypeName(test_case.grid_type)) },
+                        { "roi_name", test_case.roi_name },
+                        { "roi", iconrecognition::RectToJson(test_case.roi) },
+                        { "matched", false },
+                        { "match_count", 0 },
+                        { "failed", true },
+                        { "case_error", message },
+                    });
                 std::cout << image_name << " [" << test_case.roi_name << "] -> ERROR: " << message << '\n';
                 ++failed;
                 continue;

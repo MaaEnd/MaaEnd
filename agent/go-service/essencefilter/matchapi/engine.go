@@ -46,6 +46,30 @@ func (e *Engine) SkillPools() SkillPools {
 	return e.data.SkillPools
 }
 
+// TermID returns the game term ID for a skill in the given pool.
+func (e *Engine) TermID(pool, id int) (string, bool) {
+	for _, skill := range poolBySlot(e.data.SkillPools, pool) {
+		if skill.ID == id && skill.TermID != "" {
+			return skill.TermID, true
+		}
+	}
+	return "", false
+}
+
+// ResolveTermID looks up a game term ID in the current skill pools.
+func (e *Engine) ResolveTermID(termID string) (pool, id int, ok bool) {
+	if termID != "" {
+		for pool := 1; pool <= 3; pool++ {
+			for _, skill := range poolBySlot(e.data.SkillPools, pool) {
+				if skill.TermID == termID {
+					return pool, skill.ID, true
+				}
+			}
+		}
+	}
+	return 0, 0, false
+}
+
 // Weapons returns the weapon rows currently loaded in this engine.
 // The returned slice aliases the engine's backing array; callers must treat it as read-only.
 func (e *Engine) Weapons() []WeaponData {
@@ -136,12 +160,13 @@ func (e *Engine) MatchOCR(ocr OCRInput, opts EssenceFilterOptions) (*MatchResult
 			exact = exactMatched
 		}
 	}
-	if exact != nil && ocrLevels[0]+ocrLevels[1]+ocrLevels[2] >= opts.PerfectMinLevelTotal {
+	if exact != nil {
 		return &MatchResult{
 			Kind:          MatchExact,
 			SkillIDs:      exact.SkillIDs,
 			SkillsChinese: exact.SkillsChinese,
 			Weapons:       exact.Weapons,
+			Levels:        ocrLevels,
 			ShouldLock:    true,
 			ShouldDiscard: false,
 		}, nil
@@ -197,6 +222,7 @@ func (e *Engine) MatchOCR(ocr OCRInput, opts EssenceFilterOptions) (*MatchResult
 				SkillIDs:      []int{fpIDs[0], fpIDs[1], fpIDs[2]},
 				SkillsChinese: []string{ocrSkills[0], ocrSkills[1], ocrSkills[2]},
 				Weapons:       []WeaponData{},
+				Levels:        ocrLevels,
 				ExtLevelSum:   ocrLevels[0] + ocrLevels[1] + ocrLevels[2],
 				ExtMinTotal:   futureMinTotal,
 				ShouldLock:    shouldLock,
@@ -210,6 +236,7 @@ func (e *Engine) MatchOCR(ocr OCRInput, opts EssenceFilterOptions) (*MatchResult
 				SkillIDs:      practicalMatch.SkillIDs,
 				SkillsChinese: practicalMatch.SkillsChinese,
 				Weapons:       practicalMatch.Weapons,
+				Levels:        ocrLevels,
 				ExtSlot3Lv:    practicalSlot3Lv,
 				ExtMinLevel:   practicalMinLv,
 				ShouldLock:    shouldLock,
@@ -224,6 +251,7 @@ func (e *Engine) MatchOCR(ocr OCRInput, opts EssenceFilterOptions) (*MatchResult
 				SkillIDs:      []int{fpIDs[0], fpIDs[1], fpIDs[2]},
 				SkillsChinese: []string{ocrSkills[0], ocrSkills[1], ocrSkills[2]},
 				Weapons:       []WeaponData{},
+				Levels:        ocrLevels,
 				ExtLevelSum:   ocrLevels[0] + ocrLevels[1] + ocrLevels[2],
 				ExtMinTotal:   futureMinTotal,
 				ShouldLock:    shouldLock,
@@ -236,6 +264,7 @@ func (e *Engine) MatchOCR(ocr OCRInput, opts EssenceFilterOptions) (*MatchResult
 			SkillIDs:      practicalMatch.SkillIDs,
 			SkillsChinese: practicalMatch.SkillsChinese,
 			Weapons:       practicalMatch.Weapons,
+			Levels:        ocrLevels,
 			ExtSlot3Lv:    practicalSlot3Lv,
 			ExtMinLevel:   practicalMinLv,
 			ShouldLock:    shouldLock,
@@ -249,49 +278,73 @@ func (e *Engine) MatchOCR(ocr OCRInput, opts EssenceFilterOptions) (*MatchResult
 		SkillIDs:      []int{},
 		SkillsChinese: []string{ocrSkills[0], ocrSkills[1], ocrSkills[2]},
 		Weapons:       []WeaponData{},
+		Levels:        ocrLevels,
 		ShouldLock:    false,
 		ShouldDiscard: opts.DiscardUnmatched,
 	}, nil
 }
 
-// MatchInventoryOCR matches against all supported four- to six-star weapons.
-// A resolved but incompatible essence returns (nil, nil); unresolved skills or
-// invalid levels return an error. No filtering or lock/discard rules are applied.
-func (e *Engine) MatchInventoryOCR(ocr OCRInput) (*InventoryMatch, error) {
+// InventorySkill preserves the pool as IDs are local to each skill pool.
+type InventorySkill struct {
+	Pool  int `json:"pool"`
+	ID    int `json:"id"`
+	Level int `json:"level"`
+}
+
+// InventorySkills resolves every displayed affix, including repeated pools.
+func (e *Engine) InventorySkills(ocr OCRInput) ([3]InventorySkill, error) {
 	e.ensureSlotIndices()
-	var result InventoryMatch
-	var used [3]bool
+	var skills [3]InventorySkill
 	for i, text := range ocr.Skills {
-		slot, ok := e.assignSlotForOCRText(text)
+		pool, ok := e.assignSlotForOCRText(text)
 		if !ok {
-			return nil, fmt.Errorf("cannot resolve skill at position %d: %q", i+1, text)
+			return skills, fmt.Errorf("cannot resolve skill at position %d: %q", i+1, text)
 		}
-		id, _ := e.matchSkillIDEnhanced(slot, text)
+		id, ok := e.matchSkillIDEnhanced(pool, text)
+		if !ok {
+			return skills, fmt.Errorf("cannot resolve skill ID at position %d: %q", i+1, text)
+		}
 		maxLevel := 6
-		if slot == 3 {
+		if pool == 3 {
 			maxLevel = 3
 		}
 		if ocr.Levels[i] < 1 || ocr.Levels[i] > maxLevel {
-			return nil, fmt.Errorf("invalid level %d for skill pool %d", ocr.Levels[i], slot)
+			return skills, fmt.Errorf("invalid level %d for skill pool %d", ocr.Levels[i], pool)
 		}
-		used[slot-1] = true
-		result.SkillIDs[slot-1] = id
-		result.Levels[slot-1] = ocr.Levels[i]
+		skills[i] = InventorySkill{Pool: pool, ID: id, Level: ocr.Levels[i]}
 	}
-	// Multiple skills from the same pool are valid inventory, but cannot match
-	// a weapon's three distinct pools. Validate every skill before skipping them.
-	if used != [3]bool{true, true, true} {
-		return nil, nil
+	return skills, nil
+}
+
+// InventoryMatch projects resolved affixes onto every supported weapon combination.
+func (e *Engine) InventoryMatch(skills [3]InventorySkill) *InventoryMatch {
+	var result InventoryMatch
+	var used [3]bool
+	for _, skill := range skills {
+		if skill.Pool < 1 || skill.Pool > 3 || used[skill.Pool-1] {
+			return nil
+		}
+		used[skill.Pool-1] = true
+		result.SkillIDs[skill.Pool-1] = skill.ID
+		result.Levels[skill.Pool-1] = skill.Level
 	}
 	targets := e.BuildTargets(EssenceFilterOptions{
 		Rarity4Weapon: true, Rarity5Weapon: true, Rarity6Weapon: true,
 	})
 	match, ok := matchSkillIDs(result.SkillIDs, targets)
 	if !ok {
-		return nil, nil
+		return nil
 	}
 	result.Weapons = match.Weapons
-	return &result, nil
+	return &result
+}
+
+func (e *Engine) MatchInventoryOCR(ocr OCRInput) (*InventoryMatch, error) {
+	skills, err := e.InventorySkills(ocr)
+	if err != nil {
+		return nil, err
+	}
+	return e.InventoryMatch(skills), nil
 }
 
 // reorderByPoolAssignmentIfPossible reorders OCR skills/levels into slot1/2/3 order

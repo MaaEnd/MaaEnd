@@ -3,7 +3,9 @@
     // 选择装箱货物类型->下一步->装满货物->下一步->货物竞价->调度申请->(见下)
     // 每次单击下一步前都需要确认页面稳定，否则会因为按钮错位导致单击失败
     // 调度申请界面按本仓储节点的处理方式分两条路：
-    // ・「接取并转交」走 DeliveryJobsQuickTransfer：快速转交->确认->获得奖励->我转交的委托->点回本地仓储节点；
+    // ・「接取并转交」先走 DeliveryJobsDecideQuickTransfer：等底部按钮稳定后看有没有白底「快速转交」，
+    //   有（仓储节点 3 级起）走 DeliveryJobsQuickTransfer：快速转交->确认->获得奖励->我转交的委托->点回本地仓储节点；
+    //   没有（仓储节点未满 3 级）回退到下面的接取流程，与其它模式走同一条路；
     // ・「仅接取委托」「全自动送货」「按报价处理」走 DeliveryJobsRedistributionBidNextStep：
     //   确认接取任务->尽快送达单击屏幕->回到大世界->由 anchor 决定接取后去向。
     "DeliveryJobsPackCargo": {
@@ -81,7 +83,7 @@
             "[Anchor]DeliveryJobsRedistributionBidAction"
         ]
     },
-    "DeliveryJobsSelectedBidLocationIcon": {
+    "DeliveryJobsCheckSelectedBidLocationIcon": {
         "desc": "识别当前选中的运送委托报价的地点图标",
         "recognition": "TemplateMatch",
         "roi": [
@@ -95,10 +97,10 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "DeliveryJobsSelectedBidPriceOCR": {
+    "DeliveryJobsCheckSelectedBidPriceText": {
         "desc": "识别当前选中的运送委托报价",
         "recognition": "OCR",
-        "roi": "DeliveryJobsSelectedBidLocationIcon",
+        "roi": "DeliveryJobsCheckSelectedBidLocationIcon",
         "roi_offset": [
             137,
             16,
@@ -124,8 +126,8 @@
         "desc": "获取当前选中的运送委托报价",
         "recognition": "And",
         "all_of": [
-            "DeliveryJobsSelectedBidLocationIcon",
-            "DeliveryJobsSelectedBidPriceOCR"
+            "DeliveryJobsCheckSelectedBidLocationIcon",
+            "DeliveryJobsCheckSelectedBidPriceText"
         ],
         "box_index": 1,
         "pre_delay": 0,
@@ -203,7 +205,7 @@
         // 本节点第一次执行时，ListCompleteRecognition 会把 roi 内画面截成模板
         // ListCompleteRecognition/DeliveryJobsItemListAtTop.png 并把 ready 置为 true；
         // 此后每轮都用该模板与当前画面比对，判断列表是否已停住，比对不过就重新截模板。
-        // 装箱流程开始新一轮扫描时（DeliveryJobsStartFill{地区}Priority{N} 的 PipelineOverrideAction）置回 false，
+        // 装箱流程开始新一轮扫描时（DeliveryJobsStartFill{地区}Priority{N} 的 PipelineOverride）置回 false，
         // 强制重新截模板。这里写死只会影响首次运行前的初值，改动不影响运行期判定。
         "attach": {
             "ready": false
@@ -264,7 +266,7 @@
         ],
         // 与 DeliveryJobsItemListAtTop 同一套运行期状态，模板为
         // ListCompleteRecognition/DeliveryJobsItemListAtBottom.png：首次执行截模板并置 ready=true，
-        // 装箱流程开始新一轮扫描时由 PipelineOverrideAction 置回 false。
+        // 装箱流程开始新一轮扫描时由 PipelineOverride 置回 false。
         "attach": {
             "ready": false
         }
@@ -462,11 +464,40 @@
         "action": "Click",
         "post_delay": 0,
         "rate_limit": 0,
-        // 只有「仅接取委托」「全自动送货」「按报价处理」走这里；
-        // 「接取并转交」改走 DeliveryJobsQuickTransfer，不再接取任务，因此不必再读 DeliveryJobsAfterAcceptJob。
+        // 「仅接取委托」「全自动送货」「按报价处理」必定走这里；
+        // 「接取并转交」在仓储节点未满 3 级时也会落到这里，因此不必再读 DeliveryJobsAfterAcceptJob。
         "next": [
             "DeliveryJobsDeliverQuickly",
             "DeliveryJobsBackToDepot"
+        ]
+    },
+    // 仓储节点满 3 级后，调度申请界面才会把白底「快速转交」与黄底「开始运送」并排给出；
+    // 未满 3 级只有黄底「开始运送」，这时必须回退老流程：先接取，再由后续的残留委托检测转交。
+    // 按钮出现前界面还在渲染，此刻就判会把「快速转交」当成不存在而误走接取，所以先等底部按钮区稳定再判。
+    "DeliveryJobsDecideQuickTransfer": {
+        "desc": "调度申请界面等底部按钮稳定后判断是否走「快速转交」：有白底快速转交就快速转交，没有就接取",
+        "recognition": "And",
+        "all_of": [
+            // 「开始运送」任何等级都有，用它确认底部按钮已经渲染出来，避免在按钮出现前就下判断
+            "YellowConfirmButtonType1",
+            "DeliveryJobsInCargoRedistributionBid"
+        ],
+        "pre_wait_freezes": {
+            "time": 200,
+            // 白底「快速转交」与黄底「开始运送」所在的一整行按钮区；ADB 的位置更靠左下，见 resource_adb 的覆盖
+            "target": [
+                820,
+                632,
+                450,
+                62
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsQuickTransfer",
+            "DeliveryJobsRedistributionBidNextStep"
         ]
     },
     // 调度申请界面上的「快速转交」把本次委托立刻转交出去，是「接取并转交」专用的捷径：
@@ -480,6 +511,38 @@
             // 这里认白底的 WhiteConfirmButtonType1，开始运送是黄底的 YellowConfirmButtonType1。
             "WhiteConfirmButtonType1",
             "DeliveryJobsInCargoRedistributionBid"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            // 如果选择了今日不再提示，会直接跳到奖励界面
+            "DeliveryJobsQuickTransferReward",
+            "DeliveryJobsDontRemindAgainForToday"
+        ]
+    },
+    "DeliveryJobsCheckBox": {
+        "desc": "检查今日不再提示的复选框是否存在",
+        "recognition": "TemplateMatch",
+        "roi": [
+            517,
+            394,
+            193,
+            68
+        ],
+        "template": "DeliveryJobs/CheckBox.png",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "DeliveryJobsDontRemindAgainForToday": {
+        "desc": "选择今日不再提示的复选框",
+        "recognition": "And",
+        "all_of": [
+            "DeliveryJobsCheckBox",
+            "YellowConfirmButtonType1",
+            "DeliveryJobsCheckQuickTransferConfirmText"
         ],
         "pre_delay": 0,
         "action": "Click",
@@ -575,15 +638,30 @@
             "DeliveryJobsQuickTransferBackToLocalDepotNode"
         ]
     },
+    "DeliveryJobsCheckLocalDepotIcon": {
+        "desc": "检查「本地仓储节点」图标是否存在（未选中的状态）",
+        "recognition": "TemplateMatch",
+        "roi": [
+            20,
+            40,
+            200,
+            110
+        ],
+        "template": [
+            "DeliveryJobs/LocalDepotIcon.png"
+        ],
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
     "DeliveryJobsQuickTransferBackToLocalDepotNode": {
         "desc": "关掉奖励后停在我转交的委托页，点回「本地仓储节点」标签页",
         "recognition": "And",
         "all_of": [
             "InClaimDeliveryJobsNode",
-            // 复用公共文字节点，「本地仓储节点」标签页与主界面标题在同一位置，不需要另建一份
-            "CheckLocalDepotNodeText"
+            "DeliveryJobsCheckLocalDepotIcon"
         ],
-        // box_index 1：用「本地仓储节点」文字框作为点击目标，点回标签页
         "box_index": 1,
         "pre_delay": 0,
         "action": "Click",

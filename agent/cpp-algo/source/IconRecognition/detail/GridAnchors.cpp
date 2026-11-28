@@ -145,14 +145,15 @@ std::vector<RarityBand> DetectRarityBands(const cv::Mat& lab, const std::vector<
             const int bottom = candidates[peak_end - 1].y + 1;
             // 贴住 ROI 下边界的色带没有可观测的结束位置，不能把裁剪线当成格子的下边缘锚点。
             if (bottom < lab.rows && HasFormalVerticalExtent(bottom - profile.rarity_anchor_offset, lab.rows, profile)) {
-                bands.push_back({
-                    candidates[peak_begin].y,
-                    bottom,
-                    maximum_support,
-                    maximum_strong,
-                    maximum_chromatic,
-                    best->mean_coverage,
-                });
+                bands.push_back(
+                    {
+                        candidates[peak_begin].y,
+                        bottom,
+                        maximum_support,
+                        maximum_strong,
+                        maximum_chromatic,
+                        best->mean_coverage,
+                    });
             }
             peak_begin = peak_end;
         }

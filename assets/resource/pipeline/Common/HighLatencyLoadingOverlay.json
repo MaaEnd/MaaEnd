@@ -1,0 +1,83 @@
+{
+    // 高延迟加载遮罩：ENDFIELD INDUSTRIES 图标 + 「正在连接到终末地网络」文案。
+    // 图标跨语言一致，文字随语言变化，两者同时命中才认为当前是这个遮罩。
+    "HighLatencyLoadingOverlay": {
+        "desc": "高延迟加载遮罩：正在连接到终末地网络",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__HighLatencyLoadingOverlayIcon",
+                    "__HighLatencyLoadingOverlayText"
+                ],
+                "box_index": 0
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    // 遮罩存在时命中，什么都不做，也没有 next：
+    // 支链在此结束，[JumpBack] 把控制权交回父节点，
+    // 由父节点重新评估 next 完成循环，遮罩消失后父节点自然往下走。
+    "HighLatencyLoadingOverlayWait": {
+        "desc": "高延迟加载遮罩存在时原地等待，直到遮罩消失",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "HighLatencyLoadingOverlay"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__HighLatencyLoadingOverlayIcon": {
+        "desc": "高延迟加载遮罩上的 ENDFIELD INDUSTRIES 图标",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "Common/HighLatencyLoadingOverlay.png"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__HighLatencyLoadingOverlayText": {
+        "desc": "高延迟加载遮罩上的连接提示文字",
+        // 文字固定在图标正下方并水平居中：图标框 202×43，文字行宽度随语言变化，
+        // 日文约 310px，故相对图标中心左右各留 165px，取 330 宽
+        // 纵向从图标底边下移 1px 起算，高度取 30 覆盖不同语言的行高
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "__HighLatencyLoadingOverlayIcon",
+                "roi_offset": [
+                    -64,
+                    40,
+                    330,
+                    30
+                ],
+                "expected": [
+                    "正在连接到终末地网络",
+                    "正在連線到終末地網路",
+                    "(?i)Connecting\\s*to\\s*the\\s*Endfield\\s*network",
+                    "エンドフィールドネットワークに接続中",
+                    "엔드필드\\s*네트워크에\\s*연결\\s*중"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

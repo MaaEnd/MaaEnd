@@ -11,15 +11,22 @@ double Distance(const WorldPoint& lhs, const WorldPoint& rhs)
     return std::hypot(lhs.x - rhs.x, lhs.y - rhs.y);
 }
 
+namespace
+{
+
+double edge_cross(const WorldPoint& p, const WorldPoint& a, const WorldPoint& b)
+{
+    return (p.x - b.x) * (a.y - b.y) - (a.x - b.x) * (p.y - b.y);
+}
+
+}
+
 bool PointInTriangle(const WorldPoint& point, const std::array<WorldPoint, 3>& triangle)
 {
     constexpr double kEpsilon = 1e-5;
-    const auto cross = [](const WorldPoint& p, const WorldPoint& a, const WorldPoint& b) {
-        return (p.x - b.x) * (a.y - b.y) - (a.x - b.x) * (p.y - b.y);
-    };
-    const double d1 = cross(point, triangle[0], triangle[1]);
-    const double d2 = cross(point, triangle[1], triangle[2]);
-    const double d3 = cross(point, triangle[2], triangle[0]);
+    const double d1 = edge_cross(point, triangle[0], triangle[1]);
+    const double d2 = edge_cross(point, triangle[1], triangle[2]);
+    const double d3 = edge_cross(point, triangle[2], triangle[0]);
     const bool has_neg = d1 < -kEpsilon || d2 < -kEpsilon || d3 < -kEpsilon;
     const bool has_pos = d1 > kEpsilon || d2 > kEpsilon || d3 > kEpsilon;
     return !(has_neg && has_pos);

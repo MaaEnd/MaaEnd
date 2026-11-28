@@ -10,7 +10,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// PI v2.5.0 environment variable keys.
+// PI v2.11.0 environment variable keys.
 const (
 	EnvInterfaceVersion   = "PI_INTERFACE_VERSION"
 	EnvClientName         = "PI_CLIENT_NAME"
@@ -18,6 +18,7 @@ const (
 	EnvClientLanguage     = "PI_CLIENT_LANGUAGE"
 	EnvClientMaaFWVersion = "PI_CLIENT_MAAFW_VERSION"
 	EnvVersion            = "PI_VERSION"
+	EnvUserDataDir        = "PI_USER_DATA_DIR"
 	EnvController         = "PI_CONTROLLER"
 	EnvResource           = "PI_RESOURCE"
 )
@@ -96,7 +97,7 @@ type Resource struct {
 	Option      []string `json:"option,omitempty"`
 }
 
-// Env holds all parsed PI_* environment variables (PI v2.5.0).
+// Env holds all parsed PI_* environment variables (PI v2.11.0).
 type Env struct {
 	InterfaceVersion   string
 	ClientName         string
@@ -104,6 +105,7 @@ type Env struct {
 	ClientLanguage     string
 	ClientMaaFWVersion string
 	Version            string
+	UserDataDir        string
 
 	Controller    *Controller
 	ControllerRaw string
@@ -124,6 +126,7 @@ func doInit() {
 		ClientLanguage:     os.Getenv(EnvClientLanguage),
 		ClientMaaFWVersion: os.Getenv(EnvClientMaaFWVersion),
 		Version:            os.Getenv(EnvVersion),
+		UserDataDir:        os.Getenv(EnvUserDataDir),
 		ControllerRaw:      os.Getenv(EnvController),
 		ResourceRaw:        os.Getenv(EnvResource),
 	}
@@ -162,6 +165,7 @@ func doInit() {
 		Str("client_language", env.ClientLanguage).
 		Str("client_maafw_version", env.ClientMaaFWVersion).
 		Str("pi_version", env.Version).
+		Str("user_data_dir", env.UserDataDir).
 		Bool("controller_ok", env.Controller != nil).
 		Bool("resource_ok", env.Resource != nil)
 

@@ -2,10 +2,10 @@ package essencefilter
 
 import (
 	"fmt"
+	"slices"
 	"sort"
 	"strings"
 
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/autoessence"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter/matchapi"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
@@ -223,35 +223,70 @@ type decisionNextNodes struct {
 	Skip    string
 }
 
-func runUnifiedSkillDecision(
-	ctx *maa.Context,
-	arg *maa.CustomActionArg,
-	st *RunState,
-	engine *matchapi.Engine,
-	ocr matchapi.OCRInput,
-	next decisionNextNodes,
-) bool {
-	skills := []string{ocr.Skills[0], ocr.Skills[1], ocr.Skills[2]}
+func (next decisionNextNodes) route(ctx *maa.Context, task, mark string) bool {
+	node := next.Skip
+	switch mark {
+	case lockedMark:
+		node = next.Lock
+	case discarded:
+		node = next.Discard
+	}
+	if err := ctx.OverrideNext(task, []maa.NextItem{{Name: node}}); err != nil {
+		return inventoryFailed(err)
+	}
+	return true
+}
 
-	matchResult, err := engine.MatchOCR(ocr, buildMatchOptions(st))
+func decideSkillMark(ctx *maa.Context, st *RunState, ocr matchapi.OCRInput) (string, bool) {
+	matchResult, err := st.MatchEngine.MatchOCR(ocr, buildMatchOptions(st))
 	if err != nil || matchResult == nil {
 		if err != nil {
 			reportFocusByKey(ctx, "focus.error.match_failed", err.Error())
 		} else {
 			reportFocusByKey(ctx, "focus.error.match_failed", "nil match result")
 		}
-		return false
+		return "", false
 	}
+	return applySkillMark(ctx, st, ocr, matchResult)
+}
 
+// Mark from the same resolved weapon IDs that go into the report and target stock.
+func decideInventoryMark(ctx *maa.Context, st *RunState, ocr matchapi.OCRInput, item inventoryItem) (string, bool) {
+	result := &matchapi.MatchResult{
+		Kind:          matchapi.MatchNone,
+		ShouldDiscard: st.PipelineOpts.DiscardUnmatched && len(item.weaponIDs) == 0,
+	}
+	for _, weapon := range st.MatchEngine.Weapons() {
+		if (weapon.Rarity == 5 || weapon.Rarity == 6) && slices.Contains(item.weaponIDs, weapon.InternalID) {
+			result.Weapons = append(result.Weapons, weapon)
+		}
+	}
+	if len(result.Weapons) > 0 {
+		weapon := result.Weapons[0]
+		result.Kind, result.ShouldLock = matchapi.MatchExact, true
+		result.SkillIDs, result.SkillsChinese = weapon.SkillIDs, weapon.SkillsChinese
+		result.Levels = item.groupRow().Levels
+	}
+	return applySkillMark(ctx, st, ocr, result)
+}
+
+func applySkillMark(ctx *maa.Context, st *RunState, ocr matchapi.OCRInput, matchResult *matchapi.MatchResult) (string, bool) {
+	skills := ocr.Skills[:]
 	reportOCRSkills(ctx, skills, ocr.Levels, matchResult.Kind != matchapi.MatchNone)
 
 	switch matchResult.Kind {
 	case matchapi.MatchExact:
-		st.MatchedCount++
-		reportMatchedWeapons(ctx, matchResult.Weapons)
-		if next.Lock == "EssenceFilterAfterBattleLockItem" {
-			recordAfterBattleInventory(matchResult.Weapons)
+		if verdict := st.LockLimit.applyToExact(matchResult, st.CurrentLocked); verdict.Quota > 0 {
+			reportLockLimit(ctx, verdict, st.CurrentLocked)
+			if !matchResult.ShouldLock {
+				break
+			}
+			matchResult.Weapons = slices.DeleteFunc(slices.Clone(matchResult.Weapons), func(weapon matchapi.WeaponData) bool {
+				return !isLockLimitTarget(weapon, st.PipelineOpts.LockLimitWeaponIDs)
+			})
 		}
+		reportMatchedWeapons(ctx, matchResult.Weapons)
+		st.MatchedCount++
 
 		key := skillCombinationKey(matchResult.SkillIDs)
 		if key != "" {
@@ -267,8 +302,6 @@ func runUnifiedSkillDecision(
 				}
 			}
 		}
-		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: next.Lock}})
-
 	case matchapi.MatchFuturePromising, matchapi.MatchSlot3Level3Practical:
 		var reason string
 		if matchResult.Kind == matchapi.MatchFuturePromising {
@@ -304,48 +337,43 @@ func runUnifiedSkillDecision(
 				}
 			}
 			reportExtRule(ctx, reason, true)
-			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: next.Lock}})
 		} else {
 			reportExtRule(ctx, reason, false)
-			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: next.Skip}})
 		}
 
 	case matchapi.MatchNone:
-		if matchResult.ShouldDiscard {
-			reportNoMatch(ctx, true)
-			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: next.Discard}})
-		} else {
-			reportNoMatch(ctx, false)
-			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: next.Skip}})
-		}
+		reportNoMatch(ctx, matchResult.ShouldDiscard)
 	}
 
 	st.CurrentSkills = [3]string{}
 	st.CurrentSkillLevels = [3]int{}
-	return true
+	switch {
+	case matchResult.ShouldLock:
+		return lockedMark, true
+	case matchResult.ShouldDiscard:
+		return discarded, true
+	default:
+		return unmarked, true
+	}
 }
 
-func recordAfterBattleInventory(weapons []matchapi.WeaponData) {
-	ids := make([]string, 0, len(weapons))
-	for _, w := range weapons {
-		if w.InternalID != "" {
-			ids = append(ids, w.InternalID)
-		}
-	}
-	autoessence.Add(ids, 1)
-}
-
-func loadMatchEngine(ctx *maa.Context, nodeName string) (*matchapi.Engine, *EssenceFilterOptions, error) {
-	opts, err := getOptionsFromAttach(ctx, nodeName)
-	if err != nil {
-		return nil, nil, fmt.Errorf("load options from %s: %w", nodeName, err)
-	}
-
-	locale := resolveInputLanguage(ctx, opts.InputLanguage)
+func loadMatchEngine(ctx *maa.Context, ctrl *maa.Controller, opts *EssenceFilterOptions) (*matchapi.Engine, error) {
+	locale := resolveInputLanguage(ctx, ctrl, opts.InputLanguage)
 	opts.InputLanguage = locale
 	engine, err := matchapi.NewEngineFromDirWithLocale(essenceFilterDataDir, locale)
 	if err != nil {
-		return nil, nil, fmt.Errorf("load match engine: %w", err)
+		return nil, fmt.Errorf("load match engine: %w", err)
 	}
-	return engine, opts, nil
+	return engine, nil
+}
+
+func reportLockLimit(ctx *maa.Context, verdict lockLimitDecision, locked bool) {
+	switch {
+	case locked:
+		reportSimpleByKey(ctx, "lock_limit.already_locked")
+	case !verdict.Lock:
+		reportSimpleByKey(ctx, "lock_limit.not_in_quota", verdict.Quota)
+	default:
+		reportSimpleByKey(ctx, "lock_limit.in_quota", verdict.Quota)
+	}
 }

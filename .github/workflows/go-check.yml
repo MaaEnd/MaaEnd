@@ -20,6 +20,11 @@ on:
 permissions:
   contents: read
 
+# 同一 PR / 分支再次推送时取消上一次运行，旧提交的验证不必跑完
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   go-service:
     runs-on: ubuntu-latest

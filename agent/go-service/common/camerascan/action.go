@@ -29,8 +29,9 @@ type cameraScanParam struct {
 	FallbackYawSteps int      `json:"fallback_yaw_steps,omitempty"`
 }
 
-// CameraScanAction scans the camera view and recognizes target Pipeline nodes
-// before and after every movement except reset.
+// CameraScanAction scans the camera view and recognizes target Pipeline nodes:
+// once per camera position, and not at all while the camera is swinging back to
+// the center.
 type CameraScanAction struct{}
 
 var _ maa.CustomActionRunner = &CameraScanAction{}
@@ -68,20 +69,13 @@ func runScanStep(
 	param cameraScanParam,
 	stepIndex int,
 ) (*maa.RecognitionDetail, bool) {
-	if step.needsRecognition() {
-		if detail := recognizeWaitNodes(ctx, ctrl, param.WaitNodes, step.phase, "before", stepIndex); detail != nil {
-			return detail, true
-		}
-	}
 	if !runCameraSwipe(ctx, step, param) {
 		return nil, false
 	}
-	if step.needsRecognition() {
-		if detail := recognizeWaitNodes(ctx, ctrl, param.WaitNodes, step.phase, "after", stepIndex); detail != nil {
-			return detail, true
-		}
+	if !step.recognize {
+		return nil, true
 	}
-	return nil, true
+	return recognizeWaitNodes(ctx, ctrl, param.WaitNodes, step.phase, stepIndex), true
 }
 
 func parseParam(raw string) (cameraScanParam, bool) {
@@ -251,7 +245,6 @@ func recognizeWaitNodes(
 	ctrl *maa.Controller,
 	waitNodes []string,
 	phase string,
-	timing string,
 	step int,
 ) *maa.RecognitionDetail {
 	if ctx.GetTasker().Stopping() {
@@ -267,7 +260,6 @@ func recognizeWaitNodes(
 			Err(err).
 			Str("component", componentName).
 			Str("phase", phase).
-			Str("timing", timing).
 			Int("step", step).
 			Msg("cache image failed")
 		return nil
@@ -280,7 +272,6 @@ func recognizeWaitNodes(
 				Err(recognitionErr).
 				Str("component", componentName).
 				Str("phase", phase).
-				Str("timing", timing).
 				Int("step", step).
 				Str("node", node).
 				Msg("target recognition failed")
@@ -290,7 +281,6 @@ func recognizeWaitNodes(
 			log.Info().
 				Str("component", componentName).
 				Str("phase", phase).
-				Str("timing", timing).
 				Int("step", step).
 				Str("node", node).
 				Msg("target found")

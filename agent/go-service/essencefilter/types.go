@@ -1,16 +1,25 @@
 package essencefilter
 
+// InitMode is the init node's attach.mode, selecting how EssenceFilterInitAction initializes a run.
+type InitMode string
+
+const (
+	InitModeFilter          InitMode = "filter"
+	InitModeScreenAndReport InitMode = "screen_and_report"
+	InitModeInventory       InitMode = "inventory"
+	InitModeAfterBattle     InitMode = "after_battle"
+)
+
 // EssenceFilterOptions is unmarshaled from Pipeline node attach JSON (full UI / filter options).
 // Matching uses the subset type matchapi.EssenceFilterOptions; see actions.go for the mapping.
 type EssenceFilterOptions struct {
+	Mode InitMode `json:"mode"`
+
 	Rarity6Weapon   bool `json:"rarity6_weapon"`
 	Rarity5Weapon   bool `json:"rarity5_weapon"`
 	Rarity4Weapon   bool `json:"rarity4_weapon"`
 	FlawlessEssence bool `json:"flawless_essence"`
 	PureEssence     bool `json:"pure_essence"`
-
-	// 完美基质总等级最低要求
-	PerfectMinLevelTotal int `json:"perfect_min_level_total"`
 
 	// 保留未来可期基质：三种词条且总等级 >= n
 	KeepFuturePromising     bool `json:"keep_future_promising"`
@@ -24,24 +33,15 @@ type EssenceFilterOptions struct {
 	LockSlot3Practical bool `json:"lock_slot3_practical"`
 	// 未匹配时废弃而非跳过
 	DiscardUnmatched bool `json:"discard_unmatched"`
-	// 筛选结束后推荐预刻写方案（枚举最优方案并输出到日志）；开启时会同时写入工作目录 ./EssencePlan.html（每次覆盖）
+	// 目标模式传入本次勾选的全部武器，包括已有基质的武器。
+	LockLimitWeaponIDs []string `json:"lock_limit_weapon_ids"`
+	// 筛选结束后推荐预刻写方案（枚举最优方案并输出到日志）；开启时会同时写入用户数据目录 debug/record/EssencePlan.html（每次覆盖）
 	ExportCalculatorScript bool `json:"export_calculator_script"`
-	// ExportInventory selects the read-only flawless inventory preset.
-	ExportInventory bool `json:"export_inventory"`
 	// InputLanguage is game/OCR language for skill matching: CN|TC|EN|JP|KR.
 	// Empty / omitted / AUTO: detect via __EssenceFilterDetectLang* OCR nodes at Init.
 	// Explicit CN|TC|EN|JP|KR: force that locale (debug / override).
 	InputLanguage string `json:"input_language"`
 }
-
-// EssenceMode describes which essence tiers are selected for this run.
-type EssenceMode int
-
-const (
-	EssenceModeBoth         EssenceMode = iota // both flawless + pure selected
-	EssenceModeFlawlessOnly                    // only flawless selected; stop when pure encountered
-	EssenceModePureOnly                        // only pure selected; skip flawless until pure appears
-)
 
 const (
 	flawlessEssenceName = "无瑕基质"

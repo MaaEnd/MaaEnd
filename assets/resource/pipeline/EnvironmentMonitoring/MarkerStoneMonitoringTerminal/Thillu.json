@@ -93,7 +93,7 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "CheckThilluJob": {
+    "CheckThilluJobText": {
         "desc": "检查表象委托是否可以接取",
         "recognition": "OCR",
         "roi": "CheckThilluIcon",
@@ -162,7 +162,7 @@
         "all_of": [
             "CheckThilluText",
             "CheckThilluIcon",
-            "CheckThilluJob"
+            "CheckThilluJobText"
         ],
         "box_index": 2,
         "pre_delay": 0,
@@ -234,7 +234,7 @@
         "desc": "表象任务已经在追踪中",
         "recognition": "And",
         "all_of": [
-            "AlreadyTrackedMissionButton",
+            "CheckAlreadyTrackingText",
             "InThilluMission"
         ],
         "pre_delay": 0,
@@ -438,12 +438,12 @@
         "desc": "在表象任务拍照点开始拍照",
         "pre_delay": 0,
         "anchor": {
-            "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal"
+            "TakePhotoDone": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "EnvironmentMonitoringTakePhoto"
+            "TakePhoto"
         ]
     }
 }

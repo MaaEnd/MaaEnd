@@ -1,6 +1,7 @@
 import json
 import math
 import re
+from collections.abc import Mapping
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
@@ -17,6 +18,7 @@ from model import (
     find_fields_of,
     get_display_action,
     get_point_actions,
+    map_zone_of,
     normalize_path_points,
     normalize_zone_id,
     trigger_node_of,
@@ -127,7 +129,7 @@ def scan_project_import_nodes(
                             int(ActionType.NAVMESH) in get_point_actions(point) for point in route
                         ),
                         zone_ids=zone_ids,
-                        zip_enabled=node["custom_action_param"].get("zip") is True,
+                        zip_enabled=node["custom_action_param"].get("zip") is not False,
                     )
                 )
 
@@ -178,7 +180,7 @@ def load_project_import_node(
         return {
             "kind": "path",
             "path": param["path"],
-            "zip_enabled": param.get("zip") is True,
+            "zip_enabled": param.get("zip") is not False,
         }
 
     if kind == "assert":
@@ -227,7 +229,7 @@ def _project_map_navigate_route(node: Any) -> list[PathPoint] | None:
     return _parse_route(path, "")
 
 
-def load_points_from_json_file(file_path: str | Path) -> ImportedRoute:
+def load_points_from_json_file(file_path: str | Path, map_zones: Mapping[str, str] | None = None) -> ImportedRoute:
     data = load_jsonc(file_path)
     route_requests = _discover_route_requests(data)
     if not route_requests:
@@ -236,7 +238,7 @@ def load_points_from_json_file(file_path: str | Path) -> ImportedRoute:
     selected_route, zip_enabled = max(route_requests, key=lambda item: len(item[0]))
     source_has_zone_info = any(normalize_zone_id(point.get("zone", "")) for point in selected_route)
     return ImportedRoute(
-        points=normalize_path_points(selected_route),
+        points=normalize_path_points(selected_route, map_zones),
         route_count=len(route_requests),
         source_has_zone_info=source_has_zone_info,
         zip_enabled=zip_enabled,
@@ -251,19 +253,23 @@ def load_assert_location_from_json_file(file_path: str | Path) -> ImportedAssert
     return assert_locations[0]
 
 
-def export_path_nodes(points: list[PathPoint]) -> list[dict[str, Any] | list[int | float | str | bool]]:
+def export_path_nodes(
+    points: list[PathPoint], map_zones: Mapping[str, str] | None = None
+) -> list[dict[str, Any] | list[int | float | str | bool]]:
     exported_nodes: list[dict[str, Any] | list[int | float | str | bool]] = []
     current_zone = ""
 
-    for point in normalize_path_points(points):
+    for point in normalize_path_points(points, map_zones):
         zone_id = normalize_zone_id(point.get("zone", ""))
-        if zone_id and zone_id != current_zone:
-            exported_nodes.append({"action": "ZONE", "zone_id": zone_id})
-            current_zone = zone_id
+        map_zone = map_zone_of(zone_id, map_zones)
+        if map_zone and map_zone != current_zone:
+            exported_nodes.append({"action": "ZONE", "zone_id": map_zone})
+            current_zone = map_zone
 
         strict_arrival = coerce_strict_arrival(point.get("strict"), default=False)
         required = coerce_strict_arrival(point.get("required"), default=False)
-        target_tier = normalize_zone_id(point.get("target_tier", ""))
+        # 坐标在层上的点要带上层名, 否则运行时按底图坐标读
+        target_tier = normalize_zone_id(point.get("target_tier", "")) or (zone_id if map_zone != zone_id else "")
         target_deck_y = point.get("target_deck_y")
         find_fields = find_fields_of(point)
         trigger_node = trigger_node_of(point)
@@ -446,7 +452,7 @@ def _walk_json_node(
         if path_value is not None:
             route = _parse_route(path_value, local_zone)
             if route:
-                routes.append((route, node.get("zip") is True))
+                routes.append((route, node.get("zip") is not False))
 
         for key, value in node.items():
             if key == "path" and path_value is not None:
@@ -457,7 +463,7 @@ def _walk_json_node(
     if isinstance(node, list):
         route = _parse_route(node, zone_hint)
         if route:
-            routes.append((route, False))
+            routes.append((route, True))
             return
 
         for item in node:

@@ -1,0 +1,8 @@
+{
+    "template": "extra-item-template.json",
+    "data": "extra-item-data.json",
+    "outputDir": "../../../assets/resource/pipeline/BatchUseDetector",
+    "outputPattern": "${ItemId}.json",
+    "format": true,
+    "merged": false
+}

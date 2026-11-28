@@ -10,6 +10,8 @@
             "controller": [
                 "ADB",
                 "CloudADB",
+                // TODO: CloudWeb 尚未实机验证，验证通过后取消注释
+                // "CloudWeb",
                 "Linux-Gamescope",
                 "Linux-ScreenCast",
                 "Linux-Wlroots",

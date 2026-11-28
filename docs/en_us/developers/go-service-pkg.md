@@ -20,8 +20,8 @@ Roughly sorted by how often they are reused day to day:
 | [`ocrnum`](#ocrnum-ocr-number-parsing) | OCR text → `int` (supports `1.38万` / `13.8K`, etc.) | `ExpressionRecognition`, `iconqty` |
 | [`jsonclean`](#jsonclean-jsonc-cleaning) | Strip comments / trailing commas / BOM to get strict JSON | `resource`, `i18n`, all kinds of config loading |
 | [`pienv`](#pienv-project-interface-environment) | Read the `PI_*` environment variables (language, controller, resource) | `i18n`, `iconqty`, startup logic |
-| [`resource`](#resource-locating-and-reading-resource-files) | Find files under `resource/` / `assets/` by relative path | JSON configs such as the goods catalog and outpost data |
-| [`fsutil`](#fsutil-output-paths-and-atomic-file-writes) | Path base for persistent output; temporary file + rename to avoid half-written files | Logs / debug / persistent caches |
+| [`resource`](#resource-locating-and-reading-resource-files) | Find files under the install root by relative path | JSON configs such as the goods catalog and outpost data |
+| [`fsutil`](#fsutil-path-bases-and-atomic-file-writes) | The install-root and user-data path bases; temporary file + rename to avoid half-written files | Logs / debug / persistent caches |
 | [`levenshtein`](#levenshtein-edit-distance) | Rune-level edit distance | OCR / fuzzy name matching |
 | [`iconrecognition`](#iconrecognition--iconqty) | Shared structures for IconRecognition parameters and detail | IMS (via `iconqty`), Outpost Trading goods recognition |
 | [`iconqty`](#iconrecognition--iconqty) | Grid scanning + in-cell quantity OCR | IMS A2 / A3 |
@@ -217,7 +217,7 @@ Line numbers are preserved as far as possible (comment lines are replaced with l
 
 Path: `pkg/pienv/`
 
-At startup the Client injects `PI_*` (see Project Interface v2.5). `Init()` / `Get()` parse them into a singleton:
+At startup the Client injects `PI_*` (see Project Interface v2.11). `Init()` / `Get()` parse them into a singleton:
 
 - `ClientLanguage()` → passed to `i18n`
 - `ControllerType()` / `ControllerName()` → tell Win32 / Adb, etc. apart
@@ -225,7 +225,7 @@ At startup the Client injects `PI_*` (see Project Interface v2.5). `Init()` / `G
 - `ResolveControllerKind(ctrl)` → the fallback version of the normalized kind: when PI_CONTROLLER is missing or of an unknown type, it decides with `controller.GetInfo()` instead. The PI protocol allows the Client to omit variables that are unavailable, so **you cannot assume PI_CONTROLLER always exists**
 - `ResourceName()`, version numbers, etc.
 
-Do not scatter your own `os.Getenv("PI_...")` parsing around.
+Do not scatter your own `os.Getenv("PI_...")` parsing around. To pick the output directory before logging is initialized, `fsutil` reads `pienv.EnvUserDataDir` once during package initialization and never triggers `pienv` logging.
 
 To determine the controller type, prefer `ControllerType()`; for comparisons, go through `ControllerKind()` / `NormalizeControllerKind()` (do not hand-roll your own `ToLower` string comparisons). When you need to handle "the Client omits `PI_CONTROLLER`", use `ResolveControllerKind(ctrl)` — `ctrl` must be the one already obtained in this callback and passed down; do not call `GetController()` again just to check the type: every extra controller fetch in the same callback invalidates the one obtained before (see [Coding Standards · Using Handles Inside Callbacks](./coding-standards.md#using-handles-inside-callbacks)). When ADB, PlayCover (including the alias `play_cover`) and native Android share the "touch + mobile UI" branch, check with `IsAdbLikeControllerType()`.
 
@@ -234,28 +234,40 @@ To determine the controller type, prefer `ControllerType()`; for comparisons, go
 Path: `pkg/resource/`
 
 - `FindResource` / `ReadResource` / `ReadJsonResource` (already runs `jsonclean` internally)
-- Lookup order: absolute / relative path → resource sink base path → `resource/` and `assets/` in the cwd and its parent directories
+- One resolution rule only: absolute paths pass through, relative paths are joined onto the install root. No multiple bases, no upward search, no fallback
+- `BasePath()` returns the bundle path MaaFramework actually loaded; it is for logs and diagnostics only and never participates in lookup
 
 Use this package to read the goods table, outpost data, etc.; do not hard-code `install/...` absolute paths.
 
-### `fsutil`: Output paths and atomic file writes
+### `fsutil`: Path bases and atomic file writes
 
 Path: `pkg/fsutil/`
 
-**Output paths**: persistent output such as logs, debug screenshots, records under `debug/record/` and exported files is always rooted at **the working directory at process startup**; it depends neither on the working directory at call time nor on the location of the executable.
+There are exactly two path bases, independent of each other:
+
+| Base | Decided by | Holds |
+| --- | --- | --- |
+| **Install root** | the working directory at process startup (the host starts the agent with the install root as its CWD) | read-only content shipped with the package: `resource/`, `data/`, `locales/`, `maafw/` |
+| **User data directory** | `PI_USER_DATA_DIR`; the install root when the Client does not inject it | writable state: `config/`, `debug/`, exported files |
+
+`PI_USER_DATA_DIR` must be an absolute path and does not have to contain the project resources; "equals the install root when absent" is the protocol's default portable layout.
 
 | Function | Purpose |
 | --- | --- |
-| `StartupDir()` | Returns the working directory captured at startup and the capture error; `main` checks it once at startup and exits on failure |
-| `OutputPath(parts...)` | Joins a relative path under the startup working directory and returns the absolute path |
+| `InstallDir()` | Returns the install root captured at startup and the capture error; `main` checks it once at startup and exits on failure |
+| `InstallPath(parts...)` | Joins a relative path under the install root and returns the absolute path |
+| `UserDataDir()` | Returns the user data directory and its resolution error; `main` checks it before initializing logging, and a relative path aborts startup |
+| `UserDataPath(parts...)` | Joins a relative path under the user data directory and returns the absolute path |
 
 ```go
-path := fsutil.OutputPath("debug", "record", "IMS.json")
+record := fsutil.UserDataPath("debug", "record", "IMS.json")
+resource := fsutil.InstallPath("resource")
 ```
 
-- Both writing files and reading back files you wrote go through `OutputPath`, so reads and writes hit the same location; do not write relative paths like `filepath.Join("debug", ...)` anymore.
-- Only for **output**. To read the `resource/`, `data/` and `locales/` shipped with the package, use the `resource` package above; for temporary files, use the system temporary directory.
-- The cpp-algo counterpart is `common::OutputPath` (`source/Common/output_paths.h`); files shared by both sides (such as `debug/record/random_salt.txt` and `Ziplines.json`) line up because they use the same base.
+- Both writing files and reading back files you wrote go through `UserDataPath`, so reads and writes hit the same location; do not write relative paths like `filepath.Join("debug", ...)` anymore.
+- Prefer the `resource` package above for the bundled `data/` and `locales/`, use `InstallPath` for everything else, and the system temporary directory for temporary files.
+- The cpp-algo counterparts are `common::InstallPath` / `common::UserDataPath` (`source/Common/paths.h`), so shared files (such as `debug/record/random_salt.txt` and `Ziplines.json`) line up by construction.
+- The MaaFW libraries load from `maafw/` under the install root by default; the host can override it with `MAAFW_BINARY_PATH`.
 
 **Atomic writes**: `WriteFileAtomic(path, content, perm)`: writes a temporary file in the same directory, then renames it. Suitable for debug dumps and overwritable caches; **durability across power loss is not guaranteed** (no directory fsync).
 
@@ -313,7 +325,8 @@ Call `Start()` only once, at `main` startup: when the parent process exits, it c
 | Read a JSON config with comments | `jsonclean` (or via `resource.ReadJsonResource`) |
 | Tell Adb from Win32 | `pienv.ResolveControllerKind(ctrl)` + `IsAdbLikeControllerType()` |
 | Scan backpack cells and read quantities | `iconrecognition` + `iconqty` |
-| Decide where logs / records / exported files are written | `fsutil.OutputPath` |
+| Read the bundled `data/`, `locales/` | `resource.ReadResource` / `fsutil.InstallPath` |
+| Decide where logs / records / exported files are written | `fsutil.UserDataPath` |
 | Write files without leaving half-written content | `fsutil.WriteFileAtomic` |
 
 ## Related documentation

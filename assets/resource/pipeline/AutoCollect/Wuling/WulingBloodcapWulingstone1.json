@@ -1,0 +1,445 @@
+{
+    "AutoCollectWulingBloodcapWulingstone1Start": {
+        "desc": "本路线包含两个收集点，血菌和武陵石",
+        "enabled": false,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingWulingCityMarkerStoneFlats"
+            ]
+        },
+        "next": [
+            "AutoCollectWulingBloodcapWulingstone1AssertLocation1"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingBloodcapWulingstone1.label"
+        }
+    },
+    "AutoCollectWulingBloodcapWulingstone1End": {
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "AutoCollectWulingBloodcapWulingstone1AssertLocation1": {
+        "desc": "传送到采集点",
+        "recognition": "Custom",
+        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition_param": {
+            "zone_id": "Wuling_Base",
+            "target": [
+                487,
+                1555,
+                20,
+                20
+            ]
+        },
+        "action": "DoNothing",
+        "next": [
+            "AutoCollectWulingBloodcapWulingstone1Goto1"
+        ]
+    },
+    "AutoCollectWulingBloodcapWulingstone1Goto1": {
+        "desc": "前往采集点",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_Base"
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                554,
+                                1404.52
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "next": [
+            "AutoCollectWulingBloodcapWulingstone1AssertLocation2"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoCollectWulingBloodcapWulingstone1AssertLocation2": {
+        "desc": "传送到采集点",
+        "recognition": "Custom",
+        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition_param": {
+            "zone_id": "Wuling_Base",
+            "target": [
+                545,
+                1396,
+                20,
+                20
+            ]
+        },
+        "action": "DoNothing",
+        "next": [
+            "AutoCollectWulingBloodcapWulingstone1Goto2"
+        ]
+    },
+    "AutoCollectWulingBloodcapWulingstone1Goto2": {
+        "desc": "前往采集点",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_Base"
+                        },
+                        [
+                            548.85,
+                            1396.71,
+                            "COLLECT"
+                        ],
+                        [
+                            545.69,
+                            1400.51,
+                            "COLLECT"
+                        ],
+                        [
+                            542.87,
+                            1399.71,
+                            "COLLECT"
+                        ],
+                        [
+                            541.47,
+                            1396.04,
+                            "COLLECT"
+                        ],
+                        [
+                            543.59,
+                            1393.97,
+                            "COLLECT"
+                        ],
+                        [
+                            545.03,
+                            1391.52,
+                            "COLLECT"
+                        ],
+                        [
+                            551.26,
+                            1392,
+                            "COLLECT"
+                        ],
+                        [
+                            549.04,
+                            1396.76,
+                            "COLLECT"
+                        ],
+                        [
+                            545.28,
+                            1395.89,
+                            "COLLECT"
+                        ]
+                    ]
+                }
+            }
+        },
+        "next": [
+            "AutoCollectWulingBloodcapWulingstone1AssertLocation4"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoCollectWulingBloodcapWulingstone1AssertLocation4": {
+        "desc": "传送到采集点",
+        "recognition": "Custom",
+        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition_param": {
+            "zone_id": "Wuling_Base",
+            "target": [
+                545,
+                1388,
+                20,
+                20
+            ]
+        },
+        "action": "DoNothing",
+        "next": [
+            "AutoCollectWulingBloodcapWulingstone1GotoFindLine4Sub"
+        ]
+    },
+    "AutoCollectWulingBloodcapWulingstone1GotoFindLine4Sub": {
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoCollectWulingBloodcapWulingstone1GotoFindLine4",
+                "AutoCollectWulingBloodcapWulingstone1FindButtonUsing"
+            ],
+            "continue": true,
+            "strict": false
+        },
+        "next": [
+            "AutoCollectWulingBloodcapWulingstone1Goto3"
+        ]
+    },
+    "AutoCollectWulingBloodcapWulingstone1GotoFindLine4": {
+        "desc": "从血菌出发前往升降索",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        564.83,
+                        1367.48
+                    ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        567.3,
+                        1355.17
+                    ]
+                }
+            ]
+        },
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoCollectWulingBloodcapWulingstone1FindButtonUsing": {
+        "desc": "点击使用按钮",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    850,
+                    455,
+                    144,
+                    54
+                ],
+                "expected": [
+                    "使用",
+                    "Interact"
+                ]
+            }
+        },
+        "pre_wait_freezes": 300,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoAltClickAction"
+            }
+        },
+        "timeout": 3000,
+        "focus": {
+            "Node.Recognition.Succeeded": "使用升降索"
+        }
+    },
+    "AutoCollectWulingBloodcapWulingstone1Goto3": {
+        "desc": "前往采集点",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_Base"
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                578.43,
+                                1356.55
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "next": [
+            "AutoCollectWulingBloodcapWulingstone1AssertLocation5"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoCollectWulingBloodcapWulingstone1AssertLocation5": {
+        "desc": "传送到采集点",
+        "recognition": "Custom",
+        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition_param": {
+            "zone_id": "Wuling_Base",
+            "target": [
+                568,
+                1348,
+                20,
+                20
+            ]
+        },
+        "action": "DoNothing",
+        "next": [
+            "AutoCollectWulingBloodcapWulingstone1Goto4"
+        ]
+    },
+    "AutoCollectWulingBloodcapWulingstone1Goto4": {
+        "desc": "前往采集点",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_Base"
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                562.27,
+                                1332.9
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "next": [
+            "AutoCollectWulingBloodcapWulingstone1AssertLocation7"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoCollectWulingBloodcapWulingstone1AssertLocation7": {
+        "desc": "传送到采集点",
+        "recognition": "Custom",
+        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition_param": {
+            "zone_id": "Wuling_Base",
+            "target": [
+                552,
+                1324,
+                20,
+                20
+            ]
+        },
+        "action": "DoNothing",
+        "next": [
+            "AutoCollectWulingBloodcapWulingstone1Goto5"
+        ]
+    },
+    "AutoCollectWulingBloodcapWulingstone1Goto5": {
+        "desc": "前往采集点",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_Base"
+                        },
+                        [
+                            558.63,
+                            1336.75,
+                            "DIG",
+                            true
+                        ],
+                        [
+                            557.35,
+                            1338.13,
+                            "DIG",
+                            true
+                        ],
+                        [
+                            554.88,
+                            1341.67,
+                            "DIG",
+                            true
+                        ],
+                        [
+                            552.42,
+                            1342.85,
+                            "DIG",
+                            true
+                        ],
+                        [
+                            548.87,
+                            1340.39,
+                            "DIG",
+                            true
+                        ],
+                        [
+                            550.16,
+                            1329.36,
+                            "DIG",
+                            true
+                        ]
+                    ]
+                }
+            }
+        },
+        "next": [
+            "AutoCollectWulingBloodcapWulingstone1Wait10sec"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoCollectWulingBloodcapWulingstone1Wait10sec": {
+        "desc": "等待10s完成收集",
+        "pre_delay": 0,
+        "post_delay": 10000,
+        "next": [
+            "AutoCollectWulingBloodcapWulingstone1End"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "等待10s完成收集"
+        }
+    }
+}

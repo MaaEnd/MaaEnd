@@ -1,7 +1,4 @@
-#include <limits>
-#include <mutex>
 #include <optional>
-#include <set>
 #include <string>
 #include <utility>
 #include <vector>
@@ -10,15 +7,19 @@
 #include <MaaUtils/Logger.h>
 
 #include "../MapLocator/MapLocateAction.h"
-#include "action_executor.h"
-#include "action_wrapper.h"
-#include "motion_controller.h"
+#include "Backend/backend.h"
+#include "control/motion_controller.h"
+#include "control/walk_mode.h"
 #include "navi_config.h"
 #include "navi_controller.h"
-#include "navigation_session.h"
-#include "navigation_state_machine.h"
-#include "navmesh_path_expander.h"
-#include "position_provider.h"
+#include "navigation_entry.h"
+#include "planning/navigation_session.h"
+#include "planning/navmesh_path_expander.h"
+#include "planning/navmesh_queries.h"
+#include "process_state.h"
+#include "sensing/position_provider.h"
+#include "sensing/task_stop.h"
+#include "state_machine/navigation_state_machine.h"
 
 namespace mapnavigator
 {
@@ -26,91 +27,73 @@ namespace mapnavigator
 namespace
 {
 
-// 导航期间调起的交互子任务是 pipeline, 它的 next 能被接回导航动作本身。子任务同步调起, 那会在同一条 nav
-// 线程上套第二层导航: 两层抢同一个控制器与定位器, 而且能无限套下去。这道闸把栈深封死在 1, 按 tasker 分,
-// 一个进程里跑多台设备时互不误伤。
-std::mutex g_navigating_taskers_mutex;
-std::set<MaaTasker*> g_navigating_taskers;
-
-class NavigationEntryGuard
+// 返回跳过的作者点数
+std::optional<size_t> expand_route(
+    std::vector<Waypoint>* out_path,
+    ZiplineOutcome* zipline_outcome,
+    const NaviParam& param,
+    const NaviPosition& pos,
+    MaaContext* maa_context)
 {
-public:
-    explicit NavigationEntryGuard(MaaTasker* tasker)
-        : tasker_(tasker)
-    {
-        const std::lock_guard<std::mutex> lock(g_navigating_taskers_mutex);
-        taken_ = g_navigating_taskers.insert(tasker).second;
+    if (ExpandNavmeshWaypoints(out_path, nullptr, zipline_outcome, param, pos, maa_context)) {
+        return 0;
     }
-
-    ~NavigationEntryGuard()
-    {
-        if (!taken_) {
-            return;
-        }
-        const std::lock_guard<std::mutex> lock(g_navigating_taskers_mutex);
-        g_navigating_taskers.erase(tasker_);
+    const std::optional<size_t> resume = ResolveRouteResumeIndex(param.path, pos);
+    if (!resume) {
+        return std::nullopt;
     }
-
-    NavigationEntryGuard(const NavigationEntryGuard&) = delete;
-    NavigationEntryGuard& operator=(const NavigationEntryGuard&) = delete;
-
-    bool taken() const { return taken_; }
-
-private:
-    MaaTasker* tasker_;
-    bool taken_ = false;
-};
-
-} // namespace
-
-NaviController::NaviController(MaaContext* ctx)
-    : ctx_(ctx)
-{
+    NaviParam resumed_param = param;
+    resumed_param.path.assign(param.path.begin() + static_cast<std::ptrdiff_t>(*resume), param.path.end());
+    if (!ExpandNavmeshWaypoints(out_path, nullptr, zipline_outcome, resumed_param, pos, maa_context)) {
+        return std::nullopt;
+    }
+    const size_t resume_index = *resume;
+    LogInfo << "Expanded the route again after skipping the traversed prefix." << VAR(resume_index);
+    return resume_index;
 }
 
-bool NaviController::Navigate(const NaviParam& requested_param)
+bool navigate_with_backend(
+    NavProcessState* process,
+    ZiplineOutcome* zipline_outcome,
+    NaviParam* param,
+    InputBackend* input_backend,
+    MaaContext* ctx)
 {
-    // 先取闸再做任何事: 作者的图若无限重试这个被拒的节点, 每次都必须是零成本的。
-    const NavigationEntryGuard entry_guard(MaaContextGetTasker(ctx_));
-    if (!entry_guard.taken()) {
-        LogError << "Refusing to nest navigation: this tasker is already navigating.";
-        return false;
-    }
-
-    NaviParam param = requested_param;
-
-    ActionWrapper action_wrapper(ctx_);
-    PositionProvider position_provider(action_wrapper.GetCtrl(), maplocator::getOrInitLocator(), param.heading_source);
-    position_provider.ResetTracking();
-    if (param.normalize_position_via_navmesh) {
-        position_provider.SetPositionNormalizer([&param](NaviPosition& pos) { NormalizeLivePositionToBase(param, pos); });
-    }
-    const char* controller_type = action_wrapper.controller_type();
-    const bool uses_touch_backend = action_wrapper.uses_touch_backend();
+    PositionSensor position_provider = MakePositionSensor(input_backend->ctrl, maplocator::getOrInitLocator(), param->heading_source);
+    ResetSensorTracking(&position_provider);
+    const char* controller_type = input_backend->controller_type.c_str();
+    const bool uses_touch_backend = UsesTouchBackend(*input_backend);
     LogInfo << "MapNavigator controller initialized." << VAR(controller_type) << VAR(uses_touch_backend);
-    if (!action_wrapper.is_supported()) {
-        const char* unsupported_reason = action_wrapper.unsupported_reason();
+    if (!IsInputBackendSupported(*input_backend)) {
+        const char* unsupported_reason = input_backend->unsupported_reason.c_str();
         LogError << "MapNavigator controller backend is unsupported." << VAR(controller_type) << VAR(unsupported_reason);
         return false;
     }
 
-    const auto is_stopping = [&]() {
-        return MaaTaskerStopping(MaaContextGetTasker(ctx_));
-    };
-
-    if (param.path.empty()) {
+    if (param->path.empty()) {
         return true;
     }
 
-    const size_t target_count = param.path.size();
+    const size_t target_count = param->path.size();
     LogInfo << "Starting navigation to targets." << VAR(target_count);
-    PreloadNavmeshWaypoints(param);
+    PreloadNavmeshWaypoints(*param);
+    if (param->normalize_position_via_navmesh) {
+        FlattenWaypointZones(&param->path, *param);
+    }
     LogInfo << "Waiting for first valid GPS signal...";
 
     NaviPosition pos;
-    const std::string initial_expected_zone = InitialExpectedZone(param);
-    if (!position_provider.WaitForFix(&pos, initial_expected_zone, kLocatorWaitMaxRetries, kLocatorWaitIntervalMs, is_stopping)
-        || is_stopping()) {
+    const std::string initial_expected_zone = InitialExpectedZone(*param);
+    const CaptureParts initial_parts {
+        .sensor = &position_provider,
+        .frame_sinks = nullptr,
+        .latency = &process->latency,
+        .normalize_param = param->normalize_position_via_navmesh ? param : nullptr,
+    };
+    if (!WaitForFix(initial_parts, &pos, initial_expected_zone, kLocatorWaitMaxRetries, kLocatorWaitIntervalMs, ctx)) {
+        return false;
+    }
+    if (TaskStopping(ctx)) {
         return false;
     }
 
@@ -119,52 +102,62 @@ bool NaviController::Navigate(const NaviParam& requested_param)
     LogInfo << "Initial Pos fixed:" << VAR(position_x) << VAR(position_y);
 
     std::vector<Waypoint> expanded_path;
-    size_t resume_index = 0;
-    if (!ExpandNavmeshWaypoints(param, pos, is_stopping, expanded_path)) {
-        const std::optional<size_t> resume = ResolveRouteResumeIndex(param.path, pos);
-        if (!resume) {
-            return false;
-        }
-        NaviParam resumed_param = param;
-        resumed_param.path.assign(param.path.begin() + static_cast<std::ptrdiff_t>(*resume), param.path.end());
-        if (!ExpandNavmeshWaypoints(resumed_param, pos, is_stopping, expanded_path)) {
-            return false;
-        }
-        resume_index = *resume;
-        LogInfo << "Expanded the route again after skipping the traversed prefix." << VAR(resume_index);
+    const std::optional<size_t> resume_index = expand_route(&expanded_path, zipline_outcome, *param, pos, ctx);
+    if (!resume_index) {
+        return false;
     }
     if (expanded_path.empty()) {
         return true;
     }
 
-    NaviParam expanded_param = param;
+    NaviParam expanded_param = *param;
     expanded_param.path = std::move(expanded_path);
-    expanded_param.authored_path = std::move(param.path);
-    if (resume_index > 0) {
-        for (Waypoint& waypoint : expanded_param.path) {
-            if (waypoint.authored_group_begin != std::numeric_limits<size_t>::max()) {
-                waypoint.authored_group_begin += resume_index;
-            }
-        }
+    expanded_param.authored_path = std::move(param->path);
+    // 展开时记的组首是相对跳过前缀后的路线, 补回跳过的点数
+    OffsetAuthoredGroups(&expanded_param.path, *resume_index);
+
+    Session session = MakeSession(expanded_param.path, pos);
+    UpdatePhase(&session, NaviPhase::Bootstrap, "initial_fix");
+
+    Motion motion_controller = MakeMotion(input_backend);
+    motion_controller.enable_local_driver = param->enable_local_driver;
+    motion_controller.enable_sprint = param->enable_sprint;
+    Navigator navigator =
+        MakeNavigator(expanded_param, input_backend, &position_provider, &session, &motion_controller, &pos, process, zipline_outcome, ctx);
+    walkmode::RestoreJogIfBeliefSurvived(&process->walk, input_backend);
+    const walkmode::RestoreJogOnExit restore_jog_on_exit { &process->walk, input_backend };
+    LogInfo << "Navigation route runner selected. backend=orchestrated";
+
+    const bool succeeded = RunNavigator(&navigator);
+    StopScanners(&navigator);
+    return succeeded;
+}
+
+} // namespace
+
+bool RunNavigation(NavProcessState* process, ZiplineOutcome* zipline_outcome, MaaContext* context, const NaviParam& requested_param)
+{
+    MaaTasker* tasker = MaaContextGetTasker(context);
+    // 须最先取闸, 被拒的节点可能被无限重试
+    if (!TryEnterNavigation(&process->navigating, tasker)) {
+        LogError << "Refusing to nest navigation: this tasker is already navigating.";
+        return false;
     }
+    const LeaveNavigationOnExit leave_on_exit { &process->navigating, tasker };
 
-    NavigationSession session(expanded_param.path, pos);
-    session.UpdatePhase(NaviPhase::Bootstrap, "initial_fix");
+    NaviParam param = requested_param;
 
-    MotionController motion_controller(&action_wrapper, param.enable_local_driver);
-    ActionExecutor action_executor(&action_wrapper, &motion_controller, param.enable_local_driver);
-    NavigationStateMachine state_machine(
-        expanded_param,
-        &action_wrapper,
-        &position_provider,
-        &session,
-        &motion_controller,
-        &action_executor,
-        &pos,
-        is_stopping,
-        ctx_);
+    InputBackend input_backend = OpenInputBackend(MaaTaskerGetController(MaaContextGetTasker(context)));
 
-    return state_machine.Run();
+    // 异常退出也须恢复按键和鼠标锁定、松开摇杆
+    struct CloseInputBackendOnExit
+    {
+        InputBackend* input_backend;
+
+        ~CloseInputBackendOnExit() { CloseInputBackend(input_backend); }
+    } close_on_exit { &input_backend };
+
+    return navigate_with_backend(process, zipline_outcome, &param, &input_backend, context);
 }
 
 } // namespace mapnavigator

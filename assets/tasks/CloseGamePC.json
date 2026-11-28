@@ -6,7 +6,7 @@
             "entry": "CloseGamePC",
             "description": "$task.CloseGamePC.description",
             "group": [
-                "other_menu"
+                "game_launch"
             ],
             "controller": [
                 "Win32-Front",
@@ -23,6 +23,9 @@
     "option": {
         "CloseGamePCCloseLauncher": {
             "type": "switch",
+            "controller": [
+                "Win32-Front"
+            ],
             "label": "$option.CloseGamePCCloseLauncher.label",
             "cases": [
                 {

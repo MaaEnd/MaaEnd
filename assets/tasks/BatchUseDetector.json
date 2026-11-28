@@ -11,6 +11,8 @@
             "controller": [
                 "ADB",
                 "CloudADB",
+                // TODO: CloudWeb 尚未实机验证，验证通过后取消注释
+                // "CloudWeb",
                 "Linux-Gamescope",
                 "Linux-ScreenCast",
                 "Linux-Wlroots",
@@ -21,7 +23,6 @@
             ],
             "option": [
                 "BatchUseDetectorRegion",
-                "BatchUseDetectorCategory",
                 "BatchUseDetectorTimes"
             ]
         }
@@ -34,6 +35,9 @@
                 {
                     "name": "Wuling",
                     "label": "$global.region.Wuling",
+                    "option": [
+                        "BatchUseDetectorWulingCategory"
+                    ],
                     "pipeline_override": {
                         "BatchUseDetectorFindWulingItem": {
                             "enabled": true
@@ -43,6 +47,9 @@
                 {
                     "name": "ValleyIV",
                     "label": "$global.region.ValleyIV",
+                    "option": [
+                        "BatchUseDetectorCategory"
+                    ],
                     "pipeline_override": {
                         "BatchUseDetectorFindValleyIVItem": {
                             "enabled": true
@@ -62,9 +69,6 @@
                     "pipeline_override": {
                         "BatchUseDetectorFindValleyIVDetector": {
                             "enabled": true
-                        },
-                        "BatchUseDetectorFindWulingDetector": {
-                            "enabled": true
                         }
                     }
                 },
@@ -74,8 +78,39 @@
                     "pipeline_override": {
                         "BatchUseDetectorFindValleyIVCompass": {
                             "enabled": true
-                        },
+                        }
+                    }
+                }
+            ],
+            "default_case": "Detector"
+        },
+        "BatchUseDetectorWulingCategory": {
+            "type": "select",
+            "label": "$task.BatchUseDetector.option.Category.label",
+            "cases": [
+                {
+                    "name": "Detector",
+                    "label": "$task.BatchUseDetector.option.Category.Detector",
+                    "pipeline_override": {
+                        "BatchUseDetectorFindWulingDetector": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "Compass",
+                    "label": "$task.BatchUseDetector.option.Category.Compass",
+                    "pipeline_override": {
                         "BatchUseDetectorFindWulingCompass": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "WulingTalositeProbe",
+                    "label": "$task.BatchUseDetector.option.Category.WulingTalositeProbe",
+                    "pipeline_override": {
+                        "BatchUseDetectorFindWulingTalositeProbe": {
                             "enabled": true
                         }
                     }

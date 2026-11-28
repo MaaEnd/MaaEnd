@@ -18,7 +18,10 @@ The repository currently uses this structure:
 tests/
 |- MaaEndTestset/
 |  |- Win32/Official_CN/*.png
-|  `- ADB/Official_CN/*.png
+|  |- Win32/Official_CN/<image subdirectory>/*.png
+|  |- ADB/Official_CN/*.png
+|  |- CloudADB/Official_CN/*.png
+|  `- CloudWeb/Official_CN/*.png
 |- Common/Button/test_close_button.json
 |- DeliveryJobs/test_region.json
 `- ...
@@ -27,14 +30,18 @@ tests/
 - Test definition files can be placed anywhere under `tests/`, but the filename must match `test_*.json`.
 - Test screenshots live under `tests/MaaEndTestset/`.
 - The `image` field must contain the full screenshot file name, including its extension, for example `xxx.png`.
-- The real screenshot path is resolved by `tests/scripts/loader.mts` (under the `test.casesCwd` root in `maatools.config.mts`); in practice it points under `tests/MaaEndTestset/<controller>/<resource>/` and matches the concrete screenshot file from `image`.
+- `configs.imageRoot` is optional and selects an image subdirectory under the resource directory. If omitted, images are read directly from the resource directory.
+- The real screenshot path is resolved by `tests/scripts/loader.mts` (under the `test.casesCwd` root in `maatools.config.mts`); in practice it points under `tests/MaaEndTestset/<controller>/<resource>/` or the subdirectory selected by `imageRoot`, and matches the concrete screenshot file from `image`.
 
 With the current config:
 
 - `controller = "Win32"` maps to `tests/MaaEndTestset/Win32/`.
 - `controller = "ADB"` maps to `tests/MaaEndTestset/ADB/`.
+- `controller = "CloudADB"` maps to `tests/MaaEndTestset/CloudADB/`.
+- `controller = "CloudWeb"` maps to `tests/MaaEndTestset/CloudWeb/`.
 - `controller = ["Win32", "ADB"]` runs the same cases once under each controller directory.
 - `resource = "官服"` maps to `tests/MaaEndTestset/*/Official_CN/`.
+- When `configs.imageRoot = "RestaurantDaily"`, images are read from `tests/MaaEndTestset/*/Official_CN/RestaurantDaily/`.
 - If either `controller` or `resource` is an array, tests are expanded as a Cartesian product.
 
 If you add a new resource server or controller enum, besides adding the test files, also update the mapping (`resourceMap` / `controllerMap`) in `tests/scripts/loader.mts`.
@@ -73,7 +80,8 @@ The file structure is validated by `tools/schema/test.schema.json`. The top leve
 
 - `name`: optional test group name; recommended because it makes CLI output easier to read.
 - `resource`: resource server name. It can be either a single string or an array of strings. The current repo uses `官服`.
-- `controller`: controller type. It can be either a single string or an array of strings. The current repo uses `Win32` and `ADB`.
+- `controller`: controller type. It can be either a single string or an array of strings. The current repo uses `Win32`, `ADB`, and `CloudADB`.
+- `imageRoot`: optional image subdirectory under the resource directory, such as `RestaurantDaily`.
 
 When `controller` or `resource` is an array, `tests/scripts/loader.mts` expands the file into multiple test groups using the Cartesian product of controller and resource values.
 
@@ -223,7 +231,9 @@ pnpm test
 
 In this repository, `package.json` maps that command to `maa-tools test`, and CI runs the same command.
 
-`maa-tools test` does not start agents, so it cannot test custom recognitions that agents provide. `MapLocateAssertLocation` location nodes are tested by a standalone Python runner instead: run `pnpm test:map-locate` or `uv run tests/MapLocateAssertLocation/map_locate.py`. In CI this is the `map-locate-test` job. See the [location node screenshot test](../../../tests/MapLocateAssertLocation/README.md) for the case format, sample requirements, and prerequisites.
+When `maa-tools test` meets a custom recognition node, it starts the AgentServers under `install/agent/` according to `test.agent` in `maatools.config.mts`. Build the agents before running custom-recognition cases (`uv run build-and-install`, add `--cpp-algo` to include the C++ agent) and make sure the `install/` layout is complete. Cases that only use built-in recognitions never start an agent, so a missing build does not affect them.
+
+Recognition algorithms that need a stable run of consecutive screencaps (multi-frame recognition) cannot be covered by `maa-tools test`, which only provides a single image. Such nodes use a standalone runner; currently this is the location nodes: run `pnpm test:map-locate` or `uv run tests/MapLocateAssertLocation/map_locate.py`. In CI this is the `map-locate-test` job. See the [location node screenshot test](../../../tests/MapLocateAssertLocation/README.md) for the case format, sample requirements, and prerequisites.
 
 Route pathfinding connectivity is checked by another standalone runner: run `uv run tests/MapNavmeshConnectivity/navmesh_connectivity.py`. It sends the start and goal from its case file to the agent for route planning; a successful plan counts as connected. It does not need screenshots. In CI this is the `Run navmesh connectivity tests` step of the `map-locate-test` job. See the [connectivity test](../../../tests/MapNavmeshConnectivity/README.md) for the case format and pass criteria.
 

@@ -7,8 +7,8 @@
             "type": "array",
             "description": "A 2D integer coordinate [x, y].",
             "prefixItems": [
-                { "type": "integer" },
-                { "type": "integer" }
+                {"type": "integer"},
+                {"type": "integer"}
             ],
             "minItems": 2,
             "maxItems": 2,
@@ -18,10 +18,10 @@
             "type": "array",
             "description": "A rectangle [x, y, w, h].",
             "prefixItems": [
-                { "type": "integer" },
-                { "type": "integer" },
-                { "type": "integer" },
-                { "type": "integer" }
+                {"type": "integer"},
+                {"type": "integer"},
+                {"type": "integer"},
+                {"type": "integer"}
             ],
             "minItems": 4,
             "maxItems": 4,
@@ -30,8 +30,8 @@
         "SwipePoint": {
             "description": "Swipe begin/end point: [x, y] or [x, y, w, h].",
             "oneOf": [
-                { "$ref": "#/$defs/Coordinate2I" },
-                { "$ref": "#/$defs/Rect4I" }
+                {"$ref": "#/$defs/Coordinate2I"},
+                {"$ref": "#/$defs/Rect4I"}
             ]
         },
         "AutoAltClickParam": {

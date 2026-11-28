@@ -95,7 +95,7 @@ description: 仅分析 `AutoStockStapleMain` 的 MaaEnd 日志。用于还原该
 
 每次成功点击里都会包含 `box=[x,y,w,h]`。
 
-随后在附近查找 `AutoStockInStapleItemName` 的 OCR 结果，并把“点击框（box）”与“OCR 的商品框（box）”做一一对应匹配。
+随后在附近查找商品名 OCR 结果（`AutoStockInStapleItemName{Group}`，分组为 `Daily` / `Industrial` / `Cultural` / `EngravingPermit` / `ArtificingCatalyst`），并把“点击框（box）”与“OCR 的商品框（box）”做一一对应匹配。
 
 这样才能得到“候选商品名称”。
 
@@ -217,19 +217,18 @@ description: 仅分析 `AutoStockStapleMain` 的 MaaEnd 日志。用于还原该
 
 #### 买入分支
 
-- `AutoStockBuyItemValleyIVTask`
-- `AutoStockBuyItemWulingTask`
+- `AutoStockBuyItem{ValleyIV|Wuling}Task{Group}`
 
-它们是“识别到候选商品并进入后续购买判定”时的最佳 pipeline 节点。
+它们是“识别到候选商品并进入后续购买判定”时的最佳 pipeline 节点（每个折扣分组一个，`{Group}` 见 `AutoStockInStapleItemName{Group}`）。
 
 原因：
 
 - 它们同时满足：
     - `AutoStockInStapleItem`
-    - `AutoStockInStapleItemDiscounts`
-    - `AutoStockInStapleItemName`
+    - `AutoStockInStapleItemName{Group}_Expected`
+    - `AutoStockInStapleItemDiscounts{Region}{Group}`
 
-- `box_index` 指向商品名 OCR 的结果
+- `box_index` 指向该分组的折扣 OCR 结果（折扣框由商品名框偏移得到）
 - 识别成功之后立刻发生点击
 - 它们的 `next` 会进入 `AutoStockStapleQuantityControl`，因此这里只能确定“候选商品是谁”，不能单独作为“已购买”的最终证据
 
@@ -337,7 +336,7 @@ description: 仅分析 `AutoStockStapleMain` 的 MaaEnd 日志。用于还原该
 
 `go-service.log` 仍然能提供上下文：
 
-- `AttachToExpectedRegexAction` 展示当时把哪些商品白名单挂载到了 `AutoStockInStapleItemName`
+- `AttachToExpectedRegexAction` 展示当时把哪些商品白名单挂载到了各分组的 `AutoStockInStapleItemName{Group}`
 - 它也能确认任务入口与运行时 override 的设置
 
 但“购买真相”仍应以 `maafw*.log` 的点击结果 + OCR box 对应匹配为准。
@@ -348,7 +347,7 @@ description: 仅分析 `AutoStockStapleMain` 的 MaaEnd 日志。用于还原该
 
 症状：
 
-- `AutoStockInStapleItemName` 展示了多个允许的商品
+- `AutoStockInStapleItemName{Group}` 展示了多个允许的商品
 - 但后续只有一次 `AutoStockBuyItem...Task` 的成功点击
 
 结论：

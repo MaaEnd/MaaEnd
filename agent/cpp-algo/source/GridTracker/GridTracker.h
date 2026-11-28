@@ -5,7 +5,7 @@
 #include <MaaUtils/NoWarningCV.hpp>
 
 #include <cstddef>
-#include <map>
+#include <set>
 #include <string>
 #include <utility>
 #include <vector>
@@ -17,17 +17,18 @@ enum class Status
 {
     Initial,
     Advanced,
-    ConfirmingEnd,
-    Repeated,
+    Stalled,
+    Complete,
     Rejected,
 };
 
 struct Options
 {
-    int match_distance_threshold = 12;
-    double min_match_ratio = 0.5;
-    double repeat_match_ratio = 0.95;
-    int min_overlap_rows = 2;
+    int expected_cells = -1;
+    bool at_top = false;
+    bool at_bottom = false;
+    double estimated_start_row = 0;
+    double position_tolerance_rows = 0;
 };
 
 struct Alignment
@@ -36,7 +37,6 @@ struct Alignment
     int support_rows = 0;
     int compared_cells = 0;
     int matched_cells = 0;
-    int total_distance = 0;
     double average_distance = 0.0;
     double score = 0.0;
     double match_ratio = 0.0;
@@ -72,20 +72,17 @@ struct Result
 class GridTracker
 {
 public:
-    Result observe(const recogrid::GridFrame& frame, const Options& options = {});
+    Result observe(const recogrid::GridFrame& frame, const Options& options);
+    [[nodiscard]] bool matches_current_viewport(const recogrid::GridFrame& frame, int expected_cells) const;
+
+    [[nodiscard]] bool has_viewport() const { return !previous_frame_.empty(); }
+
     void reset();
-
-    [[nodiscard]] int rowHeight() const { return row_height_; }
-
-    [[nodiscard]] int colWidth() const { return col_width_; }
 
 private:
     recogrid::GridFrame previous_frame_;
     int viewport_start_row_ = 0;
-    int row_height_ = 0;
-    int col_width_ = 0;
-    int consecutive_complete_repeats_ = 0;
-    std::map<std::pair<int, int>, Cell> cells_;
+    std::set<std::pair<int, int>> seen_positions_;
 };
 
 const char* ToString(Status status);

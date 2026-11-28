@@ -93,7 +93,7 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "CheckRainbowFinJob": {
+    "CheckRainbowFinJobText": {
         "desc": "检查七彩鳞委托是否可以接取",
         "recognition": "OCR",
         "roi": "CheckRainbowFinIcon",
@@ -162,7 +162,7 @@
         "all_of": [
             "CheckRainbowFinText",
             "CheckRainbowFinIcon",
-            "CheckRainbowFinJob"
+            "CheckRainbowFinJobText"
         ],
         "box_index": 2,
         "pre_delay": 0,
@@ -234,7 +234,7 @@
         "desc": "七彩鳞任务已经在追踪中",
         "recognition": "And",
         "all_of": [
-            "AlreadyTrackedMissionButton",
+            "CheckAlreadyTrackingText",
             "InRainbowFinMission"
         ],
         "pre_delay": 0,
@@ -460,12 +460,12 @@
         "desc": "在七彩鳞任务拍照点开始拍照",
         "pre_delay": 0,
         "anchor": {
-            "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal"
+            "TakePhotoDone": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "EnvironmentMonitoringTakePhoto"
+            "TakePhoto"
         ]
     }
 }

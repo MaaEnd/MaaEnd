@@ -57,6 +57,7 @@ type syncItemDataParam struct {
 	Items           map[string]string `json:"items"`
 	PageDedup       bool              `json:"page_dedup"`
 	NotifyUI        *bool             `json:"notify_ui"`
+	ReportItemIDs   []string          `json:"report_item_ids"`
 	Deduplicate     *bool             `json:"deduplicate"`
 	MergeMode       string            `json:"merge_mode"`
 	TransactionMode string            `json:"transaction_mode"`
@@ -103,7 +104,7 @@ func (a *SyncItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 				Msg("failed to hydrate ims cache")
 			return false
 		}
-		return a.commitTransactionWithReport(ctx, arg.TaskID, notifyUI)
+		return a.commitTransactionWithReport(ctx, arg.TaskID, notifyUI, params.ReportItemIDs)
 	}
 
 	wantsIcon := wantsIconScan(params)
@@ -290,7 +291,7 @@ func (a *SyncItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 
 	reportedItemCount := 0
 	if notifyUI {
-		reportedItemCount = reportSyncedItems(ctx, pageReport)
+		reportedItemCount = reportSyncedItems(ctx, filterSyncedReportItems(pageReport, params.ReportItemIDs))
 	}
 
 	event := log.Info().
@@ -353,6 +354,10 @@ func parseSyncItemDataParam(raw string) (syncItemDataParam, error) {
 	}
 	params.Items = normalizedItems
 	params.ItemFilters, err = iconqty.NormalizeStringList(params.ItemFilters, "item_filters")
+	if err != nil {
+		return syncItemDataParam{}, err
+	}
+	params.ReportItemIDs, err = iconqty.NormalizeStringList(params.ReportItemIDs, "report_item_ids")
 	if err != nil {
 		return syncItemDataParam{}, err
 	}
@@ -551,10 +556,10 @@ func (a *SyncItemData) storeTransactionResult(taskID int64, items map[string]int
 }
 
 func (a *SyncItemData) commitTransaction(taskID int64) bool {
-	return a.commitTransactionWithReport(nil, taskID, false)
+	return a.commitTransactionWithReport(nil, taskID, false, nil)
 }
 
-func (a *SyncItemData) commitTransactionWithReport(ctx *maa.Context, taskID int64, notifyUI bool) bool {
+func (a *SyncItemData) commitTransactionWithReport(ctx *maa.Context, taskID int64, notifyUI bool, reportItemIDs []string) bool {
 	a.transactionMu.Lock()
 	if a.transactionItems == nil {
 		a.transactionMu.Unlock()
@@ -601,7 +606,7 @@ func (a *SyncItemData) commitTransactionWithReport(ctx *maa.Context, taskID int6
 
 	reportedItemCount := 0
 	if notifyUI && ctx != nil {
-		reportedItemCount = reportSyncedItems(ctx, reportItems)
+		reportedItemCount = reportSyncedItems(ctx, filterSyncedReportItems(reportItems, reportItemIDs))
 	}
 	log.Info().
 		Str("component", componentSyncItemData).

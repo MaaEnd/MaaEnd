@@ -1,7 +1,6 @@
 package resource
 
 import (
-	"os"
 	"path/filepath"
 	"sync"
 	"sync/atomic"
@@ -11,11 +10,11 @@ import (
 )
 
 var (
-	resourcePath         atomic.Value // string
+	resourceBase         atomic.Value // string
 	registerPathSinkOnce sync.Once
 )
 
-// EnsureResourcePathSink ensures the resource path sink is registered.
+// EnsureResourcePathSink registers the sink that records the loaded bundle path.
 func EnsureResourcePathSink() {
 	registerPathSinkOnce.Do(func() {
 		maa.AgentServerAddResourceSink(&resourcePathSink{})
@@ -25,7 +24,7 @@ func EnsureResourcePathSink() {
 
 type resourcePathSink struct{}
 
-// OnResourceLoading captures the resource path when a resource is loaded.
+// OnResourceLoading records the bundle path MaaFramework loaded.
 func (c *resourcePathSink) OnResourceLoading(resource *maa.Resource, status maa.EventStatus, detail maa.ResourceLoadingDetail) {
 	if status != maa.EventStatusSucceeded || detail.Path == "" {
 		return
@@ -34,36 +33,17 @@ func (c *resourcePathSink) OnResourceLoading(resource *maa.Resource, status maa.
 	if p, err := filepath.Abs(detail.Path); err == nil {
 		absPath = p
 	}
-	resourcePath.Store(absPath)
+	resourceBase.Store(absPath)
 	log.Debug().Str("absPath", absPath).Msg("Resource path sink captured resource path")
 }
 
-// getResourceBase returns the cached resource base path or an empty string if unavailable.
-func getResourceBase() string {
-	if v := resourcePath.Load(); v != nil {
-		if s, ok := v.(string); ok && s != "" {
+// BasePath returns the route bundle loaded by MaaFramework, or "" when unknown.
+// It is a bundle root, not the project root: project files go through fsutil.InstallPath.
+func BasePath() string {
+	if v := resourceBase.Load(); v != nil {
+		if s, ok := v.(string); ok {
 			return s
 		}
 	}
 	return ""
-}
-
-// getStandardResourceBase returns a list of standard base paths to search for resources.
-func getStandardResourceBase() []string {
-	cwd, _ := os.Getwd()
-	wd := filepath.Clean(cwd)
-	wdParent := filepath.Dir(wd)
-	wdGrandParent := filepath.Dir(wdParent)
-
-	return []string{
-		wd,
-		filepath.Join(wd, "resource"),
-		filepath.Join(wd, "assets"),
-		wdParent,
-		filepath.Join(wdParent, "resource"),
-		filepath.Join(wdParent, "assets"),
-		wdGrandParent,
-		filepath.Join(wdGrandParent, "resource"),
-		filepath.Join(wdGrandParent, "assets"),
-	}
 }

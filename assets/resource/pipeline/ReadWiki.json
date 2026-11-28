@@ -95,9 +95,9 @@
             "type": "ColorMatch",
             "param": {
                 "roi": [
-                    184,
+                    118,
                     243,
-                    1008,
+                    1162,
                     116
                 ],
                 "method": 40,
@@ -143,8 +143,8 @@
                 "roi": [
                     21,
                     51,
-                    350,
-                    58
+                    378,
+                    65
                 ],
                 "method": 40,
                 "lower": [
@@ -332,9 +332,9 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    206,
+                    219,
                     130,
-                    160,
+                    182,
                     585
                 ],
                 "template": "ReadWiki/WikiNewBadge.png"
@@ -377,7 +377,7 @@
                 "roi": [
                     136,
                     640,
-                    65,
+                    109,
                     58
                 ],
                 "method": 40,
@@ -404,7 +404,7 @@
                 "roi": [
                     136,
                     640,
-                    65,
+                    109,
                     58
                 ],
                 "template": "ReadWiki/WikiNewListHint.png"
@@ -418,9 +418,9 @@
             "param": {
                 "roi": [
                     748,
-                    673,
-                    48,
-                    19
+                    651,
+                    107,
+                    41
                 ],
                 "template": "ReadWiki/WikiNextPage.png"
             }

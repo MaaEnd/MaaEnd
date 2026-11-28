@@ -9,15 +9,18 @@
                 "AccountSwitchWindowAction",
                 "AddItemData",
                 "AeroSalvageConfigureSwipeAction",
+                "ArenaOfGames.Decide",
                 "AttachToExpectedRegexAction",
                 "AutoAltClickAction",
                 "AutoAltSwipeAction",
                 "AutoCtrlClickAction",
-                "AutoFightMainAction",
                 "AutoDeliveryResolveDepotAction",
                 "AutoDeliveryResolveDestinationAction",
                 "AutoEssenceLoadInventoryAction",
+                "AutoEssencePrepareInventoryAction",
                 "AutoEssenceTargetPlanAction",
+                "AutoFightMainAction",
+                "AutoMissionExecuteQuest",
                 "AutoSellItemExecuteItemTaskAction",
                 "AutoStockStapleQuantityControlAction",
                 "AutoStockpile.ReconcileDecision",
@@ -25,15 +28,16 @@
                 "AutoSwipeClickAction",
                 "BatchAddFriendsAction",
                 "BatchAddFriendsFriendListFullAction",
+                "BatchAddFriendsStrangersClearRejectsAction",
                 "BatchAddFriendsStrangersFinishAction",
                 "BatchAddFriendsStrangersOnAddAction",
-                "BatchAddFriendsUIDEnterAction",
+                "BatchAddFriendsStrangersRecordRejectAction",
                 "BatchAddFriendsUIDFinishAction",
-                "BatchAddFriendsUIDLoopTopAction",
                 "BatchAddFriendsUIDOnAddAction",
                 "BatchAddFriendsUIDOnEmptyAction",
                 "BetterSliding",
                 "CameraScanAction",
+                "CaptureUid",
                 "CharacterControllerForwardAxisAction",
                 "CharacterControllerPitchDeltaAction",
                 "CharacterControllerRelativeMoveAction",
@@ -41,31 +45,39 @@
                 "CharacterMoveToTargetAction",
                 "CharacterMoveToTargetNotFoundAction",
                 "CharacterSearchAction",
-                "CaptureUid",
                 "ClearHitCount",
+                "CloseCloudShellAction",
                 "CloseGameAction",
-                "CreditShoppingScanItemAction",
+                "CountDownAction",
                 "DeliveryJobsResolveOngoingDepotAction",
                 "ERROR",
+                "EssenceFilterAfterBattleInventoryCommitAction",
                 "EssenceFilterAfterBattleSkillDecisionAction",
                 "EssenceFilterAfterBattleTierGateAction",
                 "EssenceFilterCheckItemAction",
                 "EssenceFilterCheckItemLevelAction",
+                "EssenceFilterConfirmMarkAction",
                 "EssenceFilterFinishAction",
                 "EssenceFilterInitAction",
+                "EssenceRewardFailedAction",
+                "EssenceFilterReadDetailAction",
+                "EssenceFilterReadLockStateAction",
                 "EssenceFilterSkillDecisionAction",
+                "EssenceFilterUnreadPurpleAction",
+                "EssenceGridResetAction",
+                "EveryNthHitReset",
                 "ExitGameLauncherAction",
-				"FailureCollectorFinish",
-				"FailureCollectorRunTask",
-				"FailureCollectorReset",
+                "FailureCollectorFinish",
+                "FailureCollectorReset",
+                "FailureCollectorRunTask",
                 "FalseAction",
                 "FocusOCRAction",
                 "ImageCheckSetResultAction",
                 "ImportBluePrintsEnterCodeAction",
                 "ImportBluePrintsFinishAction",
                 "ImportBluePrintsInitTextAction",
-                "IntelArchiveResolveTruncAction",
                 "IntelArchiveResetSessionAction",
+                "IntelArchiveResolveTruncAction",
                 "IntelArchiveShowInventoryAction",
                 "ItemTransferFallbackAction",
                 "ItemTransferOCRAction",
@@ -75,21 +87,29 @@
                 "OutpostTradingPrioritySession",
                 "OutpostTradingReserveSession",
                 "PipelineOverride",
-                "PipelineOverrideAction",
                 "PostStop",
                 "PullCountCalculatorAction",
                 "PuzzleAction",
-                "SeizeDeliveryJobsResetScanStateAction",
-                "SeizeDeliveryJobsScanTargetAction",
                 "RealTimeTaskAction",
                 "RepeatUntilFoundAction",
                 "RepeatUntilNotFoundAction",
+                "RestaurantDecisionAction",
                 "SceneManagerMenuListClickItemAction",
+                "SeizeDeliveryJobsResetScanStateAction",
+                "SeizeDeliveryJobsScanTargetAction",
+                "SetItemQuantity",
                 "SubTask",
                 "SyncItemData",
+                "TextInputAction",
+                "TextInputInitAction",
                 "TrialOfSwordmancy.Decide",
+                "TrialOfSwordmancy.FreeCalcDecide",
+                "TrialOfSwordmancy.InitSolver",
                 "UpdateItemQuantity",
+                "VisitFriendsBtwSellSettleAction",
+                "VisitFriendsBtwSellSlidingAction",
                 "WebEvent202605Action",
+                "WorldToolSprayScanAction",
                 "ZiplineImport",
                 "autoEcoFarmInterruptibleSleep",
                 "autoEcoFarmOverrideTargetTemplate",
@@ -101,7 +121,335 @@
         {
             "if": {
                 "properties": {
-                    "custom_action": { "const": "MapNavigateAction" }
+                    "custom_action": {"const": "AddItemData"}
+                },
+                "required": ["custom_action"]
+            },
+            "then": {
+                "properties": {
+                    "custom_action_param": {"$ref": "./components/ims.schema.json#/$defs/AddItemDataParam"}
+                },
+                "required": ["custom_action_param"]
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "custom_action": {"const": "AutoAltSwipeAction"}
+                },
+                "required": ["custom_action"]
+            },
+            "then": {
+                "type": "object",
+                "required": ["custom_action_param"],
+                "properties": {
+                    "custom_action_param": {"$ref": "./components/auto_alt.schema.json#/$defs/AutoAltSwipeParam"}
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "custom_action": {"const": "AutoDeliveryResolveDestinationAction"}
+                },
+                "required": ["custom_action"]
+            },
+            "then": {
+                "properties": {
+                    "custom_action_param": {
+                        "$ref": "./components/auto_delivery.schema.json#/$defs/ResolveDestinationParam"
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "custom_action": {"const": "WorldToolSprayScanAction"}
+                },
+                "required": ["custom_action"]
+            },
+            "then": {
+                "properties": {
+                    "custom_action_param": {
+                        "type": "object",
+                        "properties": {
+                            "pattern": {"enum": [
+                                    "upper_wall",
+                                    "ground"
+                                ]}
+                        },
+                        "required": ["pattern"],
+                        "additionalProperties": false
+                    }
+                },
+                "required": ["custom_action_param"]
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "custom_action": {"const": "CameraScanAction"}
+                },
+                "required": ["custom_action"]
+            },
+            "then": {
+                "properties": {
+                    "custom_action_param": {"$ref": "./components/camerascan.schema.json#/$defs/CameraScanParam"}
+                },
+                "required": ["custom_action_param"]
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "custom_action": {"const": "CaptureUid"}
+                },
+                "required": ["custom_action"]
+            },
+            "then": {
+                "properties": {
+                    "custom_action_param": {
+                        "type": "object",
+                        "properties": {
+                            "use_cache": {"type": "boolean"},
+                            "stay_on_current_screen": {"type": "boolean"},
+                            "allow_unknown": {"type": "boolean"},
+                            "clear_cache": {"type": "boolean"},
+                            "output_type": {"enum": [
+                                    "hashed",
+                                    "masked",
+                                    "raw"
+                                ]}
+                        },
+                        "additionalProperties": false
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "custom_action": {"const": "CountDownAction"}
+                },
+                "required": [
+                    "custom_action"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "custom_action_param": {
+                        "type": "object",
+                        "properties": {
+                            "useOCRResult": {
+                                "type": "boolean",
+                                "default": false,
+                                "description": "使用当前节点的 OCR 文本作为等待时长，启用后忽略 duration。"
+                            },
+                            "duration": {
+                                "type": [
+                                    "integer",
+                                    "string"
+                                ],
+                                "minimum": 1,
+                                "minLength": 1,
+                                "pattern": "\\S",
+                                "description": "本次等待时长，按 duration_type 解析。显式提供时必须大于零且不超过 24 小时，useOCRResult为 false 时必须提供。"
+                            },
+                            "duration_type": {
+                                "type": "integer",
+                                "enum": [
+                                    0,
+                                    1,
+                                    2,
+                                    10,
+                                    11
+                                ],
+                                "default": 0,
+                                "description": "0：毫秒整数；1：秒整数；2：分钟整数；10：Go duration 字符串，如 1h20m；11：hh:mm:ss 或 mm:ss 字符串，支持中文冒号。"
+                            },
+                            "duration_format_hms": {
+                                "type": "string",
+                                "default": "countdown.format.hms",
+                                "description": "倒计时一小时及以上时时运行日志使用的 i18n 键，支持 {hh}、{h}、{mm}、{m}、{ss}、{s}。"
+                            },
+                            "duration_format_ms": {
+                                "type": "string",
+                                "default": "countdown.format.ms",
+                                "description": "倒计时达到一分钟但不足一小时时运行日志使用的 i18n 键，支持 {mm}、{m}、{ss}、{s}。"
+                            },
+                            "duration_format_s": {
+                                "type": "string",
+                                "default": "countdown.format.s",
+                                "description": "倒计时不足一分钟时运行日志使用的 i18n 格式键，支持 {ss}、{s}。"
+                            },
+                            "step_message": {
+                                "type": "string",
+                                "default": "countdown.message.step",
+                                "description": "倒计时跳动时运行日志的 i18n 键，必须有一个 %s 来接收剩余时间。"
+                            },
+                            "done_message": {
+                                "type": "string",
+                                "default": "countdown.message.done",
+                                "description": "正常结束时运行日志的 i18n 键，可以使用一个 %s 来接收本次等待时长。"
+                            },
+                            "stop_message": {
+                                "type": "string",
+                                "default": "countdown.message.stop",
+                                "description": "任务停止时运行日志的 i18n 键。"
+                            },
+                            "complex_conf": {
+                                "type": "object",
+                                "properties": {
+                                    "complex_mode": {
+                                        "type": "integer",
+                                        "enum": [
+                                            0,
+                                            1,
+                                            2
+                                        ],
+                                        "default": 0,
+                                        "description": "0：关闭复杂模式；1：等待时长比累计等待时长上限长时直接跳过；2：等待时长比累计等待时长上限长时，等待累计等待时长上限的时间。"
+                                    },
+                                    "long_duration_max": {
+                                        "type": [
+                                            "integer",
+                                            "string"
+                                        ],
+                                        "minimum": 1,
+                                        "minLength": 1,
+                                        "pattern": "\\S",
+                                        "description": "累计等待时长上限，按 long_duration_type 解析。复杂模式启用时，显式提供的值必须大于零且不超过 24 小时。"
+                                    },
+                                    "long_duration_type": {
+                                        "type": "integer",
+                                        "enum": [
+                                            0,
+                                            1,
+                                            2,
+                                            10,
+                                            11
+                                        ],
+                                        "default": 0,
+                                        "description": "0：毫秒整数；1：秒整数；2：分钟整数；10：Go duration 字符串；11：hh:mm:ss 或 mm:ss 字符串。"
+                                    },
+                                    "long_duration_step_max": {
+                                        "type": "integer",
+                                        "default": 1200,
+                                        "description": "单次最大等待时长，单位为秒。默认值 1200 秒。"
+                                    },
+                                    "reset_start_time": {
+                                        "type": "boolean",
+                                        "default": false,
+                                        "description": "复杂模式下，是否重新开始累计时间的计时。"
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        },
+                        "additionalProperties": false
+                    }
+                },
+                "required": [
+                    "custom_action_param"
+                ]
+            }
+        },
+        {
+            "if": {
+                "type": "object",
+                "required": ["custom_action"],
+                "properties": {"custom_action": {"const": "EveryNthHitReset"}}
+            },
+            "then": {
+                "type": "object",
+                "required": ["custom_action_param"],
+                "properties": {
+                    "custom_action_param": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": ["key"],
+                        "properties": {
+                            "key": {"type": "string", "minLength": 1}
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "custom_action": {"const": "FailureCollectorFinish"}
+                },
+                "required": ["custom_action"]
+            },
+            "then": {
+                "properties": {
+                    "custom_action_param": {"$ref": "./components/failure_collector.schema.json#/$defs/FinishParam"}
+                },
+                "required": ["custom_action_param"]
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "custom_action": {"const": "FailureCollectorReset"}
+                },
+                "required": ["custom_action"]
+            },
+            "then": {
+                "properties": {
+                    "custom_action_param": {"$ref": "./components/failure_collector.schema.json#/$defs/BaseParam"}
+                },
+                "required": ["custom_action_param"]
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "custom_action": {"const": "FailureCollectorRunTask"}
+                },
+                "required": ["custom_action"]
+            },
+            "then": {
+                "properties": {
+                    "custom_action_param": {"$ref": "./components/failure_collector.schema.json#/$defs/RunTaskParam"}
+                },
+                "required": ["custom_action_param"]
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "custom_action": {"const": "FocusOCRAction"}
+                },
+                "required": ["custom_action"]
+            },
+            "then": {
+                "type": "object",
+                "required": ["custom_action_param"],
+                "properties": {
+                    "custom_action_param": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": ["node"],
+                        "properties": {
+                            "node": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "focus": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "custom_action": {"const": "MapNavigateAction"}
                 },
                 "required": [
                     "custom_action"
@@ -128,7 +476,155 @@
         {
             "if": {
                 "properties": {
-                    "custom_action": { "const": "CaptureUid" }
+                    "custom_action": {"const": "OutpostTradingLocationPlan"}
+                },
+                "required": ["custom_action"]
+            },
+            "then": {
+                "properties": {
+                    "custom_action_param": {"$ref": "./components/outpost_trading.schema.json#/$defs/LocationPlanParam"}
+                },
+                "required": ["custom_action_param"]
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "custom_action": {"const": "OutpostTradingPrioritySession"}
+                },
+                "required": ["custom_action"]
+            },
+            "then": {
+                "properties": {
+                    "custom_action_param": {
+                        "$ref": "./components/outpost_trading.schema.json#/$defs/PrioritySessionParam"
+                    }
+                },
+                "required": ["custom_action_param"]
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "custom_action": {"const": "RepeatUntilFoundAction"}
+                },
+                "required": ["custom_action"]
+            },
+            "then": {
+                "properties": {
+                    "custom_action_param": {
+                        "$ref": "./components/repeat_action.schema.json#/$defs/RepeatUntilFoundParam"
+                    }
+                },
+                "required": ["custom_action_param"]
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "custom_action": {"const": "RepeatUntilNotFoundAction"}
+                },
+                "required": ["custom_action"]
+            },
+            "then": {
+                "properties": {
+                    "custom_action_param": {
+                        "$ref": "./components/repeat_action.schema.json#/$defs/RepeatUntilNotFoundParam"
+                    }
+                },
+                "required": ["custom_action_param"]
+            }
+        },
+        {
+            "if": {
+                "type": "object",
+                "required": [
+                    "custom_action"
+                ],
+                "properties": {
+                    "custom_action": {
+                        "const": "RestaurantDecisionAction"
+                    }
+                }
+            },
+            "then": {
+                "type": "object",
+                "required": [
+                    "custom_action_param"
+                ],
+                "properties": {
+                    "custom_action_param": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                            "step"
+                        ],
+                        "properties": {
+                            "step": {
+                                "enum": [
+                                    "initialize",
+                                    "menu_page",
+                                    "menu_card",
+                                    "menu_advance",
+                                    "runtime",
+                                    "dispatched"
+                                ]
+                            },
+                            "kind": {
+                                "enum": [
+                                    "dish",
+                                    "drink"
+                                ]
+                            },
+                            "category": {
+                                "enum": [
+                                    "staple",
+                                    "vegetable",
+                                    "dessert"
+                                ]
+                            },
+                            "max_rounds": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 1000
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "custom_action": {"const": "SetItemQuantity"}
+                },
+                "required": ["custom_action"]
+            },
+            "then": {
+                "properties": {
+                    "custom_action_param": {"$ref": "./components/ims.schema.json#/$defs/SetItemQuantityParam"}
+                },
+                "required": ["custom_action_param"]
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "custom_action": {"const": "SyncItemData"}
+                },
+                "required": ["custom_action"]
+            },
+            "then": {
+                "properties": {
+                    "custom_action_param": {"$ref": "./components/ims.schema.json#/$defs/SyncItemDataParam"}
+                },
+                "required": ["custom_action_param"]
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "custom_action": {"const": "TextInputInitAction"}
                 },
                 "required": ["custom_action"]
             },
@@ -137,239 +633,113 @@
                     "custom_action_param": {
                         "type": "object",
                         "properties": {
-                            "use_cache": { "type": "boolean" },
-                            "stay_on_current_screen": { "type": "boolean" },
-                            "allow_unknown": { "type": "boolean" },
-                            "clear_cache": { "type": "boolean" },
-                            "output_type": { "enum": ["hashed", "masked", "raw"] }
-                        },
-                        "additionalProperties": false
+                            "texts": {"type": "string"}
+                        }
                     }
                 }
             }
         },
-		{
-			"if": {
-				"properties": {
-					"custom_action": { "const": "AutoDeliveryResolveDestinationAction" }
-				},
-				"required": [ "custom_action" ]
-			},
-			"then": {
-				"properties": {
-					"custom_action_param": { "$ref": "./components/auto_delivery.schema.json#/$defs/ResolveDestinationParam" }
-				}
-			}
-		},
-		{
-			"if": {
-				"properties": {
-					"custom_action": { "const": "AddItemData" }
-				},
-				"required": [ "custom_action" ]
-			},
-			"then": {
-				"properties": {
-					"custom_action_param": { "$ref": "./components/ims.schema.json#/$defs/AddItemDataParam" }
-				},
-				"required": [ "custom_action_param" ]
-			}
-		},
-		{
-			"if": {
-				"properties": {
-					"custom_action": { "const": "SyncItemData" }
-				},
-				"required": [ "custom_action" ]
-			},
-			"then": {
-				"properties": {
-					"custom_action_param": { "$ref": "./components/ims.schema.json#/$defs/SyncItemDataParam" }
-				},
-				"required": [ "custom_action_param" ]
-			}
-		},
-		{
-			"if": {
-				"properties": {
-					"custom_action": { "const": "UpdateItemQuantity" }
-				},
-				"required": [ "custom_action" ]
-			},
-			"then": {
-				"properties": {
-					"custom_action_param": { "$ref": "./components/ims.schema.json#/$defs/UpdateItemQuantityParam" }
-				},
-				"required": [ "custom_action_param" ]
-			}
-		},
-		{
-			"if": {
-				"properties": {
-					"custom_action": { "const": "FailureCollectorReset" }
-				},
-				"required": [ "custom_action" ]
-			},
-			"then": {
-				"properties": {
-					"custom_action_param": { "$ref": "./components/failure_collector.schema.json#/$defs/BaseParam" }
-				},
-				"required": [ "custom_action_param" ]
-			}
-		},
-		{
-			"if": {
-				"properties": {
-					"custom_action": { "const": "FailureCollectorRunTask" }
-				},
-				"required": [ "custom_action" ]
-			},
-			"then": {
-				"properties": {
-					"custom_action_param": { "$ref": "./components/failure_collector.schema.json#/$defs/RunTaskParam" }
-				},
-				"required": [ "custom_action_param" ]
-			}
-		},
-		{
-			"if": {
-				"properties": {
-					"custom_action": { "const": "FailureCollectorFinish" }
-				},
-				"required": [ "custom_action" ]
-			},
-			"then": {
-				"properties": {
-					"custom_action_param": { "$ref": "./components/failure_collector.schema.json#/$defs/FinishParam" }
-				},
-				"required": [ "custom_action_param" ]
-			}
-		},
-		{
-			"if": {
-				"properties": {
-					"custom_action": { "const": "FocusOCRAction" }
-				},
-				"required": [ "custom_action" ]
-			},
-			"then": {
-				"type": "object",
-				"required": [ "custom_action_param" ],
-				"properties": {
-					"custom_action_param": {
-						"type": "object",
-						"additionalProperties": false,
-						"required": [ "node" ],
-						"properties": {
-							"node": {
-								"type": "string",
-								"minLength": 1
-							},
-							"focus": {
-								"type": "string"
-							}
-						}
-					}
-				}
-			}
-		},
-		{
-			"if": {
-				"properties": {
-					"custom_action": { "const": "OutpostTradingLocationPlan" }
-				},
-				"required": [ "custom_action" ]
-			},
-			"then": {
-				"properties": {
-					"custom_action_param": { "$ref": "./components/outpost_trading.schema.json#/$defs/LocationPlanParam" }
-				},
-				"required": [ "custom_action_param" ]
-			}
-		},
-		{
-			"if": {
-				"properties": {
-					"custom_action": { "const": "OutpostTradingPrioritySession" }
-				},
-				"required": [ "custom_action" ]
-			},
-			"then": {
-				"properties": {
-					"custom_action_param": { "$ref": "./components/outpost_trading.schema.json#/$defs/PrioritySessionParam" }
-				},
-				"required": [ "custom_action_param" ]
-			}
-		},
-		{
-			"if": {
-				"properties": {
-					"custom_action": { "const": "CameraScanAction" }
-				},
-				"required": [ "custom_action" ]
-			},
-			"then": {
-				"properties": {
-					"custom_action_param": { "$ref": "./components/camerascan.schema.json#/$defs/CameraScanParam" }
-				},
-				"required": [ "custom_action_param" ]
-			}
-		},
-		{
-			"if": {
-				"properties": {
-					"custom_action": { "const": "RepeatUntilFoundAction" }
-				},
-				"required": [ "custom_action" ]
-			},
-			"then": {
-				"properties": {
-					"custom_action_param": { "$ref": "./components/repeat_action.schema.json#/$defs/RepeatUntilFoundParam" }
-				},
-				"required": [ "custom_action_param" ]
-			}
-		},
-		{
-			"if": {
-				"properties": {
-					"custom_action": { "const": "RepeatUntilNotFoundAction" }
-				},
-				"required": [ "custom_action" ]
-			},
-			"then": {
-				"properties": {
-					"custom_action_param": { "$ref": "./components/repeat_action.schema.json#/$defs/RepeatUntilNotFoundParam" }
-				},
-				"required": [ "custom_action_param" ]
-			}
-		}
-	],
-    "if": {
-        "type": "object",
-        "required": [ "custom_action" ],
-        "properties": { "custom_action": { "const": "AutoAltSwipeAction" } }
-    },
-    "then": {
-        "type": "object",
-        "required": [ "custom_action_param" ],
-        "properties": {
-            "custom_action_param": { "$ref": "./components/auto_alt.schema.json#/$defs/AutoAltSwipeParam" }
-        }
-    },
-    "else": {
-        "if": {
-            "type": "object",
-            "required": [ "custom_action" ],
-            "properties": {
-                "custom_action": { "const": "FailureCollectorRunTask" }
+        {
+            "if": {
+                "properties": {
+                    "custom_action": {"const": "TrialOfSwordmancy.FreeCalcDecide"}
+                },
+                "required": ["custom_action"]
+            },
+            "then": {
+                "properties": {
+                    "custom_action_param": {
+                        "type": "object",
+                        "properties": {
+                            "lower_bound": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 25
+                            },
+                            "upper_bound": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 25
+                            }
+                        },
+                        "required": [
+                            "lower_bound",
+                            "upper_bound"
+                        ]
+                    }
+                },
+                "required": ["custom_action_param"]
             }
         },
-        "then": {
-            "type": "object",
-            "required": [ "custom_action_param" ],
-            "properties": {
-                "custom_action_param": { "$ref": "./components/failure_collector.schema.json#/$defs/RunTaskParam" }
+        {
+            "if": {
+                "properties": {
+                    "custom_action": {"const": "TrialOfSwordmancy.InitSolver"}
+                },
+                "required": ["custom_action"]
+            },
+            "then": {
+                "properties": {
+                    "custom_action_param": {
+                        "type": "object",
+                        "properties": {
+                            "overflowMode": {
+                                "type": "string",
+                                "enum": [
+                                    "OverflowNone",
+                                    "OverflowOnce",
+                                    "OverflowTwice"
+                                ],
+                                "default": "OverflowTwice"
+                            }
+                        },
+                        "required": ["overflowMode"]
+                    }
+                },
+                "required": ["custom_action_param"]
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "custom_action": {"const": "UpdateItemQuantity"}
+                },
+                "required": ["custom_action"]
+            },
+            "then": {
+                "properties": {
+                    "custom_action_param": {"$ref": "./components/ims.schema.json#/$defs/UpdateItemQuantityParam"}
+                },
+                "required": ["custom_action_param"]
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "custom_action": {"const": "autoEcoFarmInterruptibleSleep"}
+                },
+                "required": ["custom_action"]
+            },
+            "then": {
+                "required": ["custom_action_param"],
+                "properties": {
+                    "custom_action_param": {
+                        "type": "object",
+                        "properties": {
+                            "durationSec": {
+                                "type": "integer",
+                                "minimum": 1
+                            },
+                            "reportIntervalMs": {
+                                "type": "integer",
+                                "minimum": 1
+                            }
+                        },
+                        "required": ["durationSec"],
+                        "additionalProperties": false
+                    }
+                }
             }
         }
-    }
+    ]
 }

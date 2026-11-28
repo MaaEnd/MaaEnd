@@ -1,0 +1,124 @@
+{
+    "AutoCollectWulingCosmagaric2Start": {
+        "enabled": false,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingTestAreaWaterTreatmentSector"
+            ]
+        },
+        "next": [
+            "AutoCollectWulingCosmagaric2AssertLocation"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.route.WulingCosmagaric2.label"
+        }
+    },
+    "AutoCollectWulingCosmagaric2End": {
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "AutoCollectWulingCosmagaric2AssertLocation": {
+        "desc": "传送到采集点",
+        "recognition": "Custom",
+        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition_param": {
+            "zone_id": "Wuling_Base",
+            "target": [
+                1110.5,
+                1554.65,
+                20.0,
+                20.0
+            ]
+        },
+        "action": "DoNothing",
+        "next": [
+            "AutoCollectWulingCosmagaric2Goto"
+        ]
+    },
+    "AutoCollectWulingCosmagaric2Goto": {
+        "desc": "前往采集点",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_Base"
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                1088.12,
+                                1544.36
+                            ],
+                            "target_deck_y": 245.28
+                        },
+                        [
+                            1088.12,
+                            1544.36,
+                            "COLLECT",
+                            true
+                        ],
+                        [
+                            1089.08,
+                            1541.15,
+                            "COLLECT",
+                            true
+                        ],
+                        [
+                            1087.17,
+                            1540.9,
+                            "COLLECT",
+                            true
+                        ],
+                        [
+                            1084.64,
+                            1539.61,
+                            "COLLECT",
+                            true
+                        ],
+                        [
+                            1081.62,
+                            1538.7,
+                            "COLLECT",
+                            true
+                        ],
+                        [
+                            1079.28,
+                            1538.12,
+                            "COLLECT",
+                            true
+                        ],
+                        [
+                            1078.72,
+                            1540.76,
+                            "COLLECT",
+                            true
+                        ],
+                        [
+                            1088.59,
+                            1537.21,
+                            "COLLECT",
+                            true
+                        ]
+                    ]
+                }
+            }
+        },
+        "next": [
+            "AutoCollectWulingCosmagaric2End"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    }
+}

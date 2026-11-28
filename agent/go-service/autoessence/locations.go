@@ -17,6 +17,7 @@ var locationLevelToKey = map[string]string{
 	"map02_lv007": "WLYinglungPass",
 	"map02_lv008": "WLNorthWulingExclusionZone",
 	"map02_lv009": "WLSnowyForest",
+	"map02_lv010": "WLSisPainting",
 }
 
 // LocationKeyByLevel returns the pipeline location key for a locations.json level_id.
@@ -40,6 +41,7 @@ var locationLabelKeys = map[string]string{
 	"WLYinglungPass":             "global.region.YinglungPass",
 	"WLNorthWulingExclusionZone": "global.region.NorthWulingExclusionZone",
 	"WLSnowyForest":              "global.region.SnowyForest",
+	"WLSisPainting":              "global.region.SisPainting",
 }
 
 // RegionLabelKey returns the interface i18n key of a location's region name.

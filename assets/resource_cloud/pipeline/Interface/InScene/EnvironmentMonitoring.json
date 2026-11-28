@@ -1,0 +1,17 @@
+{
+    // 云端选中背景略带色相，沿用原亮度与像素数量门槛。
+    "EnvironmentMonitoringOutskirtsMonitoringTerminalSelected": {
+        "upper": [
+            180,
+            30,
+            255
+        ]
+    },
+    "EnvironmentMonitoringMarkerStoneMonitoringTerminalSelected": {
+        "upper": [
+            180,
+            30,
+            255
+        ]
+    }
+}

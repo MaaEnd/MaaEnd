@@ -3,7 +3,96 @@
         "desc": "补给计划入口：主动调用 A2（同 Resource 内仅首次真正扫库）后进入调度",
         "recognition": "DirectHit",
         "pre_delay": 0,
-        "action": "DoNothing",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "SyncItemDataRunFull": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "grid_type": "valuables",
+                                        "item_filters": [
+                                            "ValuableDepot:SpecialItem"
+                                        ],
+                                        "items": {
+                                            "item_gold": "item_gold_NUMBER",
+                                            "item_diamond": "item_diamond_NUMBER"
+                                        },
+                                        "page_dedup": false,
+                                        "report_item_ids": [
+                                            "item_char_break_stage_1_2",
+                                            "item_char_break_stage_3_4",
+                                            "item_char_skill_level_1_6",
+                                            "item_char_skill_level_7_12",
+                                            "item_char_skill_specialize_1",
+                                            "item_char_skill_specialize_2",
+                                            "item_char_skill_specialize_3",
+                                            "item_char_skill_specialize_4",
+                                            "item_char_skill_specialize_5",
+                                            "item_char_skill_specialize_6",
+                                            "item_expcard_stage1_high",
+                                            "item_expcard_stage1_low",
+                                            "item_expcard_stage1_mid",
+                                            "item_expcard_stage2_high",
+                                            "item_expcard_stage2_low",
+                                            "item_gold",
+                                            "item_weapon_break_high",
+                                            "item_weapon_break_low",
+                                            "item_weapon_expcard_high",
+                                            "item_weapon_expcard_low",
+                                            "item_weapon_expcard_mid"
+                                        ]
+                                    }
+                                }
+                            }
+                        },
+                        "SyncItemDataRunInc": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "grid_type": "valuables",
+                                        "item_filters": [
+                                            "ValuableDepot:SpecialItem"
+                                        ],
+                                        "items": {
+                                            "item_gold": "item_gold_NUMBER",
+                                            "item_diamond": "item_diamond_NUMBER"
+                                        },
+                                        "page_dedup": true,
+                                        "report_item_ids": [
+                                            "item_char_break_stage_1_2",
+                                            "item_char_break_stage_3_4",
+                                            "item_char_skill_level_1_6",
+                                            "item_char_skill_level_7_12",
+                                            "item_char_skill_specialize_1",
+                                            "item_char_skill_specialize_2",
+                                            "item_char_skill_specialize_3",
+                                            "item_char_skill_specialize_4",
+                                            "item_char_skill_specialize_5",
+                                            "item_char_skill_specialize_6",
+                                            "item_expcard_stage1_high",
+                                            "item_expcard_stage1_low",
+                                            "item_expcard_stage1_mid",
+                                            "item_expcard_stage2_high",
+                                            "item_expcard_stage2_low",
+                                            "item_gold",
+                                            "item_weapon_break_high",
+                                            "item_weapon_break_low",
+                                            "item_weapon_expcard_high",
+                                            "item_weapon_expcard_low",
+                                            "item_weapon_expcard_mid"
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [

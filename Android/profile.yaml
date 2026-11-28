@@ -8,6 +8,7 @@ include:
   - tasks/**
   - resource/**
   - resource_adb/**
+  - resource_cloud/**
   - resource_cloud_adb/**
   - data/**
   - locales/**

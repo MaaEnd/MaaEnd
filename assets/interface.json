@@ -19,7 +19,8 @@
     "description": "$description.file",
     "telemetry": {
         "sentry": {
-            "dsn": "https://bd7fd739c3764eb264d3bfbb298cb56b@o4511806947065856.ingest.us.sentry.io/4511806958665728"
+            "dsn": "https://bd7fd739c3764eb264d3bfbb298cb56b@o4511806947065856.ingest.us.sentry.io/4511806958665728",
+            "failure_attachments_sample_rate": 0.003
         }
     },
     "controller": [
@@ -38,6 +39,23 @@
             }
         },
         {
+            "name": "CloudWeb",
+            "label": "$controller.CloudWeb.label",
+            "description": "$controller.CloudWeb.description",
+            "type": "Win32",
+            "attach_resource_path": [
+                "./resource_cloud",
+                "./resource_cloud_web"
+            ],
+            "win32": {
+                "class_regex": "^MaaEnd\\.CloudShell$",
+                "window_regex": "^MaaEnd CloudShell",
+                "screencap": "PrintWindow",
+                "mouse": "PostMessage",
+                "keyboard": "PostMessage"
+            }
+        },
+        {
             "name": "ADB",
             "label": "$controller.ADB.label",
             "description": "$controller.ADB.description",
@@ -53,6 +71,7 @@
             "type": "Adb",
             "attach_resource_path": [
                 "./resource_adb",
+                "./resource_cloud",
                 "./resource_cloud_adb"
             ]
         },
@@ -60,8 +79,7 @@
             "name": "PlayCover",
             "type": "PlayCover",
             "attach_resource_path": [
-                "./resource_adb",
-                "./resource_playcover"
+                "./resource_adb"
             ],
             "playcover": {
                 "uuid": "maa.playcover"
@@ -198,37 +216,49 @@
             "name": "realtime",
             "label": "$group.realtime.label",
             "default_expand": true
+        },
+        {
+            "name": "game_launch",
+            "label": "$group.game_launch.label",
+            "default_expand": true
         }
     ],
     "task": [],
     "import": [
         // pretask
         "tasks/pretasks/LaunchGamePC.json",
+        "tasks/pretasks/LaunchGamePlayCover.json",
+        "tasks/pretasks/LaunchCloudWeb.json",
         // group: regional_development
         "tasks/OutpostTrading.json",
-        "tasks/SeizeDeliveryJobs.json",
         "tasks/DeliveryJobs.json",
         "tasks/AutoStockpile.json",
-        "tasks/AutoStockStaple.json",
-        "tasks/AutoSell.json",
         "tasks/EnvironmentMonitoring.json",
+        "tasks/AutoSell.json",
+        "tasks/AutoStockStaple.json",
+        "tasks/TrialOfSwordmancy.json",
+        "tasks/SeizeDeliveryJobs.json",
         // group: valuables_vault
         "tasks/GearAssembly.json",
         "tasks/Weapon.json",
-        "tasks/BatchUseDetector.json",
-        "tasks/EssenceFilter.json",
         "tasks/DecomposeWeaponEssence.json",
+        "tasks/EssenceFilter.json",
+        "tasks/BatchUseDetector.json",
+        "tasks/SanityExtractor.json",
         // group: open_world
-        "tasks/ResourceRecycleStation.json",
         "tasks/AutoCollect.json",
         "tasks/AutoEcoFarm.json",
-        "tasks/PuzzleSolver.json",
+        "tasks/ResourceRecycleStation.json",
         "tasks/SwitchTeam.json",
-        "tasks/ImportBluePrints.json",
+        "tasks/PuzzleSolver.json",
         "tasks/ZiplineImport.json",
+        "tasks/AutoMission.json",
         "tasks/SharedZiplineDelete.json",
         "tasks/AeroSalvage.json",
+        "tasks/ImportBluePrints.json",
+        "tasks/AutoDailyMission.json",
         // group: sanity_sink
+        "tasks/ProtocolSpace.json",
         "tasks/AutoEssence/AutoEssence.json",
         "tasks/AutoEssence/Location/ChooseLocation.json",
         "tasks/AutoEssence/Location/SelectLocation.json",
@@ -245,45 +275,53 @@
         "tasks/AutoEssence/Location/WLYinglungPass.json",
         "tasks/AutoEssence/Location/WLNorthWulingExclusionZone.json",
         "tasks/AutoEssence/Location/WLSnowyForest.json",
+        "tasks/AutoEssence/Location/WLSisPainting.json",
         "tasks/AutoEssence/Target/Target.json",
-        "tasks/ProtocolSpace.json",
+        "tasks/OperatorGrowth.json",
         // group: dijiang_ship
-        "tasks/DijiangRewards.json",
         "tasks/VisitFriends.json",
+        "tasks/DijiangRewards.json",
         "tasks/GiftOperator.json",
-        "tasks/BatchAddFriends.json",
         "tasks/BatchDeleteFriends.json",
+        "tasks/BatchAddFriends.json",
+        // group: backpack
+        "tasks/StashBackpack.json",
+        "tasks/Crafting.json",
+        "tasks/ItemTransfer.json",
+        "tasks/ReceiveProdManual.json",
+        "tasks/SimpleProductionBatchStart.json",
         // group: other_menu
-        "tasks/PullCountCalculator.json",
-        "tasks/BakerEntry.json",
-        "tasks/ReadAllWiki.json",
-        "tasks/IntelArchive.json",
         "tasks/DailyRewards.json",
-        "tasks/LevelUpOperator.json",
-        "tasks/ClaimSimulationRewards.json",
-        "tasks/TrialOfSwordmancy.json",
-        "tasks/UmbralMonument.json",
         "tasks/CreditShopping.json",
         "tasks/AccountSwitch.json",
+        "tasks/RestaurantDaily.json",
+        "tasks/BakerEntry.json",
+        "tasks/PullCountCalculator.json",
+        "tasks/UmbralMonument.json",
+        "tasks/WarEcho.json",
+        "tasks/ReadAllWiki.json",
+        "tasks/ClaimSimulationRewards.json",
+        "tasks/IntelArchive.json",
+        "tasks/LevelUpOperator.json",
+        // group: realtime
+        "tasks/RealTimeTask.json",
+        // group: game_launch
+        "tasks/CloseGamePC.json",
+        "tasks/AndroidOpenGame.json",
+        "tasks/CloseGame.json",
         "tasks/LaunchGameLinux.json",
+        "tasks/CloseGamePlayCover.json",
+        "tasks/CloseGameCloudWeb.json",
+        // disabled
         // "tasks/DevTest.json", // mxu测试用
         // "tasks/AdbAutoFightTest.json", // 🧪战斗测试，暂不上架
         // "tasks/WebEvent202605.json", // 该活动已关闭
-        "tasks/AndroidOpenGame.json",
-        "tasks/CloseGame.json",
-        "tasks/CloseGamePC.json",
-        // group: realtime
-        "tasks/RealTimeTask.json",
-        // group: backpack
-        "tasks/ItemTransfer.json",
-        "tasks/Crafting.json",
-        "tasks/SimpleProductionBatchStart.json",
-        "tasks/ReceiveProdManual.json",
-        "tasks/StashBackpack.json",
+        // "tasks/ArenaOfGames.json", // 该活动已关闭
         // preset
         "tasks/preset/DailyFull.json",
         "tasks/preset/QuickDaily.json",
         "tasks/preset/RealtimeAssist.json",
+        "tasks/preset/IndependentTasks.json",
         // setting
         "tasks/setting/Keymap.json",
         "tasks/setting/Zipline.json"

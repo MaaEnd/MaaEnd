@@ -20,7 +20,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "AutoEssenceMain"
+            "AutoEssenceBeforeStashBackpack"
         ],
         "attach": {
             "monday": false,
@@ -36,6 +36,21 @@
         "desc": "基质刷取计划任务跳过",
         "pre_delay": 0,
         "post_delay": 0
+    },
+    "AutoEssenceBeforeStashBackpack": {
+        "desc": "基质刷取前存放背包",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "StashBackpackSubTask"
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "AutoEssenceMain"
+        ]
     },
     "AutoEssenceMain": {
         "desc": "自动基质刷取的主入口",
@@ -73,7 +88,8 @@
                         "GotoTriggerPointSetAnchor_WLSwordVaultDale",
                         "GotoTriggerPointSetAnchor_WLYinglungPass",
                         "GotoTriggerPointSetAnchor_WLNorthWulingExclusionZone",
-                        "GotoTriggerPointSetAnchor_WLSnowyForest"
+                        "GotoTriggerPointSetAnchor_WLSnowyForest",
+                        "GotoTriggerPointSetAnchor_WLSisPainting"
                     ],
                     "continue": false,
                     "strict": true,
@@ -97,53 +113,30 @@
         }
     },
     "AutoEssenceTargetPrepare": {
-        "desc": "目标模式：首次强制盘点无瑕基质库存（export_inventory）后加载内存仓储；max_hit=1",
+        "desc": "目标模式：复用当前账号库存，缺失或要求刷新时盘点一次",
         "max_hit": 1,
         "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "EssenceFilterInit": {
-                            "attach": {
-                                "export_inventory": true
-                            }
-                        },
-                        "EssenceFilterCheckItemOCRFallback": {
-                            "action": "StopTask"
-                        },
-                        "EssenceGridClickPending": {
-                            "on_error": [
-                                "EssenceFilterCheckItemOCRFallback"
-                            ]
-                        },
-                        "EssenceFilterMainFailed": {
-                            "action": "StopTask"
-                        },
-                        "EssenceFilterNavigateToInventory": {
-                            "action": "StopTask"
-                        }
-                    }
-                }
+                "custom_action": "AutoEssencePrepareInventoryAction"
             }
         },
         "post_delay": 0,
         "next": [
             // 盘点只做一次：该节点 max_hit=1，[JumpBack] 回跳后重扫 next 时会被跳过，落到加载仓储
-            "[JumpBack]AutoEssenceTargetRunInventoryFilter",
+            "[JumpBack]AutoEssenceRunInventoryFilter",
             "AutoEssenceTargetLoadInventory"
         ],
         "on_error": [
-            "AutoEssenceTargetPrepareFailed"
+            "AutoEssenceInventoryScanFailed"
         ],
         "focus": {
-            "Node.Action.Starting": "📦目标模式：开始盘点基质库存"
+            "Node.Action.Starting": "📦目标模式：检查当前账号的基质库存"
         }
     },
-    "AutoEssenceTargetRunInventoryFilter": {
-        "desc": "目标模式：内联执行 EssenceFilterMain（库存导出）；max_hit=1 保证 [JumpBack] 回跳后不再重跑",
+    "AutoEssenceRunInventoryFilter": {
+        "desc": "目标模式需要刷新账号库存时执行一次基质盘点",
         "max_hit": 1,
         "pre_delay": 0,
         "post_delay": 0,
@@ -151,11 +144,11 @@
             "EssenceFilterMain"
         ],
         "on_error": [
-            "AutoEssenceTargetPrepareFailed"
+            "AutoEssenceInventoryScanFailed"
         ]
     },
     "AutoEssenceTargetLoadInventory": {
-        "desc": "目标模式：将 EssenceInventory.json 载入内存仓储",
+        "desc": "目标模式：加载已验证的账号库存",
         "pre_delay": 0,
         "action": {
             "type": "Custom",
@@ -168,17 +161,17 @@
             "AutoEssenceTargetPlan"
         ],
         "on_error": [
-            "AutoEssenceTargetPrepareFailed"
+            "AutoEssenceInventoryScanFailed"
         ],
         "focus": {
             "Node.Action.Succeeded": "📦目标模式：基质仓储已加载"
         }
     },
-    "AutoEssenceTargetPrepareFailed": {
-        "desc": "目标模式库存盘点失败，禁止空库存开刷",
+    "AutoEssenceInventoryScanFailed": {
+        "desc": "目标模式无法确认基质库存时结束刷取",
         "action": "StopTask",
         "focus": {
-            "Node.Action.Starting": "❌**目标模式：基质库存盘点失败**\n请确认已在基质界面可盘点后重试"
+            "Node.Action.Starting": "❌**基质库存盘点失败**\n请确认已在基质界面可盘点后重试"
         }
     },
     "AutoEssenceTargetPlan": {
@@ -210,6 +203,7 @@
                         "GotoTriggerPointMaybeTeleport_WLMarkerStone",
                         "GotoTriggerPointMaybeTeleport_WLNorthWulingExclusionZone",
                         "GotoTriggerPointMaybeTeleport_WLQingboStockade",
+                        "GotoTriggerPointMaybeTeleport_WLSisPainting",
                         "GotoTriggerPointMaybeTeleport_WLSnowyForest",
                         "GotoTriggerPointMaybeTeleport_WLSwordVaultDale",
                         "GotoTriggerPointMaybeTeleport_WLTestArea",
@@ -432,7 +426,7 @@
                     200,
                     230
                 ],
-                "count": 100
+                "count": 50
             }
         }
     },
@@ -561,7 +555,18 @@
             "param": {}
         },
         "pre_delay": 0,
-        "action": "DoNothing",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClearHitCount",
+                "custom_action_param": {
+                    "nodes": [
+                        "AutoEssenceScrollGrayAttributeOption",
+                        "AutoEssenceScrollEngraveBonusList"
+                    ]
+                }
+            }
+        },
         "post_wait_freezes": {
             "time": 500,
             "target": [
@@ -644,6 +649,7 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack]AutoEssenceClickGrayAttributeOption",
+            "[JumpBack]AutoEssenceScrollGrayAttributeOption",
             "AutoEssenceNoGrayAttributeOption"
         ]
     },
@@ -678,6 +684,40 @@
             "type": "Click"
         },
         "post_delay": 500,
+        "rate_limit": 0
+    },
+    "AutoEssenceScrollGrayAttributeOption": {
+        "desc": "当前页没有可取消的灰色词条时向下滚动一页（每次进入词条选择最多 1 次，滚动后不恢复）",
+        "max_hit": 1,
+        "recognition": {
+            "type": "DirectHit",
+            "param": {}
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    450,
+                    620
+                ],
+                "end": [
+                    450,
+                    480
+                ],
+                "duration": 300
+            }
+        },
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                43,
+                350,
+                820,
+                310
+            ]
+        },
+        "post_delay": 0,
         "rate_limit": 0
     },
     "AutoEssenceNoGrayAttributeOption": {
@@ -782,7 +822,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoEssenceSelectEngraveBonusCondition"
+            "AutoEssenceSelectEngraveBonus"
         ]
     },
     "AutoEssenceSelectEngraveBonusCondition": {
@@ -816,6 +856,58 @@
         "rate_limit": 0,
         "next": [
             "AutoEssenceConfirmEngraveSelection"
+        ]
+    },
+    "AutoEssenceSelectEngraveBonus": {
+        "desc": "选择附加/技能属性：当前页没有目标词条时反向滚动再找一次",
+        "recognition": {
+            "type": "DirectHit",
+            "param": {}
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceSelectEngraveBonusCondition",
+            "AutoEssenceScrollEngraveBonusList"
+        ]
+    },
+    "AutoEssenceScrollEngraveBonusList": {
+        "desc": "附加/技能属性当前页没有目标词条时反向滚动一页（每次进入词条选择最多 1 次）",
+        "max_hit": 1,
+        "recognition": {
+            "type": "DirectHit",
+            "param": {}
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    450,
+                    480
+                ],
+                "end": [
+                    450,
+                    620
+                ],
+                "duration": 300
+            }
+        },
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                43,
+                350,
+                820,
+                310
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceSelectEngraveBonus"
         ]
     },
     "AutoEssenceConfirmEngraveSelection": {
@@ -1105,10 +1197,8 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "AutoEssenceClickObtainButton",
-            "AutoEssenceClickDiscardButton",
-            "[JumpBack]AutoEssenceInObtain",
-            "[Anchor]AutoEssenceMoveToTriggerPoint" // 未识别到领取时纯寻路回交互位，再由 Interact 处理
+            // 挑战结束后走一次寻路再交互，避免战斗完毕刚好落在交互极限范围上出问题
+            "[Anchor]AutoEssenceMoveToTriggerPoint"
         ],
         "focus": {
             "Node.Recognition.Starting": "🔍检查挑战是否结束",
@@ -1192,7 +1282,11 @@
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "AutoAltClickAction"
+                "custom_action": "RepeatUntilNotFoundAction",
+                "custom_action_param": {
+                    "custom_action": "AutoAltClickAction",
+                    "wait_node": "AutoEssenceClickObtainButtonRecheck"
+                }
             }
         },
         "next": [
@@ -1383,10 +1477,12 @@
         "post_delay": 1000,
         "next": [
             "AutoEssenceLowSp",
-            //基质筛选开启时进入基质筛选线，完成后自己退出战利品界面并next到"AutoEssenceOnSuccess"
             "EssenceFilterAfterBattleStart",
-            //基质筛选未开启或进入失败时直接关闭战利品界面
-            "AutoEssenceCloseObtainDialog"
+            // 战后筛选未开启（随机、地区模式）时直接离开战利品界面
+            "EssenceFilterAfterBattleExit"
+        ],
+        "on_error": [
+            "EssenceFilterAfterBattleFailed"
         ],
         "focus": {
             "Node.Action.Starting": "👆点击确认领取按钮"
@@ -1505,7 +1601,10 @@
         "next": [
             "AutoEssenceLowSpFallbackLowSp",
             "EssenceFilterAfterBattleStart",
-            "AutoEssenceCloseObtainDialog"
+            "EssenceFilterAfterBattleExit"
+        ],
+        "on_error": [
+            "EssenceFilterAfterBattleFailed"
         ]
     },
     "AutoEssenceLowSpFallbackLowSp": {
@@ -1564,46 +1663,20 @@
             "Node.Action.Starting": "😴**体力不足，任务结束**\n如需继续刷取，请补充足够的体力值~"
         }
     },
-    "AutoEssenceCloseObtainDialog": {
-        "desc": "识别并点击关闭战利品界面的按钮",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    630,
-                    430,
-                    420,
-                    260
-                ],
-                "template": "Common/Button/CancelButtonType1.png"
-            }
-        },
-        "pre_wait_freezes": 2000,
-        "action": {
-            "type": "Click"
-        },
-        "post_delay": 1000,
-        "next": [
-            "AutoEssenceOnSuccess"
-        ],
-        "focus": {
-            "Node.Action.Starting": "👆点击离开按钮"
-        }
-    },
     "AutoEssenceOnSuccess": {
         "desc": "成功完成一次基质刷取后的守卫节点",
         "pre_delay": 0,
         "next": [
-            // 循环与整次结束由任务选项覆写 next；典型为 Main -> [JumpBack]汇总 -> OnComplete（汇总无自有 next，JumpBack 后继续 OnComplete）
+            // 循环与整次结束由任务选项覆写 next；典型为 Main -> [JumpBack]汇总 -> AfterStashBackpack（汇总无自有 next，JumpBack 后继续 AfterStashBackpack）
             "[JumpBack]AutoEssenceAfterBattleRunEndLootReport",
-            "AutoEssenceOnComplete"
+            "AutoEssenceAfterStashBackpack"
         ],
         "focus": {
             "Node.Action.Starting": "✅已完成一次基质刷取"
         }
     },
     "AutoEssenceAfterBattleRunEndLootReport": {
-        "desc": "战后筛选整次任务汇总：EssenceFilterFinishAction；max_hit=1 全任务仅输出一次；须由父节点以 [JumpBack] 引用以便继续 OnComplete 或体力不足 StopTask；默认关闭",
+        "desc": "战后筛选整次任务汇总：EssenceFilterFinishAction；max_hit=1 全任务仅输出一次；须由父节点以 [JumpBack] 引用以便继续后续结束流程或体力不足 StopTask；默认关闭，只有目标模式开启",
         "enabled": false,
         "max_hit": 1,
         "pre_delay": 0,
@@ -1614,6 +1687,19 @@
             }
         },
         "post_delay": 0
+    },
+    "AutoEssenceAfterStashBackpack": {
+        "desc": "基质刷取后存放背包",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "StashBackpackSubTask"
+            ]
+        },
+        "next": [
+            "AutoEssenceOnComplete"
+        ]
     },
     "AutoEssenceOnComplete": {
         "desc": "成功完成了所有基质刷取，安全结束任务",

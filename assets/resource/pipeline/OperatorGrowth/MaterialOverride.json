@@ -1,0 +1,913 @@
+{
+    "OperatorGrowthOverrideProtodisk": {
+        "desc": "协议圆盘数量设置覆写",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    540,
+                    10,
+                    695,
+                    680
+                ],
+                "expected": [
+                    "^协议圆盘$",
+                    "^協議圓盤$",
+                    "(?i)^Protodisk$",
+                    "^協約ディスク$",
+                    "^프로토콜\\s*디스크$"
+                ]
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "OperatorGrowthGetInsufficientMaterialItemPosition": {
+                            "recognition": {
+                                "param": {
+                                    "template": [
+                                        "OperatorGrowth/Materials/item_char_break_stage_1_2.png"
+                                    ]
+                                }
+                            }
+                        },
+                        "OperatorGrowthContinueMaterialBattle": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "expression": "{item_char_break_stage_1_2}<{scratch_demand_item}"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "next": [
+            "OperatorGrowthMoveToRedQuantity"
+        ]
+    },
+    "OperatorGrowthOverrideTriphasicNanoflake": {
+        "desc": "三相纳米片数量设置覆写",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    540,
+                    10,
+                    695,
+                    680
+                ],
+                "expected": [
+                    "^三相纳米片$",
+                    "^三相奈米片$",
+                    "(?i)^Triphasic\\s*Nanoflake$",
+                    "^三相ナノフレーク$",
+                    "^3상\\s*나노\\s*플레이크\\s*칩$"
+                ]
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "OperatorGrowthGetInsufficientMaterialItemPosition": {
+                            "recognition": {
+                                "param": {
+                                    "template": [
+                                        "OperatorGrowth/Materials/item_char_skill_specialize_5.png"
+                                    ]
+                                }
+                            }
+                        },
+                        "OperatorGrowthContinueMaterialBattle": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "expression": "{item_char_skill_specialize_5}<{scratch_demand_item}"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "next": [
+            "OperatorGrowthMoveToRedQuantity"
+        ]
+    },
+    "OperatorGrowthOverrideProtoset": {
+        "desc": "协议圆盘组数量设置覆写",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    540,
+                    10,
+                    695,
+                    680
+                ],
+                // 完整原文：协议圆盘组；協議圓盤組；Protoset；協約ディスクセット；프로토콜 디스크 세트
+                "expected": [
+                    // @i18n-skip
+                    "^协议圆盘组$",
+                    "^協議圓盤組$",
+                    "(?i)^Protoset$",
+                    "^協約ディスクセット$",
+                    "^프로토콜\\s*디스크\\s*세트$"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "OperatorGrowthGetInsufficientMaterialItemPosition": {
+                            "recognition": {
+                                "param": {
+                                    "template": [
+                                        "OperatorGrowth/Materials/item_char_break_stage_3_4.png"
+                                    ]
+                                }
+                            }
+                        },
+                        "OperatorGrowthContinueMaterialBattle": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "expression": "{item_char_break_stage_3_4}<{scratch_demand_item}"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OperatorGrowthMoveToRedQuantity"
+        ]
+    },
+    "OperatorGrowthOverrideProtoprism": {
+        "desc": "协议棱柱数量设置覆写",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    540,
+                    10,
+                    695,
+                    680
+                ],
+                // 完整原文：协议棱柱；協議稜柱；Protoprism；協約角柱；프로토콜 프리즘
+                "expected": [
+                    // @i18n-skip
+                    "^协议棱柱$",
+                    "^協議稜柱$",
+                    "(?i)^Protoprism$",
+                    "^協約角柱$",
+                    "^프로토콜\\s*프리즘$"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "OperatorGrowthGetInsufficientMaterialItemPosition": {
+                            "recognition": {
+                                "param": {
+                                    "template": [
+                                        "OperatorGrowth/Materials/item_char_skill_level_1_6.png"
+                                    ]
+                                }
+                            }
+                        },
+                        "OperatorGrowthContinueMaterialBattle": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "expression": "{item_char_skill_level_1_6}<{scratch_demand_item}"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OperatorGrowthMoveToRedQuantity"
+        ]
+    },
+    "OperatorGrowthOverrideProtohedron": {
+        "desc": "协议棱柱组数量设置覆写",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    540,
+                    10,
+                    695,
+                    680
+                ],
+                // 完整原文：协议棱柱组；協議稜柱組；Protohedron；協約角柱セット；프로토콜 프리즘 세트
+                "expected": [
+                    // @i18n-skip
+                    "^协议棱柱组$",
+                    "^協議稜柱組$",
+                    "(?i)^Protohedron$",
+                    "^協約角柱セット$",
+                    "^프로토콜\\s*프리즘\\s*세트$"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "OperatorGrowthGetInsufficientMaterialItemPosition": {
+                            "recognition": {
+                                "param": {
+                                    "template": [
+                                        "OperatorGrowth/Materials/item_char_skill_level_7_12.png"
+                                    ]
+                                }
+                            }
+                        },
+                        "OperatorGrowthContinueMaterialBattle": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "expression": "{item_char_skill_level_7_12}<{scratch_demand_item}"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OperatorGrowthMoveToRedQuantity"
+        ]
+    },
+    "OperatorGrowthOverrideMetadiastimaPhotoemissionTube": {
+        "desc": "超距辉映管数量设置覆写",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    540,
+                    10,
+                    695,
+                    680
+                ],
+                // 完整原文：超距辉映管；超距輝映管；Metadiastima Photoemission Tube；超距離分光管；초거리 빛 반사 파이프
+                "expected": [
+                    // @i18n-skip
+                    "^超距辉映管$",
+                    "^超距輝映管$",
+                    "(?i)^Metadiastima\\s*Photoemission\\s*Tube$",
+                    "^超距離分光管$",
+                    "^초거리\\s*빛\\s*반사\\s*파이프$"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "OperatorGrowthGetInsufficientMaterialItemPosition": {
+                            "recognition": {
+                                "param": {
+                                    "template": [
+                                        "OperatorGrowth/Materials/item_char_skill_specialize_1.png"
+                                    ]
+                                }
+                            }
+                        },
+                        "OperatorGrowthContinueMaterialBattle": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "expression": "{item_char_skill_specialize_1}<{scratch_demand_item}"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OperatorGrowthMoveToRedQuantity"
+        ]
+    },
+    "OperatorGrowthOverrideD96SteelSample4": {
+        "desc": "D96钢样品四数量设置覆写",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    540,
+                    10,
+                    695,
+                    680
+                ],
+                // 完整原文：D96钢样品四；D96鋼樣品四；D96 Steel Sample 4；D96鋼試料Ⅳ；D96강 시제품 4번
+                "expected": [
+                    // @i18n-skip
+                    "^D96钢样品四$",
+                    "^D96鋼樣品四$",
+                    "(?i)^D96\\s*Steel\\s*Sample\\s*4$",
+                    "^D96鋼試料Ⅳ$",
+                    "^D96강\\s*시제품\\s*4번$"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "OperatorGrowthGetInsufficientMaterialItemPosition": {
+                            "recognition": {
+                                "param": {
+                                    "template": [
+                                        "OperatorGrowth/Materials/item_char_skill_specialize_2.png"
+                                    ]
+                                }
+                            }
+                        },
+                        "OperatorGrowthContinueMaterialBattle": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "expression": "{item_char_skill_specialize_2}<{scratch_demand_item}"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OperatorGrowthMoveToRedQuantity"
+        ]
+    },
+    "OperatorGrowthOverrideTachyonScreeningLattice": {
+        "desc": "快子遴捡晶格数量设置覆写",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    540,
+                    10,
+                    695,
+                    680
+                ],
+                // 完整原文：快子遴捡晶格；迅子遴撿晶格；Tachyon Screening Lattice；タキオン精選格子；타키온 차폐 구조체
+                "expected": [
+                    // @i18n-skip
+                    "^快子遴捡晶格$",
+                    "^迅子遴撿晶格$",
+                    "(?i)^Tachyon\\s*Screening\\s*Lattice$",
+                    "^タキオン精選格子$",
+                    "^타키온\\s*차폐\\s*구조체$"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "OperatorGrowthGetInsufficientMaterialItemPosition": {
+                            "recognition": {
+                                "param": {
+                                    "template": [
+                                        "OperatorGrowth/Materials/item_char_skill_specialize_3.png"
+                                    ]
+                                }
+                            }
+                        },
+                        "OperatorGrowthContinueMaterialBattle": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "expression": "{item_char_skill_specialize_3}<{scratch_demand_item}"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OperatorGrowthMoveToRedQuantity"
+        ]
+    },
+    "OperatorGrowthOverrideQuadrantFittingFluid": {
+        "desc": "象限拟合液数量设置覆写",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    540,
+                    10,
+                    695,
+                    680
+                ],
+                // 完整原文：象限拟合液；象限擬合液；Quadrant Fitting Fluid；象限適合液；정합용 유체
+                "expected": [
+                    // @i18n-skip
+                    "^象限拟合液$",
+                    "^象限擬合液$",
+                    "(?i)^Quadrant\\s*Fitting\\s*Fluid$",
+                    "^象限適合液$",
+                    "^정합용\\s*유체$"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "OperatorGrowthGetInsufficientMaterialItemPosition": {
+                            "recognition": {
+                                "param": {
+                                    "template": [
+                                        "OperatorGrowth/Materials/item_char_skill_specialize_4.png"
+                                    ]
+                                }
+                            }
+                        },
+                        "OperatorGrowthContinueMaterialBattle": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "expression": "{item_char_skill_specialize_4}<{scratch_demand_item}"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OperatorGrowthMoveToRedQuantity"
+        ]
+    },
+    "OperatorGrowthOverrideWarpPlasmaCoatedSlide": {
+        "desc": "跃迁浆体涂片数量设置覆写",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    540,
+                    10,
+                    695,
+                    680
+                ],
+                // 完整原文：跃迁浆体涂片；躍遷漿體塗片；Warp Plasma-Coated Slide；遷移スラリー塗抹標本；도약 교질 도말 표본
+                "expected": [
+                    // @i18n-skip
+                    "^跃迁浆体涂片$",
+                    "^躍遷漿體塗片$",
+                    "(?i)^Warp\\s*Plasma-Coated\\s*Slide$",
+                    "^遷移スラリー塗抹標本$",
+                    "^도약\\s*교질\\s*도말\\s*표본$"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "OperatorGrowthGetInsufficientMaterialItemPosition": {
+                            "recognition": {
+                                "param": {
+                                    "template": [
+                                        "OperatorGrowth/Materials/item_char_skill_specialize_6.png"
+                                    ]
+                                }
+                            }
+                        },
+                        "OperatorGrowthContinueMaterialBattle": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "expression": "{item_char_skill_specialize_6}<{scratch_demand_item}"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OperatorGrowthMoveToRedQuantity"
+        ]
+    },
+    "OperatorGrowthOverrideCombatRecordEXP": {
+        "desc": "初级作战记录数量设置覆写",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    540,
+                    10,
+                    695,
+                    680
+                ],
+                // 完整原文：初级作战记录；初級作戰紀錄；Elementary Combat Record；初級作戦記録；초급 작전 기록
+                "expected": [
+                    // @i18n-skip
+                    "^初级作战记录$",
+                    "^初級作戰紀錄$",
+                    "(?i)^Elementary\\s*Combat\\s*Record$",
+                    "^初級作戦記録$",
+                    "^초급\\s*작전\\s*기록$"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "OperatorGrowthGetInsufficientMaterialItemPosition": {
+                            "recognition": {
+                                "param": {
+                                    "template": [
+                                        "OperatorGrowth/Materials/item_expcard_stage1_low.png"
+                                    ]
+                                }
+                            }
+                        },
+                        "OperatorGrowthContinueMaterialBattle": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "expression": "({item_expcard_stage1_high}*10000+{item_expcard_stage1_mid}*1000+{item_expcard_stage1_low}*200)<{scratch_demand_item}*200"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OperatorGrowthMoveToRedQuantity"
+        ]
+    },
+    "OperatorGrowthOverrideCognitiveCarrierEXP": {
+        "desc": "初级认知载体数量设置覆写",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    540,
+                    10,
+                    695,
+                    680
+                ],
+                // 完整原文：初级认知载体；初級認知載體；Elementary Cognitive Carrier；初級認識媒体；초급 인지 매개체
+                "expected": [
+                    // @i18n-skip
+                    "^初级认知载体$",
+                    "^初級認知載體$",
+                    "(?i)^Elementary\\s*Cognitive\\s*Carrier$",
+                    "^初級認識媒体$",
+                    "^초급\\s*인지\\s*매개체$"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "OperatorGrowthGetInsufficientMaterialItemPosition": {
+                            "recognition": {
+                                "param": {
+                                    "template": [
+                                        "OperatorGrowth/Materials/item_expcard_stage2_low.png"
+                                    ]
+                                }
+                            }
+                        },
+                        "OperatorGrowthContinueMaterialBattle": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "expression": "({item_expcard_stage2_high}*10000+{item_expcard_stage2_low}*1000)<{scratch_demand_item}*1000"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OperatorGrowthMoveToRedQuantity"
+        ]
+    },
+    "OperatorGrowthOverrideTCreds": {
+        "desc": "折金票数量设置覆写",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    540,
+                    10,
+                    695,
+                    680
+                ],
+                // 完整原文：折金票；T-Creds；折金券；탈로시안 화폐
+                "expected": [
+                    // @i18n-skip
+                    "^折金票$",
+                    "(?i)^T-Creds$",
+                    "^折金券$",
+                    "^탈로시안\\s*화폐$"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "OperatorGrowthGetInsufficientMaterialItemPosition": {
+                            "recognition": {
+                                "param": {
+                                    "template": [
+                                        "OperatorGrowth/Materials/item_gold.png"
+                                    ]
+                                }
+                            }
+                        },
+                        "OperatorGrowthContinueMaterialBattle": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "expression": "{item_gold}<{scratch_demand_item}"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OperatorGrowthMoveToRedQuantity"
+        ]
+    },
+    "OperatorGrowthOverrideHeavyCastDie": {
+        "desc": "重型强固模具数量设置覆写",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    540,
+                    10,
+                    695,
+                    680
+                ],
+                // 完整原文：重型强固模具；重型強固模具；Heavy Cast Die；重硬質金型；중형 모형 틀
+                "expected": [
+                    // @i18n-skip
+                    "^重型强固模具$",
+                    "^重型強固模具$",
+                    "(?i)^Heavy\\s*Cast\\s*Die$",
+                    "^重硬質金型$",
+                    "^중형\\s*모형\\s*틀$"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "OperatorGrowthGetInsufficientMaterialItemPosition": {
+                            "recognition": {
+                                "param": {
+                                    "template": [
+                                        "OperatorGrowth/Materials/item_weapon_break_high.png"
+                                    ]
+                                }
+                            }
+                        },
+                        "OperatorGrowthContinueMaterialBattle": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "expression": "{item_weapon_break_high}<{scratch_demand_item}"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OperatorGrowthMoveToRedQuantity"
+        ]
+    },
+    "OperatorGrowthOverrideCastDie": {
+        "desc": "强固模具数量设置覆写",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    540,
+                    10,
+                    695,
+                    680
+                ],
+                // 完整原文：强固模具；強固模具；Cast Die；硬質金型；모형 틀
+                "expected": [
+                    // @i18n-skip
+                    "^强固模具$",
+                    "^強固模具$",
+                    "(?i)^Cast\\s*Die$",
+                    "^硬質金型$",
+                    "^모형\\s*틀$"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "OperatorGrowthGetInsufficientMaterialItemPosition": {
+                            "recognition": {
+                                "param": {
+                                    "template": [
+                                        "OperatorGrowth/Materials/item_weapon_break_low.png"
+                                    ]
+                                }
+                            }
+                        },
+                        "OperatorGrowthContinueMaterialBattle": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "expression": "{item_weapon_break_low}<{scratch_demand_item}"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OperatorGrowthMoveToRedQuantity"
+        ]
+    },
+    "OperatorGrowthOverrideWeaponEXP": {
+        "desc": "武器检查单元数量设置覆写",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    540,
+                    10,
+                    695,
+                    680
+                ],
+                // 完整原文：武器检查套组；武器檢查套組；Arms INSP Set；武器検査ボックス；무기 점검 세트；武器检查装置；武器檢查裝置；Arms INSP Kit；武器検査セット；무기 점검 장치；武器检查单元；武器檢查單元；Arms Inspector；武器検査ユニット；무기 점검 유닛
+                "expected": [
+                    // @i18n-skip
+                    "^武器检查套组$",
+                    "^武器檢查套組$",
+                    "(?i)^Arms\\s*INSP\\s*Set$",
+                    "^武器検査ボックス$",
+                    "^무기\\s*점검\\s*세트$",
+                    "^武器检查装置$",
+                    "^武器檢查裝置$",
+                    "(?i)^Arms\\s*INSP\\s*Kit$",
+                    "^武器検査セット$",
+                    "^무기\\s*점검\\s*장치$",
+                    "^武器检查单元$",
+                    "^武器檢查單元$",
+                    "(?i)^Arms\\s*Inspector$",
+                    "^武器検査ユニット$",
+                    "^무기\\s*점검\\s*유닛$"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "OperatorGrowthGetInsufficientMaterialItemPosition": {
+                            "recognition": {
+                                "param": {
+                                    "template": [
+                                        "OperatorGrowth/Materials/item_weapon_expcard_low.png"
+                                    ]
+                                }
+                            }
+                        },
+                        "OperatorGrowthContinueMaterialBattle": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "expression": "({item_weapon_expcard_high}*10000+{item_weapon_expcard_mid}*1000+{item_weapon_expcard_low}*200)<{scratch_demand_item}*200"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OperatorGrowthMoveToRedQuantity"
+        ]
+    }
+}

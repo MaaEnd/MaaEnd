@@ -108,7 +108,7 @@
         "UpdateItemQuantityParam": {
             "type": "object",
             "title": "UpdateItemQuantity Param",
-            "description": "Parameters for UpdateItemQuantity action (A1). Applies a signed delta to one cached item; result is clamped to >= 0. Persists IMS.json but does not change readiness / last_sync (only SyncItemData marks sync).",
+            "description": "Parameters for UpdateItemQuantity action (A1). Applies a signed delta to one cached item; result is clamped to >= 0. Inventory keys persist IMS.json but do not change readiness / last_sync (only SyncItemData marks sync); scratch_ keys are virtual items and stay in memory.",
             "additionalProperties": false,
             "required": [
                 "item",
@@ -117,7 +117,7 @@
             "properties": {
                 "item": {
                     "title": "Item",
-                    "description": "IconRecognition item ID (same keys as IMS.json cache).",
+                    "description": "IconRecognition item ID (same keys as IMS.json cache), or a scratch_ prefixed virtual key. Virtual keys are memory only and are never persisted; A1 does not validate the id against the catalog.",
                     "type": "string",
                     "minLength": 1
                 },
@@ -125,6 +125,36 @@
                     "title": "Delta",
                     "description": "Signed quantity change (positive gain, negative spend).",
                     "type": "integer"
+                }
+            }
+        },
+        "SetItemQuantityParam": {
+            "type": "object",
+            "title": "SetItemQuantity Param",
+            "description": "Parameters for SetItemQuantity action (A4). Writes one cached item quantity as an absolute value. The key decides the layer: scratch_ keys are virtual items and stay in memory (never persisted, never hydrated) while catalog keys are inventory items and are persisted with the same rules as UpdateItemQuantity (updated_at preserved, readiness unchanged). Neither layer touches the A2 scan gates. value is optional: an integer, an expression string (same syntax as R1; {ITEM_ID} placeholders read the cache before the write, covering both layers), or omitted to read the number from this node's own recognition result (OCR, or And resolved along box_index; magnitude suffixes such as 1.38万 are supported). Negative results clamp to 0. A recognition read failure fails the action without writing; an id that is neither a scratch_ key nor a catalog key fails before any write.",
+            "additionalProperties": false,
+            "required": [
+                "item"
+            ],
+            "properties": {
+                "item": {
+                    "title": "Item",
+                    "description": "scratch_ prefixed virtual key, or an IconRecognition catalog id for a real inventory item. Virtual keys are memory only; inventory ids are checked against data/IconRecognition/recognition_items.json and the action fails on an unknown id.",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "value": {
+                    "title": "Value",
+                    "description": "Absolute quantity. Integer literal, or an expression string evaluated over cached item quantities (virtual and inventory keys, must evaluate to an integer). Omit to read the number from the recognition result of the node this action runs on.",
+                    "oneOf": [
+                        {
+                            "type": "integer"
+                        },
+                        {
+                            "type": "string",
+                            "minLength": 1
+                        }
+                    ]
                 }
             }
         },
@@ -209,6 +239,16 @@
                     "description": "When true (default), print one HTML Focus summary with icons after the scan finishes (ims.sync_item_summary). Transaction begin/continue summaries cover the current page; commit summarizes items hit by the whole transaction. Set false for silent scans (e.g. scene-jump side-cache).",
                     "type": "boolean",
                     "default": true
+                },
+                "report_item_ids": {
+                    "title": "Report Item IDs",
+                    "description": "Optional item IDs to include in this call's UI summary. Recognition and cached quantities are unchanged. Omit or pass an empty list to announce every hit; transaction commit applies its own list to the final summary.",
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "uniqueItems": true
                 }
             }
         }

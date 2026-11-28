@@ -177,8 +177,6 @@ constexpr int kCreditTradeCardMinimumHeight = 150;
 constexpr int kCreditTradeCardMaximumHeight = 180;
 // 卡片亮区的最小连通面积（像素）；调高抑制噪声，也会拒绝破碎卡片。
 constexpr int kCreditTradeCardMinimumArea = 5000;
-// 使用卡片相位前所需的最少卡片数；不足时退回通用晶格检测。
-constexpr std::size_t kCreditTradeMinimumCardCount = 2;
 // 少于该数量时使用相位一致性校验，避免少量卡片直接生成错误晶格。
 constexpr std::size_t kCreditTradeSparseCardCount = 5;
 // 首行达到该卡片数时补全该截图已观测到的列跨度，兼容已售罄卡片造成的亮区缺失。
@@ -464,13 +462,14 @@ GridDetection DetectRewardsGrid(const cv::Mat& image, const cv::Rect& roi)
     for (std::size_t row_index = 0; row_index < detected_rows.size(); ++row_index) {
         const auto& row = detected_rows[row_index];
         if (const auto error = centered(row.starts.front(), row.top, row.starts.back() + profile.cell_size, row.top + profile.cell_size)) {
-            consider({
-                .first_row = row_index,
-                .row_count = 1,
-                .cell_count = row.starts.size(),
-                .columns = static_cast<int>(row.starts.size()),
-                .center_error = *error,
-            });
+            consider(
+                {
+                    .first_row = row_index,
+                    .row_count = 1,
+                    .cell_count = row.starts.size(),
+                    .columns = static_cast<int>(row.starts.size()),
+                    .center_error = *error,
+                });
         }
     }
 
@@ -532,13 +531,14 @@ GridDetection DetectRewardsGrid(const cv::Mat& image, const cv::Rect& roi)
             const int x2 = first_row.starts.back() + profile.cell_size;
             const int y2 = current.top + profile.cell_size;
             if (const auto error = centered(origin_x, first_row.top, x2, y2)) {
-                consider({
-                    .first_row = first,
-                    .row_count = last - first + 1,
-                    .cell_count = cells,
-                    .columns = full_columns,
-                    .center_error = *error,
-                });
+                consider(
+                    {
+                        .first_row = first,
+                        .row_count = last - first + 1,
+                        .cell_count = cells,
+                        .columns = full_columns,
+                        .center_error = *error,
+                    });
             }
             // 不足满列的行只能是末行；即使下方还有伪候选，也不让布局继续跨过该行扩展。
             if (current.starts.size() != static_cast<std::size_t>(full_columns)) {
@@ -707,8 +707,8 @@ std::optional<double> EstimateRewardsScaleFromCards(const cv::Mat& image, const 
     const auto center_error = [&](const ScaleEvidence& candidate) {
         const auto bounds = bounds_for(candidate);
         return bounds ? std::max(
-                   std::abs(bounds->x + bounds->width / 2.0 - image.cols / 2.0),
-                   std::abs(bounds->y + bounds->height / 2.0 - image.rows / 2.0))
+                            std::abs(bounds->x + bounds->width / 2.0 - image.cols / 2.0),
+                            std::abs(bounds->y + bounds->height / 2.0 - image.rows / 2.0))
                       : std::numeric_limits<double>::infinity();
     };
     const auto centered = [&](const ScaleEvidence& candidate) {
@@ -1174,8 +1174,8 @@ GridLayout DetectCreditTrade(const cv::Mat& image, const cv::Rect& roi)
             cards.emplace_back(stats.at<int>(index, cv::CC_STAT_LEFT) + roi.x, stats.at<int>(index, cv::CC_STAT_TOP) + roi.y);
         }
     }
-    if (cards.size() < kCreditTradeMinimumCardCount) {
-        return DetectSingleLattice(image, GridType::CreditTrade, roi);
+    if (cards.empty()) {
+        return {};
     }
     std::vector<double> x_phases;
     std::vector<double> y_phases;
@@ -1459,8 +1459,9 @@ std::optional<TransferAxisFit> FitTransferAxis(
             std::vector<double> pairs;
             for (int index = 0; index < count; ++index) {
                 const double position = phase + index * pitch;
-                pairs.push_back(std::sqrt(
-                    std::max(SampleSignal(normalized, position), 0.0) * std::max(SampleSignal(normalized, position + cell_size), 0.0)));
+                pairs.push_back(
+                    std::sqrt(
+                        std::max(SampleSignal(normalized, position), 0.0) * std::max(SampleSignal(normalized, position + cell_size), 0.0)));
             }
             std::vector<double> residuals;
             for (std::size_t index = 0; index < observed.size(); ++index) {
@@ -1832,12 +1833,13 @@ bool IsTransferEmptyGridCandidate(
             }
             ++checked_cells;
             // ADB 的几何在归一化图上拟合，判空仍读取原图，保持前后两处的 4px 裁剪及阈值一致。
-            const auto score = texture_context ? ForegroundTextureScore(
-                                   texture_context->source_image,
-                                   ScaleRectToSource(cell, texture_context->source_grid_scale, texture_context->source_image.size()),
-                                   GridType::Transfer,
-                                   texture_context->texture_roi)
-                                               : ForegroundTextureScore(image, cell, GridType::Transfer);
+            const auto score = texture_context
+                                   ? ForegroundTextureScore(
+                                         texture_context->source_image,
+                                         ScaleRectToSource(cell, texture_context->source_grid_scale, texture_context->source_image.size()),
+                                         GridType::Transfer,
+                                         texture_context->texture_roi)
+                                   : ForegroundTextureScore(image, cell, GridType::Transfer);
             if (!score || *score >= kDefaultLowTextureThreshold) {
                 return false;
             }
@@ -2915,12 +2917,13 @@ GridDetection DetectGridNormalized(
         auto hints = DiscoverTransferGridHints(image(roi), type == GridType::Transfer);
         if (type == GridType::Transfer && hints.empty() && allow_transfer_hint_fallback) {
             // 该入口只能由已按 TransferPanelRegionsFor 切分的单侧面板开启；禁止整幅 ROI 横跨左右面板搜索。
-            hints.push_back({
-                .region = cv::Rect(0, 0, roi.width, roi.height),
-                .rect = cv::Rect(0, 0, roi.width, roi.height),
-                .x_starts = { 0 },
-                .y_starts = { 0 },
-            });
+            hints.push_back(
+                {
+                    .region = cv::Rect(0, 0, roi.width, roi.height),
+                    .rect = cv::Rect(0, 0, roi.width, roi.height),
+                    .x_starts = { 0 },
+                    .y_starts = { 0 },
+                });
         }
         for (int index = 0; index < static_cast<int>(hints.size()); ++index) {
             Append(result, BuildTransferLayout(image, roi, hints[index], index, type, texture_context));

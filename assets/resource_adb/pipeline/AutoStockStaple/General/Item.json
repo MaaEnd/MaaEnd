@@ -1,4 +1,45 @@
 {
+    "AutoStockInStapleItem": {
+        "recognition": {
+            "param": {
+                "lower": [
+                    [
+                        70,
+                        180,
+                        130
+                    ],
+                    [
+                        24,
+                        250,
+                        250
+                    ],
+                    [
+                        160,
+                        255,
+                        217
+                    ]
+                ],
+                "upper": [
+                    [
+                        80,
+                        255,
+                        250
+                    ],
+                    [
+                        24,
+                        255,
+                        255
+                    ],
+                    [
+                        160,
+                        255,
+                        217
+                    ]
+                ],
+                "count": 600
+            }
+        }
+    },
     "AutoStockInStapleItemNameLabelColor": {
         "roi_offset": [
             -5,
@@ -7,7 +48,7 @@
             30
         ]
     },
-    "AutoStockInStapleItemDiscountsWuling": {
+    "AutoStockInStapleItemDiscountsValleyIVDaily": {
         "roi_offset": [
             43,
             -237,
@@ -15,7 +56,63 @@
             42
         ]
     },
-    "AutoStockInStapleItemDiscountsValleyIV": {
+    "AutoStockInStapleItemDiscountsValleyIVIndustrial": {
+        "roi_offset": [
+            43,
+            -237,
+            22,
+            42
+        ]
+    },
+    "AutoStockInStapleItemDiscountsValleyIVCultural": {
+        "roi_offset": [
+            43,
+            -237,
+            22,
+            42
+        ]
+    },
+    "AutoStockInStapleItemDiscountsValleyIVEngravingPermit": {
+        "roi_offset": [
+            43,
+            -237,
+            22,
+            42
+        ]
+    },
+    "AutoStockInStapleItemDiscountsWulingDaily": {
+        "roi_offset": [
+            43,
+            -237,
+            22,
+            42
+        ]
+    },
+    "AutoStockInStapleItemDiscountsWulingIndustrial": {
+        "roi_offset": [
+            43,
+            -237,
+            22,
+            42
+        ]
+    },
+    "AutoStockInStapleItemDiscountsWulingCultural": {
+        "roi_offset": [
+            43,
+            -237,
+            22,
+            42
+        ]
+    },
+    "AutoStockInStapleItemDiscountsWulingEngravingPermit": {
+        "roi_offset": [
+            43,
+            -237,
+            22,
+            42
+        ]
+    },
+    "AutoStockInStapleItemDiscountsWulingArtificingCatalyst": {
         "roi_offset": [
             43,
             -237,

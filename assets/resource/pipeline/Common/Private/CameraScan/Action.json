@@ -1,6 +1,6 @@
 {
     "__CameraScanMoveUp": {
-        "desc": "CameraScanAction 默认上移镜头",
+        "desc": "CameraScanAction 上移镜头一格（半格，约 22.5°）",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Swipe",
@@ -10,14 +10,31 @@
         ],
         "end": [
             520,
-            120
+            240
         ],
-        "end_hold": 200,
+        "end_hold": 0,
+        "duration": 60,
+        // 静止判定的比较区域取拍照停止节点 __TakePhotoShutter 的搜索范围并集
+        // （ShutterButton 961,465,213,183 ∪ __TakePhotoCheckTarget 0,100,150,580），
+        // 不用全屏：全屏会把界面动画一起算进去，每格都会等满 timeout。
+        // 换用别的 wait_nodes 时，把这里的 target 改成对应节点的 roi。
+        "post_wait_freezes": {
+            "time": 40,
+            "target": [
+                0,
+                100,
+                1174,
+                580
+            ],
+            "threshold": 0.95,
+            "rate_limit": 40,
+            "timeout": 200
+        },
         "post_delay": 0,
         "rate_limit": 0
     },
     "__CameraScanMoveDown": {
-        "desc": "CameraScanAction 默认下移镜头",
+        "desc": "CameraScanAction 下移镜头一格（半格，约 22.5°）",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Swipe",
@@ -27,14 +44,27 @@
         ],
         "end": [
             520,
-            600
+            480
         ],
-        "end_hold": 200,
+        "end_hold": 0,
+        "duration": 60,
+        "post_wait_freezes": {
+            "time": 40,
+            "target": [
+                0,
+                100,
+                1174,
+                580
+            ],
+            "threshold": 0.95,
+            "rate_limit": 40,
+            "timeout": 200
+        },
         "post_delay": 0,
         "rate_limit": 0
     },
     "__CameraScanMoveLeft": {
-        "desc": "CameraScanAction 默认左移镜头",
+        "desc": "CameraScanAction 左移镜头一格（半格，约 22.5°）",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Swipe",
@@ -43,15 +73,28 @@
             360
         ],
         "end": [
-            360,
+            440,
             360
         ],
-        "end_hold": 200,
+        "end_hold": 0,
+        "duration": 60,
+        "post_wait_freezes": {
+            "time": 40,
+            "target": [
+                0,
+                100,
+                1174,
+                580
+            ],
+            "threshold": 0.95,
+            "rate_limit": 40,
+            "timeout": 200
+        },
         "post_delay": 0,
         "rate_limit": 0
     },
     "__CameraScanMoveRight": {
-        "desc": "CameraScanAction 默认右移镜头",
+        "desc": "CameraScanAction 右移镜头一格（半格，约 22.5°）",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Swipe",
@@ -60,10 +103,23 @@
             360
         ],
         "end": [
-            680,
+            600,
             360
         ],
-        "end_hold": 200,
+        "end_hold": 0,
+        "duration": 60,
+        "post_wait_freezes": {
+            "time": 40,
+            "target": [
+                0,
+                100,
+                1174,
+                580
+            ],
+            "threshold": 0.95,
+            "rate_limit": 40,
+            "timeout": 200
+        },
         "post_delay": 0,
         "rate_limit": 0
     },
@@ -80,6 +136,20 @@
             520,
             360
         ],
+        "end_hold": 0,
+        "duration": 120,
+        "post_wait_freezes": {
+            "time": 40,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ],
+            "threshold": 0.95,
+            "rate_limit": 40,
+            "timeout": 200
+        },
         "post_delay": 0,
         "rate_limit": 0
     }

@@ -46,5 +46,26 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
+    },
+    "InOperationalManualWarEcho": {
+        "desc": "在行动手册-战争回响界面：左上角标题被立绘遮挡，改认右下角战绩回顾按钮",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    -460,
+                    -100,
+                    0,
+                    0
+                ],
+                "expected": [
+                    "战绩回顾",
+                    "戰績回顧"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     }
 }

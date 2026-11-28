@@ -10,8 +10,7 @@
 namespace navmesh::recast
 {
 
-// 一块矩形范围内的立面。取窗口外扩 4px 内的,与盖章口径一致。
-// tri/k 是这条边在区网格里的身份(区内三角号, 边内序), 旁包的留墙表按它索引。
+// 取窗口外扩 4px 内的边, tri/k 是区内三角号与边内序
 struct BakedWalls
 {
     std::vector<WorldPoint> p0;
@@ -25,17 +24,16 @@ struct BakedWalls
 
 BakedWalls BakeWalls(const ZoneClean& zc, double x0, double y0, int64_t nx, int64_t ny);
 
-// 一块矩形范围内、只由区几何与墙决定的体素数据。起点、终点、封堵都不参与,
-// 所以同一矩形任何时候烤出来的都一样,可以离线算好存进包里。
+// 只由区几何与墙决定, 与起终点和封堵无关
 struct BakedCells
 {
     double x0 = 0.0;
     double y0 = 0.0;
     int64_t nx = 0;
     int64_t ny = 0;
-    RasterCells rcs;           // 面内采样,corein 判据要按采样高度逐个比
-    SpanTable st;              // 补缝并按 kMergeH 合并后的 span 表
-    std::vector<uint8_t> dead; // 逐 span: 被立面盖章
+    RasterCells rcs;
+    SpanTable st;
+    std::vector<uint8_t> dead; // 逐 span, 标记被立面盖掉
     std::vector<WorldPoint> wallP0;
     std::vector<WorldPoint> wallP1;
     std::vector<double> wallH0;
@@ -43,7 +41,7 @@ struct BakedCells
     std::vector<double> wallHH;
 };
 
-// 矩形左下角 (x0,y0)、nx×ny 格。墙取窗口外扩 4px 内的,与盖章口径一致。
+// (x0,y0) 是矩形左下角, 共 nx×ny 格
 BakedCells BakeCells(const ZoneClean& zc, double x0, double y0, int64_t nx, int64_t ny);
 
 }

@@ -10,12 +10,24 @@
                     219
                 ]
             }
-        },
-        "action": {
-            "type": "Custom",
+        }
+    },
+    "AutoCollectClickCrate": {
+        "recognition": {
+            "type": "OCR",
             "param": {
-                "custom_action": "AutoAltClickAction"
+                "roi": [
+                    720,
+                    350,
+                    309,
+                    219
+                ]
             }
+        }
+    },
+    "AutoCollectClickKey": {
+        "action": {
+            "type": "Click"
         }
     }
 }

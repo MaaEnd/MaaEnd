@@ -4,18 +4,26 @@
 //
 //  1. 分隔符归一化（Tier A）：剥除空白、方括号、竖线、连字符、点号、顿号等常见分隔符并统
 //     一大小写后要求严格相等。用于 EN 名在 OCR 里多出 `[` `]` `|` 的情况。
-//  2. CJK 纯核归一化（Tier B）：在 Tier A 基础上再剔除 ASCII 字母 / 数字（这些是 CJK 名称
+//  2. 前导竖线字形（Tier A2）：Tier A 未命中时，去掉最多一个被 OCR 粘进名字前导的竖线字形
+//     （`|` `I` `l` `L` `!` `1`）及紧随空白后，再做 Tier A 的严格相等比较。用于货品列表左侧
+//     竖线被认成字母的情况，如 "ILC Wuling Battery" → "LC Wuling Battery"。仅在 Tier A 失败后
+//     尝试，不改变已能严格匹配的名字。
+//  3. CJK 纯核归一化（Tier B）：在 Tier A 基础上再剔除 ASCII 字母 / 数字（这些是 CJK 名称
 //     里的噪声）；候选做相同处理后要求严格相等。用于 "I紫晶质瓶" → "紫晶质瓶"；而「优质柑
 //     实罐头」的 CJK 核心与「柑实罐头」不相等，天然不会被误匹配。
 //
-// 两层均为严格相等比较，无相似度阈值。候选 EN 名自带 ASCII 字母时 Tier B 会同时剥掉两侧的
-// 字母，对 EN 名退化为 Tier A 的等价形式，不会引入新风险。
+// 各层均为严格相等比较，无相似度阈值、无编辑距离。候选 EN 名自带 ASCII 字母时 Tier B 会同时
+// 剥掉两侧的字母，对 EN 名退化为 Tier A 的等价形式，不会引入新风险。
+//
+// 变音符号折叠：StripSeparators 会把带变音的拉丁字母折回基本字母（两侧同样处理），使
+// "Jincão Tea" 与数据表的 "Jincao Tea" 归一后相等。这只是字形差异，不是不同货品。
 package ocrmatch
 
 import (
 	"sort"
 	"strings"
 	"unicode"
+	"unicode/utf8"
 
 	"github.com/MaaXYZ/maa-framework-go/v4"
 )
@@ -65,7 +73,7 @@ type Result struct {
 	Box       maa.Rect
 }
 
-// FindBest 按 Tier A → Tier B 的顺序匹配，任一层命中即返回。
+// FindBest 按 Tier A → Tier A2 → Tier B 的顺序匹配，任一层命中即返回。
 // OCR 结果按屏幕顺序排序，优先命中靠上 / 靠左的文本。Tier 划分见 package doc。
 func FindBest(ocrItems []Item, candidates []string) *Result {
 	tierACandidates := make([]string, len(candidates))
@@ -88,6 +96,29 @@ func FindBest(ocrItems []Item, candidates []string) *Result {
 					OCRText:   item.Text,
 					Candidate: candidates[i],
 					Tier:      "A",
+					Box:       item.Box,
+				}
+			}
+		}
+	}
+
+	// Tier A2: 与 Tier A 相同，只是额外容忍一个被 OCR 粘进名字的前导竖线字形。
+	// 只在 Tier A 严格相等失败后才尝试，因此不会把本来就能匹配的名字改坏。
+	for _, item := range sortedItems {
+		trimmed := stripLeadingBarGlyph(item.Text)
+		if trimmed == "" {
+			continue
+		}
+		ocrA := StripSeparators(trimmed)
+		if ocrA == "" {
+			continue
+		}
+		for i, candA := range tierACandidates {
+			if candA != "" && ocrA == candA {
+				return &Result{
+					OCRText:   item.Text,
+					Candidate: candidates[i],
+					Tier:      "A2",
 					Box:       item.Box,
 				}
 			}
@@ -130,6 +161,45 @@ func SortItemsByPosition(items []Item) []Item {
 	return sortedItems
 }
 
+// latinDiacriticFold 把带变音符号的拉丁字母折回基本字母。
+// 库存货品名里出现过 "Jincão Tea" 这类 OCR 结果，而数据表里写的是 "Jincao Tea"；
+// 只是字形差异，不是不同的货品，所以两侧统一折叠后再比较。
+var latinDiacriticFold = map[rune]rune{
+	'á': 'a', 'à': 'a', 'â': 'a', 'ä': 'a', 'ã': 'a', 'å': 'a', 'ā': 'a', 'ă': 'a', 'ą': 'a',
+	'ç': 'c', 'ć': 'c', 'č': 'c',
+	'é': 'e', 'è': 'e', 'ê': 'e', 'ë': 'e', 'ē': 'e', 'ę': 'e', 'ě': 'e',
+	'í': 'i', 'ì': 'i', 'î': 'i', 'ï': 'i', 'ī': 'i', 'į': 'i',
+	'ñ': 'n', 'ń': 'n', 'ň': 'n',
+	'ó': 'o', 'ò': 'o', 'ô': 'o', 'ö': 'o', 'õ': 'o', 'ø': 'o', 'ō': 'o', 'ő': 'o',
+	'ś': 's', 'š': 's', 'ß': 's',
+	'ú': 'u', 'ù': 'u', 'û': 'u', 'ü': 'u', 'ū': 'u', 'ů': 'u', 'ű': 'u',
+	'ý': 'y', 'ÿ': 'y',
+	'ź': 'z', 'ż': 'z', 'ž': 'z',
+}
+
+// ocrBarGlyphs 是货品列表左侧竖线分隔符可能被 OCR 认成的字符。
+// 这条竖线紧贴货品名左侧，识别后常被粘进名字里：
+// "|LC Wuling Battery" -> "ILC Wuling Battery"。
+const ocrBarGlyphs = "|IlL!1"
+
+// stripLeadingBarGlyph 去掉最多一个前导竖线字形以及紧随其后的空白。
+// 没有可去掉的内容时返回空字符串，调用方据此跳过。
+func stripLeadingBarGlyph(s string) string {
+	t := strings.TrimSpace(s)
+	if t == "" {
+		return ""
+	}
+	r, size := utf8.DecodeRuneInString(t)
+	if !strings.ContainsRune(ocrBarGlyphs, r) {
+		return ""
+	}
+	rest := strings.TrimLeft(t[size:], " \t")
+	if rest == "" || rest == t {
+		return ""
+	}
+	return rest
+}
+
 // StripSeparators 剥除允许差异的分隔字符并统一 ASCII 大小写，保留字母 / 数字 / CJK。
 func StripSeparators(s string) string {
 	s = strings.TrimSpace(s)
@@ -145,6 +215,10 @@ func StripSeparators(s string) string {
 			continue
 		}
 		if unicode.IsSpace(r) {
+			continue
+		}
+		if folded, ok := latinDiacriticFold[unicode.ToLower(r)]; ok {
+			b.WriteRune(folded)
 			continue
 		}
 		b.WriteRune(unicode.ToLower(r))

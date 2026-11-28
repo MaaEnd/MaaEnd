@@ -1,0 +1,26 @@
+{
+    // 云端串流画面中，礼物格底部黄条的饱和度可降到 237 左右。
+    "GiftOperatorClickGiftColor": {
+        "recognition": {
+            "param": {
+                "lower": [
+                    20,
+                    234,
+                    240
+                ]
+            }
+        }
+    },
+    // 云端串流画面中，已选中礼物的数量标签饱和度可降到 221 左右。
+    "GiftOperatorGiftSelectedLabelColor": {
+        "recognition": {
+            "param": {
+                "lower": [
+                    25,
+                    220,
+                    240
+                ]
+            }
+        }
+    }
+}

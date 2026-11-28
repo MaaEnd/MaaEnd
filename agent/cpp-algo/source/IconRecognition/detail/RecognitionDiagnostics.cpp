@@ -115,30 +115,32 @@ json::value RecognitionDiagnostics::to_json() const
         for (const auto& reason : grid.rejected_reasons) {
             rejected_reasons.emplace_back(reason);
         }
-        grids_json.emplace_back(json::object {
-            { "origin", json::object { { "x", grid.origin.x }, { "y", grid.origin.y } } },
-            { "pitch", json::object { { "x", grid.pitch.x }, { "y", grid.pitch.y } } },
-            { "rows", grid.rows },
-            { "columns", grid.columns },
-            { "best_score", grid.best_score },
-            { "second_score", grid.second_score },
-            { "score_margin", grid.score_margin },
-            { "structure_score", grid.structure_score },
-            { "rarity_score", grid.rarity_score },
-            { "consistency_score", grid.consistency_score },
-            { "maximum_residual", grid.maximum_residual },
-            { "residual_trend", grid.residual_trend },
-            { "trusted_rarity_cells", std::move(rarity_counts) },
-            { "fallback_used", grid.fallback_used },
-            { "fallback_reason", grid.fallback_reason },
-            { "rejected_reasons", std::move(rejected_reasons) },
-        });
+        grids_json.emplace_back(
+            json::object {
+                { "origin", json::object { { "x", grid.origin.x }, { "y", grid.origin.y } } },
+                { "pitch", json::object { { "x", grid.pitch.x }, { "y", grid.pitch.y } } },
+                { "rows", grid.rows },
+                { "columns", grid.columns },
+                { "best_score", grid.best_score },
+                { "second_score", grid.second_score },
+                { "score_margin", grid.score_margin },
+                { "structure_score", grid.structure_score },
+                { "rarity_score", grid.rarity_score },
+                { "consistency_score", grid.consistency_score },
+                { "maximum_residual", grid.maximum_residual },
+                { "residual_trend", grid.residual_trend },
+                { "trusted_rarity_cells", std::move(rarity_counts) },
+                { "fallback_used", grid.fallback_used },
+                { "fallback_reason", grid.fallback_reason },
+                { "rejected_reasons", std::move(rejected_reasons) },
+            });
     }
     json::array cells_json;
     for (const auto& cell : cells) {
         cells_json.emplace_back(cell);
     }
     json::object object { { "grids", std::move(grids_json) }, { "cells", std::move(cells_json) } };
+    object["candidate_scope_complete"] = candidate_scope_complete;
     if (performance) {
         object["performance"] = *performance;
     }

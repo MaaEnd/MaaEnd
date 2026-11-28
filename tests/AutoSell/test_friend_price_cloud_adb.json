@@ -1,0 +1,38 @@
+{
+    "configs": {
+        "name": "云终末地好友价格与前往标记",
+        "resource": "官服",
+        "controller": "CloudADB"
+    },
+    "cases": [
+        {
+            "name": "首价5016，尚未前往好友",
+            "image": "帝江号_物资调度_好友价格_待前往.png",
+            "hits": [
+                "AutoSellFriendsPriceFirstTicketRecognition",
+                {"node": "AutoSellFriendsPriceRecognition", "box": [
+                        837,
+                        285,
+                        64,
+                        21
+                    ]},
+                "AutoSellFriendsPricesExpectedGoTo"
+            ]
+        },
+        {
+            "name": "已到达首价5016对应好友",
+            "image": "帝江号_物资调度_好友价格_当前好友.png",
+            "hits": [
+                "AutoSellFriendsPriceFirstTicketRecognition",
+                "AutoSellFriendsPriceRecognition",
+                "AutoSellFriendsPricesExpectedGoTo",
+                "AutoSellFriendsPriceCurrentAreaRecognition",
+                "AutoSellFriendsPriceCurrentRecognition"
+            ]
+        },
+        {
+            "image": "武陵_拍照模式_画面设置.png",
+            "hits": []
+        }
+    ]
+}

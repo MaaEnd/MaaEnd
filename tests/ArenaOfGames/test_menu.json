@@ -1,0 +1,102 @@
+{
+    "configs": {
+        "name": "百趣演武，测试抽牌按钮状态和放弃确认弹窗",
+        "resource": "官服",
+        "controller": "Win32"
+    },
+    "cases": [
+        {
+            "name": "满手牌时抽牌按钮不可用",
+            "image": "百趣演武_手牌_2筒2条4筒3条1万.png",
+            "hits": [
+                "ArenaOfGamesInDrawMenu",
+                "ArenaOfGamesAbandonButton",
+                "ArenaOfGamesDailyHandText"
+            ]
+        },
+        {
+            "image": "百趣演武_手牌_1万2筒1条2筒5条.png",
+            "hits": [
+                "ArenaOfGamesInDrawMenu",
+                "ArenaOfGamesAbandonButton",
+                "ArenaOfGamesDailyHandText"
+            ]
+        },
+        {
+            "image": "百趣演武_手牌_5筒2条2条3筒4条.png",
+            "hits": [
+                "ArenaOfGamesInDrawMenu",
+                "ArenaOfGamesAbandonButton",
+                "ArenaOfGamesDailyHandText"
+            ]
+        },
+        {
+            "image": "百趣演武_手牌_2筒1万5条5万4万.png",
+            "hits": [
+                "ArenaOfGamesInDrawMenu",
+                "ArenaOfGamesAbandonButton",
+                "ArenaOfGamesDailyHandText"
+            ]
+        },
+        {
+            "image": "百趣演武_手牌_2条1万1筒5筒4万.png",
+            "hits": [
+                "ArenaOfGamesInDrawMenu",
+                "ArenaOfGamesAbandonButton",
+                "ArenaOfGamesDailyHandText"
+            ]
+        },
+        {
+            "image": "百趣演武_手牌_4条3万3筒2筒1筒.png",
+            "hits": [
+                "ArenaOfGamesInDrawMenu",
+                "ArenaOfGamesAbandonButton",
+                "ArenaOfGamesDailyHandText"
+            ]
+        },
+        {
+            "image": "百趣演武_手牌_2万1条.png",
+            "hits": [
+                "ArenaOfGamesInDrawMenu",
+                "ArenaOfGamesDrawCardButton",
+                "ArenaOfGamesAbandonButton",
+                "ArenaOfGamesDailyHandText"
+            ]
+        },
+        {
+            "name": "空手时显示撤离按钮，抽牌按钮常态可用，今日好运组合为两对",
+            "image": "百趣演武_空手_抽牌常态.png",
+            "hits": [
+                "ArenaOfGamesInDrawMenu",
+                "ArenaOfGamesDrawCardButton",
+                "ArenaOfGamesDailyHandText"
+            ]
+        },
+        {
+            "name": "空手时抽牌按钮悬停可用",
+            "image": "百趣演武_空手_抽牌悬停.png",
+            "hits": [
+                "ArenaOfGamesInDrawMenu",
+                "ArenaOfGamesDrawCardButton",
+                "ArenaOfGamesDailyHandText"
+            ]
+        },
+        {
+            "name": "英文界面抽牌按钮使用通用图形识别，今日好运组合为 Two Pair",
+            "image": "百趣演武_英文_空手.png",
+            "hits": [
+                "ArenaOfGamesInDrawMenu",
+                "ArenaOfGamesDrawCardButton",
+                "ArenaOfGamesDailyHandText"
+            ]
+        },
+        {
+            "image": "百趣演武_放弃挑战_确认.png",
+            "hits": [
+                "GrayCancelButton",
+                "YellowConfirmButtonType1",
+                "ArenaOfGamesAbandonConfirm"
+            ]
+        }
+    ]
+}

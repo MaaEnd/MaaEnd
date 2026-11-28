@@ -10,6 +10,7 @@
             "option": [
                 "AutoEssenceSchedule",
                 "AutoEssenceMenu",
+                "AutoEssenceStashBackpackSubTask",
                 "AutoFightSettingFull"
             ]
         }
@@ -107,6 +108,33 @@
                 "AutoEssenceScheduleSunday"
             ]
         },
+        "AutoEssenceStashBackpackSubTask": {
+            "type": "switch",
+            "label": "$task.AutoEssence.option.AutoEssenceStashBackpackSubTask.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "StashBackpackType",
+                        "StashBackpackArea"
+                    ],
+                    "pipeline_override": {
+                        "StashBackpackMain": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "StashBackpackMain": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ],
+            "default_case": "Yes"
+        },
         "AutoEssenceMenu": {
             "type": "select",
             "label": "$option.AutoEssenceMenu.label",
@@ -151,7 +179,9 @@
                         "AutoEssenceWeaponTypePistol",
                         "AutoEssenceWeaponTypeWand",
                         "AutoEssenceWeaponTypeLance",
-                        "AutoEssenceObtainModeClaimOnlyForcedFilter"
+                        "AutoEssenceObtainModeClaimOnlyForcedFilter",
+                        "AutoEssenceDiscardOthers",
+                        "AutoEssenceRefreshInventory"
                     ],
                     "pipeline_override": {
                         "AutoEssenceMain": {
@@ -165,7 +195,7 @@
                             "next": [
                                 "AutoEssenceMain",
                                 "[JumpBack]AutoEssenceAfterBattleRunEndLootReport",
-                                "AutoEssenceOnComplete"
+                                "AutoEssenceAfterStashBackpack"
                             ]
                         },
                         "AutoEssenceOnComplete": {
@@ -173,7 +203,7 @@
                                 "Node.Action.Starting": "🎉**目标模式：基质目标已满足或任务结束**"
                             }
                         },
-                        // 目标模式依赖战后精确匹配 Add 更新内存库存，强制开启战后基质筛选
+                        // 只有目标模式扫描战利品
                         "EssenceFilterAfterBattleStart": {
                             "enabled": true
                         },
@@ -188,7 +218,6 @@
         "AutoEssenceObtainMode": {
             "type": "select",
             "label": "$option.AutoEssenceObtainMode.label",
-            "description": "$option.AutoEssenceObtainMode.description",
             "cases": [
                 {
                     "name": "Discard",
@@ -216,7 +245,6 @@
                     "label": "$option.AutoEssenceObtainMode.cases.ObtainScaling1.label",
                     "option": [
                         "AutoEssenceDoOverride",
-                        "EssenceFilterAfterBattle",
                         "AutoUseSpMedication"
                     ],
                     "pipeline_override": {
@@ -242,7 +270,6 @@
                     "label": "$option.AutoEssenceObtainMode.cases.ObtainScaling2.label",
                     "option": [
                         "AutoEssenceDoOverride",
-                        "EssenceFilterAfterBattle",
                         "AutoUseSpMedication"
                     ],
                     "pipeline_override": {
@@ -269,14 +296,12 @@
         "AutoEssenceObtainModeClaimOnly": {
             "type": "select",
             "label": "$option.AutoEssenceObtainMode.label",
-            "description": "$option.AutoEssenceObtainMode.description",
             "cases": [
                 {
                     "name": "ObtainScaling1",
                     "label": "$option.AutoEssenceObtainMode.cases.ObtainScaling1.label",
                     "option": [
                         "AutoEssenceDoOverride",
-                        "EssenceFilterAfterBattle",
                         "AutoUseSpMedication"
                     ],
                     "pipeline_override": {
@@ -302,7 +327,6 @@
                     "label": "$option.AutoEssenceObtainMode.cases.ObtainScaling2.label",
                     "option": [
                         "AutoEssenceDoOverride",
-                        "EssenceFilterAfterBattle",
                         "AutoUseSpMedication"
                     ],
                     "pipeline_override": {
@@ -405,6 +429,55 @@
                 }
             ],
             "default_case": "ObtainScaling2"
+        },
+        "AutoEssenceDiscardOthers": {
+            "type": "switch",
+            "label": "$option.AutoEssenceDiscardOthers.label",
+            "description": "$option.AutoEssenceDiscardOthers.description",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "discard_unmatched": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "discard_unmatched": false
+                            }
+                        }
+                    }
+                }
+            ],
+            "default_case": "Yes"
+        },
+        "AutoEssenceRefreshInventory": {
+            "type": "switch",
+            "label": "$option.AutoEssenceRefreshInventory.label",
+            "description": "$option.AutoEssenceRefreshInventory.description",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPrepare": {
+                            "attach": {
+                                "force_refresh": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
         },
         "AutoUseSpMedication": {
             "type": "select",
@@ -581,465 +654,10 @@
                     "next": [
                         "AutoEssenceMain",
                         "[JumpBack]AutoEssenceAfterBattleRunEndLootReport",
-                        "AutoEssenceOnComplete"
+                        "AutoEssenceAfterStashBackpack"
                     ]
                 }
             }
-        },
-        "EssenceFilterAfterBattle": {
-            "type": "switch",
-            "label": "$option.EssenceFilterAfterBattle.label",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "option": [
-                        "EssenceFilterAfterBattleSelectWeaponRarity",
-                        "EssenceFilterAfterBattleSelectEssence",
-                        "EssenceFilterAfterBattleSelectExtraRules"
-                    ],
-                    "pipeline_override": {
-                        "EssenceFilterAfterBattleStart": {
-                            "enabled": true
-                        },
-                        "AutoEssenceAfterBattleRunEndLootReport": {
-                            "enabled": true
-                        }
-                    }
-                },
-                {
-                    "name": "No",
-                    "pipeline_override": {
-                        "EssenceFilterAfterBattleStart": {
-                            "enabled": false
-                        },
-                        "AutoEssenceAfterBattleRunEndLootReport": {
-                            "enabled": false
-                        }
-                    }
-                }
-            ],
-            "default_case": "No"
-        },
-        "EssenceFilterAfterBattleSelectWeaponRarity": {
-            "type": "switch",
-            "label": "$option.SelectWeaponRarity.label",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "option": [
-                        "EssenceFilterAfterBattleRarity6Weapon",
-                        "EssenceFilterAfterBattleRarity5Weapon",
-                        "EssenceFilterAfterBattleRarity4Weapon"
-                    ]
-                },
-                {
-                    "name": "No"
-                }
-            ],
-            "default_case": "Yes"
-        },
-        "EssenceFilterAfterBattleRarity6Weapon": {
-            "type": "switch",
-            "label": "$option.Rarity6Weapon.label",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        "EssenceFilterAfterBattleInit": {
-                            "attach": {
-                                "rarity6_weapon": true
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "No",
-                    "pipeline_override": {
-                        "EssenceFilterAfterBattleInit": {
-                            "attach": {
-                                "rarity6_weapon": false
-                            }
-                        }
-                    }
-                }
-            ],
-            "default_case": "Yes"
-        },
-        "EssenceFilterAfterBattleRarity5Weapon": {
-            "type": "switch",
-            "label": "$option.Rarity5Weapon.label",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        "EssenceFilterAfterBattleInit": {
-                            "attach": {
-                                "rarity5_weapon": true
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "No",
-                    "pipeline_override": {
-                        "EssenceFilterAfterBattleInit": {
-                            "attach": {
-                                "rarity5_weapon": false
-                            }
-                        }
-                    }
-                }
-            ],
-            "default_case": "Yes"
-        },
-        "EssenceFilterAfterBattleRarity4Weapon": {
-            "type": "switch",
-            "label": "$option.Rarity4Weapon.label",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        "EssenceFilterAfterBattleInit": {
-                            "attach": {
-                                "rarity4_weapon": true
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "No",
-                    "pipeline_override": {
-                        "EssenceFilterAfterBattleInit": {
-                            "attach": {
-                                "rarity4_weapon": false
-                            }
-                        }
-                    }
-                }
-            ],
-            "default_case": "No"
-        },
-        "EssenceFilterAfterBattleSelectEssence": {
-            "type": "switch",
-            "label": "$option.SelectEssence.label",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "option": [
-                        "EssenceFilterAfterBattleFlawlessEssence",
-                        "EssenceFilterAfterBattlePureEssence"
-                    ]
-                },
-                {
-                    "name": "No"
-                }
-            ],
-            "default_case": "Yes"
-        },
-        "EssenceFilterAfterBattleFlawlessEssence": {
-            "type": "switch",
-            "label": "$option.FlawlessEssence.label",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        "EssenceFilterAfterBattleInit": {
-                            "attach": {
-                                "flawless_essence": true
-                            }
-                        },
-                        "EssenceFilterAfterBattleIsflawless": {
-                            "next": [
-                                "EssenceAfterBattleYellowSlot1"
-                            ]
-                        }
-                    }
-                },
-                {
-                    "name": "No",
-                    "pipeline_override": {
-                        "EssenceFilterAfterBattleInit": {
-                            "attach": {
-                                "flawless_essence": false
-                            }
-                        },
-                        "EssenceFilterAfterBattleIsflawless": {
-                            "next": [
-                                "EssenceFilterAfterBattleRowNextItem"
-                            ]
-                        }
-                    }
-                }
-            ],
-            "default_case": "Yes"
-        },
-        "EssenceFilterAfterBattlePureEssence": {
-            "type": "switch",
-            "label": "$option.PureEssence.label",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        "EssenceFilterAfterBattleInit": {
-                            "attach": {
-                                "pure_essence": true
-                            }
-                        },
-                        "EssenceFilterAfterBattleIsPure": {
-                            "next": [
-                                "EssenceAfterBattleYellowSlot1"
-                            ]
-                        }
-                    }
-                },
-                {
-                    "name": "No",
-                    "pipeline_override": {
-                        "EssenceFilterAfterBattleInit": {
-                            "attach": {
-                                "pure_essence": false
-                            }
-                        },
-                        "EssenceFilterAfterBattleIsPure": {
-                            "next": [
-                                "EssenceFilterAfterBattleRowNextItem"
-                            ]
-                        }
-                    }
-                }
-            ],
-            "default_case": "No"
-        },
-        "EssenceFilterAfterBattleSelectExtraRules": {
-            "type": "switch",
-            "label": "$option.SelectExtraRules.label",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "option": [
-                        "EssenceFilterAfterBattlePerfectMinLevelTotal",
-                        "EssenceFilterAfterBattleKeepFuturePromising",
-                        "EssenceFilterAfterBattleKeepSlot3Level3Practical",
-                        "EssenceFilterAfterBattleDiscardUnmatched"
-                    ]
-                },
-                {
-                    "name": "No"
-                }
-            ],
-            "default_case": "No"
-        },
-        "EssenceFilterAfterBattlePerfectMinLevelTotal": {
-            "type": "input",
-            "label": "$option.PerfectMinLevelTotal.label",
-            "inputs": [
-                {
-                    "name": "EssenceFilterAfterBattlePerfectMinLevelTotal",
-                    "label": "$option.PerfectMinLevelTotal.inputs.PerfectMinLevelTotal.label",
-                    "default": "3",
-                    "pipeline_type": "int",
-                    "verify": "^[3-9]$|^1[0-5]$"
-                }
-            ],
-            "pipeline_override": {
-                "EssenceFilterAfterBattleInit": {
-                    "attach": {
-                        "perfect_min_level_total": "{EssenceFilterAfterBattlePerfectMinLevelTotal}"
-                    }
-                }
-            }
-        },
-        "EssenceFilterAfterBattleKeepFuturePromising": {
-            "type": "switch",
-            "label": "$option.KeepFuturePromising.label",
-            "description": "$option.KeepFuturePromising.description",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "option": [
-                        "EssenceFilterAfterBattleFuturePromisingMinTotal",
-                        "EssenceFilterAfterBattleLockFuturePromising"
-                    ],
-                    "pipeline_override": {
-                        "EssenceFilterAfterBattleInit": {
-                            "attach": {
-                                "keep_future_promising": true
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "No",
-                    "pipeline_override": {
-                        "EssenceFilterAfterBattleInit": {
-                            "attach": {
-                                "keep_future_promising": false
-                            }
-                        }
-                    }
-                }
-            ],
-            "default_case": "No"
-        },
-        "EssenceFilterAfterBattleLockFuturePromising": {
-            "type": "switch",
-            "label": "$option.LockFuturePromising.label",
-            "description": "$option.LockFuturePromising.description",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        "EssenceFilterAfterBattleInit": {
-                            "attach": {
-                                "lock_future_promising": true
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "No",
-                    "pipeline_override": {
-                        "EssenceFilterAfterBattleInit": {
-                            "attach": {
-                                "lock_future_promising": false
-                            }
-                        }
-                    }
-                }
-            ],
-            "default_case": "No"
-        },
-        "EssenceFilterAfterBattleFuturePromisingMinTotal": {
-            "type": "input",
-            "label": "$option.KeepFuturePromising.inputs.FuturePromisingMinTotal.label",
-            "description": "$option.KeepFuturePromising.inputs.FuturePromisingMinTotal.description",
-            "inputs": [
-                {
-                    "name": "EssenceFilterAfterBattleFuturePromisingMinTotal",
-                    "label": "$option.KeepFuturePromising.inputs.FuturePromisingMinTotal.label",
-                    "description": "$option.KeepFuturePromising.inputs.FuturePromisingMinTotal.description",
-                    "default": "6",
-                    "pipeline_type": "int",
-                    "verify": "^[3-9]$|^1[0-5]$"
-                }
-            ],
-            "pipeline_override": {
-                "EssenceFilterAfterBattleInit": {
-                    "attach": {
-                        "future_promising_min_total": "{EssenceFilterAfterBattleFuturePromisingMinTotal}"
-                    }
-                }
-            }
-        },
-        "EssenceFilterAfterBattleKeepSlot3Level3Practical": {
-            "type": "switch",
-            "label": "$option.KeepSlot3Level3Practical.label",
-            "description": "$option.KeepSlot3Level3Practical.description",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "option": [
-                        "EssenceFilterAfterBattleSlot3MinLevel",
-                        "EssenceFilterAfterBattleLockSlot3Practical"
-                    ],
-                    "pipeline_override": {
-                        "EssenceFilterAfterBattleInit": {
-                            "attach": {
-                                "keep_slot3_level3_practical": true
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "No",
-                    "pipeline_override": {
-                        "EssenceFilterAfterBattleInit": {
-                            "attach": {
-                                "keep_slot3_level3_practical": false
-                            }
-                        }
-                    }
-                }
-            ],
-            "default_case": "No"
-        },
-        "EssenceFilterAfterBattleLockSlot3Practical": {
-            "type": "switch",
-            "label": "$option.LockSlot3Practical.label",
-            "description": "$option.LockSlot3Practical.description",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        "EssenceFilterAfterBattleInit": {
-                            "attach": {
-                                "lock_slot3_practical": true
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "No",
-                    "pipeline_override": {
-                        "EssenceFilterAfterBattleInit": {
-                            "attach": {
-                                "lock_slot3_practical": false
-                            }
-                        }
-                    }
-                }
-            ],
-            "default_case": "No"
-        },
-        "EssenceFilterAfterBattleSlot3MinLevel": {
-            "type": "input",
-            "label": "$option.KeepSlot3Level3Practical.inputs.Slot3MinLevel.label",
-            "description": "$option.KeepSlot3Level3Practical.inputs.Slot3MinLevel.description",
-            "inputs": [
-                {
-                    "name": "EssenceFilterAfterBattleSlot3MinLevel",
-                    "label": "$option.KeepSlot3Level3Practical.inputs.Slot3MinLevel.label",
-                    "description": "$option.KeepSlot3Level3Practical.inputs.Slot3MinLevel.description",
-                    "default": "3",
-                    "pipeline_type": "int",
-                    "verify": "^[1-3]$"
-                }
-            ],
-            "pipeline_override": {
-                "EssenceFilterAfterBattleInit": {
-                    "attach": {
-                        "slot3_min_level": "{EssenceFilterAfterBattleSlot3MinLevel}"
-                    }
-                }
-            }
-        },
-        "EssenceFilterAfterBattleDiscardUnmatched": {
-            "type": "switch",
-            "label": "$option.DiscardUnmatched.label",
-            "description": "$option.DiscardUnmatched.description",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        "EssenceFilterAfterBattleInit": {
-                            "attach": {
-                                "discard_unmatched": true
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "No",
-                    "pipeline_override": {
-                        "EssenceFilterAfterBattleInit": {
-                            "attach": {
-                                "discard_unmatched": false
-                            }
-                        }
-                    }
-                }
-            ],
-            "default_case": "No"
         }
     }
 }

@@ -93,7 +93,7 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "CheckEcologyNearTheFieldLogisticsDepotJob": {
+    "CheckEcologyNearTheFieldLogisticsDepotJobText": {
         "desc": "检查储备站周围的生态环境委托是否可以接取",
         "recognition": "OCR",
         "roi": "CheckEcologyNearTheFieldLogisticsDepotIcon",
@@ -162,7 +162,7 @@
         "all_of": [
             "CheckEcologyNearTheFieldLogisticsDepotText",
             "CheckEcologyNearTheFieldLogisticsDepotIcon",
-            "CheckEcologyNearTheFieldLogisticsDepotJob"
+            "CheckEcologyNearTheFieldLogisticsDepotJobText"
         ],
         "box_index": 2,
         "pre_delay": 0,
@@ -234,7 +234,7 @@
         "desc": "储备站周围的生态环境任务已经在追踪中",
         "recognition": "And",
         "all_of": [
-            "AlreadyTrackedMissionButton",
+            "CheckAlreadyTrackingText",
             "InEcologyNearTheFieldLogisticsDepotMission"
         ],
         "pre_delay": 0,
@@ -460,12 +460,12 @@
         "desc": "在储备站周围的生态环境任务拍照点开始拍照",
         "pre_delay": 0,
         "anchor": {
-            "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal"
+            "TakePhotoDone": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "EnvironmentMonitoringTakePhoto"
+            "TakePhoto"
         ]
     }
 }

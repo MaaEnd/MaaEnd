@@ -52,7 +52,7 @@ jobs:
             'agent/cpp-algo/source/*.h' \
             'agent/cpp-algo/source/**/*.cpp' \
             'agent/cpp-algo/source/**/*.h' |
-            xargs -0 -r clang-format-17 -i
+            xargs -0 -r clang-format-21 -i
 
       - name: Commit and push changes
         uses: actions-js/push@master

@@ -44,6 +44,8 @@ struct CellRecognitionDiagnostics
 
 struct RecognitionDiagnostics
 {
+    // 本次分类范围（未指定时为默认场景）的候选图标全部参与匹配，不代表识别成功。
+    bool candidate_scope_complete = false;
     std::vector<GridSelectionDiagnostics> grids;
     std::vector<CellRecognitionDiagnostics> cells;
     // 性能数据只在 debug 请求中采集，避免正常识别承担计时开销。

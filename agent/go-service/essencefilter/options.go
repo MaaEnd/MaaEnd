@@ -12,33 +12,6 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func inventoryPreset(opts EssenceFilterOptions) EssenceFilterOptions {
-	if !opts.ExportInventory {
-		return opts
-	}
-	return EssenceFilterOptions{
-		ExportInventory: true,
-		InputLanguage:   opts.InputLanguage,
-		FlawlessEssence: true,
-		Rarity4Weapon:   true,
-		Rarity5Weapon:   true,
-		Rarity6Weapon:   true,
-	}
-}
-
-func inventoryGridOverride() map[string]any {
-	return map[string]any{
-		"EssenceGridAdvance": map[string]any{
-			"attach": map[string]any{
-				"flawless_essence":   true,
-				"pure_essence":       false,
-				"skip_thumb_lock":    false,
-				"skip_thumb_discard": true,
-			},
-		},
-	}
-}
-
 // matchOptsFromPipeline maps pipeline attach options to the match engine subset.
 func matchOptsFromPipeline(opts *EssenceFilterOptions) matchapi.EssenceFilterOptions {
 	if opts == nil {
@@ -48,7 +21,6 @@ func matchOptsFromPipeline(opts *EssenceFilterOptions) matchapi.EssenceFilterOpt
 		Rarity6Weapon:            opts.Rarity6Weapon,
 		Rarity5Weapon:            opts.Rarity5Weapon,
 		Rarity4Weapon:            opts.Rarity4Weapon,
-		PerfectMinLevelTotal:     opts.PerfectMinLevelTotal,
 		KeepFuturePromising:      opts.KeepFuturePromising,
 		FuturePromisingMinTotal:  opts.FuturePromisingMinTotal,
 		LockFuturePromising:      opts.LockFuturePromising,
@@ -67,17 +39,30 @@ func getOptionsFromAttach(ctx *maa.Context, nodeName string) (*EssenceFilterOpti
 		return nil, err
 	}
 
-	// unmarshal into wrapper struct to extract Attach field
+	return parseFilterOptions(raw)
+}
+
+func parseFilterOptions(raw string) (*EssenceFilterOptions, error) {
 	var wrapper struct {
 		Attach EssenceFilterOptions `json:"attach"`
 	}
-
 	if err := json.Unmarshal([]byte(raw), &wrapper); err != nil {
-		log.Error().Err(err).Str("node", nodeName).Msg("failed to unmarshal options")
 		return nil, err
 	}
-
-	return &wrapper.Attach, nil
+	opts := &wrapper.Attach
+	switch opts.Mode {
+	case InitModeScreenAndReport, InitModeAfterBattle:
+		fixed := &EssenceFilterOptions{
+			Mode: opts.Mode, InputLanguage: opts.InputLanguage,
+			FlawlessEssence: true, Rarity5Weapon: true, Rarity6Weapon: true,
+		}
+		if opts.Mode == InitModeAfterBattle {
+			fixed.LockLimitWeaponIDs = opts.LockLimitWeaponIDs
+			fixed.DiscardUnmatched = opts.DiscardUnmatched
+		}
+		return fixed, nil
+	}
+	return opts, nil
 }
 
 func rarityListToString(rarities []int) string {

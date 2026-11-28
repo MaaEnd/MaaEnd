@@ -5,24 +5,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            // 内部实现：先判断是否已在演算界面，不在则先返回大世界
             "TrialOfSwordmancyEnterTrialMenuSuccess",
-            "TrialOfSwordmancyEnterTrialMenu2"
-        ]
-    },
-    "TrialOfSwordmancyEnterTrialMenu2": {
-        "desc": "先返回大世界，再判断后续",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SceneAnyEnterWorld"
-            ]
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
             "TrialOfSwordmancyClickTrialTrigger",
             "TrialOfSwordmancyQuickTeleportStart"
         ]
@@ -34,8 +17,10 @@
         "desc": "在大世界演武台旁，点击进入演算",
         "recognition": "And",
         "all_of": [
+            "InWorld",
             "TrialOfSwordmancyTrialTrigger"
         ],
+        "box_index": 1,
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "RepeatUntilNotFoundAction",
