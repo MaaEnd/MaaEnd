@@ -3,7 +3,7 @@
     "autodelivery.focus.depot_resolved": "🚛 已識別倉儲節點：%s",
     "autodelivery.focus.depot_zipline_required": "🚛 <span style=\"color: red; font-weight: bold;\">倉儲節點 %s 只能透過滑索抵達</span>，目前未啟用滑索，無法步行前往；請在任務選項中開啟「送貨時優先使用滑索」後重試",
     "autodelivery.focus.destination_resolved": "🚛 已識別送貨目標：%s",
-    "autodelivery.focus.destination_zipline_nav_failed": "🚛 請確認是否已有前往目標的滑索，並執行「🚡匯入/更新滑索座標」任務後重試",
+    "autodelivery.focus.destination_zipline_nav_failed": "🚛 <span style=\"color: red; font-weight: bold;\">送貨目標 %s 只能透過滑索抵達，尋路失敗</span>；請確認是否已有前往目標的滑索，並執行「🚡匯入/更新滑索座標」任務後重試",
     "autodelivery.focus.destination_zipline_required": "🚛 <span style=\"color: red; font-weight: bold;\">送貨目標 %s 只能透過滑索抵達</span>，目前未啟用滑索，無法步行送達；請在任務選項中開啟「送貨時優先使用滑索」後重試",
     "autoecofarm.crossed_center": "偵測到拉過頭，自動降低拉近比例",
     "autoecofarm.interruptible_sleep_done.completed": "完成等待",

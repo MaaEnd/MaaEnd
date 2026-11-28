@@ -176,7 +176,7 @@ func buildDestinationNavigationOverride(dest destination, zip bool) map[string]a
 	// 只能坐滑索抵达的终点寻路失败，多半是没导入滑索坐标或坐标已过期；其余终点写空 map，清掉上一单的提示。
 	navigateFocus := map[string]any{}
 	if dest.ZiplineOnly && zip {
-		navigateFocus["Node.Action.Failed"] = i18n.T(destinationZiplineNavFailedFocusKey)
+		navigateFocus["Node.Action.Failed"] = i18n.T(destinationZiplineNavFailedFocusKey, destinationDisplayName(dest))
 	}
 	override := map[string]any{
 		afterResolveDestinationNode: map[string]any{
