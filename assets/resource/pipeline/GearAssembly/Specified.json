@@ -1,0 +1,60 @@
+{
+    // 指定装备（GearAssemblySpecifyGear 开关）用到的节点
+    // 流程：类别页 → 列表里 OCR 找到装备名并点开 → 右侧详情核对名字 → 制作；找不到就往下翻，翻到底结束任务
+    "GearAssemblySpecifiedFindGear": {
+        "desc": "在装备列表里找到指定名称的装备并点开",
+        "recognition": "OCR",
+        // TODO(截图): 暂用 GearAssemblyGearListScrollEnd 的列表区域，需按 1280x720 截图确认卡片上是否显示装备名
+        "roi": [
+            35,
+            100,
+            400,
+            520
+        ],
+        // 由 GearAssemblyGearName 选项覆写为用户输入，默认值不会命中任何文字
+        "expected": [
+            // @i18n-skip
+            "a^"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        // 同 GearAssemblySelectFirstGear：切换装备不需要加载，等右下角制作区动画静止
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                -300,
+                -150,
+                300,
+                150
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GearAssemblySpecifiedCheckSelected"
+        ]
+    },
+    "GearAssemblySpecifiedCheckSelected": {
+        "desc": "右侧详情显示的是指定装备",
+        "recognition": "OCR",
+        // TODO(截图): 右侧详情里装备名所在区域，下面是占位值
+        "roi": [
+            440,
+            80,
+            840,
+            160
+        ],
+        // 由 GearAssemblyGearName 选项覆写为用户输入，默认值不会命中任何文字
+        "expected": [
+            // @i18n-skip
+            "a^"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GearAssemblyClickProduceBtn",
+            "GearAssemblyCheckFailedAndFinish"
+        ]
+    }
+}
