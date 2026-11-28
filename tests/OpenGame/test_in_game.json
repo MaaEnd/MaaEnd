@@ -1,0 +1,26 @@
+{
+    "configs": {
+        "name": "(Win32-官服)打开游戏：已在游戏内判定",
+        "resource": "官服",
+        "controller": "Win32"
+    },
+    "cases": [
+        {
+            "name": "帝江号大世界命中",
+            "image": "帝江号_大世界.png",
+            "hits": [
+                "OpenGameInGame"
+            ]
+        },
+        {
+            "name": "负例：登录界面不应命中",
+            "image": "登录界面_服务器维护_简体中文.png",
+            "hits": []
+        },
+        {
+            "name": "负例：活动中心不应命中",
+            "image": "活动中心_未读红点.png",
+            "hits": []
+        }
+    ]
+}
