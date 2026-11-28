@@ -407,7 +407,7 @@
             "param": {
                 "custom_recognition": "ExpressionRecognition",
                 "custom_recognition_param": {
-                    "expression": "{CurrentStockBillBalanceText}>{CurrentStockBillCapText}"
+                    "expression": "{AutoStockCurrentStockBill}>{AutoStockCurrentStockBillCap}"
                 }
             }
         },

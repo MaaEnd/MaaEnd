@@ -283,13 +283,16 @@ node tools/pipeline-generate/AutoStockStaple/generate.mjs
 右上角调度券读数是 `余额/上限` 两段（如 `4504万/4600万`）。两者由同一段文字拆出：
 
 | 节点 | 作用 |
-| -------------------------------- | ---------------------------------------------------------------------------------------------- |
-| `CurrentStockBillBalanceText` | `roi` 取 `CurrentStockBillColor` 的框并向右扩，`replace` 去掉 `/` 之后的部分，得到余额 |
-| `CurrentStockBillCapText` | 同一个框，`replace` 去掉 `/` 之前的部分，得到本地区上限 |
-| `AutoStockCurrentStockBill` | 保留阈值判断用的余额读数（原有节点，带颜色过滤，只吃到斜杠左侧的亮色数字） |
+| ----------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `AutoStockCurrentStockBill` | 余额读数（原有节点：`CurrentStockBillColor` 亮色定位 + `CurrentStockBillText` 颜色过滤 OCR），直接复用 |
+| `CurrentStockBillCapColor` | 大范围 `ColorMatch`（RGB `140~185` 灰阶，ROI `[1040,0,220,60]`）框出「/上限」那段灰字 |
+| `CurrentStockBillCapText` | `roi` 取上一个节点的框，`color_filter` 用同一颜色参数二值化后 OCR（检测模式，不写 `only_rec`），读到 `/4600万` 这类文本 |
+| `AutoStockCurrentStockBillCap` | `And` 组合上面两个、`box_index: 1`，与余额节点同构；表达式引用它，才能保证颜色节点先跑、OCR 再按它的框识别 |
 
 > [!NOTE]
-> 上限文字是灰色，加 `color_filter` 会被连斜杠一起滤掉，所以两个新读数节点都不加颜色过滤；`only_rec` 读到的原始文本可能是 `L4504万/4600万`（左侧图标残影），`ocrnum` 只取第一个数字，不影响解析。
+> 上限文字是中性灰（实测 RGB ≈ 158/162/161），余额是近白（≈ 239/242/241），所以用 RGB 灰阶区间能把两者分开：余额、关闭按钮都掉在区间外，只有 `/上限` 留下。不要改成灰度（`method: 6`）——灰度和胶囊背景亮度接近，会把整片背景框进来。
+> OCR 用检测模式（不写 `only_rec`），检测框会自己收紧到 `/4600万` 这一小段；`ocrnum` 只取第一个数字，所以开头的斜杠不影响解析。
+> 颜色框与 OCR 之间是"节点名当 ROI"的引用，要求被引用的节点先执行过，所以外面包一层 `And`（与 `AutoStockCurrentStockBill` 完全同构），不要单独调用 `CurrentStockBillCapText`。
 
 分流顺序：`AutoStockResetListView{Region}`（或 `ViaLast` 版本）完成重置后 → `next` 依次尝试
 

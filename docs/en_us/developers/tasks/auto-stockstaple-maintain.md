@@ -283,13 +283,16 @@ Implemented in `ValleyIV.json` / `Wuling.json`; the reading nodes live in `Gener
 The top-right dispatch voucher reading is `balance/cap` (for example `4504万/4600万`). Both values come from the same line of text:
 
 | Node | Purpose |
-| ------------------------------ | ------------------------------------------------------------------------------------------------ |
-| `CurrentStockBillBalanceText` | `roi` follows `CurrentStockBillColor`'s box extended to the right; `replace` drops everything after `/` |
-| `CurrentStockBillCapText` | Same box; `replace` drops everything before `/`, leaving the regional cap |
-| `AutoStockCurrentStockBill` | Balance reading used by the reserve check (pre-existing, colour-filtered, so it only reads the bright digits left of the slash) |
+| ----------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `AutoStockCurrentStockBill` | Balance reading (pre-existing: bright-pixel `CurrentStockBillColor` + colour-filtered `CurrentStockBillText` OCR), reused as is |
+| `CurrentStockBillCapColor` | Wide `ColorMatch` (RGB `140~185` grey band, ROI `[1040,0,220,60]`) that frames the grey `/cap` run |
+| `CurrentStockBillCapText` | OCR on that box with the same colour params as `color_filter`, in detection mode (no `only_rec`), reading text such as `/4600万` |
+| `AutoStockCurrentStockBillCap` | `And` over the two above with `box_index: 1`, mirroring the balance node; the expression references it so the colour node always runs before the OCR consumes its box |
 
 > [!NOTE]
-> The cap text is grey, so `color_filter` would drop it together with the slash; the two new reading nodes therefore skip the colour filter. The raw text may come back as `L4504万/4600万` (icon remnant on the left); `ocrnum` takes the first number and parses it fine.
+> The cap is neutral grey (measured RGB ≈ 158/162/161) while the balance is near-white (≈ 239/242/241), so an RGB grey band separates them: the balance and the close button fall outside the range and only `/cap` survives. Do not switch to grey-scale (`method: 6`) — its luminance overlaps the pill background and the match would frame the whole background strip.
+> The OCR runs in detection mode (no `only_rec`), so the detected box tightens to the `/4600万` run by itself; `ocrnum` takes the first number, so the leading slash does not matter.
+> The colour box reaches the OCR through a node-name `roi` reference, which requires the referenced node to have run first — hence the `And` wrapper, identical in shape to `AutoStockCurrentStockBill`. Do not call `CurrentStockBillCapText` on its own.
 
 Branch order: once `AutoStockResetListView{Region}` (or its `ViaLast` variant) has reset the list, `next` attempts, in order
 
