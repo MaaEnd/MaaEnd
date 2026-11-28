@@ -33,7 +33,7 @@
 4. 在列表页循环扫描，每轮按顺序判断：
     - 剩余调度券是否[低于保留阈值](#调度券保留阈值) → 停止本地区扫描。
     - 是否[识别到可买目标商品](#商品识别链与折扣分组) → 点击进入购买弹窗；同一轮按折扣分组顺序依次判定。
-    - 是否已售罄 → [按右上角余额/上限分流](#售罄后按券上限分流)：券已溢出则改按上限消耗并回到扫描，否则停止本地区扫描。
+    - 是否已售罄 → [重置列表](#售罄后重置列表)后按右上角余额/上限分流：余额超过上限时播报「请手动消耗」提示，随后结束本地区扫描。
     - 否则向下滑动列表继续找，单地区最多滑 25 次（`AutoStockSwipe{Region}.max_hit`）；次数用完仍在物资调度页即视为列表已到底。
 5. 购买弹窗内按[数量控制三分支](#数量控制三分支)处理：券不足退出 / 未达上限则购买 / 已达上限则排除。
 6. 所有启用地区完成后结束。
@@ -274,7 +274,7 @@ node tools/pipeline-generate/AutoStockStaple/generate.mjs
 
 - 匹配 ROI 是左侧竖条 `[10, 120, 50, 480]`，模板 25×25，阈值 `0.85`：实测同屏四个分类互相得分只有 0.62~0.67，目标图标为 `1.0`，区分度足够。
 - 两个节点都排在 `AutoStockSoldOut{Region}.next` 的最前面；都认不到时（例如手机端模板不同）会直接落到分流节点，行为等同没有重置能力。
-- 重置放在分流之前：券溢出时后续要回到列表继续买，列表必须已经回到顶部；券不溢出时随后就走 `EmptyNode` 结束本地区。
+- 重置放在分流之前：这样无论后续是"只提示"（当前默认）还是启用自动消耗后回到列表继续买，列表都已经在顶部。
 
 ### 售罄后按券上限分流
 
@@ -294,30 +294,21 @@ node tools/pipeline-generate/AutoStockStaple/generate.mjs
 分流顺序：`AutoStockResetListView{Region}`（或 `ViaLast` 版本）完成重置后 → `next` 依次尝试
 
 ```text
-AutoStockStockBillOverflow{Region}                   余额 > 上限 时命中（券在溢出）
-  -> AutoStockStockBillOverflowRaiseReserve{Region}   把 AutoStockTargetCompare{Region} 的表达式改成 {CurrentStockBillCapText}>{AutoStockCurrentStockBill}
-  -> AutoStockInStaple{Region}                        回到列表扫描，继续买、把超出上限的部分花掉
-EmptyNode                                             余额未超过上限，接住并结束本地区扫描
+AutoStockStockBillOverflow{Region}                   余额 > 上限 时命中（券在溢出），Focus 播报「请手动消耗」
+  -> AutoStockStockBillOverflowRaiseReserve{Region}   默认 enabled: false，被跳过
+     （启用后：把 AutoStockTargetCompare{Region} 的表达式改成 {CurrentStockBillCapText}>{AutoStockCurrentStockBill}
+       → AutoStockInStaple{Region}，回到列表扫描，只花掉超出上限的部分）
+EmptyNode                                             空节点接住并结束本地区扫描
 ```
 
-- 改保留阈值等价于「把保留调度券设成本地区上限」：只有余额高于上限时 `AutoStockTargetCanNotBuy{Region}` 才不命中，扫描才会继续；余额落到上限以内时该节点立即命中并结束本地区。
-- `PipelineOverride` 默认是 context 作用域（只影响本次任务），所以下次运行仍按用户在选项里填的保留阈值。要让策略长期生效，需要用户把「保留调度券」填成自己的上限值；Focus 文案里已经这样提示。
+- **默认只提示，不消耗**：`AutoStockStockBillOverflowRaiseReserve{Region}` 定义里 `enabled: false`，命中溢出时只播报 `$task.AutoStockStaple.focus.stock_bill_overflow.{valley_iv,wuling}`（"不会自动消耗溢出部分，请手动消耗"），随后由 `EmptyNode` 结束本地区。
+- 溢出节点的 `next` 里保留了这个禁用节点的引用，再跟 `EmptyNode`：禁用节点会被跳过，不会因为 `next` 里没有可用节点进入错误态。要恢复自动消耗，把该节点 `enabled` 改回 `true` 并同步 Focus 文案即可。
+- 启用后的语义：改保留阈值等价于「把保留调度券设成本地区上限」——只有余额高于上限时 `AutoStockTargetCanNotBuy{Region}` 才不命中，扫描才会继续；余额落到上限以内时该节点立即命中并结束本地区。
+- `PipelineOverride` 默认是 context 作用域（只影响本次任务），不会改动用户保存的选项值。
 - 上限读数失败（例如手机端读数区更窄、被裁掉）时 `ExpressionRecognition` 不命中，流程落到共享空节点 `EmptyNode`，行为与改动前一致。
 
-#### 超限购买开关
-
-`AutoStockStapleOverCapPurchase`（switch，默认 `Yes`）控制上面这套溢出处理是否生效，实现在 `assets/tasks/AutoStockStaple.json`：
-
-| 取值 | 行为 |
-| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Yes`（默认） | 该 case **不带任何 `pipeline_override`**，节点保持原样：照常把保留阈值改成上限并回到列表继续购买 |
-| `No` | 把 `AutoStockStockBillOverflowRaiseReserve{Region}` 置 `enabled: false`（不再覆盖保留阈值），并把 `AutoStockStockBillOverflow{Region}` 的 Focus 换成 `$task.AutoStockStaple.focus.stock_bill_overflow_disabled.{valley_iv,wuling}`，只提示不消耗 |
-
-- 关闭时靠 `AutoStockStockBillOverflow{Region}.next` 末尾的共享 `EmptyNode` 接住：被禁用的节点会被跳过，而不是让 `next` 列表全部不可用进入错误态。
-- 关闭后售罄分支的其余部分（重置列表、余额/上限判定）保持不变，只是不再自动消耗溢出券。
-
-
-
+> [!NOTE]
+> 原先配套的「超出上限时继续购买」开关（`AutoStockStapleOverCapPurchase`）已注释掉、不再出现在界面里：流程默认就是"只提示"。选项定义保留在 `assets/tasks/AutoStockStaple.json` 文件末尾的注释块中，恢复时取消注释并同时放开 `task.option` 里对应行。
 
 ## 数量控制（购买弹窗）
 
