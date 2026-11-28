@@ -2435,7 +2435,7 @@
     "task.AutoStockStaple.option.AutoStockReserveWuling.inputs.ReserveWuling.label": "Minimum reserved amount",
     "task.AutoStockStaple.option.AutoStockReserveWuling.inputs.ReserveWuling.pattern_msg": "Please enter an integer from 240000 to 999999999.",
     "task.AutoStockStaple.option.AutoStockReserveWuling.label": "Reserved dispatch vouchers",
-    "task.AutoStockStaple.option.AutoStockStapleOverLimitFlow.description": "When enabled, a sold-out shop is used to buy engraving permits or any item, spending stock bills above the cap (45,000,000). When disabled, a sold-out shop exits as before.",
+    "task.AutoStockStaple.option.AutoStockStapleOverLimitFlow.description": "When the current stock bill balance is above the cap, buy any item except food, including items without a time limit.",
     "task.AutoStockStaple.option.AutoStockStapleOverLimitFlow.label": "Over-limit flow",
     "task.AutoStockStaple.option.AutoStockStapleStashBackpackSubTask.label": "Stash backpack before purchase",
     "task.AutoStockStaple.option.AutoStockStapleValleyIV.description": "Only purchase weekly refreshed items in Valley IV",

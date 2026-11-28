@@ -2435,7 +2435,7 @@
     "task.AutoStockStaple.option.AutoStockReserveWuling.inputs.ReserveWuling.label": "최소 보유 수량",
     "task.AutoStockStaple.option.AutoStockReserveWuling.inputs.ReserveWuling.pattern_msg": "240000~999999999 사이의 정수를 입력하세요.",
     "task.AutoStockStaple.option.AutoStockReserveWuling.label": "조달권 보유",
-    "task.AutoStockStaple.option.AutoStockStapleOverLimitFlow.description": "활성화하면 매진 시 각인권 또는 임의의 상품을 구매해 관리권 상한(4500만)을 초과한 만큼을 소모합니다. 비활성화하면 매진 시 그대로 종료합니다.",
+    "task.AutoStockStaple.option.AutoStockStapleOverLimitFlow.description": "현재 관리권 잔액이 상한을 초과하면 식료품을 제외한 임의의 상품을 구매합니다(기한 없는 상품 포함).",
     "task.AutoStockStaple.option.AutoStockStapleOverLimitFlow.label": "상한 초과 흐름",
     "task.AutoStockStaple.option.AutoStockStapleStashBackpackSubTask.label": "구매 전 배낭 보관",
     "task.AutoStockStaple.option.AutoStockStapleValleyIV.description": "제4 계곡에서 매주 갱신되는 물자만 구매합니다",

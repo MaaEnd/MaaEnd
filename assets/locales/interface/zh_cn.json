@@ -2435,7 +2435,7 @@
     "task.AutoStockStaple.option.AutoStockReserveWuling.inputs.ReserveWuling.label": "最低保留数量",
     "task.AutoStockStaple.option.AutoStockReserveWuling.inputs.ReserveWuling.pattern_msg": "请输入 240000-999999999 的整数。",
     "task.AutoStockStaple.option.AutoStockReserveWuling.label": "保留调度券",
-    "task.AutoStockStaple.option.AutoStockStapleOverLimitFlow.description": "开启后售罄时优先买入刻写券或任意商品，把超过调度券上限（4500 万）的券花掉；关闭则售罄直接退出。",
+    "task.AutoStockStaple.option.AutoStockStapleOverLimitFlow.description": "当前调度券余额大于上限时，购买除食物外的任意物品（含不限时物品）。",
     "task.AutoStockStaple.option.AutoStockStapleOverLimitFlow.label": "超限流程",
     "task.AutoStockStaple.option.AutoStockStapleStashBackpackSubTask.label": "购买前存放背包",
     "task.AutoStockStaple.option.AutoStockStapleValleyIV.description": "仅购买四号谷地每周刷新的物品",

@@ -80,11 +80,9 @@
             "param": {
                 "all_of": [
                     "InValleyIVText",
-                    "InStapleColor",
                     "InStockStaple",
                     "AutoStockStapleSpendBillLimitTextValleyIV"
-                ],
-                "box_index": 3
+                ]
             }
         },
         "pre_delay": 0,
@@ -221,12 +219,64 @@
             "AutoStockNoMoreTargetValleyIV"
         ]
     },
+    "AutoStockStapleSpendBillAnyLabel": {
+        "desc": "商品区内的中性灰名称标签条。不依赖剩余时间徽标，因此不限时商品也能被选中；order_by Area 取最大灰块以排除图标碎片",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    50,
+                    180,
+                    1210,
+                    540
+                ],
+                "method": 4,
+                "lower": [
+                    55,
+                    55,
+                    55
+                ],
+                "upper": [
+                    95,
+                    95,
+                    95
+                ],
+                "connected": true,
+                "count": 1400,
+                "order_by": "Area",
+                "index": 0
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoStockStapleSpendBillAnyText": {
+        "desc": "名称标签条内的白色文字区域，作为下一层名称 OCR 的 roi",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "AutoStockStapleSpendBillAnyLabel",
+                "method": 6,
+                "lower": [
+                    180
+                ],
+                "upper": [
+                    255
+                ],
+                "count": 10
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
     "AutoStockStapleSpendBillAnyNameTextValleyIV": {
         "desc": "四号谷地：非食物物品的五语全名（白名单 OCR，日用消耗/食物一组不参与超限购买）",
         "recognition": {
             "type": "OCR",
             "param": {
-                "roi": "AutoStockInStapleItemNameTextColor",
+                "roi": "AutoStockStapleSpendBillAnyText",
                 // 完整原文：《摇摆绅士古典特辑》/《搖擺紳士古典特輯》/ Der Schwingende Gentleman Classical Album；以下片段与正则为 OCR 不稳时的别名，@i18n-skip
                 "expected": [
                     "谷地刻写券",
@@ -392,13 +442,13 @@
         "rate_limit": 0
     },
     "AutoStockStapleSpendBillAnyNameValleyIV": {
-        "desc": "四号谷地：任意商品名——灰色标签 + 白色文字 + OCR 到字即命中",
+        "desc": "四号谷地：非食物商品名——商品区灰色标签条 + 白字区域 + 五语全名 OCR 命中",
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    "AutoStockInStapleItemNameLabelColor",
-                    "AutoStockInStapleItemNameTextColor",
+                    "AutoStockStapleSpendBillAnyLabel",
+                    "AutoStockStapleSpendBillAnyText",
                     "AutoStockStapleSpendBillAnyNameTextValleyIV"
                 ],
                 "box_index": 2
@@ -409,17 +459,16 @@
         "rate_limit": 0
     },
     "AutoStockBuyAnyItemSpendValleyIV": {
-        "desc": "四号谷地：超限购买——任意物品（两档合并为一档），不限折扣、不校验库存",
+        "desc": "四号谷地：超限购买——余额大于上限时买入非食物商品（含不限时商品），不限折扣、不校验库存",
         "max_hit": 1,
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    "AutoStockInStapleItem",
                     "AutoStockStapleSpendBillAnyNameValleyIV",
                     "AutoStockStapleSpendBillOverLimitValleyIV"
                 ],
-                "box_index": 1
+                "box_index": 0
             }
         },
         "pre_delay": 0,
@@ -1187,7 +1236,7 @@
         "recognition": {
             "type": "OCR",
             "param": {
-                "roi": "AutoStockInStapleItemNameTextColor",
+                "roi": "AutoStockStapleSpendBillAnyText",
                 // 完整原文：《摇摆绅士古典特辑》/《搖擺紳士古典特輯》/ Der Schwingende Gentleman Classical Album；以下片段与正则为 OCR 不稳时的别名，@i18n-skip
                 "expected": [
                     "谷地刻写券",
@@ -1353,13 +1402,13 @@
         "rate_limit": 0
     },
     "AutoStockStapleSpendBillAnyNameWuling": {
-        "desc": "武陵：任意商品名——灰色标签 + 白色文字 + OCR 到字即命中",
+        "desc": "武陵：非食物商品名——商品区灰色标签条 + 白字区域 + 五语全名 OCR 命中",
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    "AutoStockInStapleItemNameLabelColor",
-                    "AutoStockInStapleItemNameTextColor",
+                    "AutoStockStapleSpendBillAnyLabel",
+                    "AutoStockStapleSpendBillAnyText",
                     "AutoStockStapleSpendBillAnyNameTextWuling"
                 ],
                 "box_index": 2
@@ -1370,17 +1419,16 @@
         "rate_limit": 0
     },
     "AutoStockBuyAnyItemSpendWuling": {
-        "desc": "武陵：超限购买——任意物品（两档合并为一档），不限折扣、不校验库存",
+        "desc": "武陵：超限购买——余额大于上限时买入非食物商品（含不限时商品），不限折扣、不校验库存",
         "max_hit": 1,
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    "AutoStockInStapleItem",
                     "AutoStockStapleSpendBillAnyNameWuling",
                     "AutoStockStapleSpendBillOverLimitWuling"
                 ],
-                "box_index": 1
+                "box_index": 0
             }
         },
         "pre_delay": 0,
