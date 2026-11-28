@@ -1,0 +1,70 @@
+{
+    // 云终末地串流压缩下红点饱和度不再严格等于 255（实测可达 217 左右），放宽 S 下界至 200
+    "NeedAssistColor": {
+        "recognition": {
+            "param": {
+                "lower": [
+                    10,
+                    200,
+                    100
+                ]
+            }
+        }
+    },
+    "ReceptionRoomNeedCollectCluesColor": {
+        "recognition": {
+            "param": {
+                "lower": [
+                    10,
+                    200,
+                    100
+                ]
+            }
+        }
+    },
+    "ReceptionRoomNeedReceiveCluesColor": {
+        "recognition": {
+            "param": {
+                "lower": [
+                    10,
+                    200,
+                    100
+                ]
+            }
+        }
+    },
+    "ReceptionRoomSetClueTips": {
+        "recognition": {
+            "param": {
+                "lower": [
+                    10,
+                    200,
+                    170
+                ]
+            }
+        }
+    },
+    "MFGCabinTips": {
+        "recognition": {
+            "param": {
+                "lower": [
+                    10,
+                    200,
+                    100
+                ]
+            }
+        }
+    },
+    // 云终末地黄色按钮 HSV H 上界与 ButtonColor.json 保持一致（29 -> 30）
+    "ReceptionRoomSetCluesQuickAddColor": {
+        "recognition": {
+            "param": {
+                "upper": [
+                    30,
+                    255,
+                    255
+                ]
+            }
+        }
+    }
+}

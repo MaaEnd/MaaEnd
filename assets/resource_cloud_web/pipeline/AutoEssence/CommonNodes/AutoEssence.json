@@ -1,0 +1,37 @@
+{
+    // 云终末地网页版：视频串流压缩会降低高亮绿字饱和度与亮度（实测 20261128_213512_r1_AutoEssence/post_run.png：
+    // 基础范围 H 37-38 / S 140-200 / V 140-230 仅命中 58 px / 33 px，低于 count=100 / 50；
+    // 放宽至 H 35-40 / S 100-200 / V 110-230 后分别精确命中 873 px / 174 px，背景 0 误命中）。
+    "__AutoEssenceEngraveCondition1HighlightColor": {
+        "recognition": {
+            "param": {
+                "lower": [
+                    35,
+                    100,
+                    110
+                ],
+                "upper": [
+                    40,
+                    200,
+                    230
+                ]
+            }
+        }
+    },
+    "__AutoEssenceEngraveCondition2HighlightColor": {
+        "recognition": {
+            "param": {
+                "lower": [
+                    35,
+                    100,
+                    110
+                ],
+                "upper": [
+                    40,
+                    200,
+                    230
+                ]
+            }
+        }
+    }
+}

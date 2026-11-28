@@ -1,0 +1,123 @@
+{
+    // 云终末地串流压缩下 30×30 黄色制造舱图标匹配分稳定在 0.879~0.893，放宽阈值至 0.8（与培养舱一致）
+    "VisitFriendsMenuAssistMFGCabin1": {
+        "all_of": [
+            {
+                "sub_name": "icon",
+                "recognition": "TemplateMatch",
+                "roi": [
+                    610,
+                    400,
+                    200,
+                    200
+                ],
+                "template": "VisitFriends/TerminalMFGCabin.png",
+                "threshold": 0.8
+            },
+            {
+                "recognition": "TemplateMatch",
+                "roi": "icon",
+                "roi_offset": [
+                    0,
+                    0,
+                    200,
+                    200
+                ],
+                "template": "VisitFriends/ProductionAssist.png",
+                "threshold": 0.9
+            }
+        ]
+    },
+    "VisitFriendsMenuAssistMFGCabin1Success": {
+        "all_of": [
+            {
+                "sub_name": "icon",
+                "recognition": "TemplateMatch",
+                "roi": [
+                    610,
+                    400,
+                    200,
+                    200
+                ],
+                "template": "VisitFriends/TerminalMFGCabin.png",
+                "threshold": 0.8
+            },
+            {
+                "recognition": "OCR",
+                "roi": "icon",
+                "roi_offset": [
+                    0,
+                    0,
+                    200,
+                    200
+                ],
+                "expected": [
+                    "制造加速",
+                    "製造加速",
+                    "MFG Speed-up",
+                    "제작 가속"
+                ]
+            }
+        ]
+    },
+    "VisitFriendsMenuAssistMFGCabin2": {
+        "all_of": [
+            {
+                "sub_name": "icon",
+                "recognition": "TemplateMatch",
+                "roi": [
+                    810,
+                    400,
+                    200,
+                    200
+                ],
+                "template": "VisitFriends/TerminalMFGCabin.png",
+                "threshold": 0.8
+            },
+            {
+                "recognition": "TemplateMatch",
+                "roi": "icon",
+                "roi_offset": [
+                    0,
+                    0,
+                    200,
+                    200
+                ],
+                "template": "VisitFriends/ProductionAssist.png",
+                "threshold": 0.9
+            }
+        ]
+    },
+    "VisitFriendsMenuAssistMFGCabin2Success": {
+        "all_of": [
+            {
+                "sub_name": "icon",
+                "recognition": "TemplateMatch",
+                "roi": [
+                    810,
+                    400,
+                    200,
+                    200
+                ],
+                "template": "VisitFriends/TerminalMFGCabin.png",
+                "threshold": 0.8
+            },
+            {
+                "recognition": "OCR",
+                "roi": "icon",
+                "roi_offset": [
+                    0,
+                    0,
+                    200,
+                    200
+                ],
+                "expected": [
+                    "制造加速",
+                    "製造加速",
+                    "MFG Speed-up",
+                    "제작 가속"
+                ]
+            }
+        ]
+    }
+}

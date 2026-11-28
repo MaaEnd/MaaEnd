@@ -1,0 +1,20 @@
+{
+    // 云终末地网页版：左侧边缘云游戏悬浮球覆盖在 x=0..33, y=30..85，会吞掉左上撤离图标 box=[14,25,25,22] 的点击；
+    // 右移 45 px 落到「撤离」按钮文字区（x=59..84, y=25..47）避开悬浮球。
+    "ProtocolSpaceExitStuckRetreat": {
+        "custom_action_param": {
+            "custom_action": "AutoAltClickAction",
+            "custom_action_param": {
+                "target_offset": [
+                    45,
+                    0,
+                    0,
+                    0
+                ]
+            },
+            "wait_nodes": [
+                "ProtocolSpaceExitStuckRestartButton"
+            ]
+        }
+    }
+}
