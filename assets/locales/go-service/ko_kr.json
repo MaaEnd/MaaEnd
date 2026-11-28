@@ -3,6 +3,7 @@
     "autodelivery.focus.depot_resolved": "🚛 창고 거점 식별: %s",
     "autodelivery.focus.depot_zipline_required": "🚛 <span style=\"color: red; font-weight: bold;\">창고 거점 %s은(는) 집라인으로만 도달할 수 있습니다</span>. 집라인이 비활성화되어 있어 도보로는 이동할 수 없습니다. 작업 옵션에서 「배달 시 집라인 우선 사용」을 활성화한 뒤 다시 시도하십시오.",
     "autodelivery.focus.destination_resolved": "🚛 배송 목적지 식별: %s",
+    "autodelivery.focus.destination_zipline_nav_failed": "🚛 <span style=\"color: red; font-weight: bold;\">배송 대상 %s은(는) 집라인으로만 도달할 수 있으며 길찾기에 실패했습니다</span>. \"🚡 짚라인 좌표 가져오기/갱신\"을 실행하고 집라인을 설치했는지 확인한 뒤 다시 시도하십시오.",
     "autodelivery.focus.destination_zipline_required": "🚛 <span style=\"color: red; font-weight: bold;\">배송 대상 %s은(는) 집라인으로만 도달할 수 있습니다</span>. 집라인이 비활성화되어 있어 도보로는 배송할 수 없습니다. 작업 옵션에서 「배달 시 집라인 우선 사용」을 활성화한 뒤 다시 시도하십시오.",
     "autoecofarm.crossed_center": "오버슈트 감지, 이동 비율을 줄입니다",
     "autoecofarm.interruptible_sleep_done.completed": "대기 완료",

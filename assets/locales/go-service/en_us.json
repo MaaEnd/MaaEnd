@@ -3,6 +3,7 @@
     "autodelivery.focus.depot_resolved": "🚛 Depot identified: %s",
     "autodelivery.focus.depot_zipline_required": "🚛 <span style=\"color: red; font-weight: bold;\">Depot %s can only be reached by zipline</span>. Ziplines are currently disabled and there is no walking route; enable \"Prefer Ziplines for Delivery\" in the task options and retry.",
     "autodelivery.focus.destination_resolved": "🚛 Delivery destination identified: %s",
+    "autodelivery.focus.destination_zipline_nav_failed": "🚛 <span style=\"color: red; font-weight: bold;\">Delivery target %s can only be reached by zipline, and navigation failed</span>. Make sure you have run \"🚡 Import / Update Zipline Coordinates\" and placed ziplines, then retry.",
     "autodelivery.focus.destination_zipline_required": "🚛 <span style=\"color: red; font-weight: bold;\">Delivery target %s can only be reached by zipline</span>. Ziplines are currently disabled and it cannot be delivered on foot; enable \"Prefer Ziplines for Delivery\" in the task options and retry.",
     "autoecofarm.crossed_center": "Overshot detected, reducing step ratio",
     "autoecofarm.interruptible_sleep_done.completed": "Wait completed",
