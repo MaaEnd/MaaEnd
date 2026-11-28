@@ -145,18 +145,10 @@
             "type": "And",
             "param": {
                 "all_of": [
-                    "InnkeepingInInnSetting"
+                    "InnkeepingInInnSetting",
+                    "InnkeepingResetChefsButton"
                 ]
             }
-        },
-        "pre_wait_freezes": {
-            "time": 80,
-            "target": [
-                0,
-                0,
-                0,
-                0
-            ]
         },
         "pre_delay": 0,
         "post_delay": 0,
@@ -173,6 +165,7 @@
             "param": {
                 "custom_action": "PipelineOverride",
                 "custom_action_param": {
+                    "allow_next": true,
                     "patch": {
                         "InnkeepingOpenMenuDesignSuccess": {
                             "next": [
