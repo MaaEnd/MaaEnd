@@ -21,7 +21,7 @@
             "[JumpBack]AutoStockBuyItemWulingTaskDaily",
             "[JumpBack]AutoStockBuyItemWulingTaskIndustrial",
             "[JumpBack]AutoStockBuyItemWulingTaskCultural",
-            "SoldOut",
+            "AutoStockSoldOutWuling",
             "[JumpBack]AutoStockSwipeWuling",
             "AutoStockNoMoreTargetWuling"
         ]
@@ -313,5 +313,148 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
+    },
+    // 售罄文案只出现在列表末尾，命中即表示已经滑到底：先点分类图标把列表重置回顶部，再按右上角「余额/上限」分流。
+    "AutoStockSoldOutWuling": {
+        "desc": "武陵已售罄：重置列表后判断调度券是否已超过上限",
+        "max_hit": 1, // 命中后回到列表继续购买，次数用尽可避免再次进入本分支死循环
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    274,
+                    720
+                ],
+                "expected": [
+                    "已售罄",
+                    "已售完",
+                    "(?i)Sold\\s*Out",
+                    "完売"
+                ],
+                "replace": [
+                    "馨",
+                    "罄"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockResetListViewWuling",
+            "AutoStockResetListViewViaLastWuling",
+            "AutoStockStockBillOverflowWuling",
+            "EmptyNode"
+        ]
+    },
+    "AutoStockResetListViewWuling": {
+        "desc": "武陵重置列表：点击第一个分类图标回到顶部",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    10,
+                    120,
+                    50,
+                    480
+                ],
+                "template": "AutoStockStaple/CategoryFirstButton.png",
+                "threshold": 0.85
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStockBillOverflowWuling",
+            "EmptyNode"
+        ]
+    },
+    "AutoStockResetListViewViaLastWuling": {
+        "desc": "武陵第一个分类已选中时：先点最后一个分类再点第一个，强制列表回到顶部",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    10,
+                    120,
+                    50,
+                    480
+                ],
+                "template": "AutoStockStaple/CategoryLastButton.png",
+                "threshold": 0.85
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockResetListViewWuling"
+        ]
+    },
+    "AutoStockStockBillOverflowWuling": {
+        "desc": "武陵调度券余额大于上限（券已溢出）",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "{CurrentStockBillBalanceText}>{CurrentStockBillCapText}"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStockBillOverflowRaiseReserveWuling",
+            "EmptyNode" // 关闭「超限购买」时改保留阈值节点被禁用，由空节点接住结束本地区
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": {
+                "content": "$task.AutoStockStaple.focus.stock_bill_overflow.wuling",
+                "display": [
+                    "log",
+                    "notification"
+                ]
+            }
+        }
+    },
+    "AutoStockStockBillOverflowRaiseReserveWuling": {
+        "desc": "券溢出时把保留阈值改成该地区上限，只消耗超出上限的部分，并回到列表继续购买",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockTargetCompareWuling": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "expression": "{CurrentStockBillCapText}>{AutoStockCurrentStockBill}"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockInStapleWuling"
+        ]
     }
 }

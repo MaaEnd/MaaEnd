@@ -1,31 +1,4 @@
 {
-    "SoldOut": {
-        "desc": "识别到已售罄区域,需要退出",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    0,
-                    0,
-                    274,
-                    720
-                ],
-                "expected": [
-                    "已售罄",
-                    "已售完",
-                    "(?i)Sold\\s*Out",
-                    "完売"
-                ],
-                "replace": [
-                    "馨",
-                    "罄"
-                ]
-            }
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
     "ConfirmBuyText": {
         "desc": "识别当前确认购买按钮文本",
         "recognition": {
@@ -85,6 +58,59 @@
                 ],
                 "only_rec": true,
                 "color_filter": "CurrentStockBillColor"
+            }
+        }
+    },
+    // 右上角读数形如「4504万/4600万」，斜杠左为余额、右为本地区上限。
+    // 上限文字是灰色，加 color_filter 会被连同斜杠一起过滤掉，所以下面两个节点不加颜色过滤，
+    // 改用 roi_offset 把 CurrentStockBillColor 的框向右扩到「/上限」处，再用 replace 各取一侧。
+    "CurrentStockBillBalanceText": {
+        "desc": "识别右上角调度券余额（当前/上限 中斜杠左侧）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "CurrentStockBillColor",
+                "roi_offset": [
+                    -2,
+                    -2,
+                    96,
+                    4
+                ],
+                "expected": [
+                    "\\d"
+                ],
+                "replace": [
+                    [
+                        "/.*",
+                        ""
+                    ]
+                ],
+                "only_rec": true
+            }
+        }
+    },
+    "CurrentStockBillCapText": {
+        "desc": "识别右上角调度券上限（当前/上限 中斜杠右侧）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "CurrentStockBillColor",
+                "roi_offset": [
+                    -2,
+                    -2,
+                    96,
+                    4
+                ],
+                "expected": [
+                    "\\d"
+                ],
+                "replace": [
+                    [
+                        "^[^/]*/",
+                        ""
+                    ]
+                ],
+                "only_rec": true
             }
         }
     }

@@ -23,6 +23,7 @@
             "option": [
                 "AutoStockStapleSchedule",
                 "AutoStockStapleStashBackpackSubTask",
+                "AutoStockStapleOverCapPurchase",
                 "AutoStockStapleValleyIV",
                 "AutoStockStapleWuling"
             ]
@@ -325,6 +326,15 @@
                         }
                     }
                 }
+            ],
+            "default_case": [
+                "ValleyEngravingPermit",
+                "KunstTube",
+                "JakubsLegacy",
+                "PulledSlugMeat",
+                "HazefyreBlossom",
+                "CartilageTack",
+                "CosmoMeltoJelly"
             ]
         },
         "AutoStockBuyDailyGoodsValleyIVEngravingPermitLimit": {
@@ -588,7 +598,7 @@
                     }
                 }
             ],
-            "default_case": "-50%"
+            "default_case": "Any"
         },
         "AutoStockBuyDailyGoodsValleyIVFoodAndBuffLimit": {
             "type": "input",
@@ -941,7 +951,7 @@
                     }
                 }
             ],
-            "default_case": "-50%"
+            "default_case": "Any"
         },
         "AutoStockBuyStockFactoryGoodsValleyIV": {
             "type": "switch",
@@ -1288,7 +1298,7 @@
                     }
                 }
             ],
-            "default_case": "-50%"
+            "default_case": "Any"
         },
         "AutoStockBuyCulturalGoodsValleyIV": {
             "type": "switch",
@@ -1440,6 +1450,15 @@
                         }
                     }
                 }
+            ],
+            "default_case": [
+                "BreezeOfKjersch",
+                "TidestoneSpecimen",
+                "SimonchShawl",
+                "FrontiersWatch",
+                "AuryleneCamera",
+                "CosmicGatePuzzle",
+                "SurfingFestivalTicket"
             ]
         },
         "AutoStockBuyCulturalGoodsValleyIVGiftLimit": {
@@ -1811,7 +1830,7 @@
                     }
                 }
             ],
-            "default_case": "-50%"
+            "default_case": "Any"
         },
         "AutoStockStapleWuling": {
             "type": "switch",
@@ -2125,6 +2144,9 @@
                         }
                     }
                 }
+            ],
+            "default_case": [
+                "WulingEngravingPermit"
             ]
         },
         "AutoStockBuyDailyGoodsWulingEngravingPermitLimit": {
@@ -2388,7 +2410,7 @@
                     }
                 }
             ],
-            "default_case": "-95%"
+            "default_case": "Any"
         },
         "AutoStockBuyDailyGoodsWulingFoodAndBuffLimit": {
             "type": "input",
@@ -2849,7 +2871,7 @@
                     }
                 }
             ],
-            "default_case": "-50%"
+            "default_case": "Any"
         },
         "AutoStockBuyStockFactoryGoodsWuling": {
             "type": "switch",
@@ -2953,7 +2975,8 @@
             "default_case": [
                 "WulingArtificingCatalyst",
                 "KeenWulingDetector",
-                "KeenWulingCompass"
+                "KeenWulingCompass",
+                "WulingTalositeProbe"
             ]
         },
         "AutoStockBuyStockFactoryGoodsWulingArtificingCatalystLimit": {
@@ -3217,7 +3240,7 @@
                     }
                 }
             ],
-            "default_case": "-90%"
+            "default_case": "Any"
         },
         "AutoStockBuyStockFactoryGoodsWulingDetectorCompassLimit": {
             "type": "input",
@@ -3516,7 +3539,7 @@
                     }
                 }
             ],
-            "default_case": "-75%"
+            "default_case": "Any"
         },
         "AutoStockBuyCulturalGoodsWuling": {
             "type": "switch",
@@ -3820,6 +3843,23 @@
                         }
                     }
                 }
+            ],
+            "default_case": [
+                "EurekaTeabox",
+                "YinglungDumbbells",
+                "WovenAggelos",
+                "ScrimshawOfThePack",
+                "FinNChips",
+                "BizarroCupcake",
+                "ChubbyLungFangxingMemorabilia",
+                "FowlbeastPaperKite",
+                "SwingingGentlemanClassicalAlbum",
+                "MyrkwoodBerryPreserve",
+                "MiracleCake",
+                "YuanyuanManorJigsaw",
+                "WoodenSword",
+                "WOWFFLEFusionEvent",
+                "TheUnicity"
             ]
         },
         "AutoStockBuyCulturalGoodsWulingGiftLimit": {
@@ -4335,7 +4375,7 @@
                     }
                 }
             ],
-            "default_case": "-95%"
+            "default_case": "Any"
         },
         "AutoStockStapleStashBackpackSubTask": {
             "type": "switch",
@@ -4358,6 +4398,49 @@
                     "pipeline_override": {
                         "StashBackpackMain": {
                             "enabled": false
+                        }
+                    }
+                }
+            ],
+            "default_case": "Yes"
+        },
+        "AutoStockStapleOverCapPurchase": {
+            "type": "switch",
+            "label": "$task.AutoStockStaple.option.AutoStockStapleOverCapPurchase.label",
+            "cases": [
+                {
+                    "name": "Yes"
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "AutoStockStockBillOverflowRaiseReserveValleyIV": {
+                            "enabled": false
+                        },
+                        "AutoStockStockBillOverflowRaiseReserveWuling": {
+                            "enabled": false
+                        },
+                        "AutoStockStockBillOverflowValleyIV": {
+                            "focus": {
+                                "Node.Recognition.Succeeded": {
+                                    "content": "$task.AutoStockStaple.focus.stock_bill_overflow_disabled.valley_iv",
+                                    "display": [
+                                        "log",
+                                        "notification"
+                                    ]
+                                }
+                            }
+                        },
+                        "AutoStockStockBillOverflowWuling": {
+                            "focus": {
+                                "Node.Recognition.Succeeded": {
+                                    "content": "$task.AutoStockStaple.focus.stock_bill_overflow_disabled.wuling",
+                                    "display": [
+                                        "log",
+                                        "notification"
+                                    ]
+                                }
+                            }
                         }
                     }
                 }

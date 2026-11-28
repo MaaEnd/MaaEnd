@@ -19,6 +19,7 @@
 | `assets/resource/pipeline/AutoStockStaple/General/QuantityControl.json` | 弹窗分支调度、排除物品、确认购买 |
 | `assets/resource/pipeline/AutoStockStaple/General/Template.json` | 售罄、调度券、确认购买等通用模板 |
 | `assets/resource/pipeline/Interface/InScene/StockStaple.json` | 地区与稳定物资界面场景识别 |
+| `assets/resource/image/AutoStockStaple/` | 分类跳转按钮模板（售罄后重置列表用） |
 | `assets/resource_adb/pipeline/AutoStockStaple/` | ADB ROI 偏移镜像（需与 Win32 同步检查） |
 | `agent/go-service/autostockstaple/action.go` | 计算购买数量并驱动 BetterSliding |
 | `agent/go-service/common/attachregex/action.go` | attach 关键词合并为 OCR 白名单正则 |
@@ -32,7 +33,7 @@
 4. 在列表页循环扫描，每轮按顺序判断：
     - 剩余调度券是否[低于保留阈值](#调度券保留阈值) → 停止本地区扫描。
     - 是否[识别到可买目标商品](#商品识别链与折扣分组) → 点击进入购买弹窗；同一轮按折扣分组顺序依次判定。
-    - 是否已售罄 → 停止本地区扫描。
+    - 是否已售罄 → [按右上角余额/上限分流](#售罄后按券上限分流)：券已溢出则改按上限消耗并回到扫描，否则停止本地区扫描。
     - 否则向下滑动列表继续找，单地区最多滑 25 次（`AutoStockSwipe{Region}.max_hit`）；次数用完仍在物资调度页即视为列表已到底。
 5. 购买弹窗内按[数量控制三分支](#数量控制三分支)处理：券不足退出 / 未达上限则购买 / 已达上限则排除。
 6. 所有启用地区完成后结束。
@@ -221,7 +222,16 @@ node tools/pipeline-generate/AutoStockStaple/generate.mjs
 - **数值档**（`-95%` … `-50%`）：把该分组折扣节点的 `expected` 改写为该档及更大的折扣值（如 `-90%` → `-99`、`-95`、`-90`），OCR 命中其一才算满足。
 - **任意**（`Any`）：将该分组折扣 OCR 节点整体替换为 `ColorMatch`（全范围阈值 `[0,0,0]`–`[255,255,255]` 且 `count` 默认 1，非空 ROI 恒定通过，折扣色块是否存在不影响结果）——行为等同于购买该分组所有勾选物资，不再检查折扣。
 
-档位只列稳定物资实际出现的折扣（`-95/-90/-85/-80/-75/-70/-65/-60/-50`），默认档位由各分组 select 的 `default_case` 决定（目前谷地全部分组 `-50%`；武陵刻写券与人文物产 `-95%`、工业货品 `-75%`、精锻助剂 `-90%`、日用消耗 `-50%`）。无折扣徽标的物资在任何数值档下 OCR 都无文本、不命中，需选「任意」才会购买。
+档位只列稳定物资实际出现的折扣（`-95/-90/-85/-80/-75/-70/-65/-60/-50`），默认档位由各分组 select 的 `default_case` 决定（当前两个地区的全部分组都是「任意」，即不看折扣全买）。无折扣徽标的物资在任何数值档下 OCR 都无文本、不命中，需选「任意」才会购买。
+
+物品勾选的默认值（`assets/tasks/AutoStockStaple.json` 里各 `*Items` 的 `default_case`）按地区不同：
+
+| 地区 | 默认勾选 |
+| ------------- | ------------------------------------------------------------------------------------------------------ |
+| 四号谷地 | 全部物品（日用消耗 7 件、工业货品 2 件、人文物产 7 件） |
+| 武陵 | 日用消耗只勾「武陵刻写券」，工业货品 4 件、人文物产 16 件全勾；汤剂/秘剂与食物、饮品默认都不买 |
+
+两张表的物品名来自 `zmdmap` 生成的 `stock_staple.json`，上游新增商品后 `pnpm generate:AutoStockStaple` 只补节点与文案，不会改写这里的默认勾选。
 
 ### 4. “能否买得起”的判断
 
@@ -245,11 +255,69 @@ node tools/pipeline-generate/AutoStockStaple/generate.mjs
 
 ### 5. 售罄与滑动
 
-- `SoldOut`：OCR 识别左侧“已售罄 / Sold Out”等文案，命中后不再滑动。
+- `AutoStockSoldOut{Region}`：OCR 识别左侧“已售罄 / Sold Out”等文案，命中后不再滑动。售罄文案只出现在列表末尾，命中即表示已经滑到底，所以先[重置列表](#售罄后重置列表)，再按右上角读数[分流](#售罄后按券上限分流)。`max_hit: 1`：分流后回到列表继续购买时不会再次触发本分支。
 - `AutoStockSwipe{Region}`：在地区页内向下滑动，`post_wait_freezes` 等待列表区域稳定后再进入下一轮识别。`max_hit` 为 `25`，即单个地区最多滑 25 次；`max_hit` 在同一任务内累计，购买往返不消耗次数。
-    - 循环只有两个结束信号：`SoldOut` 命中，或 25 次滑完后由 `AutoStockNoMoreTarget{Region}` 接住（它排在滑动节点之后，只在滑动节点被 `max_hit` 跳过时才命中），按「列表已到底且没有符合条件的商品」结束本地区扫描。
+    - 循环只有两个结束信号：售罄分流走到共享的空节点 `EmptyNode`，或 25 次滑完后由 `AutoStockNoMoreTarget{Region}` 接住（它排在滑动节点之后，只在滑动节点被 `max_hit` 跳过时才命中），按「列表已到底且没有符合条件的商品」结束本地区扫描。
     - 所以 `max_hit` 与 `AutoStockNoMoreTarget{Region}` 要成对保留：这是「滑完仍没有结果」的唯一出口，缺了它就该地区反复空转；列表比 25 屏还长时才需要调大 `max_hit`。
     - 曾短暂改用 `ListCompleteRecognition`（比较相邻两帧判断到底）替代这个次数上限：滑动本身没生效时前后两帧同样静止，会被误判成「已到底」而漏扫整片列表，因此回退为次数上限。
+
+### 售罄后重置列表
+
+左侧四个圆角小方块是分类跳转按钮：图标暗色＝未选中，亮白（左侧带 ◀）＝当前分类所在位置。点一下分类按钮就会把列表跳到该分类，也就是**把列表重置回顶部**。
+
+实现位于 `ValleyIV.json` / `Wuling.json`，模板在 `assets/resource/image/AutoStockStaple/`：
+
+| 节点 | 识别 | 作用 |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------- | ---------------------------------------- |
+| `AutoStockResetListView{Region}` | `TemplateMatch` → `AutoStockStaple/CategoryFirstButton.png`（分类一未选中样式） | 命中即点击，把列表跳回第一个分类 |
+| `AutoStockResetListViewViaLast{Region}` | `TemplateMatch` → `AutoStockStaple/CategoryLastButton.png`（分类四未选中样式） | 分类一当前被选中时先点最后一个分类，让分类一变回未选中，`next` 再回到上一个节点点分类一 |
+
+- 匹配 ROI 是左侧竖条 `[10, 120, 50, 480]`，模板 25×25，阈值 `0.85`：实测同屏四个分类互相得分只有 0.62~0.67，目标图标为 `1.0`，区分度足够。
+- 两个节点都排在 `AutoStockSoldOut{Region}.next` 的最前面；都认不到时（例如手机端模板不同）会直接落到分流节点，行为等同没有重置能力。
+- 重置放在分流之前：券溢出时后续要回到列表继续买，列表必须已经回到顶部；券不溢出时随后就走 `EmptyNode` 结束本地区。
+
+### 售罄后按券上限分流
+
+实现位于 `ValleyIV.json` / `Wuling.json`，读数节点在 `General/Template.json`。
+
+右上角调度券读数是 `余额/上限` 两段（如 `4504万/4600万`）。两者由同一段文字拆出：
+
+| 节点 | 作用 |
+| -------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `CurrentStockBillBalanceText` | `roi` 取 `CurrentStockBillColor` 的框并向右扩，`replace` 去掉 `/` 之后的部分，得到余额 |
+| `CurrentStockBillCapText` | 同一个框，`replace` 去掉 `/` 之前的部分，得到本地区上限 |
+| `AutoStockCurrentStockBill` | 保留阈值判断用的余额读数（原有节点，带颜色过滤，只吃到斜杠左侧的亮色数字） |
+
+> [!NOTE]
+> 上限文字是灰色，加 `color_filter` 会被连斜杠一起过滤掉，所以两个新读数节点都不加颜色过滤；`only_rec` 读到的原始文本可能是 `L4504万/4600万`（左侧图标残影），`ocrnum` 只取第一个数字，不影响解析。
+
+分流顺序：`AutoStockResetListView{Region}`（或 `ViaLast` 版本）完成重置后 → `next` 依次尝试
+
+```text
+AutoStockStockBillOverflow{Region}                   余额 > 上限 时命中（券在溢出）
+  -> AutoStockStockBillOverflowRaiseReserve{Region}   把 AutoStockTargetCompare{Region} 的表达式改成 {CurrentStockBillCapText}>{AutoStockCurrentStockBill}
+  -> AutoStockInStaple{Region}                        回到列表扫描，继续买、把超出上限的部分花掉
+EmptyNode                                             余额未超过上限，接住并结束本地区扫描
+```
+
+- 改保留阈值等价于「把保留调度券设成本地区上限」：只有余额高于上限时 `AutoStockTargetCanNotBuy{Region}` 才不命中，扫描才会继续；余额落到上限以内时该节点立即命中并结束本地区。
+- `PipelineOverride` 默认是 context 作用域（只影响本次任务），所以下次运行仍按用户在选项里填的保留阈值。要让策略长期生效，需要用户把「保留调度券」填成自己的上限值；Focus 文案里已经这样提示。
+- 上限读数失败（例如手机端读数区更窄、被裁掉）时 `ExpressionRecognition` 不命中，流程落到共享空节点 `EmptyNode`，行为与改动前一致。
+
+#### 超限购买开关
+
+`AutoStockStapleOverCapPurchase`（switch，默认 `Yes`）控制上面这套溢出处理是否生效，实现在 `assets/tasks/AutoStockStaple.json`：
+
+| 取值 | 行为 |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Yes`（默认） | 该 case **不带任何 `pipeline_override`**，节点保持原样：照常把保留阈值改成上限并回到列表继续购买 |
+| `No` | 把 `AutoStockStockBillOverflowRaiseReserve{Region}` 置 `enabled: false`（不再覆盖保留阈值），并把 `AutoStockStockBillOverflow{Region}` 的 Focus 换成 `$task.AutoStockStaple.focus.stock_bill_overflow_disabled.{valley_iv,wuling}`，只提示不消耗 |
+
+- 关闭时靠 `AutoStockStockBillOverflow{Region}.next` 末尾的共享 `EmptyNode` 接住：被禁用的节点会被跳过，而不是让 `next` 列表全部不可用进入错误态。
+- 关闭后售罄分支的其余部分（重置列表、余额/上限判定）保持不变，只是不再自动消耗溢出券。
+
+
+
 
 ## 数量控制（购买弹窗）
 
