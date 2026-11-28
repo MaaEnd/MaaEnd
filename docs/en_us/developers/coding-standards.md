@@ -130,7 +130,7 @@ Under these restrictions, `post_wait_freezes` should only be used when there is 
 
 ### OCR Write Complete Text
 
-`expected` must contain the complete text, not partial. Write the text of every language that can appear side by side in the same array, and write the English one as a loose case-insensitive regular expression. **Only when the OCR engine is unstable in recognizing complete text** is it allowed to use fragments or handwritten regular expressions. In this case, you must add `// @i18n-skip` and a comment above the array to retain the complete original text. See below [OCR and i18n](#ocr-and-i18n) for details.
+`expected` must contain the complete text, not partial. Write the text of every language that can appear side by side in the same array, and write the English one as a loose case-insensitive regular expression. **Only when the OCR engine is unstable in recognizing complete text** is it allowed to use fragments or handwritten regular expressions. In this case, you must add a comment above the array to retain the complete original text. See below [OCR and i18n](#ocr-and-i18n) for details.
 
 ### Reuse First, Then Add New
 
@@ -318,16 +318,12 @@ OCR nodes run into interfaces in many languages, so `expected` is maintained by 
 - Write the text of every language that can appear side by side in the same `expected` array. Simplified Chinese is required: it is the text of the interface in front of you. Fill in the other languages as well wherever you can; if you cannot get the interface in that language, do not invent a translation — add it when you run into it.
 - Only when the OCR engine is unstable in recognizing complete text (e.g., containing percent signs, special symbols, easily confused characters) and it is truly necessary to use fragments or handwritten regular expressions for stable matching is truncation allowed. **Truncation is not a default method but a fallback.**
 
-Requirements:
-
-1. Add `// @i18n-skip` inside the `expected` array to mark this node as hand-maintained;
-2. Add a normal JSON comment above the array to retain the **complete original text** for review, multilingual reference, and future restoration of complete matching after OCR engine upgrades.
+When truncating, add a normal JSON comment above the array to retain the **complete original text** for review, multilingual reference, and future restoration of complete matching after OCR engine upgrades.
 
 ```jsonc
 // OCR engine is unstable with the percent sign in "稳定生产 100%", using truncated match
 "expected": [
     // "稳定生产 100%"
-    // @i18n-skip
     "稳定生产"
 ]
 ```
