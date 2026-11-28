@@ -2417,6 +2417,8 @@
     "task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.wuling_engraving_permit": "Insufficient dispatch vouchers, skipping Wuling Engraving Permit",
     "task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.wuling_talosite_probe": "Insufficient dispatch vouchers, skipping Wuling Talosite Probe",
     "task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.yinglung_dumbbells": "Insufficient dispatch vouchers, skipping Yinglung Dumbbells",
+    "task.AutoStockStaple.focus.stock_bill_overflow.valley_iv": "Valley IV dispatch vouchers are above the cap: the excess is not spent automatically; please spend the surplus manually",
+    "task.AutoStockStaple.focus.stock_bill_overflow.wuling": "Wuling dispatch vouchers are above the cap: the excess is not spent automatically; please spend the surplus manually",
     "task.AutoStockStaple.item.item_gift_jinlong_12": "Yuanyuan Manor Jigsaw",
     "task.AutoStockStaple.item.item_gift_jinlong_13": "Wooden Sword",
     "task.AutoStockStaple.item.item_gift_jinlong_14": "WOW-FFLE: Fusion Event",

@@ -2417,6 +2417,8 @@
     "task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.wuling_engraving_permit": "調達券不足、武陵刻写券の購入をスキップ",
     "task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.wuling_talosite_probe": "調達券不足、武陵塔晶探针の購入をスキップ",
     "task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.yinglung_dumbbells": "調達券不足、应龙哑铃の購入をスキップ",
+    "task.AutoStockStaple.focus.stock_bill_overflow.valley_iv": "第4谷地の調達券が上限を超えています：超過分は自動消費されません。手動で消費してください",
+    "task.AutoStockStaple.focus.stock_bill_overflow.wuling": "武陵の調達券が上限を超えています：超過分は自動消費されません。手動で消費してください",
     "task.AutoStockStaple.item.item_gift_jinlong_12": "縁縁荘のパズル",
     "task.AutoStockStaple.item.item_gift_jinlong_13": "木彫りの剣",
     "task.AutoStockStaple.item.item_gift_jinlong_14": "はちみつワッフル・コラボ限定味",

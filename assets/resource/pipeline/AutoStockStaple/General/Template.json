@@ -1,31 +1,4 @@
 {
-    "SoldOut": {
-        "desc": "识别到已售罄区域,需要退出",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    0,
-                    0,
-                    274,
-                    720
-                ],
-                "expected": [
-                    "已售罄",
-                    "已售完",
-                    "(?i)Sold\\s*Out",
-                    "完売"
-                ],
-                "replace": [
-                    "馨",
-                    "罄"
-                ]
-            }
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
     "ConfirmBuyText": {
         "desc": "识别当前确认购买按钮文本",
         "recognition": {
@@ -85,6 +58,73 @@
                 ],
                 "only_rec": true,
                 "color_filter": "CurrentStockBillColor"
+            }
+        }
+    },
+    // 右上角读数形如「4504万/4600万」，斜杠左为余额、右为本地区上限。
+    // 余额直接复用上面的 AutoStockCurrentStockBill（亮色数字）；上限是灰色数字，亮色过滤拿不到，
+    // 所以用一个大范围 RGB 灰阶匹配把「/上限」这段灰字框出来，再按这个框做 OCR。
+    // 上限 OCR 会用 replace 去掉斜杠及其左侧内容：斜杠本身不参与数值比较，留着只会让读数不是纯数字。
+    "CurrentStockBillCapColor": {
+        "desc": "识别调度券上限文字颜色（「余额/上限」斜杠右侧的灰色数字）",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    1040,
+                    0,
+                    220,
+                    60
+                ],
+                "method": 4,
+                "lower": [
+                    140,
+                    140,
+                    140
+                ],
+                "upper": [
+                    185,
+                    185,
+                    185
+                ]
+            }
+        }
+    },
+    "CurrentStockBillCapText": {
+        "desc": "识别右上角调度券上限（当前/上限 中斜杠右侧）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "CurrentStockBillCapColor",
+                "roi_offset": [
+                    -2,
+                    -2,
+                    4,
+                    4
+                ],
+                "expected": [
+                    "\\d+"
+                ],
+                "replace": [
+                    [
+                        "^[^/]*/",
+                        ""
+                    ]
+                ],
+                "color_filter": "CurrentStockBillCapColor"
+            }
+        }
+    },
+    "AutoStockCurrentStockBillCap": {
+        "desc": "识别当前调度券上限，用于和余额比较是否溢出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CurrentStockBillCapColor",
+                    "CurrentStockBillCapText"
+                ],
+                "box_index": 1
             }
         }
     }

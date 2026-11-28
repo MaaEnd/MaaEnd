@@ -2417,6 +2417,8 @@
     "task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.wuling_engraving_permit": "조달권 부족, 武陵刻写券 구매 건너뜀",
     "task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.wuling_talosite_probe": "조달권 부족, 武陵塔晶探针 구매 건너뜀",
     "task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.yinglung_dumbbells": "조달권 부족, 应龙哑铃 구매 건너뜀",
+    "task.AutoStockStaple.focus.stock_bill_overflow.valley_iv": "제4 계곡 조달권이 상한을 초과했습니다. 초과분은 자동으로 소비되지 않습니다. 직접 소비하세요",
+    "task.AutoStockStaple.focus.stock_bill_overflow.wuling": "무릉 조달권이 상한을 초과했습니다. 초과분은 자동으로 소비되지 않습니다. 직접 소비하세요",
     "task.AutoStockStaple.item.item_gift_jinlong_12": "인연 마을 퍼즐",
     "task.AutoStockStaple.item.item_gift_jinlong_13": "장식용 목검",
     "task.AutoStockStaple.item.item_gift_jinlong_14": "벌꿀 와플 · 콜라보 한정판",

@@ -2417,6 +2417,8 @@
     "task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.wuling_engraving_permit": "调度券不足，跳过购买 武陵刻写券",
     "task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.wuling_talosite_probe": "调度券不足，跳过购买 武陵塔晶探针",
     "task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.yinglung_dumbbells": "调度券不足，跳过购买 应龙哑铃",
+    "task.AutoStockStaple.focus.stock_bill_overflow.valley_iv": "四号谷地调度券已超过上限：不会自动消耗溢出部分，请手动消耗多余调度券",
+    "task.AutoStockStaple.focus.stock_bill_overflow.wuling": "武陵调度券已超过上限：不会自动消耗溢出部分，请手动消耗多余调度券",
     "task.AutoStockStaple.item.item_gift_jinlong_12": "缘缘庄拼图",
     "task.AutoStockStaple.item.item_gift_jinlong_13": "木雕剑",
     "task.AutoStockStaple.item.item_gift_jinlong_14": "风味蜜饼·联名款",
