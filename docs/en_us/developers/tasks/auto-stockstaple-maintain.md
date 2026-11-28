@@ -308,7 +308,7 @@ EmptyNode                                            shared catch-all that ends 
 - If the cap reading fails (for example a narrower top-right area on phones clips it), `ExpressionRecognition` does not match and the flow falls through to the shared `EmptyNode`, i.e. the previous behaviour.
 
 > [!NOTE]
-> The companion "Buy while above the cap" switch (`AutoStockStapleOverCapPurchase`) is commented out and no longer shows in the UI: the flow is notify-only by default. Its definition is kept in the comment block at the end of `assets/tasks/AutoStockStaple.json`; restoring it means uncommenting both that block and its entry in `task.option`.
+> The companion "Buy while above the cap" switch (`AutoStockStapleOverCapPurchase`) has been removed and is no longer offered in the UI: the flow is notify-only for good. To restore automatic spending, flip `AutoStockStockBillOverflowRaiseReserve{Region}` back to `enabled: true` and change the focus text back to the "keeps only the cap amount" wording.
 
 ## Quantity Control (Purchase Popup)
 

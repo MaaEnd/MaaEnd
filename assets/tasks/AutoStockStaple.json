@@ -23,8 +23,6 @@
             "option": [
                 "AutoStockStapleSchedule",
                 "AutoStockStapleStashBackpackSubTask",
-                // 超限购买开关暂不对外开放：售罄流程默认只提示，不自动消耗溢出券。需要恢复时取消本行与下方选项定义的注释
-                // "AutoStockStapleOverCapPurchase",
                 "AutoStockStapleValleyIV",
                 "AutoStockStapleWuling"
             ]
@@ -4405,51 +4403,5 @@
             ],
             "default_case": "Yes"
         }
-        // 超限购买开关（暂不对外开放）：流程默认只提示、不自动消耗溢出券。
-        // 恢复时取消下面整段与本文件 task.option 里对应行的注释，并确认
-        // AutoStockStockBillOverflowRaiseReserve{Region} 已改回 enabled: true。
-        // "AutoStockStapleOverCapPurchase": {
-        //     "type": "switch",
-        //     "label": "$task.AutoStockStaple.option.AutoStockStapleOverCapPurchase.label",
-        //     "cases": [
-        //         {
-        //             "name": "Yes"
-        //         },
-        //         {
-        //             "name": "No",
-        //             "pipeline_override": {
-        //                 "AutoStockStockBillOverflowRaiseReserveValleyIV": {
-        //                     "enabled": false
-        //                 },
-        //                 "AutoStockStockBillOverflowRaiseReserveWuling": {
-        //                     "enabled": false
-        //                 },
-        //                 "AutoStockStockBillOverflowValleyIV": {
-        //                     "focus": {
-        //                         "Node.Recognition.Succeeded": {
-        //                             "content": "$task.AutoStockStaple.focus.stock_bill_overflow_disabled.valley_iv",
-        //                             "display": [
-        //                                 "log",
-        //                                 "notification"
-        //                             ]
-        //                         }
-        //                     }
-        //                 },
-        //                 "AutoStockStockBillOverflowWuling": {
-        //                     "focus": {
-        //                         "Node.Recognition.Succeeded": {
-        //                             "content": "$task.AutoStockStaple.focus.stock_bill_overflow_disabled.wuling",
-        //                             "display": [
-        //                                 "log",
-        //                                 "notification"
-        //                             ]
-        //                         }
-        //                     }
-        //                 }
-        //             }
-        //         }
-        //     ],
-        //     "default_case": "Yes"
-        // }
     }
 }

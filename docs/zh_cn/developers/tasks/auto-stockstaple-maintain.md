@@ -308,7 +308,7 @@ EmptyNode                                             空节点接住并结束�
 - 上限读数失败（例如手机端读数区更窄、被裁掉）时 `ExpressionRecognition` 不命中，流程落到共享空节点 `EmptyNode`，行为与改动前一致。
 
 > [!NOTE]
-> 原先配套的「超出上限时继续购买」开关（`AutoStockStapleOverCapPurchase`）已注释掉、不再出现在界面里：流程默认就是"只提示"。选项定义保留在 `assets/tasks/AutoStockStaple.json` 文件末尾的注释块中，恢复时取消注释并同时放开 `task.option` 里对应行。
+> 原先配套的「超出上限时继续购买」开关（`AutoStockStapleOverCapPurchase`）已删除，界面不再提供该选项：流程固定为只提示。要恢复自动消耗，把 `AutoStockStockBillOverflowRaiseReserve{Region}` 的 `enabled` 改回 `true`，并把 Focus 文案改回"已改为上限"的说法即可。
 
 ## 数量控制（购买弹窗）
 
