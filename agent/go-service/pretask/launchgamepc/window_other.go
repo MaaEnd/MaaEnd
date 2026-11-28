@@ -18,3 +18,7 @@ func restoreLauncherWindow(hWnd unsafe.Pointer) bool {
 func hasActiveMonitor() bool {
 	return true
 }
+
+func launcherDPI(_ unsafe.Pointer) (uint32, uint32) {
+	return 0, 0
+}

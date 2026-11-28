@@ -523,7 +523,19 @@ func runPipeline(hWnd unsafe.Pointer) error {
 	if err := runPipelinePhase(hWnd, res, win32.ScreencapScreenDC, win32.InputSeize, wakeEntry); err != nil {
 		return err
 	}
-	return runPipelinePhase(hWnd, res, win32.ScreencapPrintWindow, win32.InputSendMessage, pipelineEntry)
+	windowDPI, monitorDPI := launcherDPI(hWnd)
+	if windowDPI == 0 || monitorDPI == 0 || windowDPI == monitorDPI {
+		return runPipelinePhase(hWnd, res, win32.ScreencapPrintWindow, win32.InputSendMessage, pipelineEntry)
+	}
+
+	// PrintWindow uses the launcher's rendering DPI, while input coordinates
+	// refer to the compositor's scaled client area.
+	log.Info().
+		Str("component", component).
+		Uint32("window_dpi", windowDPI).
+		Uint32("monitor_dpi", monitorDPI).
+		Msg("launcher DPI differs from monitor, using FramePool")
+	return runPipelinePhase(hWnd, res, win32.ScreencapFramePool, win32.InputSendMessage, pipelineEntry)
 }
 
 func runPipelinePhase(hWnd unsafe.Pointer, res *maa.Resource, screencap win32.ScreencapMethod, input win32.InputMethod, entry string) error {
