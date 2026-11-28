@@ -1,0 +1,9 @@
+{
+    "VisitFriendsPrioritySearchInit": {
+        // 云网页版输入后不会自动搜索，需回车提交
+        "anchor": {
+            "TextInputFocus": "VisitFriendsPrioritySearchFocusBox",
+            "TextInputSubmit": "VisitFriendsPrioritySearchSubmit"
+        }
+    }
+}

@@ -1,0 +1,29 @@
+{
+    "VisitFriendsPrioritySearchFocusBox": {
+        "roi_offset": [
+            -110,
+            -50,
+            110,
+            50
+        ],
+        "expected": [
+            "输入名称搜索好友",
+            "輸入名稱搜尋好友",
+            "(?i)Search\\s*friend\\s*by\\s*name",
+            "名前を入力して検索",
+            // yj 没给弹出的输入框做 i18n
+            "请输入"
+        ]
+    },
+    "VisitFriendsPrioritySearchSubmit": {
+        "recognition": "DirectHit",
+        "action": "ClickKey",
+        "key": [
+            13
+        ],
+        "post_wait_freezes": 100,
+        "next": [
+            "VisitFriendsPrioritySearchWaitResult"
+        ]
+    }
+}
