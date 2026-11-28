@@ -1,0 +1,186 @@
+// 客栈经营-菜单设定
+{
+    // =========================================================================
+    // 菜单筛选
+    // =========================================================================
+    "InnkeepingMenuOpenFilter": {
+        "desc": "在菜单设定界面，打开筛选",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InnkeepingMenuFilterButton"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 100,
+        "next": [
+            "InnkeepingOpenMenuFilterSuccess"
+        ]
+    },
+    "InnkeepingOpenMenuFilterSuccess": {
+        "desc": "打开筛选成功",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InnkeepingInMenuFilter"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 80,
+            "target": [
+                200,
+                190,
+                870,
+                325
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "InnkeepingMenuFilterSelectQTY",
+            "InnkeepingMenuFilterListComplete",
+            "[JumpBack]InnkeepingMenuFilterListScroll"
+        ]
+    },
+    "InnkeepingMenuFilterListComplete": {
+        "desc": "在筛选界面，列表滚动已至尽头",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ListCompleteRecognition",
+                "custom_recognition_param": {
+                    "threshold": 0.95
+                },
+                "roi": [
+                    200,
+                    190,
+                    870,
+                    325
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "FailedNode"
+        ]
+    },
+    "InnkeepingMenuFilterListScroll": {
+        "desc": "在筛选界面，向下滚动",
+        "pre_delay": 0,
+        "action": {
+            "type": "Scroll",
+            "param": {
+                "target": [
+                    200,
+                    190,
+                    870,
+                    325
+                ],
+                "dx": 0,
+                "dy": -120
+            }
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                200,
+                190,
+                870,
+                325
+            ],
+            "threshold": 0.95
+        },
+        "post_delay": 0
+    },
+    "InnkeepingMenuFilterSelectQTY": {
+        "desc": "在筛选界面，选中「可烹饪数量」",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InnkeepingMenuFilterQTY"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 100,
+        "next": [
+            "InnkeepingMenuFilterSelectQTYSuccess"
+        ]
+    },
+    "InnkeepingMenuFilterSelectQTYSuccess": {
+        "desc": "选中「可烹饪数量」成功",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InnkeepingMenuFilterQTY",
+                    "InnkeepingMenuFilterQTYSelected"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "InnkeepingCloseMenuFilter"
+        ]
+    },
+    "InnkeepingCloseMenuFilter": {
+        "desc": "关闭筛选界面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "WhiteConfirmButtonType1"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 100,
+        "next": [
+            "InnkeepingCloseMenuFilterSuccess"
+        ]
+    },
+    "InnkeepingCloseMenuFilterSuccess": {
+        "desc": "关闭筛选界面成功，回到菜单设定界面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InnkeepingInMenuDesign"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "RestaurantMenuInitialize"
+        ]
+    }
+}

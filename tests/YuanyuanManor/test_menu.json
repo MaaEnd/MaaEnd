@@ -10,8 +10,8 @@
             "image": "缘缘庄_菜单_菜品页及要求.png",
             "hits": [
                 "InnkeepingInMenuDesign",
+                "InnkeepingMenuFilterButton",
                 "RestaurantMenuCardQuantity",
-                "RestaurantMenuFilterIcon",
                 "RestaurantMenuStartBusinessWarning",
                 "RestaurantMenuStartBusiness"
             ]
@@ -30,10 +30,9 @@
             "image": "缘缘庄_菜单_筛选窗口.png",
             "hits": [
                 "InnkeepingInMenuDesign",
+                "InnkeepingMenuFilterQTY",
                 "RestaurantMenuStartBusinessWarning",
-                "RestaurantMenuStartBusiness",
-                "RestaurantMenuFilterCookableQuantity",
-                "RestaurantMenuFilterConfirm"
+                "RestaurantMenuStartBusiness"
             ]
         },
         {
@@ -41,10 +40,10 @@
             "image": "缘缘庄_菜单_可烹饪数量筛选已选.png",
             "hits": [
                 "InnkeepingInMenuDesign",
+                "InnkeepingMenuFilterQTY",
+                "InnkeepingMenuFilterSelectQTYSuccess",
                 "RestaurantMenuStartBusinessWarning",
-                "RestaurantMenuStartBusiness",
-                "RestaurantMenuFilterCookableQuantity",
-                "RestaurantMenuFilterConfirm"
+                "RestaurantMenuStartBusiness"
             ]
         },
         {
@@ -63,8 +62,7 @@
             "hits": [
                 "InnkeepingInMenuDesign",
                 "RestaurantMenuStartBusinessWarning",
-                "RestaurantMenuStartBusiness",
-                "RestaurantMenuFilterConfirm"
+                "RestaurantMenuStartBusiness"
             ]
         }
     ]

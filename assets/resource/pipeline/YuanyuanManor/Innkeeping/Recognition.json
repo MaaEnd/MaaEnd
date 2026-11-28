@@ -331,5 +331,85 @@
                 ]
             }
         }
+    },
+    "InnkeepingMenuFilterButton": {
+        "desc": "菜单设定界面右下角的筛选按钮",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    853,
+                    544,
+                    97,
+                    55
+                ],
+                "template": [
+                    "YuanyuanManor/Innkeeping/MenuFilter.png"
+                ],
+                "threshold": 0.9
+            }
+        }
+    },
+    "InnkeepingInMenuFilter": {
+        "desc": "在菜单设定的筛选界面内",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    586,
+                    144,
+                    105,
+                    40
+                ],
+                "expected": [
+                    "(?i)Filter",
+                    "篩選",
+                    "フィルタ",
+                    "필터",
+                    "筛选"
+                ]
+            }
+        }
+    },
+    "InnkeepingMenuFilterQTY": {
+        "desc": "在菜单设定的筛选界面内，找到按「可烹饪数量」排序",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    193,
+                    182,
+                    315,
+                    350
+                ],
+                "expected": [
+                    "可烹饪数量",
+                    "可烹飪數量",
+                    "(?i)Max\\s*Cooking\\s*QTY",
+                    "調理できる数量",
+                    "조리 가능 수량"
+                ]
+            }
+        }
+    },
+    "InnkeepingMenuFilterQTYSelected": {
+        "desc": "用颜色匹配确认「可烹饪数量」已选中",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "InnkeepingMenuFilterQTY",
+                "roi_offset": [
+                    -20,
+                    -10,
+                    160,
+                    20
+                ],
+                "method": 6,
+                "lower": [[180]],
+                "upper": [[255]],
+                "connected": true,
+                "count": 3000
+            }
+        }
     }
 }

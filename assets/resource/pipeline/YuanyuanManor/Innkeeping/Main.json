@@ -35,6 +35,11 @@
                             "attach": {
                                 "ready": false
                             }
+                        },
+                        "InnkeepingMenuFilterListComplete": {
+                            "attach": {
+                                "ready": false
+                            }
                         }
                     }
                 }
