@@ -173,17 +173,35 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleSpendBillCloseShopValleyIV"
+            "AutoStockStapleSpendBillResetEntryValleyIV"
         ]
     },
-    "AutoStockStapleSpendBillCloseShopValleyIV": {
-        "desc": "四号谷地：超限时关闭采购中心",
+    "AutoStockStapleSpendBillResetEntryValleyIV": {
+        "desc": "四号谷地：重置列表入口。优先点侧栏「日常物品」分区回第一页；若已在日常物品（图标为选中白底、点不动）则改走「已售罄 → 日常物品」",
         "recognition": {
-            "type": "And",
+            "type": "DirectHit",
+            "param": {}
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleSpendBillResetDailyValleyIV",
+            "AutoStockStapleSpendBillResetViaSoldOutValleyIV"
+        ]
+    },
+    "AutoStockStapleSpendBillResetDailyValleyIV": {
+        "desc": "四号谷地：点侧栏「日常物品」分区图标（仅匹配深色未选中态），列表回到第一页",
+        "recognition": {
+            "type": "TemplateMatch",
             "param": {
-                "all_of": [
-                    "CloseButtonType1"
-                ]
+                "roi": [
+                    12,
+                    134,
+                    44,
+                    44
+                ],
+                "template": "AutoStockStaple/ResetButton.png"
             }
         },
         "pre_delay": 0,
@@ -193,30 +211,34 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleSpendBillReenterValleyIV"
-        ]
-    },
-    "AutoStockStapleSpendBillReenterValleyIV": {
-        "desc": "四号谷地：重新进入采购中心（列表回到顶部），随后按两档固定顺序购买",
-        "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "SubTask",
-                "custom_action_param": {
-                    "sub": [
-                        "SceneEnterMenuRegionalDevelopmentValleyIVStockRedistribution"
-                    ]
-                }
-            }
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
             "AutoStockBuyAnyItemSpendValleyIV",
             "AutoStockStapleSpendBillSoldOutExitValleyIV",
             "[JumpBack]AutoStockSwipeValleyIV",
             "AutoStockNoMoreTargetValleyIV"
+        ]
+    },
+    "AutoStockStapleSpendBillResetViaSoldOutValleyIV": {
+        "desc": "四号谷地：已在日常物品时日常图标不可点，先切到侧栏「已售罄」分区，再由 next 切回日常物品",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    12,
+                    386,
+                    44,
+                    44
+                ],
+                "template": "AutoStockStaple/SoldOutButton.png"
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleSpendBillResetDailyValleyIV"
         ]
     },
     "AutoStockStapleSpendBillAnyLabel": {
@@ -1185,17 +1207,35 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleSpendBillCloseShopWuling"
+            "AutoStockStapleSpendBillResetEntryWuling"
         ]
     },
-    "AutoStockStapleSpendBillCloseShopWuling": {
-        "desc": "武陵：超限时关闭采购中心",
+    "AutoStockStapleSpendBillResetEntryWuling": {
+        "desc": "武陵：重置列表入口。优先点侧栏「日常物品」分区回第一页；若已在日常物品（图标为选中白底、点不动）则改走「已售罄 → 日常物品」",
         "recognition": {
-            "type": "And",
+            "type": "DirectHit",
+            "param": {}
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleSpendBillResetDailyWuling",
+            "AutoStockStapleSpendBillResetViaSoldOutWuling"
+        ]
+    },
+    "AutoStockStapleSpendBillResetDailyWuling": {
+        "desc": "武陵：点侧栏「日常物品」分区图标（仅匹配深色未选中态），列表回到第一页",
+        "recognition": {
+            "type": "TemplateMatch",
             "param": {
-                "all_of": [
-                    "CloseButtonType1"
-                ]
+                "roi": [
+                    12,
+                    134,
+                    44,
+                    44
+                ],
+                "template": "AutoStockStaple/ResetButton.png"
             }
         },
         "pre_delay": 0,
@@ -1205,30 +1245,34 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleSpendBillReenterWuling"
-        ]
-    },
-    "AutoStockStapleSpendBillReenterWuling": {
-        "desc": "武陵：重新进入采购中心（列表回到顶部），随后按两档固定顺序购买",
-        "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "SubTask",
-                "custom_action_param": {
-                    "sub": [
-                        "SceneEnterMenuRegionalDevelopmentWulingStockRedistribution"
-                    ]
-                }
-            }
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
             "AutoStockBuyAnyItemSpendWuling",
             "AutoStockStapleSpendBillSoldOutExitWuling",
             "[JumpBack]AutoStockSwipeWuling",
             "AutoStockNoMoreTargetWuling"
+        ]
+    },
+    "AutoStockStapleSpendBillResetViaSoldOutWuling": {
+        "desc": "武陵：已在日常物品时日常图标不可点，先切到侧栏「已售罄」分区，再由 next 切回日常物品",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    12,
+                    386,
+                    44,
+                    44
+                ],
+                "template": "AutoStockStaple/SoldOutButton.png"
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleSpendBillResetDailyWuling"
         ]
     },
     "AutoStockStapleSpendBillAnyNameTextWuling": {
