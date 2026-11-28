@@ -3,6 +3,7 @@
     "autodelivery.focus.depot_resolved": "🚛 倉庫拠点を確認しました：%s",
     "autodelivery.focus.depot_zipline_required": "🚛 <span style=\"color: red; font-weight: bold;\">倉庫拠点 %s にはジップラインでしか到達できません</span>。ジップラインが無効のため徒歩では移動できません。タスクオプションの「配送時にジップラインを優先」を有効にして再試行してください。",
     "autodelivery.focus.destination_resolved": "🚛 配送先を確認しました：%s",
+    "autodelivery.focus.destination_zipline_nav_failed": "🚛 <span style=\"color: red; font-weight: bold;\">配送先 %s にはジップラインでしか到達できず、ナビゲーションに失敗しました</span>。目標へのジップラインが既に設置されているか確認し、「🚡 ジップライン座標をインポート／更新」タスクを実行してから再試行してください。",
     "autodelivery.focus.destination_zipline_required": "🚛 <span style=\"color: red; font-weight: bold;\">配送先 %s にはジップラインでしか到達できません</span>。ジップラインが無効のため徒歩では配送できません。タスクオプションの「配送時にジップラインを優先」を有効にして再試行してください。",
     "autoecofarm.crossed_center": "行き過ぎを検知、ステップ比率を低減します",
     "autoecofarm.interruptible_sleep_done.completed": "待機完了",

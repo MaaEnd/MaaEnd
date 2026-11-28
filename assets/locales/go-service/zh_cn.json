@@ -3,6 +3,7 @@
     "autodelivery.focus.depot_resolved": "🚛 已识别仓储节点：%s",
     "autodelivery.focus.depot_zipline_required": "🚛 <span style=\"color: red; font-weight: bold;\">仓储节点 %s 只能通过滑索抵达</span>，当前未启用滑索，无法步行前往；请在任务选项中开启「送货时优先使用滑索」后重试",
     "autodelivery.focus.destination_resolved": "🚛 已识别送货目标：%s",
+    "autodelivery.focus.destination_zipline_nav_failed": "🚛 <span style=\"color: red; font-weight: bold;\">送货目标 %s 只能通过滑索抵达，寻路失败</span>；请确认是否已有前往目标的滑索，并执行「🚡导入/更新滑索坐标」任务后重试",
     "autodelivery.focus.destination_zipline_required": "🚛 <span style=\"color: red; font-weight: bold;\">送货目标 %s 只能通过滑索抵达</span>，当前未启用滑索，无法步行送达；请在任务选项中开启「送货时优先使用滑索」后重试",
     "autoecofarm.crossed_center": "检测到拉过头，自动降低拉近比例",
     "autoecofarm.interruptible_sleep_done.completed": "完成等待",
