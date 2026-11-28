@@ -275,10 +275,9 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    // 售罄文案只出现在列表末尾，命中即表示已经滑到底：先点分类图标把列表重置回顶部，再按右上角「余额/上限」分流。
+    // 售罄后按右上角「余额/上限」判断券是否溢出：溢出时播报提示，否则空节点接住，两种情况都结束本地区扫描。
     "AutoStockSoldOutValleyIV": {
-        "desc": "四号谷地已售罄：重置列表后判断调度券是否已超过上限",
-        "max_hit": 1, // 命中后回到列表继续购买，次数用尽可避免再次进入本分支死循环
+        "desc": "四号谷地已售罄：判断调度券是否已超过上限",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -304,61 +303,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockResetListViewValleyIV",
-            "AutoStockResetListViewViaLastValleyIV",
             "AutoStockStockBillOverflowValleyIV",
             "EmptyNode"
-        ]
-    },
-    "AutoStockResetListViewValleyIV": {
-        "desc": "四号谷地重置列表：点击第一个分类图标回到顶部",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    10,
-                    120,
-                    50,
-                    480
-                ],
-                "template": "AutoStockStaple/CategoryFirstButton.png",
-                "threshold": 0.85
-            }
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "Click"
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoStockStockBillOverflowValleyIV",
-            "EmptyNode"
-        ]
-    },
-    "AutoStockResetListViewViaLastValleyIV": {
-        "desc": "四号谷地第一个分类已选中时：先点最后一个分类再点第一个，强制列表回到顶部",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    10,
-                    120,
-                    50,
-                    480
-                ],
-                "template": "AutoStockStaple/CategoryLastButton.png",
-                "threshold": 0.85
-            }
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "Click"
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoStockResetListViewValleyIV"
         ]
     },
     "AutoStockStockBillOverflowValleyIV": {
