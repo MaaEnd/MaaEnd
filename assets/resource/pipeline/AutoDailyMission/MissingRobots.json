@@ -594,7 +594,7 @@
             ]
         },
         "next": [
-            "AutoDailyMissionCheckFinished"
+            "AutoDailyMissionWaitSnsPopup"
         ],
         "focus": {
             "Node.Action.Succeeded": "$task.AutoDailyMission.focus.beacon_arrived"
@@ -681,16 +681,52 @@
                     "target": [
                         628.704,
                         972.609
-                    ]
+                    ],
+                    // 信标旁有升降索，F 会落在「使用」上，只认提示不按键
+                    "interact_rec": true
                 }
             ]
         },
         "next": [
+            "AutoDailyMissionMissingRobotsPlaceBeaconAltClick",
             "AutoDailyMissionMissingRobotsRouteSouthernMeadowsBeacon3"
         ],
         "focus": {
             "Node.Action.Succeeded": "$task.AutoDailyMission.focus.beacon_arrived"
         }
+    },
+    "AutoDailyMissionMissingRobotsPlaceBeaconAltClick": {
+        "desc": "按住 Alt 点选放置定位信标，直到提示消失",
+        "recognition": "And",
+        "all_of": [
+            "AutoDailyMissionMissingRobotsPlaceBeaconText"
+        ],
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "custom_action": "AutoAltClickAction",
+            "wait_node": "AutoDailyMissionMissingRobotsPlaceBeaconText"
+        },
+        "next": [
+            "AutoDailyMissionMissingRobotsRouteSouthernMeadowsBeacon3"
+        ]
+    },
+    "AutoDailyMissionMissingRobotsPlaceBeaconText": {
+        "desc": "交互提示里有放置定位信标",
+        "recognition": "OCR",
+        "roi": [
+            755,
+            330,
+            297,
+            312
+        ],
+        "expected": [
+            "^放置定位信标$",
+            "^放置定位信標$",
+            "(?i)^Place\\s*positioning\\s*beacon$",
+            "^ビーコンを設置$",
+            "^위치\\s*신호기\\s*배치$"
+        ]
     },
     "AutoDailyMissionMissingRobotsRouteSouthernMeadowsBeacon3": {
         "desc": "走到南部草甸附近的第三个定位信标，有敌人时先自动战斗",
@@ -746,7 +782,7 @@
             ]
         },
         "next": [
-            "AutoDailyMissionCheckFinished"
+            "AutoDailyMissionWaitSnsPopup"
         ],
         "focus": {
             "Node.Action.Succeeded": "$task.AutoDailyMission.focus.beacon_arrived"
@@ -898,7 +934,7 @@
             ]
         },
         "next": [
-            "AutoDailyMissionCheckFinished"
+            "AutoDailyMissionWaitSnsPopup"
         ],
         "focus": {
             "Node.Action.Succeeded": "$task.AutoDailyMission.focus.beacon_arrived"
@@ -1053,7 +1089,7 @@
             ]
         },
         "next": [
-            "AutoDailyMissionCheckFinished"
+            "AutoDailyMissionWaitSnsPopup"
         ],
         "focus": {
             "Node.Action.Succeeded": "$task.AutoDailyMission.focus.beacon_arrived"
@@ -1188,7 +1224,7 @@
             ]
         },
         "next": [
-            "AutoDailyMissionCheckFinished"
+            "AutoDailyMissionWaitSnsPopup"
         ],
         "focus": {
             "Node.Action.Succeeded": "$task.AutoDailyMission.focus.beacon_arrived"

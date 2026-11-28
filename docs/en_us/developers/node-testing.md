@@ -20,7 +20,8 @@ tests/
 |  |- Win32/Official_CN/*.png
 |  |- Win32/Official_CN/<image subdirectory>/*.png
 |  |- ADB/Official_CN/*.png
-|  `- CloudADB/Official_CN/*.png
+|  |- CloudADB/Official_CN/*.png
+|  `- CloudWeb/Official_CN/*.png
 |- Common/Button/test_close_button.json
 |- DeliveryJobs/test_region.json
 `- ...
@@ -37,6 +38,7 @@ With the current config:
 - `controller = "Win32"` maps to `tests/MaaEndTestset/Win32/`.
 - `controller = "ADB"` maps to `tests/MaaEndTestset/ADB/`.
 - `controller = "CloudADB"` maps to `tests/MaaEndTestset/CloudADB/`.
+- `controller = "CloudWeb"` maps to `tests/MaaEndTestset/CloudWeb/`.
 - `controller = ["Win32", "ADB"]` runs the same cases once under each controller directory.
 - `resource = "官服"` maps to `tests/MaaEndTestset/*/Official_CN/`.
 - When `configs.imageRoot = "RestaurantDaily"`, images are read from `tests/MaaEndTestset/*/Official_CN/RestaurantDaily/`.

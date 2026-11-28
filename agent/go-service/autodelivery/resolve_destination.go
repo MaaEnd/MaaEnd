@@ -25,6 +25,8 @@ const (
 	closeRewardDialogNode        = "AutoDeliveryCloseRewardDialog"
 	// destinationZiplineRequiredFocusKey 是「只能坐滑索抵达、但用户选择步行」时讲给用户的原因。
 	destinationZiplineRequiredFocusKey = "autodelivery.focus.destination_zipline_required"
+	// destinationZiplineNavFailedFocusKey 是「只能坐滑索抵达、已开滑索但寻路失败」时提醒用户检查滑索坐标。
+	destinationZiplineNavFailedFocusKey = "autodelivery.focus.destination_zipline_nav_failed"
 )
 
 // AutoDeliveryResolveDestinationAction 根据 Pipeline OCR 文本或已确认的终点 ID 选择对应的生成路线节点。
@@ -171,6 +173,11 @@ func destinationDisplayName(dest destination) string {
 }
 
 func buildDestinationNavigationOverride(dest destination, zip bool) map[string]any {
+	// 只能坐滑索抵达的终点寻路失败，多半是没导入滑索坐标或坐标已过期；其余终点写空 map，清掉上一单的提示。
+	navigateFocus := map[string]any{}
+	if dest.ZiplineOnly && zip {
+		navigateFocus["Node.Action.Failed"] = i18n.T(destinationZiplineNavFailedFocusKey, destinationDisplayName(dest))
+	}
 	override := map[string]any{
 		afterResolveDestinationNode: map[string]any{
 			"next": defaultDestinationFlow(),
@@ -180,6 +187,7 @@ func buildDestinationNavigationOverride(dest destination, zip bool) map[string]a
 			"custom_action_param": map[string]any{
 				"sub": []string{selectRouteNode(dest.RouteNode, dest.ZipRouteNode, zip, dest.WalkOnly)},
 			},
+			"focus": navigateFocus,
 		},
 		retryNavigateDestinationNode: map[string]any{
 			"enabled": false,

@@ -118,8 +118,8 @@
             "type": "Click",
             "param": {
                 "target": [
-                    462,
-                    491
+                    463,
+                    490
                 ]
             }
         },
@@ -166,8 +166,8 @@
             "type": "Click",
             "param": {
                 "target": [
-                    394,
-                    415
+                    397,
+                    409
                 ]
             }
         },
@@ -271,8 +271,28 @@
             "__ScenePrivateMapAnyEnterMap_region02_map02_lv010_Success"
         ]
     },
+    "__ScenePrivateMapOverview_region02_EnterMap_map02_lv011": {
+        "desc": "在武陵总览界面，点击进入旧水坝地图",
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    237,
+                    513
+                ]
+            }
+        },
+        "next": [
+            "__ScenePrivateMapAnyEnterMap_region02_map02_lv011_Success"
+        ]
+    },
     "__ScenePrivateMapAnyEnterMap_region02_indie_dg016_Success": {
         "desc": "在地图界面，成功进入武陵-遂明地图；待实现地图成功确认，实现后启用",
+        "enabled": false
+    },
+    "__ScenePrivateMapAnyEnterMap_region02_map02_lv011_Success": {
+        "desc": "在地图界面，成功进入武陵-旧水坝地图；待实现地图成功确认，实现后启用",
         "enabled": false
     }
 }

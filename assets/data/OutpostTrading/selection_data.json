@@ -568,6 +568,15 @@
                 "ja_jp": "プチエナ",
                 "ko_kr": "푸치나"
             }
+        },
+        "Kay": {
+            "names": {
+                "zh_cn": "小刻",
+                "zh_tw": "小刻",
+                "en_us": "Kay",
+                "ja_jp": "ケーちゃん",
+                "ko_kr": "케르"
+            }
         }
     },
     "location_order": [
@@ -649,6 +658,11 @@
                     "name": "Laevatain",
                     "bonus_tier": 0,
                     "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "Kay",
+                    "bonus_tier": 1,
+                    "outpost_prosperity_max_bonus_tier": 1
                 },
                 {
                     "name": "Typhoeus",
@@ -923,6 +937,11 @@
                     "outpost_prosperity_max_bonus_tier": 1
                 },
                 {
+                    "name": "Kay",
+                    "bonus_tier": 1,
+                    "outpost_prosperity_max_bonus_tier": 1
+                },
+                {
                     "name": "Typhoeus",
                     "bonus_tier": 1,
                     "outpost_prosperity_max_bonus_tier": 1
@@ -1052,6 +1071,11 @@
                 },
                 {
                     "name": "Wulfgard",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "Kay",
                     "bonus_tier": 2,
                     "outpost_prosperity_max_bonus_tier": 0
                 },
@@ -1302,6 +1326,11 @@
                     "name": "Xaihi",
                     "bonus_tier": 1,
                     "outpost_prosperity_max_bonus_tier": 1
+                },
+                {
+                    "name": "Kay",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
                 },
                 {
                     "name": "Typhoeus",

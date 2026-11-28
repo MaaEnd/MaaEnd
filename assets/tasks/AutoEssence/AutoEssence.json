@@ -147,7 +147,6 @@
                     "option": [
                         "AutoEssenceChooseLocation",
                         "AutoEssenceObtainMode",
-                        "AutoEssenceDiscardOthers",
                         "AutoEssenceRepeatCount"
                     ],
                     // 随机模式不配置预刻写词条：跳过条件检查/调整，直接开刷；
@@ -167,7 +166,6 @@
                     "option": [
                         "AutoEssenceSelectLocation",
                         "AutoEssenceObtainModeClaimOnly",
-                        "AutoEssenceDiscardOthers",
                         "AutoEssenceRepeatCount"
                     ]
                 },
@@ -204,6 +202,13 @@
                             "focus": {
                                 "Node.Action.Starting": "🎉**目标模式：基质目标已满足或任务结束**"
                             }
+                        },
+                        // 只有目标模式扫描战利品
+                        "EssenceFilterAfterBattleStart": {
+                            "enabled": true
+                        },
+                        "AutoEssenceAfterBattleRunEndLootReport": {
+                            "enabled": true
                         }
                     }
                 }
@@ -213,7 +218,6 @@
         "AutoEssenceObtainMode": {
             "type": "select",
             "label": "$option.AutoEssenceObtainMode.label",
-            "description": "$option.AutoEssenceObtainMode.description",
             "cases": [
                 {
                     "name": "Discard",
@@ -292,7 +296,6 @@
         "AutoEssenceObtainModeClaimOnly": {
             "type": "select",
             "label": "$option.AutoEssenceObtainMode.label",
-            "description": "$option.AutoEssenceObtainMode.description",
             "cases": [
                 {
                     "name": "ObtainScaling1",

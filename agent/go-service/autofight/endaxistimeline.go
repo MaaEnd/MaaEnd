@@ -646,6 +646,28 @@ func scenarioMatchesEndSkill(sc *timelineScenarioRaw, endSkillFull []int, charac
 	return true
 }
 
+// HasUltimateFreeScenario 判断是否存在一个不含任何终结技、但有可派发动作的 scenario。
+// 没有这样的 scenario 时，终结技全部未充能的情况下无法匹配任何方案。
+func (t *EndAxisTimeline) HasUltimateFreeScenario() bool {
+	if t.root == nil {
+		return false
+	}
+	for i := range t.root.ScenarioList {
+		sc := &t.root.ScenarioList[i]
+		hasUltimate := false
+		for j := range sc.Data.Tracks {
+			if trackHasUltimate(&sc.Data.Tracks[j]) {
+				hasUltimate = true
+				break
+			}
+		}
+		if !hasUltimate && len(collectTimelineActions(sc)) > 0 {
+			return true
+		}
+	}
+	return false
+}
+
 func trackHasUltimate(track *timelineTrackRaw) bool {
 	for i := range track.Actions {
 		if track.Actions[i].Type == "ultimate" {

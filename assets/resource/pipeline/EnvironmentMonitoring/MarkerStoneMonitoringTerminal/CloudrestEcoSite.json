@@ -351,7 +351,7 @@
         "custom_recognition_param": {
             "zone_id": "Wuling_Base",
             "target": [
-                598,
+                694,
                 2336,
                 60,
                 48
@@ -394,21 +394,21 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        636.32,
+                        732.32,
                         2331.84
                     ]
                 },
                 {
                     "action": "NAVMESH",
                     "target": [
-                        590.94,
+                        686.94,
                         2346.75
                     ]
                 },
                 {
                     "action": "NAVMESH",
                     "target": [
-                        430.6,
+                        526.6,
                         2398.33
                     ]
                 },
@@ -447,7 +447,7 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        430.6,
+                        526.6,
                         2398.33
                     ]
                 },

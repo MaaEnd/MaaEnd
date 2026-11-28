@@ -42,18 +42,34 @@ _RECYCLE_INTERACTIVE_ID = "int_doodad_core_recycle"
 _RECYCLE_SYSTEM_COMPONENT = "RecycleBinSystemComponent"
 
 
-def _build_mark_index(level_map_mark: dict[str, list[LevelMark]]) -> dict[str, LevelMarkBasic]:
-    """LevelMapMark（{level: [mark...]}）-> {markInstId: basicData}。"""
-    index: dict[str, LevelMarkBasic] = {}
+def _build_mark_index(level_map_mark: dict[str, list[LevelMark]]) -> dict[str, list[LevelMarkBasic]]:
+    """LevelMapMark（{level: [mark...]}）-> {markInstId: [basicData, ...]}。
+
+    同一个 markInstId 在游戏数据里可能挂着两条不同的标记：旧水坝（``42200070000``）的采集点与配方宝箱就
+    共用 ``42200071016``，位置还不一样。这份数据只查仓储节点与回收站的 id，别的重复跟送货目的地无关，所以
+    按 id 收成列表、真要用时再挑（见 :func:`_mark_of`），不拿一条无关的重复把整份数据挡下来。
+    """
+    index: dict[str, list[LevelMarkBasic]] = {}
     for level_key in sorted(level_map_mark):
         for mark in level_map_mark[level_key]:
             basic = mark.basic_data
             if not basic.mark_inst_id:
                 continue
-            if basic.mark_inst_id in index:
-                raise DatasetError(f"标记 {basic.mark_inst_id} 在 LevelMapMark 中重复")
-            index[basic.mark_inst_id] = basic
+            index.setdefault(basic.mark_inst_id, []).append(basic)
     return index
+
+
+def _mark_of(index: dict[str, list[LevelMarkBasic]], mark_id: str, label: str) -> LevelMarkBasic | None:
+    """按 id 取那条标记；同一个 id 有多条、位置还不一样时报错（没法确定用哪条）。"""
+    candidates = index.get(mark_id)
+    if not candidates:
+        return None
+    first = candidates[0]
+    for other in candidates[1:]:
+        if (other.pos.x, other.pos.y, other.pos.z) != (first.pos.x, first.pos.y, first.pos.z):
+            places = "、".join(f"({basic.pos.x}, {basic.pos.y}, {basic.pos.z})" for basic in candidates)
+            raise DatasetError(f"{label} {mark_id} 在 LevelMapMark 里有 {len(candidates)} 条不同位置的记录：{places}")
+    return first
 
 
 def _build_depots_by_level(depot_table: dict[str, DomainDepotRow]) -> dict[str, str]:
@@ -175,7 +191,7 @@ class DeliveryDestinations(Dataset):
                 raise DatasetError(f"仓储节点 {depot_id} 的 refLevelId {level_id!r} 不是 mapXX_lvYYY")
             map_id = level_id.split("_")[0]
 
-            basic = mark_index.get(depot_id)
+            basic = _mark_of(mark_index, depot_id, "仓储节点")
             if basic is None:
                 raise DatasetError(f"仓储节点 {depot_id} 在 LevelMapMark 中没有同名标记")
             depots.append(
@@ -231,7 +247,7 @@ class DeliveryDestinations(Dataset):
                 raw_yaw: float | None = npc.rotation.y
                 serial_id: int | None = None
             else:
-                basic = mark_index.get(entity_key)
+                basic = _mark_of(mark_index, entity_key, f"{label} 对应的回收站")
                 if basic is None:
                     raise DatasetError(f"{label} 在 LevelMapMark 中没有 {entity_key}")
                 x, y, z = basic.pos.x, basic.pos.y, basic.pos.z

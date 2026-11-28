@@ -874,3 +874,34 @@ jobs:
           environment: ${{ needs.meta.outputs.is_prerelease == 'true' && 'beta' || 'stable' }}
           release: ${{ steps.sentry_release.outputs.android_release }}
           set_commits: skip
+
+  # 正式稳定版全部产物上传完成后，触发官网重新构建部署；不传 release_tag，
+  # 由官网自动按 SemVer 为各平台/架构选取最新稳定版（避免旧版滞后重试回退）
+  update_website:
+    if: >-
+      ${{
+        needs.meta.outputs.is_release == 'true' &&
+        needs.meta.outputs.is_prerelease == 'false' &&
+        github.repository_owner == 'MaaEnd'
+      }}
+    needs: [meta, release]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate MaaEndBot GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ vars.MAAEND_BOT_APP_CLIENT_ID }}
+          private-key: ${{ secrets.MAAEND_BOT_APP_PRIVATE_KEY }}
+          owner: MaaEnd
+          repositories: maaend-website
+          permission-actions: write
+
+      - name: Trigger website deploy
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          gh workflow run deploy.yml \
+            --repo MaaEnd/maaend-website \
+            --ref main \
+            -f deploy-to-prod=true

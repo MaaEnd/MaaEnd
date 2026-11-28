@@ -19,7 +19,7 @@
 | 终端分组（生成） | `assets/resource/pipeline/EnvironmentMonitoring/Terminals.json` | 城郊监测终端 / 首墩监测终端的入口节点与各自的观察点 `next` 列表（**生成**） |
 | 终端跳转 | `assets/resource/pipeline/EnvironmentMonitoring/Locations.json` | `EnvironmentMonitoringGoTo*` 与 `Select*` 节点，从主菜单进入对应终端 |
 | 拍照流程 | `assets/resource/pipeline/EnvironmentMonitoring/TakePhoto.json` | 进入拍照模式、调整朝向、识别拍照按钮、达成目标后回到终端 |
-| 镜头扫描 | `assets/resource/pipeline/EnvironmentMonitoring/TakePhoto.json`、`agent/go-service/common/camerascan/` | 前方九宫格扫描，未命中时按中、上、下三档俯仰离散绕圈 |
+| 镜头扫描 | `assets/resource/pipeline/EnvironmentMonitoring/TakePhoto.json`、`agent/go-service/common/camerascan/` | 前方 5 × 5 网格扫描，未命中时按中、上、下三档俯仰离散绕圈 |
 | 公共按钮 | `assets/resource/pipeline/EnvironmentMonitoring/Button.json` | `TrackMissionButton` 等环境监测专用通用按钮 |
 | 观察点节点（生成） | `assets/resource/pipeline/EnvironmentMonitoring/{Station}/{Id}.json` | **每个观察点一份 JSON**，由模板渲染（**生成**）；`Id` 由 `model.mjs` 自动生成，通常不用手写 |
 | 观察点模板 | `tools/pipeline-generate/EnvironmentMonitoring/generator/template.json` | 单观察点 Pipeline 模板（识别文本、接取/前往、传送、寻路、拍照） |
@@ -106,7 +106,7 @@ TakePhoto                            （公共拍照接口，见 Interface/TakeP
 >
 > - `TakePhotoDone` → 当前观察点所属终端的 `EnvironmentMonitoringGoTo{Station}` 节点（拍完回到正确终端）
 >
-> 拍照目标未命中时，公共拍照接口统一调用 `__TakePhotoCameraScan`。该节点通过 `CameraScanAction` 执行九宫格与 fallback 镜头扫描，不再按观察点生成调整镜头的 anchor。
+> 拍照目标未命中时，公共拍照接口统一调用 `__TakePhotoCameraScan`。该节点通过 `CameraScanAction` 执行 5 × 5 网格与 fallback 镜头扫描，不再按观察点生成调整镜头的 anchor。
 
 ## 命名规则
 
@@ -336,7 +336,7 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 - `NavZoneId` 填 MapLocate 的 `zone_id`（如 `Wuling_Base`），它决定 `NavAssert` 坐标按哪个分区解释；终点落在分层平台上时，`NavPath` 里的 `NAVMESH` 动作按 tier 坐标写并带上 `target_tier`；目标点存在上下重叠面时带上工具选出的 `target_deck_y`。
 - `routes.json` 中 `NavPath` 的前置 `ZONE` 表示传送落地后角色所在的地图，`FightAfterMove` 的前置 `ZONE` 表示清场结束、开始归位时所在的地图，供 WebUI 选择初始地图；必须按实测填写，不能从终点坐标推断。`target_tier` 只解释目标点坐标系，不代表传送落地地图。多分区或过图路径还应保留录制工具导出的必要 `ZONE`。
 
-- 站位是否能让 `TakePhoto` 正常进入拍照模式。目标未命中时会自动执行公共九宫格 + fallback 镜头扫描，无需记录单向滑屏配置。
+- 站位是否能让 `TakePhoto` 正常进入拍照模式。目标未命中时会自动执行公共 5 × 5 网格 + fallback 镜头扫描，无需记录单向滑屏配置。
 
 ### 5. 重新生成 Pipeline
 

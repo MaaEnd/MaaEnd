@@ -57,15 +57,13 @@ struct NavmeshAirLine
     navmesh::OccluderPoint b;
 };
 
-// 空结果表示有线通畅或无从判断, 调用方一律当通过, 被挡的组每条线给一个离起点最近的命中
-std::vector<std::vector<navmesh::OccluderHit>>
-    NavmeshLineGroupBlocks(const NaviParam& param, const std::string& locator_zone, const std::vector<std::vector<NavmeshAirLine>>& groups);
+// 空结果表示通畅或无从判断, 调用方一律当通过, 被挡的线给离起点最近的命中
+std::vector<std::optional<navmesh::OccluderHit>>
+    NavmeshLineBlocks(const NaviParam& param, const std::string& locator_zone, const std::vector<NavmeshAirLine>& lines);
 
 // 结果与 bases 同形, 无从判断时保留原 y
-std::vector<std::vector<double>> NavmeshGroundHeights(
-    const NaviParam& param,
-    const std::string& locator_zone,
-    const std::vector<std::vector<navmesh::OccluderPoint>>& bases);
+std::vector<double>
+    NavmeshGroundHeights(const NaviParam& param, const std::string& locator_zone, const std::vector<navmesh::OccluderPoint>& bases);
 
 // 两点的连通类集合不相交就必然规划不通, 空集表示无从判断, 应当允许尝试
 std::vector<std::vector<uint32_t>>

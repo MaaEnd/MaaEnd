@@ -638,6 +638,7 @@ export default function buildDeliveryJobsTask() {
                 controller: [
                     "ADB",
                     "CloudADB",
+                    "CloudWeb",
                     "Linux-Gamescope",
                     "Linux-ScreenCast",
                     "Linux-Wlroots",

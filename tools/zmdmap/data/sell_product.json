@@ -1,6 +1,6 @@
 {
-    "version": "1.6.4+11529267-11",
-    "sha256": "ca4f2663a739e4b833af7bc0e838e1025b509a0010becbf38483d4f013a539ba",
+    "version": "1.7.2+12026241-3",
+    "sha256": "a24f10ab646367e5823d0883c972fcc7fdc26b77226278a0dcdd5ace1357b5b3",
     "items": {
         "item_activity_xiranite_enr_hulu": {
             "id": "item_activity_xiranite_enr_hulu",
@@ -683,6 +683,16 @@
                 "ja_jp": "プチエナ",
                 "ko_kr": "푸치나"
             }
+        },
+        "chr_0040_sweetpie": {
+            "id": "chr_0040_sweetpie",
+            "names": {
+                "zh_cn": "小刻",
+                "zh_tw": "小刻",
+                "en_us": "Kay",
+                "ja_jp": "ケーちゃん",
+                "ko_kr": "케르"
+            }
         }
     },
     "settlements": {
@@ -954,7 +964,8 @@
                         "chr_0028_wulfa",
                         "chr_0032_lizhiyan",
                         "chr_0034_typhoea",
-                        "chr_0037_minghe"
+                        "chr_0037_minghe",
+                        "chr_0040_sweetpie"
                     ]
                 },
                 {
@@ -1503,7 +1514,8 @@
                         "chr_0028_wulfa",
                         "chr_0032_lizhiyan",
                         "chr_0034_typhoea",
-                        "chr_0037_minghe"
+                        "chr_0037_minghe",
+                        "chr_0040_sweetpie"
                     ]
                 },
                 {
@@ -1725,7 +1737,8 @@
                         "chr_0016_laevat",
                         "chr_0025_ardelia",
                         "chr_0029_pograni",
-                        "chr_0034_typhoea"
+                        "chr_0034_typhoea",
+                        "chr_0040_sweetpie"
                     ]
                 },
                 {
@@ -2101,7 +2114,8 @@
                         "chr_0016_laevat",
                         "chr_0025_ardelia",
                         "chr_0029_pograni",
-                        "chr_0034_typhoea"
+                        "chr_0034_typhoea",
+                        "chr_0040_sweetpie"
                     ]
                 },
                 {

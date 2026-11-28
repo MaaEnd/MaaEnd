@@ -21,7 +21,7 @@
             "[JumpBack]AutoStockBuyItemWulingTaskDaily",
             "[JumpBack]AutoStockBuyItemWulingTaskIndustrial",
             "[JumpBack]AutoStockBuyItemWulingTaskCultural",
-            "SoldOut",
+            "AutoStockSoldOutWuling",
             "[JumpBack]AutoStockSwipeWuling",
             "AutoStockNoMoreTargetWuling"
         ]
@@ -313,5 +313,61 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
+    },
+    // 售罄后按右上角「余额/上限」判断券是否溢出：溢出时播报提示，否则空节点接住，两种情况都结束本地区扫描。
+    "AutoStockSoldOutWuling": {
+        "desc": "武陵已售罄：判断调度券是否已超过上限",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    274,
+                    720
+                ],
+                "expected": [
+                    "已售罄",
+                    "已售完",
+                    "(?i)Sold\\s*Out",
+                    "完売"
+                ],
+                "replace": [
+                    "馨",
+                    "罄"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStockBillOverflowWuling",
+            "EmptyNode"
+        ]
+    },
+    "AutoStockStockBillOverflowWuling": {
+        "desc": "武陵调度券余额大于上限（券已溢出）",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "{AutoStockCurrentStockBill}>{AutoStockCurrentStockBillCap}"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": {
+                "content": "$task.AutoStockStaple.focus.stock_bill_overflow.wuling",
+                "display": [
+                    "log",
+                    "notification"
+                ]
+            }
+        }
     }
 }

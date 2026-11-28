@@ -142,17 +142,17 @@ Action 节点用于执行自定义动作。常见写法如下：
 
 ### CameraScanAction
 
-`CameraScanAction` 实现位于 `agent/go-service/common/camerascan`，用于在拍照模式中分步移动镜头并识别目标。动作从中心按九宫格螺旋扫描前方区域；仍未命中时，复位镜头并按中、上、下三档俯仰分别离散旋转一圈。每一步移动前、后各截图识别一次（一步可能连续移动多格，中间不识别），复位那一步不识别；任一目标命中即成功，完整扫描后仍未命中则失败。
+`CameraScanAction` 实现位于 `agent/go-service/common/camerascan`，用于在拍照模式中分步移动镜头并识别目标。动作从中心按 5 × 5 螺旋扫描前方区域，每个机位相差一个方向节点的一步（半格，约 22.5°）；仍未命中时，摇回中心并按中、上、下三档俯仰分别转一圈（每圈 8 次转动、每次 2 步，合计约一整圈）。每个机位移动后只识别一次（一步可能连续移动多格，中间不识别），摇回中心那一步不识别；任一目标命中即成功，完整扫描后仍未命中则失败。
 
-- `wait_nodes: string[]`：每一步移动前、后检查的 Pipeline 识别节点，必填；任一节点命中即成功。复位那一步不检查。
+- `wait_nodes: string[]`：每个机位移动后检查的 Pipeline 识别节点，必填；任一节点命中即成功。摇回中心那一步不检查。
 - `aim_target?: bool`：命中后是否从屏幕中心滑向该识别结果的 `Box` 中心，默认 `false`。
 - `move_up?: string`：上移镜头节点，默认 `__CameraScanMoveUp`。
 - `move_down?: string`：下移镜头节点，默认 `__CameraScanMoveDown`。
 - `move_left?: string`：左移镜头节点，默认 `__CameraScanMoveLeft`。
 - `move_right?: string`：右移镜头节点，默认 `__CameraScanMoveRight`。
-- `fallback_yaw_steps?: int`：fallback 每档俯仰绕圈的离散步数，默认 `8`，范围 `[4, 72]`。
+- `fallback_yaw_steps?: int`：fallback 每档俯仰绕圈的离散步数，默认 `8`（每步 2 个方向节点步，8 步约一整圈），范围 `[4, 72]`。
 
-镜头移动通过 `ctx.RunTask` 执行对应方向节点（默认节点见 `Common/Private/CameraScan/Action.json`）。需要等待画面静止时，在调用方自定义的方向节点上配置 `post_wait_freezes`。对准目标时仍使用私有节点 `__CameraScanAimSwipe`。
+镜头移动通过 `ctx.RunTask` 执行对应方向节点（默认节点见 `Common/Private/CameraScan/Action.json`）。方向节点默认带 `post_wait_freezes`（`time` 40ms、`timeout` 200ms、阈值 0.95、`rate_limit` 40ms）：滑屏结束后等画面静止再返回，避免拿镜头还在转的那一帧去做识别。比较区域写的是拍照停止节点 `__TakePhotoShutter` 的搜索范围并集 `[0, 100, 1174, 580]`，不是全屏——全屏会把界面动画一起算进去，导致每格都等满 `timeout`。换用别的 `wait_nodes` 时，把这几个方向节点的 `target` 改成对应节点的 `roi`，或改用自定义方向节点。每格都等一次，嫌慢可以调小 `timeout`。对准目标时仍使用私有节点 `__CameraScanAimSwipe`。
 
 ### PipelineOverride
 

@@ -1,0 +1,22 @@
+{
+    "configs": {
+        "name": "转交委托，测试装满货物后的下一步",
+        "resource": "官服",
+        "controller": [
+            "Win32",
+            "CloudWeb",
+            "ADB",
+            "CloudADB"
+        ],
+        "imageRoot": "DeliveryJobs"
+    },
+    "cases": [
+        {
+            "name": "装满货物后点下一步",
+            "image": "货物装箱完成.png",
+            "hits": [
+                "DeliveryJobsFillToMaxNextStep"
+            ]
+        }
+    ]
+}

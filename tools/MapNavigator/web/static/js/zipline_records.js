@@ -108,22 +108,6 @@ function ziplineType(frameConfig, templateId) {
   );
 }
 
-function typeFootprint(type) {
-  if (!type || !Array.isArray(type.footprint)) {
-    return [
-      1,
-      1,
-    ];
-  }
-  if (
-    type.footprint.length !== 2 ||
-    type.footprint.some((value) => !Number.isInteger(Number(value)) || Number(value) <= 0 || Number(value) % 2 === 0)
-  ) {
-    return null;
-  }
-  return type.footprint.map(Number);
-}
-
 /**
  * Reproduce only the runtime's tower-to-tower geometric span check. Power,
  * reachability, floor snapping, banned edges, and route cost remain runtime-only.
@@ -156,22 +140,8 @@ export function measureZiplinePair(lhs, rhs, frameConfig) {
   const sameTemplate = String((lhs && lhs.templateId) || "") === String((rhs && rhs.templateId) || "");
   const sameLevel = String((lhs && lhs.levelId) || "") === String((rhs && rhs.levelId) || "");
   const lhsType = ziplineType(frameConfig, lhs && lhs.templateId);
-  const rhsType = ziplineType(frameConfig, rhs && rhs.templateId);
   const type = sameTemplate ? lhsType : null;
   const maxSpan = type ? finiteNumber(type.max_span) : null;
-  const lhsFootprint = typeFootprint(lhsType);
-  const rhsFootprint = typeFootprint(rhsType);
-  const footprint = lhsFootprint && rhsFootprint;
-  const uncertaintyX = footprint ? (lhsFootprint[0] + rhsFootprint[0] - 2) / 2 : null;
-  const uncertaintyZ = footprint ? (lhsFootprint[1] + rhsFootprint[1] - 2) / 2 : null;
-  const minimumDeltaX = hasWorld && uncertaintyX !== null ? Math.max(Math.abs(dx) - uncertaintyX, 0) : null;
-  const maximumDeltaX = hasWorld && uncertaintyX !== null ? Math.abs(dx) + uncertaintyX : null;
-  const minimumDeltaZ = hasWorld && uncertaintyZ !== null ? Math.max(Math.abs(dz) - uncertaintyZ, 0) : null;
-  const maximumDeltaZ = hasWorld && uncertaintyZ !== null ? Math.abs(dz) + uncertaintyZ : null;
-  const minimumWorldDistance = hasWorld && footprint ? Math.hypot(minimumDeltaX, dy, minimumDeltaZ) : null;
-  const maximumWorldDistance = hasWorld && footprint ? Math.hypot(maximumDeltaX, dy, maximumDeltaZ) : null;
-  const minimumHorizontalDistance = hasWorld && footprint ? Math.hypot(minimumDeltaX, minimumDeltaZ) : null;
-  const maximumHorizontalDistance = hasWorld && footprint ? Math.hypot(maximumDeltaX, maximumDeltaZ) : null;
   let geometryConnected = null;
   let geometryReason = "缺少世界坐标，无法判断几何连接";
   if (hasWorld && !sameTemplate) {
@@ -183,14 +153,11 @@ export function measureZiplinePair(lhs, rhs, frameConfig) {
   } else if (hasWorld && !(maxSpan > 0)) {
     geometryConnected = false;
     geometryReason = "该滑索架类型没有有效跨度配置";
-  } else if (hasWorld && !footprint) {
-    geometryConnected = false;
-    geometryReason = "该滑索架类型没有有效占地配置";
   } else if (hasWorld) {
-    geometryConnected = minimumWorldDistance <= maxSpan;
+    geometryConnected = worldDistance <= maxSpan;
     geometryReason = geometryConnected
-      ? `最小可能跨度 ${minimumWorldDistance.toFixed(2)} m 不超过 ${maxSpan.toFixed(2)} m 上限`
-      : `最小可能跨度 ${minimumWorldDistance.toFixed(2)} m 超出 ${maxSpan.toFixed(2)} m 上限`;
+      ? `跨度 ${worldDistance.toFixed(2)} m 不超过 ${maxSpan.toFixed(2)} m 上限`
+      : `跨度 ${worldDistance.toFixed(2)} m 超出 ${maxSpan.toFixed(2)} m 上限`;
   }
 
   return {
@@ -198,12 +165,6 @@ export function measureZiplinePair(lhs, rhs, frameConfig) {
     worldDistance,
     horizontalDistance,
     heightDelta,
-    minimumWorldDistance,
-    maximumWorldDistance,
-    minimumHorizontalDistance,
-    maximumHorizontalDistance,
-    uncertaintyX,
-    uncertaintyZ,
     deltaX: dx,
     deltaY: dy,
     deltaZ: dz,

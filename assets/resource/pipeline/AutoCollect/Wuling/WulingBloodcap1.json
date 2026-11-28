@@ -24,10 +24,10 @@
         "recognition": "Custom",
         "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "zone_id": "Wuling_L4_328",
+            "zone_id": "Wuling_Base",
             "target": [
-                238.28,
-                204.47,
+                590.28,
+                2572.47,
                 40.0,
                 40.0
             ]
@@ -52,82 +52,73 @@
                         {
                             "action": "NAVMESH",
                             "target": [
-                                243.84,
-                                105.42
+                                595.84,
+                                2473.42
                             ],
-                            "target_deck_y": 275.04,
-                            "target_tier": "Wuling_L4_328"
+                            "target_deck_y": 275.04
                         },
                         {
                             "action": "COLLECT",
                             "target": [
-                                243.84,
-                                105.42
+                                595.84,
+                                2473.42
                             ],
-                            "target_tier": "Wuling_L4_328",
                             "strict": true
                         },
                         {
                             "action": "COLLECT",
                             "target": [
-                                242.03,
-                                101.2
+                                594.03,
+                                2469.2
                             ],
-                            "target_tier": "Wuling_L4_328",
                             "strict": true
                         },
                         {
                             "action": "COLLECT",
                             "target": [
-                                238.36,
-                                99.84
+                                590.36,
+                                2467.84
                             ],
-                            "target_tier": "Wuling_L4_328",
                             "strict": true
                         },
                         {
                             "action": "COLLECT",
                             "target": [
-                                236.69,
-                                101.22
+                                588.69,
+                                2469.22
                             ],
-                            "target_tier": "Wuling_L4_328",
                             "strict": true
                         },
                         {
                             "action": "COLLECT",
                             "target": [
-                                246.63,
-                                98.09
+                                598.63,
+                                2466.09
                             ],
-                            "target_tier": "Wuling_L4_328",
                             "strict": true
                         },
                         {
                             "action": "COLLECT",
                             "target": [
-                                247.66,
-                                95.53
+                                599.66,
+                                2463.53
                             ],
-                            "target_tier": "Wuling_L4_328",
                             "strict": true
                         },
                         {
                             "action": "COLLECT",
                             "target": [
-                                250.96,
-                                103.46
+                                602.96,
+                                2471.46
                             ],
-                            "target_tier": "Wuling_L4_328",
                             "strict": true
                         },
                         {
                             "action": "COLLECT",
                             "target": [
-                                250.79,
-                                104.33
+                                602.79,
+                                2472.33
                             ],
-                            "target_tier": "Wuling_L4_328",
                             "strict": true
                         }
                     ]

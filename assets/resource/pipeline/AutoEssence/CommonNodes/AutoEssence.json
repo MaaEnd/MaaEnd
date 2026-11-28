@@ -1282,7 +1282,11 @@
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "AutoAltClickAction"
+                "custom_action": "RepeatUntilNotFoundAction",
+                "custom_action_param": {
+                    "custom_action": "AutoAltClickAction",
+                    "wait_node": "AutoEssenceClickObtainButtonRecheck"
+                }
             }
         },
         "next": [
@@ -1473,7 +1477,9 @@
         "post_delay": 1000,
         "next": [
             "AutoEssenceLowSp",
-            "EssenceFilterAfterBattleStart"
+            "EssenceFilterAfterBattleStart",
+            // 战后筛选未开启（随机、地区模式）时直接离开战利品界面
+            "EssenceFilterAfterBattleExit"
         ],
         "on_error": [
             "EssenceFilterAfterBattleFailed"
@@ -1594,7 +1600,8 @@
         "post_delay": 1000,
         "next": [
             "AutoEssenceLowSpFallbackLowSp",
-            "EssenceFilterAfterBattleStart"
+            "EssenceFilterAfterBattleStart",
+            "EssenceFilterAfterBattleExit"
         ],
         "on_error": [
             "EssenceFilterAfterBattleFailed"
@@ -1669,7 +1676,8 @@
         }
     },
     "AutoEssenceAfterBattleRunEndLootReport": {
-        "desc": "战后筛选整次任务汇总：EssenceFilterFinishAction；max_hit=1 全任务仅输出一次；须由父节点以 [JumpBack] 引用以便继续后续结束流程或体力不足 StopTask",
+        "desc": "战后筛选整次任务汇总：EssenceFilterFinishAction；max_hit=1 全任务仅输出一次；须由父节点以 [JumpBack] 引用以便继续后续结束流程或体力不足 StopTask；默认关闭，只有目标模式开启",
+        "enabled": false,
         "max_hit": 1,
         "pre_delay": 0,
         "action": {

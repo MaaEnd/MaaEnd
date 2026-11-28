@@ -10,6 +10,17 @@
             "TrialOfSwordmancyQuickTeleportStart"
         ]
     },
+    "TrialOfSwordmancyEnterTrialMenuSkipTeleport": {
+        "desc": "进入选剑演武演算界面，跳过传送以节约时间，要求已在大世界演算台附近",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "TrialOfSwordmancyEnterTrialMenuSuccess",
+            "TrialOfSwordmancyClickTrialTrigger",
+            "TrialOfSwordmancyGotoTrialArena"
+        ]
+    },
     // ===========================================================================
     // 已在大世界演武台旁，直接点击交互
     // ===========================================================================
@@ -49,15 +60,11 @@
     // ===========================================================================
     "TrialOfSwordmancyGotoTrialArena": {
         "desc": "在悬谷台传送点，使用MapNavigator导航前往目标地点",
-        "recognition": "And",
-        "all_of": [
-            "TrialOfSwordmancyInSwordVaultDale"
-        ],
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
-            "arrival_timeout": 45000,
+            "heading_source": "camera",
             "path": [
                 {
                     "action": "ZONE",
@@ -66,9 +73,17 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1863.23,
-                        2847.51
+                        1959.105,
+                        2847.767
                     ]
+                },
+                {
+                    "action": "TRIGGER",
+                    "target": [
+                        1959.105,
+                        2844.967
+                    ],
+                    "trigger_node": "TrialOfSwordmancyTrialTrigger"
                 }
             ]
         },

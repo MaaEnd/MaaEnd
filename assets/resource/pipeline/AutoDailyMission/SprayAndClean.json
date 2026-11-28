@@ -201,7 +201,7 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        652.8,
+                        748.8,
                         1704.7
                     ],
                     "required": true
@@ -237,7 +237,7 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        652.7,
+                        748.7,
                         1690.0
                     ],
                     "required": true
@@ -273,7 +273,7 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        615.5,
+                        711.5,
                         1698.0
                     ],
                     // 污渍在楼梯上面的平台，停在平台上污渍前面
@@ -311,7 +311,7 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        634.4,
+                        730.4,
                         1731.5
                     ],
                     "required": true

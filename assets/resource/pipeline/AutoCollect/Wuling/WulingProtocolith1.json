@@ -52,14 +52,14 @@
                         {
                             "action": "NAVMESH",
                             "target": [
-                                1502,
+                                1598,
                                 538.13
                             ]
                         },
                         {
                             "action": "INTERACT",
                             "target": [
-                                1502,
+                                1598,
                                 538.13
                             ],
                             "interact_text": [

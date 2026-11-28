@@ -288,6 +288,10 @@
             "cases": [
                 {
                     "name": "Yes",
+                    "option": [
+                        "CraftingCategory",
+                        "CraftingRounds"
+                    ],
                     "pipeline_override": {
                         "DailyTaskCreation": {
                             "enabled": true

@@ -43,7 +43,7 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1291.18,
+                        1387.18,
                         1735.98
                     ]
                 }
@@ -86,7 +86,7 @@
             "zone": "Wuling",
             "icon": "TeleportAnchor",
             "at": [
-                1120.8,
+                1216.8,
                 1563.0
             ]
         },
@@ -114,7 +114,7 @@
             "zone": "Wuling",
             "icon": "TeleportAnchor",
             "at": [
-                1301.1,
+                1397.1,
                 1516.1
             ]
         },
@@ -142,7 +142,7 @@
             "zone": "Wuling",
             "icon": "TeleportAnchor",
             "at": [
-                1345.3,
+                1441.3,
                 1632.5
             ]
         },
@@ -170,7 +170,7 @@
             "zone": "Wuling",
             "icon": "TeleportAnchor",
             "at": [
-                1346.3,
+                1442.3,
                 1699.5
             ]
         },
@@ -199,7 +199,7 @@
             "zone": "Wuling",
             "icon": "TeleportAnchor",
             "at": [
-                1291.7,
+                1387.7,
                 1756.3
             ]
         },

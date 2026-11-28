@@ -117,7 +117,7 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        703.5,
+                        799.5,
                         1601.2
                     ],
                     "required": true

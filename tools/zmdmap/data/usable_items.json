@@ -1,6 +1,6 @@
 {
-    "version": "1.6.4+11343132-9",
-    "sha256": "32e17b74a77b0fc9ef2530b98b314909e738196ba58fa71c236a9f6ee6f808ae",
+    "version": "1.7.2+12026241-3",
+    "sha256": "b82c568ff8ae74a840f29a39252a696a0e972ea7fcd28fbe53780e09c4f70ee0",
     "items": {
         "item_agmelee_1_sp_2_slimeml_1_1": {
             "name": "爆辣焗烤源石虫",
@@ -243,7 +243,7 @@
                 "TC": "瓶裝霞莓飲",
                 "EN": "Bottled Duskberry Juice",
                 "JP": "瓶入りダスクベリーネクター",
-                "KR": "병에 담긴 노을베리"
+                "KR": "병에 담긴 노을베리 음료"
             },
             "category": "ActiveBuff",
             "iconId": "item_inn_drink_10",
@@ -269,7 +269,7 @@
                 "TC": "玉米汁",
                 "EN": "Corn Juice",
                 "JP": "コーンジュース",
-                "KR": "옥수수즙"
+                "KR": "옥수수 주스"
             },
             "category": "ActiveBuff",
             "iconId": "item_inn_drink_3",
@@ -282,7 +282,7 @@
                 "TC": "瓶裝脆蔗汁",
                 "EN": "Bottled Canejuice",
                 "JP": "瓶入りシャキキビジュース",
-                "KR": "병에 담긴 사탕수수즙"
+                "KR": "병에 담긴 사탕수수 주스"
             },
             "category": "ActiveBuff",
             "iconId": "item_inn_drink_4",
