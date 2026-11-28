@@ -282,6 +282,13 @@
             "InWorld"
         ],
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "TrialOfSwordmancyEnterTrialMenuSkipTeleport"
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
